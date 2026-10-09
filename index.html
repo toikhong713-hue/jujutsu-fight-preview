@@ -1,0 +1,152 @@
+<!-- Jujutsu Fight v16 modular build. Keep file order unchanged. -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>JUJUTSU FIGHT v16 • Modular Build</title>
+<link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+<div id="wrap">
+<canvas id="cv" width="1280" height="720"></canvas>
+<div id="trainingPanel"><b>TRAINING MODE</b><br>T — hitboxes &nbsp; Y — frame data<br>P — reset pos &nbsp; <span class="hot">B</span> — reset chars<br><span class="hot">N</span> inf HP &nbsp; <span class="hot">M</span> inf energy<br><span class="hot">C</span> inf ult &nbsp; <span class="hot">V</span> no cooldowns</div>
+<div id="dialogue"><div class="box"><div class="who"></div><div class="say"></div></div></div>
+<div id="pauseMenu" class="screen"><h1 class="title" style="font-size:44px">PAUSED</h1><div class="menu" style="margin-top:26px"><button id="btnResume">RESUME <span class="k">ESC</span></button><button id="btnRestart">RESTART MATCH <span class="k">R</span></button><button id="btnQuit">QUIT TO MENU <span class="k">Q</span></button></div></div>
+<div id="charSelect" class="screen">
+<h1 class="title" style="font-size:38px">CHOOSE YOUR SORCERER</h1>
+<div class="cards">
+<div class="card gojo" data-char="gojo"><h2 style="color:#7fd8ff">GOJO SATORU</h2><p>HIGH MOBILITY · SPACING · RANGED<br>Blue · Red · Hollow Purple · Infinity<br>DOMAIN: UNLIMITED VOID</p></div>
+<div class="card youngGojo" data-char="young_gojo"><h2 style="color:#bfe8ff">YOUNG GOJO</h2><p>PRODIGY · TECHNIQUE CONTROL · HIGH MOBILITY<br>Blue Vector · Red Counterforce · Six Eyes Read<br>Distance Lock · Orbital Collapse · Limitless Step</p><span class="tag" style="border-color:#8fdcff;color:#bfe8ff">PAST ERA · SORCERER PRODIGY</span></div>
+<div class="card sukuna" data-char="sukuna"><h2 style="color:#ff7a7a">RYOMEN SUKUNA</h2><p>AGGRESSION · PRESSURE · HIGH DAMAGE<br>Dismantle · Cleave · Fuga · King's Guard<br>DOMAIN: MALEVOLENT SHRINE</p><span class="tag sukuna-tag">FORM 1 / FORM 2 · H to swap</span></div>
+<div class="card yuta" data-char="yuta"><h2 style="color:#c9a6ff">YUTA OKKOTSU</h2><p>KATANA · CURSED ENERGY · RIKA · COPY<br>Speech · Rika Rush · Copy · Sky · RCT<br>ULT: MENACING BEAM / DOMAIN</p></div>
+<div class="card hakari" data-char="hakari"><h2 style="color:#ffd166">KINJI HAKARI</h2><p>BRAWLER · PRESSURE · HIGH RISK<br>Train · Rough · Idle Gamble · Jackpot<br>DOMAIN: IDLE DEATH GAMBLE</p><span class="tag hakari-tag">JACKPOT — HIT THE JACKPOT</span></div>
+<div class="card toji" data-char="toji"><h2 style="color:#7b8084">TOJI FUSHIGURO</h2><p>ASSASSIN · RUSHDOWN · WEAPON MASTER<br>Split Soul Katana · ISOH · Chain · Playful Cloud<br>HEAVENLY RESTRICTION</p><span class="tag toji-tag">ZERO CURSED ENERGY · HUNT</span><button class="tojiMovesetBtn" type="button" data-open-toji-moveset>VIEW MOVESET · DYNAMIC MOTION</button></div>
+<div class="card heian hidden" data-char="heian_sukuna"><h2 style="color:#ff5566">HEIAN SUKUNA</h2><p>FOUR-ARM · ANCIENT · OVERWHELMING<br>Kamutoke · Hiten · World-Cutting Slash<br>DOMAIN: MALEVOLENT SHRINE</p><span class="tag heian-tag">TRAINING ONLY · 0 = World-Cutting Slash</span></div>
+<div class="card strongest hidden" data-char="the_strongest_today"><h2 style="color:#00e5ff">THE STRONGEST OF TODAY</h2><p>SPATIAL · SIX EYES · TWO MOVESETS<br>Spatial Shift · RCT · Simple Domain · Black Flash<br>Base Purple · Base Void · Six Eyes Overdrive<br>OVERDRIVE: Max Blue · Max Red · Purple Chant</p><span class="tag strongest-tag">TRAINING ONLY · 9 = OVERDRIVE</span></div>
+</div>
+<div class="hint">PRESS 1–8 / CLICK A CARD · ESC TO GO BACK</div>
+</div>
+<div id="storySelect" class="screen">
+<h1 class="title" style="font-size:42px">STORY MODE</h1>
+<div class="sub">CAMPAIGN ARCHIVE · CHAPTER SELECT</div><div class="sub" style="margin-top:-6px;color:#8fb9d6">CHAPTER 1 ROUTE: <b>1</b> GOJO · <b>2</b> YOUNG GOJO</div>
+<div class="cards" style="margin-top:18px">
+  <div class="card" id="storyChapter1" data-chapter="1" style="border-color:#7fd8ff; cursor:pointer">
+    <h2 style="color:#7fd8ff">CHAPTER 1 · ENCOUNTER</h2>
+    <p>THE STRONGEST MEETS THE KING OF CURSES<br>
+    Prologue · Rising Conflict · Domain Clash · Final Exchange<br>
+    DIFFICULTY · HARD</p>
+    <span class="tag" style="border-color:#7fd8ff;color:#9fd8ff">UNLOCKED</span>
+  </div>
+  <div class="card" style="opacity:.42; border-style:dashed">
+    <h2 style="color:#7b89a8">CHAPTER 2 · RISING CONFLICT</h2>
+    <p>LOCKED · COMPLETE CHAPTER 1</p>
+    <span class="tag">LOCKED</span>
+  </div>
+  <div class="card" style="opacity:.28; border-style:dashed">
+    <h2 style="color:#68758e">CHAPTER 3 · AWAKENING</h2>
+    <p>LOCKED</p>
+    <span class="tag">LOCKED</span>
+  </div>
+</div>
+<div class="hint" style="margin-top:20px">PRESS 1 / CLICK CHAPTER 1 · ENTER TO SELECT · ESC TO GO BACK</div>
+</div>
+<div id="menu" class="screen on menuScreen">
+  <div class="menuNoise"></div>
+  <div class="menuTopbar">
+    <div class="brandMark"><span class="brandDot"></span> JFF // 2026</div>
+    <div class="buildMark">CURSED CLASH BUILD 01</div>
+  </div>
+  <div class="menuLayout">
+    <section class="menuHero">
+      <div class="heroEyebrow">A CURSED ENERGY FIGHTING GAME</div>
+      <h1 class="title">JUJUTSU<br><span>FIGHT</span></h1>
+      <div class="heroRule"><span></span><b>DOMAIN // COMBAT // STORY</b><span></span></div>
+      <p class="heroCopy">Fight with precision. Break the neutral. Build your meter. Decide who owns the battlefield.</p>
+      <div class="heroBadges"><span>6+ MODES</span><span>STORY CH.1</span><span>LOCAL 1V1</span></div>
+    </section>
+    <section class="menuCommand">
+      <div class="commandHeader"><div><span class="eyebrow">MAIN MENU</span><h2 id="menuModeTitle">LOCAL 1V1</h2></div><span id="menuModeIndex" class="indexBadge">01</span></div>
+      <div class="menuNav" id="mainMenuNav">
+        <button class="menuItem active" data-mode="versus" data-title="LOCAL 1V1" data-index="01" data-copy="Two players. Same screen. Pure neutral, reads and outplays." data-tag="P1 vs P2"><span class="itemNum">01</span><span><b>LOCAL 1V1</b><small>PLAYER VS PLAYER</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="cpu" data-title="CPU BATTLE" data-index="02" data-copy="Pick your fighter and challenge an adaptive CPU opponent." data-tag="P1 vs CPU"><span class="itemNum">02</span><span><b>CPU BATTLE</b><small>PLAYER VS CPU</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="story" data-title="STORY" data-index="03" data-copy="Cinematic encounters, boss phases and chapter progression." data-tag="CHAPTER 1"><span class="itemNum">03</span><span><b>STORY</b><small>CHAPTER CAMPAIGN</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="training" data-title="TRAINING" data-index="04" data-copy="Test routes, frame data, hitboxes and every cursed technique." data-tag="SANDBOX"><span class="itemNum">04</span><span><b>TRAINING</b><small>LAB / PRACTICE</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="survival" data-title="SURVIVAL" data-index="05" data-copy="Keep winning. Every round pushes the pressure higher." data-tag="ENDLESS"><span class="itemNum">05</span><span><b>SURVIVAL</b><small>ENDLESS RUN</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="timeattack" data-title="TIME ATTACK" data-index="06" data-copy="Finish the fight as fast as possible and chase your best time." data-tag="SPEEDRUN"><span class="itemNum">06</span><span><b>TIME ATTACK</b><small>CLEAR SPEED</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="controls" data-title="CONTROLS" data-index="07" data-copy="Review movement, guard, specials, Burst, Domain Clash and more." data-tag="INFO"><span class="itemNum">07</span><span><b>CONTROLS</b><small>COMMAND LIST</small></span><i>›</i></button>
+      </div>
+      <div class="menuPreview">
+        <div><span class="eyebrow">SELECTED</span><strong id="menuModeCopy">Two players. Same screen. Pure neutral, reads and outplays.</strong></div>
+        <span id="menuModeTag" class="previewTag">P1 vs P2</span>
+      </div>
+      <div class="menuFooter"><span>↑ ↓ SELECT</span><span>ENTER CONFIRM</span><span>ESC BACK</span></div>
+    </section>
+  </div>
+</div>
+<div id="controlsScreen" class="screen">
+<h1 class="title" style="font-size:38px">CONTROLS</h1>
+<div style="display:flex; gap:50px; margin-top:20px; font-size:12px; line-height:2;">
+<div><div style="color:#7fd8ff; font-size:15px; letter-spacing:4px; margin-bottom:8px;">PLAYER 1</div>A / D — Move (double tap = Dash)<br>W — Jump &nbsp; S — Crouch<br>1 — Light &nbsp; 2 — Heavy<br>3 — Skill 1 &nbsp; 4 — Skill 2 &nbsp; 5 — Skill 3<br>6 — Skill 4 &nbsp; 7 — Skill 5<br>F — Guard &nbsp; 9 — Ultimate<br>G — Awakening &nbsp; H — Swap Form (Sukuna)<br>Q — Use Copied Technique (Yuta)<br>0 — World-Cutting Slash / Spatial Shift (Heian / Strongest)<br><span style="color:#ffd166;">BLOCK ×2 — Grab / Throw · HOLD BLOCK in HITSTUN — Burst (50 meter)</span><br><span style="color:#c9a6ff;">Air Guard · Wake-up Roll · Guard Cancel are available in combat</span><br><span style="color:#c9a6ff;">YUTA ULT — TAP: Beam | HOLD: Domain</span><br><span style="color:#ffd166;">HAKARI — 3: Domain | 4: Roll | 5: Restless</span><br><span style="color:#8a8f93;">TOJI — 3: Split Soul | 4: ISOH | 5: Chain | 6: Cloud | 7: Zero Presence | X: Cursed Arsenal</span><br><span style="color:#bfe8ff;">YOUNG GOJO — 3: Blue Vector | 4: Red Counterforce | 5: Six Eyes Read | 6: Distance Lock | 7: Maximum Output: Blue | Z: Limitless Step / Awakened Red Counter | X: Limitless Awakened</span><br><span style="color:#ff5566;">HEIAN — Training only · 0 = World-Cutting Slash</span><br><span style="color:#00e5ff;">STRONGEST — Training only · 9 = Overdrive Transform</span></div>
+<div><div style="color:#ff7a7a; font-size:15px; letter-spacing:4px; margin-bottom:8px;">PLAYER 2</div>← / → — Move (double tap = Dash)<br>↑ — Jump &nbsp; ↓ — Crouch<br>NUM1 — Light &nbsp; NUM2 — Heavy<br>NUM3 — S1 &nbsp; NUM4 — S2 &nbsp; NUM5 — S3<br>NUM6 — S4 &nbsp; NUM9 — S5<br>NUM8 — Guard &nbsp; NUM7 — Ultimate<br>NUM0 — Awakening &nbsp; NUM+ — Swap Form<br>NUM. — Use Copied Technique<br>NUM/ — World-Cutting Slash (Heian Sukuna)</div>
+</div>
+<div class="hint" style="margin-top:20px">BLACK FLASH — after a melee hit, press LIGHT/HEAVY within 8 frames.<br>BLOCK ×2 — Grab / Throw. Two throws within the tech window can clash.<br>HOLD BLOCK during HITSTUN — Burst: spend 50 meter to escape combos.<br>S during BLOCKSTUN — Guard Cancel. BLOCK during KNOCKDOWN — wake-up roll.<br>AIR GUARD — hold BLOCK while airborne. Perfect-defense timing extends the parry reward.<br>YUTA — Copy stores one opponent technique.<br>HAKARI — 3 opens Domain, 4 rolls Jackpot.<br>HEIAN SUKUNA — Training-only character with four arms & World-Cutting Slash on 0.<br>STRONGEST OF TODAY — Training-only. Press 9 to trigger Six Eyes Overdrive and unlock the second moveset.<br>TRAINING SHORTCUTS — T hitboxes · Y frames · P reset position · B reset characters · N infinite HP · M infinite energy · C infinite ult · V no cooldown.</div>
+<div class="menu" style="width:220px; margin-top:20px"><button id="btnCtrlBack">BACK <span class="k">ESC</span></button></div>
+</div>
+</div>
+
+
+
+
+
+
+
+
+<div id="tojiMovesetOverlay" aria-hidden="true">
+  <div class="tojiMovesetPanel imageDriven" role="dialog" aria-modal="true" aria-label="Toji moveset">
+    <div class="tojiMovesetTop">
+      <div><strong>TOJI // DYNAMIC MOTION</strong><span> · FAST ATTACKS · REAL MOVEMENT · SORU TRAVERSAL · 3–10 SEC SEQUENCES</span></div>
+      <button class="tojiMovesetClose" type="button" data-close-toji-moveset>ESC · CLOSE</button>
+    </div>
+<div class="tojiImageMoveGrid">
+      <article class="tojiImageMoveCard"><header><span>3.</span><b>SPLIT SOUL KATANA</b></header><ol><li><kbd>3</kbd><span>1.8s · instant draw + chase</span></li><li><kbd>→</kbd><span>Rapid Cuts</span></li><li><kbd>→</kbd><span>Crescent Strike</span></li><li><kbd>→</kbd><span>Shadow Slice</span></li><li><kbd>→</kbd><span>Final Cut</span></li></ol></article>
+      <article class="tojiImageMoveCard"><header><span>4.</span><b>INVERTED SPEAR OF HEAVEN</b></header><ol><li><kbd>4</kbd><span>2.1s · burst thrusts + lunge</span></li><li><kbd>+</kbd><span>Multi-thrust chain</span></li><li><kbd>+</kbd><span>Technique Break</span></li><li><kbd>+</kbd><span>Heaven's Fall</span></li></ol></article>
+      <article class="tojiImageMoveCard"><header><span>5.</span><b>CHAIN OF A THOUSAND MILES</b></header><ol><li><kbd>5</kbd><span>2.5s · pull + cross-stage chase</span></li><li><kbd>→</kbd><span>Pull &amp; Crush</span></li><li><kbd>→</kbd><span>Chain Barrage</span></li><li><kbd>→</kbd><span>Thousand Miles</span></li></ol></article>
+      <article class="tojiImageMoveCard"><header><span>6.</span><b>PLAYFUL CLOUD</b></header><ol><li><kbd>6</kbd><span>3.0s · heavy moving stance</span></li><li><kbd>→</kbd><span>Spin Attack</span></li><li><kbd>→</kbd><span>Cloud Storm</span></li><li><kbd>→</kbd><span>Triple Impact</span></li><li><kbd>→</kbd><span>Final Smash</span></li></ol></article>
+      <article class="tojiImageSpecial"><div><span class="specialLabel">SPECIAL</span><b>ZERO PRESENCE</b><kbd>Z</kbd></div><span>3.0s · vanish → orbit → rear finish · 8s cooldown.</span></article>
+      <article class="tojiImageSpecial ultimate"><div><span class="specialLabel">SPECIAL X</span><b>HEAVENLY EXECUTION</b><kbd>X</kbd></div><span>15.0s · in-engine cinematic combat · new battlefield · multi-view camera · 15s cooldown.</span></article>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script src="js/01_core.js"></script>
+<script src="js/02_moves.js"></script>
+<script src="js/03_characters.js"></script>
+<script src="js/04_vfx_pool.js"></script>
+<script src="js/05_heian_vfx.js"></script>
+<script src="js/06_combat_systems.js"></script>
+<script src="js/07_toji_map.js"></script>
+<script src="js/08_background.js"></script>
+<script src="js/09_menu.js"></script>
+<script src="js/10_story_cinematic.js"></script>
+<script src="js/11_young_gojo_cinematic.js"></script>
+<script src="js/12_modern_renderer_v19.js"></script>
+<script src="js/13_modern_animation_v19.js"></script>
+<script src="js/14_modern_camera_v19.js"></script>
+<script src="js/15_modern_vfx_v19.js"></script>
+<script src="js/16_modern_lighting_stage_v19.js"></script>
+<script src="js/17_cinematic_framework_v19.js"></script>
+<script src="js/18_performance_v19.js"></script>
+<script src="js/19_weapon_presentation_v19.js"></script>
+  <script src="js/20_character_identity_overhaul_v19.js"></script>
+<script src="js/23_guard_and_counter_fix_v23.js"></script>
+  <script src="js/24_young_gojo_red_counter_visual_v25.js"></script>
+<script src="js/25_young_gojo_red_counter_rebuild_v26.js"></script>
+<script src="js/28_nonsticky_surface_traversal_v30.js"></script>
+<script src="js/29_surface_topout_and_maximum_blue_v31.js"></script>
+<script src="js/30_gojo_awaken_purple_overhaul_v33.js"></script>
+<script src="js/31_unique_locomotion_heian_skill7_v34.js"></script>
+</body>
+</html>
