@@ -1,4 +1,4 @@
-# Jujutsu Fight v32 — Full-Cast Character Polish
+# Jujutsu Fight v36 — Modern Roster VFX Overhaul
 
 Built from the complete v31 project, preserving the surface traversal and Maximum Output: Blue fixes.
 
@@ -33,3 +33,12 @@ Keep the folder structure intact and open `index.html` in a modern browser.
 - The first attack during that window gains a modest damage boost and crisp impact effects.
 - At 25% HP or lower, one stronger comeback counter can trigger every five seconds.
 - Effects are event-driven and use the existing Canvas particle pool to limit load.
+
+
+## v36: Modern art VFX overhaul across the full roster
+- Adds character-specific vector signature effects for Gojo, Young Gojo, Sukuna/Yuji form, Yuta, Hakari, Toji, Heian Sukuna, and The Strongest of Today.
+- Skill charge and active frames gain different shapes by technique: Limitless geometry, crimson slash marks, kinetic Black Flash focus, Rika/speech portals, jackpot roulette arcs, steel speed cuts, healing rings, flame spikes, and domain sigils.
+- Adds cleaner character-specific melee trails and more distinct hit, block, guard, parry, and counter impacts.
+- Uses Canvas 2D lines, arcs, rings, diamonds, and small event-driven spark bursts. No external libraries, large textures, fullscreen blur, or always-on high-density particles.
+- VFX design principles were informed by [Riot's visual-effects guidance](https://www.riotgames.com/vi/artedu/visual-effects) and [League's VFX Style Guide](https://nexus.leagueoflegends.com/en-us/2017/10/dev-leagues-vfx-style-guide/): value, color, shape, timing, gameplay clarity and low clutter. Performance choices also follow [Epic's VFX optimization guide](https://dev.epicgames.com/documentation/en-us/unreal-engine/vfx-optimization-guide?application_version=4.27) and [Unity's graphics optimization advice](https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/optimizing-graphics-performance), especially reducing overdraw and transparent screen coverage.
+- Existing damage, hitboxes, frame data, move costs and cooldowns are unchanged by this visual-only pass.
