@@ -6,6 +6,66 @@
 function applyCharacterIdentityPose(P,f){
   if(!f || !P) return false;
   const t=f.animT||0, s=Math.sin(t*0.045), s2=Math.sin(t*0.095);
+  const cineGait=f.storyCineGait, cinePhase=f.storyCineGaitPhase||0;
+  if(cineGait){
+    const w=Math.sin(cinePhase), wSide=Math.sin(cinePhase+Math.PI);
+    if(cineGait==='yuta-walk'){
+      P.hipY=-58-Math.abs(w)*3.2;P.shY=-97+Math.sin(cinePhase*2)*0.7;
+      P.headY=-113+Math.sin(cinePhase*2)*0.8;P.lean=3+w*3.8;
+      P.armF=[65-w*7,22+w*3];P.armB=[113+w*11,21-w*3];
+      P.legF=[88+w*29,4+Math.max(0,-w)*25];
+      P.legB=[94-w*27,-6+Math.max(0,w)*21];
+      return true;
+    }
+    if(cineGait==='sukuna-walk'){
+      P.hipY=-55-Math.abs(w)*2.4;P.shY=-94+Math.sin(cinePhase*2)*0.45;
+      P.headY=-110+Math.sin(cinePhase*2)*0.55;P.lean=9+w*2.1;
+      P.armF=[72-w*6,36+w*2];P.armB=[115+w*6,14-w*2];
+      P.legF=[84+w*25,9+Math.max(0,-w)*19];
+      P.legB=[98-w*24,-9+Math.max(0,w)*15];
+      return true;
+    }
+    if(cineGait==='yuta-ready'){
+      P.hipY=-58+Math.sin(cinePhase*0.7)*1.2;P.shY=-97;P.headY=-114+Math.sin(cinePhase*0.5)*0.9;
+      P.lean=-1+Math.sin(cinePhase*0.7)*0.7;
+      P.armF=[55,-73+Math.sin(cinePhase)*2.2];P.armB=[126,-42];
+      P.legF=[88,7];P.legB=[96,-7];
+      return true;
+    }
+    if(cineGait==='sukuna-calm'){
+      P.hipY=-56+Math.sin(cinePhase*0.65)*1.4;P.shY=-94;P.headY=-110+Math.sin(cinePhase*0.45)*0.8;
+      P.lean=9+Math.sin(cinePhase*0.6)*1.2;
+      P.armF=[72+Math.sin(cinePhase*0.6)*2,36];P.armB=[115-Math.sin(cinePhase*0.6)*2,14];
+      P.legF=[84,10];P.legB=[98,-9];
+      return true;
+    }
+    if(cineGait==='yuta-brace'){
+      P.hipY=-57+Math.sin(cinePhase*0.9)*1.3;P.shY=-96;P.headY=-113+Math.sin(cinePhase*0.7)*0.7;P.lean=2;
+      P.armF=[42,-54+Math.sin(cinePhase*0.8)*2];P.armB=[118,-32];
+      P.legF=[78,18];P.legB=[107,-12];
+      return true;
+    }
+    if(cineGait==='sukuna-brace'){
+      P.hipY=-55+Math.sin(cinePhase*0.75)*0.9;P.shY=-93;P.headY=-110;P.lean=12+Math.sin(cinePhase*0.6)*1.2;
+      P.armF=[48,-4];P.armB=[112,18];
+      P.legF=[78,18];P.legB=[105,-12];
+      return true;
+    }
+    if(cineGait==='yuta-strike'){
+      const hit=Math.max(0,Math.sin(cinePhase*Math.PI));
+      P.hipY=-55-hit*3;P.shY=-94;P.headY=-112;P.lean=15+hit*9;
+      P.armF=[35,-88+hit*7];P.armB=[146,-48];
+      P.legF=[70,18];P.legB=[119,-13];
+      return true;
+    }
+    if(cineGait==='sukuna-counter'){
+      const hit=Math.max(0,Math.sin(cinePhase*Math.PI));
+      P.hipY=-55-hit*2;P.shY=-93;P.headY=-110;P.lean=12+hit*5;
+      P.armF=[52,-52];P.armB=[131,-42];
+      P.legF=[75,18];P.legB=[109,-11];
+      return true;
+    }
+  }
   if(f.state==='IDLE' || f.state==='WALK'){
     if(f.id==='gojo'){
       // Relaxed, upright, slightly off-center stance instead of mannequin idle.
