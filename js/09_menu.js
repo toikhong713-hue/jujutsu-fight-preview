@@ -124,8 +124,8 @@ function syncStoryArchive(){
     c2.style.borderColor=chapter2Unlocked?'#c9a6ff':'#354057';
     c2.dataset.status=chapter2Unlocked?'unlocked':'locked';
     const p=c2.querySelector('p');
-    if(p)p.textContent=chapter2Unlocked?'UNLOCKED · PLAYABLE CONTENT IN DEVELOPMENT':'LOCKED · COMPLETE CHAPTER 1';
-    if(tag2)tag2.textContent=chapter2Unlocked?'UNLOCKED · COMING SOON':'LOCKED';
+    if(p)p.textContent=chapter2Unlocked?'UNLOCKED · PLAY YUTA VS SUKUNA':'LOCKED · COMPLETE CHAPTER 1';
+    if(tag2)tag2.textContent=chapter2Unlocked?'PLAY CHAPTER 2':'LOCKED';
   }
   if(c3){
     c3.style.opacity=chapter2Done?'0.75':'0.28';
@@ -147,7 +147,7 @@ function showStoryArchiveNotice(message){
   G.storyArchiveNotice=true;
 }
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
-document.getElementById('storyChapter2')?.addEventListener('click',()=>showStoryArchiveNotice());
+document.getElementById('storyChapter2')?.addEventListener('click',()=>{if(window.startStoryChapter2)window.startStoryChapter2();else showStoryArchiveNotice();});
 document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice('CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
 document.querySelectorAll('#charSelect .card').forEach(c=>{
   c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
