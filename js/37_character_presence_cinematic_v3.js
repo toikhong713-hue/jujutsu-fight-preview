@@ -23,9 +23,9 @@
     young_gojo:{color:'#a1edff',hot:'#ffffff',kind:'sixeyes',title:'SIX EYES AWAKEN',action:'THE BLINDFOLD LIFTS',mood:'EVERY DETAIL IS ALREADY KNOWN'},
     sukuna:{color:'#ff4059',hot:'#ffb3a8',kind:'slaughter',title:'KING OF CURSES',action:'THE AIR IS CUT APART',mood:'THE BATTLEFIELD BECOMES HIS DOMAIN'},
     yuji:{color:'#ff765e',hot:'#ffeadb',kind:'impact',title:'VESSEL OF POWER',action:'FISTS SETTLE THE ARGUMENT',mood:'RAW POWER, HELD JUST BENEATH THE SURFACE'},
-    yuta:{color:'#c9a6ff',hot:'#f5efff',kind:'rika',title:'CURSED BOND',action:'KATANA DRAW: ONE CLEAN ARC',mood:'A SECOND PRESENCE STIRS BEHIND HIM'},
+    yuta:{color:'#c9a6ff',hot:'#f5efff',kind:'rika',title:'CURSED BOND',action:'CURSED ENERGY FLOWS THROUGH STEEL',mood:'A SECOND PRESENCE STIRS BEHIND HIM'},
     hakari:{color:'#ffd166',hot:'#fff6c9',kind:'jackpot',title:'FEVER OF THE JACKPOT',action:'ONE COIN. ONE FLIP. ALL IN.',mood:'THE ODDS ARE ABOUT TO BREAK'},
-    toji:{color:'#b6c6cf',hot:'#f8ffff',kind:'assassin',title:'SORCERER KILLER',action:'STEEL LEAVES THE SHEATH',mood:'NO CURSED ENERGY. NO WARNING.'},
+    toji:{color:'#b6c6cf',hot:'#f8ffff',kind:'assassin',title:'SORCERER KILLER',action:'ISOH SNAPS FREE',mood:'NO CURSED ENERGY. NO WARNING.'},
     heian_sukuna:{color:'#ff334c',hot:'#ffd0c5',kind:'calamity',title:'ANCIENT CALAMITY',action:'FOUR ARMS, FOUR DIRECTIONS',mood:'A DISASTER GIVEN HUMAN FORM'},
     the_strongest_today:{color:'#00e4f5',hot:'#d4ffff',kind:'spatial',title:'SPATIAL DOMINION',action:'DISTANCE FOLDS INWARD',mood:'SPACE ITSELF STANDS ASIDE'}
   };
@@ -254,14 +254,16 @@
       {t:1,p:pose(5,[62,31],[111,15])}
     ],
     yuta:[
-      // Left hand steadies the katana forward; the free hand rises to wipe the blade.
-      {t:0,p:pose(-3,[72,25],[145,-70])},
-      {t:.16,p:pose(-6,[286,-18],[205,-88],-58,-114,-98,[87,5],[96,-5])},
-      {t:.36,p:pose(-8,[292,-24],[236,-132],-59,-115,-99,[86,6],[98,-6])},
-      {t:.56,p:pose(-10,[292,-20],[270,-145],-59,-115,-99,[86,6],[98,-6])},
-      {t:.76,p:pose(-7,[285,-12],[250,-125],-58,-114,-98,[87,5],[97,-5])},
-      {t:.90,p:pose(-4,[280,-8],[155,-54],-58,-113,-98)},
-      {t:1,p:pose(-3,[72,25],[145,-70])}
+      // Gather: Yuta settles into a composed kenjutsu line, katana held forward.
+      {t:0,p:pose(-2,[315,25],[110,18],-58,-113,-97,[88,4],[94,-4])},
+      {t:.14,p:pose(-5,[310,27],[322,-8],-58,-114,-98,[87,5],[95,-5])},
+      // The free hand comes across the steel rather than swinging away from it.
+      {t:.30,p:pose(-7,[306,29],[330,-15],-58,-114,-98,[86,6],[96,-6])},
+      {t:.48,p:pose(-5,[301,31],[340,-29],-58,-114,-98,[87,5],[95,-5])},
+      {t:.66,p:pose(-3,[294,32],[320,-22],-58,-114,-98,[88,4],[94,-4])},
+      // Finish by lowering into a quiet guard, with weight centered and shoulders relaxed.
+      {t:.82,p:pose(0,[287,31],[135,-30],-58,-113,-97,[89,3],[93,-3])},
+      {t:1,p:pose(-2,[315,25],[110,18],-58,-113,-97,[88,4],[94,-4])}
     ],
     hakari:[
       {t:0,p:pose(5,[72,30],[118,12])},
@@ -272,14 +274,19 @@
       {t:1,p:pose(5,[72,30],[118,12])}
     ],
     toji:[
-      // A low predator stance, rear arm reaching into the storage curse, then a sharp draw.
-      {t:0,p:pose(19,[65,25],[135,-42],-54,-109,-93,[82,13],[105,-10])},
-      {t:.18,p:pose(24,[58,18],[214,-96],-53,-110,-94,[78,15],[109,-11])},
-      {t:.38,p:pose(16,[42,4],[272,-132],-53,-110,-94,[74,14],[111,-12])},
-      {t:.52,p:pose(21,[22,-16],[304,-176],-52,-111,-95,[72,14],[112,-12])},
-      {t:.68,p:pose(13,[12,-6],[286,-140],-53,-110,-95,[76,12],[108,-11])},
-      {t:.84,p:pose(17,[42,5],[170,-48],-54,-109,-94)},
-      {t:1,p:pose(19,[65,25],[135,-42],-54,-109,-93)}
+      // Stillness first: low hips, predatory lean, rear hand not yet committed.
+      {t:0,p:pose(20,[60,22],[118,14],-54,-109,-93,[80,14],[106,-11])},
+      // Reach into the storage curse. The front arm stays tight and ready.
+      {t:.16,p:pose(25,[48,10],[236,-96],-53,-110,-94,[76,15],[110,-12])},
+      {t:.29,p:pose(27,[40,3],[242,-100],-52,-110,-94,[73,15],[112,-12])},
+      // Instant recoil of the shoulder and wrist as ISOH clears the mouth.
+      {t:.43,p:pose(13,[18,-8],[278,-151],-52,-110,-95,[72,13],[112,-12])},
+      // Brief, brutal catch: the arm locks while the eyes stay on the target.
+      {t:.54,p:pose(11,[22,-3],[294,-168],-53,-110,-95,[75,12],[109,-11])},
+      {t:.68,p:pose(15,[29,1],[292,-164],-54,-109,-94,[78,12],[107,-10])},
+      // Final guard keeps the weapon hand back and the point threatening forward.
+      {t:.84,p:pose(16,[35,8],[286,-158],-54,-109,-94,[81,11],[105,-10])},
+      {t:1,p:pose(16,[35,8],[286,-158],-54,-109,-94,[81,11],[105,-10])}
     ],
     heian_sukuna:[
       {t:0,p:pose(9,[72,34],[115,14])},
@@ -550,104 +557,225 @@
   function drawYutaSwordWipe(f,q,t){
     const dir=f.facing||1;
     const hilt=poseHand(f,'front');
-    // The katana's hilt is anchored to Yuta's animated front hand, not a fixed body offset.
-    const bladeBase={x:hilt.x,y:hilt.y};
-    const bladeTip={x:hilt.x+dir*17,y:hilt.y-78};
-    const wipe=smooth(clamp((q-.13)/.58,0,1));
-    const settle=clamp((q-.73)/.27,0,1);
-    const hand={x:mix(bladeBase.x,bladeTip.x,wipe),y:mix(bladeBase.y,bladeTip.y,wipe)};
+    const bladeBase={x:hilt.x+dir*1.5,y:hilt.y-1};
+    const bladeTip={x:hilt.x+dir*49,y:hilt.y-31};
+    const bladeAngle=Math.atan2(bladeTip.y-bladeBase.y,bladeTip.x-bladeBase.x);
+    const wipe=smooth(clamp((q-.18)/.49,0,1));
+    const charge=clamp((q-.12)/.47,0,1);
+    const settle=smooth(clamp((q-.65)/.35,0,1));
+    const control={x:(bladeBase.x+bladeTip.x)*.5+dir*1.5,y:(bladeBase.y+bladeTip.y)*.5-2.2};
+    const bladePoint=u=>{
+      const v=1-u;
+      return {x:v*v*bladeBase.x+2*v*u*control.x+u*u*bladeTip.x,
+              y:v*v*bladeBase.y+2*v*u*control.y+u*u*bladeTip.y};
+    };
+    const bladePts=[],chargedPts=[];
+    const samples=LOW_END?12:18;
+    for(let i=0;i<=samples;i++){
+      const u=i/samples,p=bladePoint(u);
+      bladePts.push([p.x,p.y]);
+      if(u<=wipe+.001)chargedPts.push([p.x,p.y]);
+    }
+
+    // Handle, guard and steel are locked to the animated sword hand.
+    const ux=(bladeTip.x-bladeBase.x)/Math.max(1,Math.hypot(bladeTip.x-bladeBase.x,bladeTip.y-bladeBase.y));
+    const uy=(bladeTip.y-bladeBase.y)/Math.max(1,Math.hypot(bladeTip.x-bladeBase.x,bladeTip.y-bladeBase.y));
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    // Katana held upright in front of Yuta, with a dark spine and a clean steel edge.
-    ctx.globalAlpha=.96;ctx.strokeStyle='#20242d';ctx.lineWidth=8;
-    ctx.beginPath();ctx.moveTo(bladeBase.x-dir*3,bladeBase.y+8);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
-    ctx.strokeStyle='#cfd8e8';ctx.lineWidth=3.4;ctx.beginPath();ctx.moveTo(bladeBase.x,bladeBase.y);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
+    drawPath([[bladeBase.x-ux*15,bladeBase.y-uy*15],[bladeBase.x,bladeBase.y]],'#171b23',7.5,.98);
+    drawPath([[bladeBase.x-ux*13,bladeBase.y-uy*13],[bladeBase.x-ux*2,bladeBase.y-uy*2]],'#8e96a8',1.5,.82);
+    const guard={x:bladeBase.x-ux*1.5,y:bladeBase.y-uy*1.5};
+    ctx.strokeStyle='#2b2c38';ctx.lineWidth=4.4;
+    ctx.beginPath();ctx.moveTo(guard.x-dir*6,guard.y+4);ctx.lineTo(guard.x+dir*6,guard.y-4);ctx.stroke();
+
+    // Gathering light, then a travelling blue-violet charge that follows the wipe.
     ctx.globalCompositeOperation='lighter';
-    const glow=clamp((q-.12)/.42,0,1)*(1-clamp((q-.82)/.18,0,1)*.45);
-    ctx.globalAlpha=.20+.54*glow;ctx.strokeStyle='#a98cff';ctx.lineWidth=10;
-    ctx.beginPath();ctx.moveTo(bladeBase.x,bladeBase.y);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
-    ctx.globalAlpha=.95;ctx.strokeStyle='#eff8ff';ctx.lineWidth=1.3;
-    ctx.beginPath();ctx.moveTo(bladeBase.x+dir*1.4,bladeBase.y-1);ctx.lineTo(bladeTip.x+dir*1.4,bladeTip.y);ctx.stroke();
-    // The wiping hand visibly travels along the steel, with a soft blue-violet trail.
-    if(q>.10&&q<.86){
-      ctx.globalAlpha=.32;ctx.strokeStyle='#c8b5ff';ctx.lineWidth=7;
-      ctx.beginPath();ctx.moveTo(hand.x-dir*5,hand.y+12);ctx.lineTo(hand.x+dir*5,hand.y-13);ctx.stroke();
-      ctx.globalAlpha=.92;ctx.fillStyle='#f5f1ff';ctx.beginPath();ctx.arc(hand.x,hand.y,4.2,0,Math.PI*2);ctx.fill();
+    const glow=.12+.54*charge;
+    drawPath(bladePts,'#8d7bff',12*glow,.12+.23*charge);
+    drawPath(bladePts,'#d9d1ff',4.2,.78);
+    drawPath(bladePts,'#f5fbff',1.25,.98);
+    if(chargedPts.length>1){
+      drawPath(chargedPts,'#9ee8ff',5.6,.18+.52*charge);
+      drawPath(chargedPts,'#eafcff',1.65,.72);
     }
-    const sparkleCount=LOW_END?5:9;
-    for(let i=0;i<sparkleCount;i++){
-      const z=(i/sparkleCount+q*.78)%1;
-      const x=mix(bladeBase.x,bladeTip.x,z),y=mix(bladeBase.y,bladeTip.y,z);
-      const pulse=.45+.55*Math.sin(t*21+i*2.4);
-      ctx.globalAlpha=glow*pulse*(.28+.65*(1-z*.4));
-      ctx.strokeStyle=i%3===0?'#ffffff':'#b7a0ff';ctx.lineWidth=i%3===0?1.5:1;
-      const r=2.5+(i%3)*1.2;
-      ctx.beginPath();ctx.moveTo(x-r*2,y);ctx.lineTo(x+r*2,y);ctx.moveTo(x,y-r*2);ctx.lineTo(x,y+r*2);ctx.stroke();
-      ctx.beginPath();ctx.arc(x+Math.sin(t*7+i)*4,y+Math.cos(t*8+i)*3,1.2,0,Math.PI*2);ctx.fillStyle='#e8dcff';ctx.fill();
+
+    const hand=bladePoint(wipe);
+    if(q>.13&&q<.77){
+      // Readable palm and four fingers, rotated along the blade, not a floating sparkle dot.
+      ctx.save();ctx.translate(hand.x,hand.y);ctx.rotate(bladeAngle);
+      ctx.globalAlpha=.68+.27*Math.sin(q*Math.PI);
+      ctx.fillStyle='#e6dfff';ctx.shadowBlur=8;ctx.shadowColor='#b6a1ff';
+      ctx.beginPath();ctx.ellipse(-1,0,5.2,6.5,.14,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+      ctx.strokeStyle='#ffffff';ctx.lineWidth=1.25;ctx.lineCap='round';
+      for(let i=0;i<4;i++){
+        const yy=-4.4+i*2.7;
+        ctx.beginPath();ctx.moveTo(1,yy);ctx.lineTo(8.2,yy-.5);ctx.stroke();
+      }
+      ctx.strokeStyle='#9beaff';ctx.lineWidth=1.7;
+      ctx.beginPath();ctx.moveTo(-2,4);ctx.quadraticCurveTo(2,7,5,4);ctx.stroke();
+      ctx.restore();
     }
-    // Settled finishing guard and restrained cursed-energy rings.
-    if(settle>.1){
-      ctx.globalAlpha=.34*settle;ctx.strokeStyle='#9b83f4';ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.ellipse(f.x+dir*24,f.y-78,26+settle*18,5+settle*3,0,0,Math.PI*2);ctx.stroke();
+
+    // Sparkles follow the wipe contact, with a few trailing behind on low-end devices.
+    const count=LOW_END?4:8;
+    for(let i=0;i<count;i++){
+      const lag=(i/(count-1||1))*.28;
+      const u=clamp(wipe-lag,0,1);
+      if(q<.18&&i%2)continue;
+      const p=bladePoint(u),pulse=.45+.55*Math.sin(t*23+i*2.2);
+      const r=2+(i%3)*.85;
+      ctx.globalAlpha=(.16+.64*charge)*pulse;
+      ctx.strokeStyle=i%3===0?'#ffffff':'#9feaff';ctx.lineWidth=i%3===0?1.45:1;
+      ctx.beginPath();ctx.moveTo(p.x-r*2,p.y);ctx.lineTo(p.x+r*2,p.y);
+      ctx.moveTo(p.x,p.y-r*2);ctx.lineTo(p.x,p.y+r*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(p.x+Math.sin(t*6+i)*2.5,p.y+Math.cos(t*7+i)*2,1.1,0,Math.PI*2);
+      ctx.fillStyle='#cbbcff';ctx.fill();
+    }
+
+    // Steel light catches Yuta's face without washing out the whole fighter.
+    if(q>.24&&q<.72){
+      const faceX=f.x+dir*3,faceY=f.y-111;
+      const faceGlow=ctx.createRadialGradient(faceX,faceY,1,faceX,faceY,24);
+      faceGlow.addColorStop(0,'rgba(174,222,255,'+(.11+.18*charge)+')');
+      faceGlow.addColorStop(1,'rgba(150,120,255,0)');
+      ctx.globalAlpha=1;ctx.fillStyle=faceGlow;ctx.beginPath();ctx.arc(faceX,faceY,24,0,Math.PI*2);ctx.fill();
+    }
+
+    if(q>.43&&G.presenceCine&&!G.presenceCine.yutaWipeCuePlayed){
+      G.presenceCine.yutaWipeCuePlayed=true;
+      try{
+        if(typeof SFX!=='undefined'){
+          if(!SFX.ctx&&typeof SFX.init==='function')SFX.init();
+          if(SFX.on&&SFX.ctx){SFX.tone(880,.44,'sine',.035,1280);SFX.tone(1320,.23,'sine',.018,940);SFX.noise(.10,.018,3200,1.2);}
+        }
+      }catch(_){}
+    }
+
+    // Liquid-like pressure rings roll out along the ground as Yuta settles into guard.
+    if(q>.61){
+      const waveQ=clamp((q-.61)/.39,0,1);
+      const waveCount=LOW_END?2:3;
+      const pts=LOW_END?42:60;
+      for(let ring=0;ring<waveCount;ring++){
+        const progress=clamp(waveQ-ring*.28,0,1);
+        if(progress<=0)continue;
+        const radius=24+progress*112;
+        ctx.globalAlpha=(.34*(1-progress)+.08)*settle;
+        ctx.strokeStyle=ring%2?'#8e7cff':'#9fefff';ctx.lineWidth=1.6+(1-progress)*.45;
+        ctx.beginPath();
+        for(let i=0;i<=pts;i++){
+          const a=i/pts*Math.PI*2;
+          const ripple=Math.sin(a*3+t*2.1+ring)*3.1+Math.sin(a*5-t*1.2)*1.3;
+          const x=f.x+Math.cos(a)*radius;
+          const y=f.y-3+Math.sin(a)*(4+progress*7)+ripple;
+          if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+        }
+        ctx.stroke();
+      }
     }
     ctx.restore();
   }
+
   function drawTojiCurseDraw(f,q,t){
     const dir=f.facing||1;
-    const back=poseHand(f,'back');
-    const mouth={x:f.x-dir*(43+Math.sin(q*Math.PI)*4),y:f.y-105-Math.sin(q*Math.PI)*4};
-    const draw=smooth(clamp((q-.16)/.43,0,1));
-    const hold=clamp((q-.63)/.37,0,1);
-    // A compact storage curse silhouette sits behind Toji, never reusing the M1 animation.
-    ctx.save();ctx.globalCompositeOperation='source-over';
-    const sx=mouth.x-dir*3,sy=mouth.y+2;
-    ctx.globalAlpha=.78*(1-hold*.45);ctx.fillStyle='#101318';
-    ctx.beginPath();ctx.ellipse(sx,sy,25,13,-dir*.15,0,Math.PI*2);ctx.fill();
-    ctx.fillStyle='#29222f';ctx.beginPath();ctx.ellipse(sx-dir*8,sy-5,15,10,-.3,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#58616a';ctx.lineWidth=1.2;ctx.globalAlpha=.72*(1-hold*.4);
+    const hand=poseHand(f,'back');
+    const c=G.presenceCine;
+    // The storage curse coils behind Toji, opening only when the hand commits.
+    const curseX=f.x-dir*50,curseY=f.y-106;
+    const mouth={x:curseX+dir*6,y:curseY+2};
+    const reach=smooth(clamp(q/.30,0,1));
+    const snap=1-Math.pow(1-clamp((q-.27)/.17,0,1),.42);
+    const drawn=clamp((q-.47)/.18,0,1);
+    ctx.save();ctx.translate(curseX,curseY);ctx.scale(dir,1);
+    const curseFade=1-clamp((q-.47)/.27,0,1);
+    ctx.globalAlpha=.82*curseFade;ctx.fillStyle='#080b0f';
+    ctx.beginPath();ctx.moveTo(-4,-17);ctx.bezierCurveTo(-31,-28,-40,-8,-29,6);
+    ctx.bezierCurveTo(-49,20,-24,29,-10,19);ctx.bezierCurveTo(8,34,24,13,17,-2);
+    ctx.bezierCurveTo(26,-19,8,-27,-4,-17);ctx.closePath();ctx.fill();
+    ctx.strokeStyle='#343e45';ctx.lineWidth=8;ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();
+    ctx.strokeStyle='#68747c';ctx.lineWidth=1.5;ctx.globalAlpha=.62*curseFade;
+    ctx.beginPath();ctx.moveTo(-20,-16);ctx.bezierCurveTo(-37,-5,-12,2,-25,18);
+    ctx.moveTo(-13,-19);ctx.bezierCurveTo(-4,-9,-28,-1,-15,17);ctx.stroke();
+    // Mouth widens before the snap, then clamps shut around the disappearing trail.
+    const mouthOpen=3+reach*7*(1-drawn*.9);
+    ctx.fillStyle='#020304';ctx.beginPath();ctx.ellipse(5,1,mouthOpen*1.45,mouthOpen*.63,-.12,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#dce4e8';ctx.lineWidth=1.1;ctx.globalAlpha=.86*curseFade;
+    ctx.beginPath();ctx.moveTo(-1,0);ctx.lineTo(11+mouthOpen,0);ctx.stroke();
     for(let i=0;i<4;i++){
-      ctx.beginPath();ctx.moveTo(sx-dir*(18+i*2),sy-3+i*2);ctx.quadraticCurveTo(sx-dir*(28+i*3),sy+13+i*2,sx-dir*(13+i*3),sy+17+i*2);ctx.stroke();
+      const a=i*1.7+t*1.2;
+      ctx.globalAlpha=.35*curseFade;ctx.strokeStyle=i%2?'#414b52':'#1b2026';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(-17-i*2,8+i*2);ctx.quadraticCurveTo(-35-i*2,17+Math.sin(a)*4,-24-i*3,25+Math.cos(a)*3);ctx.stroke();
     }
-    // Teeth/mouth opening and a brief inhale before the weapon snaps free.
-    ctx.fillStyle='#020305';ctx.beginPath();ctx.ellipse(sx+dir*4,sy+1,13,5,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#d5dce0';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx-dir*7,sy-1);ctx.lineTo(sx+dir*12,sy-1);ctx.stroke();
     ctx.restore();
-    // ISOH travels from the curse's mouth to Toji's rear hand; use the game's actual model.
-    const px=mix(mouth.x,back.x,draw),py=mix(mouth.y,back.y,draw);
-    const angle=mix(-.32*dir,-.08*dir,draw)+Math.sin(q*26)*.05*(1-draw);
-    const visible=clamp((q-.14)/.14,0,1);
+
+    // The ISOH model travels from the curse mouth to Toji's rear hand in one sharp draw.
+    const px=mix(mouth.x,hand.x,snap),py=mix(mouth.y,hand.y,snap);
+    const angle=mix(-.72*dir,-.13*dir,smooth(snap));
+    const visible=clamp((q-.22)/.075,0,1);
     if(visible>.01&&typeof drawTojiCineInvertedSpear==='function'){
       ctx.save();ctx.globalAlpha=visible;ctx.globalCompositeOperation='source-over';
-      if(q<.63){
-        ctx.globalAlpha=.22*(1-draw);ctx.strokeStyle='#dbe6eb';ctx.lineWidth=5;
-        ctx.beginPath();ctx.moveTo(mouth.x,mouth.y);ctx.lineTo(px,py);ctx.stroke();
-      }
       drawTojiCineInvertedSpear(ctx,{x:px,y:py},angle,dir,Math.floor(q*180));
       ctx.restore();
     }else{
-      // Fallback silhouette if the shared ISOH renderer is unavailable.
-      ctx.save();ctx.translate(px,py);ctx.rotate(angle);ctx.strokeStyle='#cbd5dc';ctx.lineWidth=4;
-      ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(43,0);ctx.stroke();ctx.strokeStyle='#343941';ctx.lineWidth=8;
-      ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(6,0);ctx.stroke();ctx.restore();
+      ctx.save();ctx.translate(px,py);ctx.rotate(angle);ctx.strokeStyle='#252b31';ctx.lineWidth=9;
+      ctx.beginPath();ctx.moveTo(-12,0);ctx.lineTo(48,0);ctx.stroke();ctx.strokeStyle='#d9e2e8';ctx.lineWidth=2.1;
+      ctx.beginPath();ctx.moveTo(-10,-1);ctx.lineTo(47,-1);ctx.stroke();ctx.restore();
     }
-    // A short, angular snap trail and a single-frame visual impact on the catch.
-    if(q>.30&&q<.72){
-      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.58*(1-draw);
-      drawPath([[mouth.x,mouth.y],[mix(mouth.x,back.x,.55),mix(mouth.y,back.y,.55)-9*dir],[back.x,back.y]],'#dbe8ee',2.4,.7);
+
+    // A hard black-silver crescent follows the draw path, then vanishes at the catch.
+    if(q>.25&&q<.51){
+      const fade=1-clamp((q-.25)/.26,0,1);
+      const mid={x:mix(mouth.x,hand.x,.52),y:mix(mouth.y,hand.y,.52)-dir*8};
+      ctx.save();ctx.globalCompositeOperation='lighter';
+      ctx.globalAlpha=.65*fade;ctx.strokeStyle='#05070a';ctx.lineWidth=12;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(mouth.x,mouth.y);ctx.quadraticCurveTo(mid.x-dir*11,mid.y-19,hand.x,hand.y);ctx.stroke();
+      ctx.globalAlpha=.88*fade;ctx.strokeStyle='#cbd7dd';ctx.lineWidth=2.2;
+      ctx.beginPath();ctx.moveTo(mouth.x+dir*2,mouth.y-2);ctx.quadraticCurveTo(mid.x-dir*5,mid.y-21,hand.x,hand.y);ctx.stroke();
+      ctx.globalAlpha=.55*fade;ctx.strokeStyle='#f7ffff';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(mouth.x+dir*3,mouth.y+3);ctx.quadraticCurveTo(mid.x+dir*8,mid.y+7,hand.x-dir*3,hand.y+3);ctx.stroke();
       ctx.restore();
     }
-    if(q>.58&&q<.76){
-      const flash=1-Math.abs(q-.67)/.09;
-      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.55*flash;ctx.strokeStyle='#effaff';ctx.lineWidth=2.2;
-      ctx.beginPath();ctx.moveTo(back.x-9,back.y);ctx.lineTo(back.x+9,back.y);ctx.moveTo(back.x,back.y-10);ctx.lineTo(back.x,back.y+10);ctx.stroke();ctx.restore();
+
+    // The shoulder locks for two cinematic ticks at the instant the weapon is caught.
+    if(q>.475&&c&&!c.tojiCatchHitstopTriggered){
+      c.tojiCatchHitstopTriggered=true;c.freezeFrames=Math.max(c.freezeFrames||0,2);
+      try{
+        if(typeof SFX!=='undefined'){
+          if(!SFX.ctx&&typeof SFX.init==='function')SFX.init();
+          if(SFX.on&&SFX.ctx){SFX.noise(.095,.085,2450,1.5);SFX.tone(480,.09,'sawtooth',.035,120);}
+        }
+      }catch(_){}
     }
-    if(q>.67){
-      const pressure=clamp((q-.67)/.33,0,1);
-      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.28*pressure;
-      ctx.strokeStyle='#9daab3';ctx.lineWidth=1.2;
-      ctx.beginPath();ctx.ellipse(f.x,f.y-3,38+pressure*36,5+pressure*3,0,0,Math.PI*2);ctx.stroke();
+
+    // Catch flash and a sharp eye glint turn the action into a held threat.
+    if(q>.43&&q<.64){
+      const flash=clamp(1-Math.abs(q-.52)/.12,0,1);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.8*flash;
+      ctx.strokeStyle='#f3fcff';ctx.lineWidth=2.5;
+      ctx.beginPath();ctx.moveTo(hand.x-10,hand.y);ctx.lineTo(hand.x+10,hand.y);
+      ctx.moveTo(hand.x,hand.y-11);ctx.lineTo(hand.x,hand.y+11);ctx.stroke();
+      ctx.strokeStyle='#d4e2e9';ctx.lineWidth=1;
+      ctx.beginPath();ctx.moveTo(f.x+dir*4,f.y-113);ctx.lineTo(f.x+dir*12,f.y-110);ctx.stroke();
+      ctx.restore();
+    }
+
+    // Angular pressure slices and dust kick out from the feet after the catch.
+    if(q>.57){
+      const pressure=clamp((q-.57)/.43,0,1);
+      ctx.save();ctx.globalCompositeOperation='lighter';
+      ctx.globalAlpha=.35*(1-pressure*.45);ctx.strokeStyle='#8a969f';ctx.lineWidth=1.3;
+      ctx.beginPath();ctx.ellipse(f.x,f.y-2,28+pressure*86,4+pressure*5,0,0,Math.PI*2);ctx.stroke();
+      const streaks=LOW_END?4:7;
+      for(let i=0;i<streaks;i++){
+        const side=(i%2?1:-1),lane=Math.floor(i/2);
+        const sx=f.x+side*(12+lane*5),sy=f.y-3;
+        const dx=side*(18+pressure*(35+lane*7)),dy=-(3+pressure*(8+lane*3));
+        ctx.globalAlpha=.3*(1-pressure*.42);ctx.strokeStyle=i%3?'#67737d':'#e0e7eb';ctx.lineWidth=i%3?1.2:1.7;
+        ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(sx+dx,sy+dy);ctx.stroke();
+      }
       ctx.restore();
     }
   }
+
   function drawSignatureForeground(f,info){
     if(!info||typeof ctx==='undefined')return;
     const id=keyId(f),p=profile(f),q=info.q||0,t=info.t||0,dir=f.facing||1;
