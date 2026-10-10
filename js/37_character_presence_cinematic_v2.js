@@ -91,7 +91,7 @@
   }
   function applyCharacterMotion(f,t,phase,side,c){
     const p=profile(f),local=side===0;
-    f.animT=(f.animT||0)+1.12+(p.kind==='jackpot'?.24:0);
+    f.animT=(f.animT||0)+1.12+(p.kind==='jackpot' ? 0.24 : 0);
     f.stateFrame=(f.stateFrame||0)+1;f.vx=0;f.vy=0;
     if(phase===0){setPose(f,'intro',1);return;}
     if(phase===1&&local){
@@ -336,7 +336,7 @@
     if(f){
       const inCine=!!(c&&c.active);
       const awakened=!!(f.awakened||f.ultCharging||f.domainCharge>0||f.jackpot>0||f.tojiHunt>0||f.infinity>0);
-      let alpha=inCine?.76:(f.presenceAuraFrames>0?(.34*f.presenceAuraFrames/TAIL_FRAMES):(awakened?.20:0));
+      let alpha=inCine ? 0.76 : (f.presenceAuraFrames>0 ? (0.34*f.presenceAuraFrames/TAIL_FRAMES) : (awakened ? 0.20 : 0));
       if(alpha>0)drawPresence(f,alpha,(G.frame||0)*.055+(c?c.seed:0));
       if(inCine&&G.fighters[0]===f)drawTension(c);
     }
