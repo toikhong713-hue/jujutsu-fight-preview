@@ -2021,7 +2021,7 @@ function updateMove(f){
     const rd=m.spawnRika;
     G.projectiles.push({x:cx,y:cy,vx:rd.speed*f.facing,vy:0,w:rd.w,h:rd.h,damage:rd.damage,hitstun:rd.hitstun,blockstun:rd.blockstun,kbx:rd.kbx,kby:rd.kby,life:rd.life,type:'rika',owner:f,hitstop:rd.hitstop,armorBreak:false,spawnPillar:false,hit:false,rot:0,t:0});
   }
-  if(m.heal&&f.moveFrame===m.startup){f.hp=Math.min(f.maxHp,f.hp+m.heal);SFX.heal();flash(0.3,'#a6f0d0');const cx=f.x,cy=f.y-70;vfxShockwave(cx,cy,'#a6f0d0',70,26);vfxHealParticles(cx,cy,20);floatText(cx,cy-60,'+'+m.heal,'#a6f0d0',24,50);}
+  if(m.heal&&f.moveFrame===m.startup){f.hp=Math.min(f.maxHp,f.hp+m.heal);SFX.heal();const healCol=f.id==='yuta'?'#c9a6ff':'#a6f0d0';flash(0.3,healCol);const cx=f.x,cy=f.y-70;vfxShockwave(cx,cy,healCol,70,26);vfxHealParticles(cx,cy,20);if(f.id==='yuta'){ring(cx,cy,healCol,42,24);spark(cx,cy-12,9,'#eadbff',2.6,5,18,0);}floatText(cx,cy-60,'+'+m.heal,healCol,24,50);}
   if(m.immobilize&&f.moveFrame===m.startup){
     SFX.speech();flash(0.35,'#c9a6ff');vfxSpeechWaves(f.x+f.facing*30,f.y-100,f.facing,'#c9a6ff');vfxSpeechWaves(f.x+f.facing*30,f.y-100,f.facing,'#e0d0ff');
     const o=f.opp;const blockedStates=['CLASH','TRAPPED','DEFEAT','VICTORY'];
