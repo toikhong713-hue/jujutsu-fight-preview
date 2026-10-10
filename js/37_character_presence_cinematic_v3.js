@@ -187,9 +187,9 @@
       f.state=t<1.27?'WALK':'IDLE';f.walk=t<1.27?Math.sin(t*14)*1.6:0;
     }else if(phase===2&&local){
       const q=clamp((t-1.42)/.92,0,1);setPose(f,'signature',q);
-      const move=p.kind==='assassin'?16:(p.kind==='impact'?12:(p.kind==='rika'?7:3));
-      f.x=c.targetA+dir*Math.sin(q*Math.PI)*move;
-      f.y=GROUND-(p.kind==='jackpot'?Math.sin(q*Math.PI)*5:0);
+      const move=p.kind==='assassin'?24:(p.kind==='impact'?20:(p.kind==='rika'?15:(p.kind==='slaughter'||p.kind==='calamity'?12:8)));
+      f.x=c.targetA+dir*signatureTravel(q,move);
+      f.y=GROUND-(p.kind==='jackpot'?Math.sin(q*Math.PI)*7:0);
       f.state='IDLE';f.walk=0;
     }else if(phase===3&&!local){
       const q=out((t-2.34)/1.12);setPose(f,'entrance',q);
@@ -197,9 +197,9 @@
       f.state=t<3.34?'WALK':'IDLE';f.walk=t<3.34?Math.sin(t*13.2)*1.5:0;
     }else if(phase===4&&!local){
       const q=clamp((t-3.48)/.92,0,1);setPose(f,'signature',q);
-      const move=p.kind==='assassin'?16:(p.kind==='impact'?12:(p.kind==='rika'?7:3));
-      f.x=c.targetB+dir*Math.sin(q*Math.PI)*move;
-      f.y=GROUND-(p.kind==='jackpot'?Math.sin(q*Math.PI)*5:0);
+      const move=p.kind==='assassin'?24:(p.kind==='impact'?20:(p.kind==='rika'?15:(p.kind==='slaughter'||p.kind==='calamity'?12:8)));
+      f.x=c.targetB+dir*signatureTravel(q,move);
+      f.y=GROUND-(p.kind==='jackpot'?Math.sin(q*Math.PI)*7:0);
       f.state='IDLE';f.walk=0;
     }else if(phase===5||phase===6){
       setPose(f,phase===5?'faceoff':'power',phase===5?0:clamp((t-5.18)/.9,0,1));
@@ -210,6 +210,15 @@
     if(p.kind==='assassin'&&((phase===5)||(phase===6)))f.x+=(Math.sin(t*4.5)*.65);
     if(p.kind==='slaughter'&&(phase===5||phase===6))f.x+=Math.sin(t*2.5)*.5;
     if(p.kind==='calamity'&&phase>=5)f.y=GROUND-Math.abs(Math.sin(t*3.1))*1.3;
+  }
+
+  // A readable action arc: anticipation, committed drive, follow-through, recovery.
+  // This gives the existing pose keys body travel instead of a symmetric sine bob.
+  function signatureTravel(q,distance){
+    if(q<.16)return -3*smooth(q/.16);
+    if(q<.52)return mix(-3,distance,smooth((q-.16)/.36));
+    if(q<.76)return mix(distance,distance*.72,smooth((q-.52)/.24));
+    return mix(distance*.72,0,smooth((q-.76)/.24));
   }
 
   // Distinct pose keyframes are applied to the existing procedural skeleton.
