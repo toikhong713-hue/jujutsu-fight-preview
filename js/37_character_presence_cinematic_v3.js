@@ -548,18 +548,20 @@
     const P=typeof computePose==='function'?computePose(f):null;
     if(!P||typeof joint!=='function')return {x:f.x+dir*18,y:f.y-76};
     const arm=which==='back'?P.armB:P.armF;
-    const sh={x:f.x+P.lean*.28*dir+(which==='back'?-dir*4:dir*4),y:f.y+P.shY+10};
-    const elbow=joint(sh,arm[0],17);
-    const hand=joint(elbow,arm[0]+arm[1],17);
-    const a=(arm[0]+arm[1])*Math.PI/180;
-    return {x:hand.x+Math.cos(a)*6,y:hand.y+Math.sin(a)*6};
+    // Match the exact shoulder and joint lengths used by drawFighter so props stay in-hand.
+    const sh={x:f.x+P.lean*.28*dir,y:f.y+P.shY};
+    const elbow=joint(sh,arm[0],20);
+    const hand=joint(elbow,arm[0]+arm[1],20);
+    return {x:hand.x,y:hand.y};
   }
   function drawYutaSwordWipe(f,q,t){
     const dir=f.facing||1;
-    const hilt=poseHand(f,'front');
-    const bladeBase={x:hilt.x+dir*1.5,y:hilt.y-1};
-    const bladeTip={x:hilt.x+dir*49,y:hilt.y-31};
-    const bladeAngle=Math.atan2(bladeTip.y-bladeBase.y,bladeTip.x-bladeBase.x);
+    const P=typeof computePose==='function'?computePose(f):null;
+    const hand=poseHand(f,'front');
+    const bladeAngle=P?(P.armF[0]+P.armF[1])*Math.PI/180:-.35;
+    // This geometry overlays the existing Yuta katana exactly, instead of drawing a second sword.
+    const bladeBase={x:hand.x+Math.cos(bladeAngle)*8,y:hand.y+Math.sin(bladeAngle)*8};
+    const bladeTip={x:bladeBase.x+Math.cos(bladeAngle)*54,y:bladeBase.y+Math.sin(bladeAngle)*54};
     const wipe=smooth(clamp((q-.18)/.49,0,1));
     const charge=clamp((q-.12)/.47,0,1);
     const settle=smooth(clamp((q-.65)/.35,0,1));
@@ -577,17 +579,8 @@
       if(u<=wipe+.001)chargedPts.push([p.x,p.y]);
     }
 
-    // Handle, guard and steel are locked to the animated sword hand.
-    const ux=(bladeTip.x-bladeBase.x)/Math.max(1,Math.hypot(bladeTip.x-bladeBase.x,bladeTip.y-bladeBase.y));
-    const uy=(bladeTip.y-bladeBase.y)/Math.max(1,Math.hypot(bladeTip.x-bladeBase.x,bladeTip.y-bladeBase.y));
+    // Keep the original katana model; draw only the moving edge-light and cursed energy.
     ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
-    drawPath([[bladeBase.x-ux*15,bladeBase.y-uy*15],[bladeBase.x,bladeBase.y]],'#171b23',7.5,.98);
-    drawPath([[bladeBase.x-ux*13,bladeBase.y-uy*13],[bladeBase.x-ux*2,bladeBase.y-uy*2]],'#8e96a8',1.5,.82);
-    const guard={x:bladeBase.x-ux*1.5,y:bladeBase.y-uy*1.5};
-    ctx.strokeStyle='#2b2c38';ctx.lineWidth=4.4;
-    ctx.beginPath();ctx.moveTo(guard.x-dir*6,guard.y+4);ctx.lineTo(guard.x+dir*6,guard.y-4);ctx.stroke();
-
-    // Gathering light, then a travelling blue-violet charge that follows the wipe.
     ctx.globalCompositeOperation='lighter';
     const glow=.12+.54*charge;
     drawPath(bladePts,'#8d7bff',12*glow,.12+.23*charge);
