@@ -178,7 +178,7 @@
   }
   function applyEntranceMotion(f,t,phase,side,c){
     const p=profile(f),local=side===0,dir=f.facing||1;
-    f.animT=(f.animT||0)+1.12+(p.kind==='jackpot'?.25:0);
+    f.animT=(f.animT||0)+1.12+(p.kind==='jackpot' ? 0.25 : 0);
     f.stateFrame=(f.stateFrame||0)+1;f.vx=0;f.vy=0;
     if(phase===0){setPose(f,'intro',0);return;}
     if(phase===1&&local){
@@ -405,7 +405,7 @@
     const count=LOW_END?4:7;
     ctx.save();ctx.globalCompositeOperation='lighter';
     for(let i=0;i<count;i++){
-      const a=i*2.39996+t*(mode==='float'?.45:.85),r=21+(i%3)*13+intensity*13;
+      const a=i*2.39996+t*(mode==='float' ? 0.45 : 0.85),r=21+(i%3)*13+intensity*13;
       const rise=mode==='float'?(14+Math.abs(Math.sin(t*1.8+i))*55):(7+Math.abs(Math.sin(t*3+i))*24*intensity);
       const px=x+Math.cos(a)*r,py=y-rise+Math.sin(a)*7;
       ctx.globalAlpha=(.20+.44*intensity)*(0.55+.45*Math.sin(t*2+i));
@@ -587,11 +587,21 @@
     if(name){
       const p=profile(f),phase=storyPhase(),t=storyT();
       let q=0,intensity=.35;
-      if(p.kind==='limitless'){q=phase===2?clamp((t-4.05)/1.9,0,1):clamp((t-.95)/3.1,0,1);intensity=phase===2?.82:.38;}
-      if(p.kind==='slaughter'){q=phase===5?clamp((t-9.95)/1.9,0,1):clamp((t-6.85)/3.1,0,1);intensity=phase===5?.88:.42;}
+      if(p.kind==='limitless'){q=phase===2?clamp((t-4.05)/1.9,0,1):clamp((t-.95)/3.1,0,1);intensity=phase===2 ? 0.82 : 0.38;}
+      if(p.kind==='slaughter'){q=phase===5?clamp((t-9.95)/1.9,0,1):clamp((t-6.85)/3.1,0,1);intensity=phase===5 ? 0.88 : 0.42;}
       return {kind:name,q,intensity,profile:p,t};
     }
     return null;
+  }
+  function drawCineHudGlitch(strength){
+    ctx.save();ctx.globalAlpha=.17*strength;ctx.strokeStyle='#d8f8ff';ctx.lineWidth=1;
+    const shift=Math.sin((G.frame||0)*3.3)*3;
+    for(const y of [31,36,63,69,88]){
+      ctx.beginPath();ctx.moveTo(34+shift,y);ctx.lineTo(480+shift,y+.7);ctx.moveTo(W-480-shift,y-1);ctx.lineTo(W-34-shift,y+.5);ctx.stroke();
+    }
+    ctx.globalAlpha=.10*strength;ctx.fillStyle='#d8f8ff';
+    for(let i=0;i<4;i++){const x=(G.frame*41+i*233)%W;ctx.fillRect(x,28,20,2);ctx.fillRect(W-x-30,84,30,1);}
+    ctx.restore();
   }
   function drawFearHud(){
     const fx=G.presenceFx;if(!fx)return;
@@ -678,7 +688,7 @@
     // Small horizontal refractive bands and a light UI jitter at the climax.
     ctx.globalAlpha=.08*strength;ctx.fillStyle='#d8f9ff';
     for(let i=0;i<4;i++){const y=((G.frame||0)*7+i*151)%H;ctx.fillRect(0,y,W,1.5);}
-    if(strength>.45)drawFearHud();
+    if(strength>.45){if(active()||storyActive())drawCineHudGlitch(strength);else drawFearHud();}
     ctx.restore();
   }
 
@@ -687,7 +697,7 @@
     target.presenceFearFrames=Math.max(target.presenceFearFrames||0,FEAR_FRAMES);
     G.presenceFx={source,target,profile:profile(source),expiresAt:(G.frame||0)+FEAR_FRAMES};
     G.hitstop=Math.max(G.hitstop||0,3);
-    try{if(typeof SFX!=='undefined'){SFX.tone(48,.28,'sine',.07,31);SFX.noise(.12,.018,130,.9);}}catch(_){}
+    soundDucking({});
     rumbleController();
     return true;
   }
