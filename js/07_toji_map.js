@@ -237,7 +237,12 @@ function updateFighter(f,inp){
     if(doubleBlockPress&&f.onGround&&tryGrab(f))return;
     f.stateFrame++;f.parry=Math.max(f.parry,0);if(f.stateFrame>=8){if(inp.block||f.blocking){f.state='BLOCK';f.stateFrame=0;}else{f.state='IDLE';f.stateFrame=0;}}physics(f);return;
   }
-  if(f.state==='BLOCK'){f.blocking=true;if(!inp.block){f.state='IDLE';f.blocking=false;f.stateFrame=0;}physics(f);return;}
+  if(f.state==='BLOCK'){
+    if(doubleBlockPress&&f.onGround&&tryGrab(f))return;
+    f.blocking=true;
+    if(!inp.block){f.state='IDLE';f.blocking=false;f.stateFrame=0;}
+    physics(f);return;
+  }
   if(f.id==='yuta'){
     const canStartCharge=(f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')&&f.onGround&&f.meter>=100;
     if(!f.ultCharging&&inp.ultHeld&&canStartCharge&&f.ultStart<G.frame-30){f.ultCharging=true;f.ultHoldFrames=0;f.domainReady=false;}
@@ -249,6 +254,14 @@ function updateFighter(f,inp){
   }
   if(f.state!=='ATTACK'&&!f.onGround&&inp.block){f.state='BLOCK';f.blocking=true;f.stateFrame=0;f.parry=0;physics(f);return;}
   if((f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')&&f.onGround&&doubleBlockPress){if(tryGrab(f))return;}
+
+  /* v40: P2 Numpad8 is a dedicated hold-to-guard input.
+     Prioritize it before skill checks so the guard key cannot fall through into a move. */
+  if(f.isP2&&inp.block&&f.onGround&&
+     (f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')){
+    f.state='BLOCK';f.blocking=true;f.stateFrame=0;f.parry=0;
+    physics(f);return;
+  }
   const canAct=(f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH');
   if(canAct&&f.onGround){
     /* The Strongest of Today: Six Eyes Overdrive requires a FULL Ultimate meter. */
