@@ -189,7 +189,8 @@
     if(phase===1&&local){
       const q=clamp((t-.18)/2.0,0,1);
       setPose(f,'entrance',q);
-      f.x=mix(c.startA,c.targetA,out(q));f.y=GROUND;
+      const beat=walkImpactPulse(t-.18);
+      f.x=mix(c.startA,c.targetA,smooth(q));f.y=GROUND+beat*1.1;
       f.state='WALK';f.walk=q*(Math.PI*4/1.6);
     }else if(phase===2&&local){
       const q=clamp((t-2.18)/.70,0,1);setPose(f,'signature',q);
@@ -202,7 +203,8 @@
       setPose(f,'intro',0);f.x=c.startB;f.y=GROUND;f.state='IDLE';f.walk=0;
     }else if(phase===3&&!local){
       const q=clamp((t-2.88)/2.0,0,1);setPose(f,'entrance',q);
-      f.x=mix(c.startB,c.targetB,out(q));f.y=GROUND;
+      const beat=walkImpactPulse(t-2.88);
+      f.x=mix(c.startB,c.targetB,smooth(q));f.y=GROUND+beat*1.1;
       f.state='WALK';f.walk=q*(Math.PI*4/1.6);
     }else if(phase===4&&!local){
       const q=clamp((t-4.88)/.70,0,1);setPose(f,'signature',q);
@@ -339,6 +341,18 @@
     for(const k of ['hipY','shY','headY','headX','lean'])if(Number.isFinite(target[k]))P[k]=mix(P[k],target[k],w);
     for(const k of ['armF','armB','legF','legB'])if(Array.isArray(target[k])&&Array.isArray(P[k]))P[k]=[mix(P[k][0],target[k][0],w),mix(P[k][1],target[k][1],w)];
   }
+  function blendEntrancePose(P,target,weight){
+    const w=clamp(weight,0,1);
+    // Preserve the live WALK leg cycle. Character identity only shapes the torso and arms.
+    for(const k of ['hipY','shY','headY','headX','lean']){
+      if(Number.isFinite(target[k]))P[k]=mix(P[k],target[k],w);
+    }
+    for(const k of ['armF','armB']){
+      if(Array.isArray(target[k])&&Array.isArray(P[k])){
+        P[k]=[mix(P[k][0],target[k][0],w),mix(P[k][1],target[k][1],w)];
+      }
+    }
+  }
   function sampleKeys(keys,q){
     if(!keys||!keys.length)return null;
     let a=keys[0],b=keys[keys.length-1];
@@ -416,7 +430,7 @@
           toji:pose(17,[150,-105],[120,14],-54,-109,-93),
           heian_sukuna:pose(11,[73,32],[116,12]),the_strongest_today:pose(-2,[60,24],[106,10])
         }[id];
-        if(base)blendPose(P,base,info.q);
+        if(base)blendEntrancePose(P,base,info.q);
       }
       return result;
     };
