@@ -1,8 +1,8 @@
 'use strict';
-/* JFF v37: optional PixiJS/WebGL VFX renderer prototype.
-   Gameplay and the original Canvas2D renderer remain authoritative. This layer is
-   transparent, low-resolution (1x), screen-space, limited to a few signature FX,
-   and falls back to Canvas2D when Pixi/WebGL isn't available. */
+/* JFF v39 hybrid renderer gate.
+   Canvas2D remains the authoritative gameplay renderer. PixiJS is downloaded only
+   when the device is not classified as low-end and an accelerated WebGL context is
+   available. The VFX overlay runs at a capped cadence on Canvas2D fallback. */
 (function(){
   if (window.JFF_V37_PIXI_VFX) return;
   const JFF_V37_LOW_END = ((navigator.hardwareConcurrency || 0) > 0 && navigator.hardwareConcurrency <= 2) || ((navigator.deviceMemory || 0) > 0 && navigator.deviceMemory <= 4);
@@ -26,7 +26,7 @@
   let shaderAvailable = false, shaderFilters = [], fallbackCanvas = null, fallbackCtx = null;
   let lastMeasure = 0, costSum = 0, costCount = 0, slowFrames = 0, severeCostChecks = 0;
   let baseRender = window.render;
-  let frameNumber = 0;
+  let frameNumber = 0, lastFallbackFrame = 0;
 
   const fallbackStyle = 'position:absolute;left:0;top:0;width:1280px;height:720px;z-index:1;pointer-events:none;display:block;';
   fallbackCanvas = document.createElement('canvas');
@@ -324,9 +324,60 @@
       shaderAvailable=true;return filter;
     }catch(e){console.warn('[JFF V37] custom shader disabled; using Pixi vector renderer.',e);shaderAvailable=false;return null;}
   }
+  function detectAcceleratedWebGL(){
+    let probe=null,gl=null;
+    try{
+      probe=document.createElement('canvas');
+      gl=probe.getContext('webgl2',{failIfMajorPerformanceCaveat:true})||
+         probe.getContext('webgl',{failIfMajorPerformanceCaveat:true});
+      if(!gl)return {ok:false,reason:'ACCELERATED WEBGL UNAVAILABLE'};
+      let vendor='',renderer='';
+      const ext=gl.getExtension('WEBGL_debug_renderer_info');
+      if(ext){
+        vendor=String(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)||'');
+        renderer=String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||'');
+      }else{
+        vendor=String(gl.getParameter(gl.VENDOR)||'');
+        renderer=String(gl.getParameter(gl.RENDERER)||'');
+      }
+      const details=(vendor+' '+renderer).toLowerCase();
+      const software=/swiftshader|llvmpipe|lavapipe|softpipe|basic render driver|software rasterizer|microsoft basic|warp renderer/.test(details);
+      try{const lose=gl.getExtension('WEBGL_lose_context');if(lose)lose.loseContext();}catch(_){}
+      return {ok:!software,reason:software?'SOFTWARE WEBGL DETECTED':'ACCELERATED WEBGL AVAILABLE',vendor,renderer};
+    }catch(_){
+      return {ok:false,reason:'WEBGL PROBE FAILED'};
+    }finally{
+      probe=null;gl=null;
+    }
+  }
+  function loadPixiScript(){
+    return new Promise((resolve,reject)=>{
+      if(window.PIXI&&PIXI.Application&&PIXI.Graphics){resolve();return;}
+      const script=document.createElement('script');
+      let settled=false;
+      const timeout=setTimeout(()=>{
+        if(settled)return;
+        settled=true;script.remove();reject(new Error('PixiJS CDN timeout'));
+      },8000);
+      script.src='https://cdn.jsdelivr.net/npm/pixi.js@8.22.0/dist/pixi.min.js';
+      script.async=true;
+      script.onload=()=>{
+        if(settled)return;
+        settled=true;clearTimeout(timeout);
+        if(window.PIXI&&PIXI.Application&&PIXI.Graphics)resolve();
+        else reject(new Error('PixiJS loaded without required renderer APIs'));
+      };
+      script.onerror=()=>{
+        if(settled)return;
+        settled=true;clearTimeout(timeout);reject(new Error('PixiJS CDN unavailable'));
+      };
+      document.head.appendChild(script);
+    });
+  }
   async function bootPixi(){
     try{
-      if(!window.PIXI||!PIXI.Application||!PIXI.Graphics)throw new Error('PixiJS CDN unavailable');
+      if(!window.PIXI||!PIXI.Application||!PIXI.Graphics)await loadPixiScript();
+      if(!window.PIXI||!PIXI.Application||!PIXI.Graphics)throw new Error('PixiJS APIs unavailable');
       const candidate=new PIXI.Application();
       await candidate.init({
         width:W0,height:H0,backgroundAlpha:0,clearBeforeRender:true,
@@ -364,7 +415,11 @@
         if(G.mode==='menu')activeFx.length=0;
       }
       if(window.JFF_V37_PIXI_VFX.renderer==='PIXI WEBGL')pixiRender();
-      else drawFallback();
+      else {
+        const now=performance.now();
+        const isMenu=typeof G==='undefined'||G.mode==='menu';
+        if(isMenu||now-lastFallbackFrame>=33){drawFallback();lastFallbackFrame=now;}
+      }
       updateBadge();
       frameNumber++;
       lastMeasure=performance.now()-t0;
@@ -372,7 +427,17 @@
     };
   }
 
-  /* CDN script load can fail without affecting boot: fallback remains ready. */
-  if(JFF_V37_LOW_END){switchToFallback('LOW-END PERFORMANCE PROFILE');}
-  else{bootPixi();}
+  /* Low-end/software-rendered machines skip the PixiJS download entirely. */
+  const gpuProbe=JFF_V37_LOW_END
+    ? {ok:false,reason:'LOW-END PERFORMANCE PROFILE'}
+    : detectAcceleratedWebGL();
+  window.JFF_V37_PIXI_VFX.acceleratedWebGL=!!gpuProbe.ok;
+  window.JFF_V37_PIXI_VFX.gpuProbeReason=gpuProbe.reason;
+  window.JFF_V37_PIXI_VFX.gpuVendor=gpuProbe.vendor||'';
+  window.JFF_V37_PIXI_VFX.gpuRenderer=gpuProbe.renderer||'';
+  if(!gpuProbe.ok){
+    switchToFallback(gpuProbe.reason);
+  }else{
+    bootPixi();
+  }
 })();
