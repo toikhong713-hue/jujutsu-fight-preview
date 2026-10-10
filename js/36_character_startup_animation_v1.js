@@ -13,6 +13,7 @@
   const baseStep = window.step;
   const baseRender = window.render;
   const baseDrawFighter = window.drawFighter;
+  const baseMenuKey = window.MenuKey;
 
   if (![baseResetRound, baseStep, baseRender, baseDrawFighter].every(fn => typeof fn === 'function')) {
     console.warn('[JFF Startup] Required game hooks were not found; startup system disabled.');
@@ -211,6 +212,9 @@
     if(phase===0||phase===1||phase===2){
       const focus=phase===2?b:a;
       const color=paletteFor(focus);
+      ctx.globalAlpha=.96;
+      ctx.fillStyle='#f4f7ff';ctx.font='900 27px system-ui, sans-serif';
+      ctx.fillText('READY',W/2,82);
       ctx.globalAlpha=.86;
       ctx.fillStyle=color;ctx.font='800 12px system-ui, sans-serif';
       ctx.fillText(sub,W/2,H-67);
@@ -275,6 +279,14 @@
     baseRender();
     drawCinematicOverlay();
   };
+  // The startup and Story intro are intentionally unskippable. In particular,
+  // prevent the older Story controller from treating Enter/Space as a skip.
+  if (typeof baseMenuKey === 'function') {
+    window.MenuKey=function(code){
+      if(activeCine() || storyCineActive()) return;
+      baseMenuKey(code);
+    };
+  }
 
   window.JFF_CHARACTER_STARTUP_V1={
     version:'1.0',
