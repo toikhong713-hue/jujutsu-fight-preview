@@ -566,10 +566,10 @@
   function drawYutaSwordWipe(f,q,t){
     const dir=f.facing||1;
     const P=typeof computePose==='function'?computePose(f):null;
-    const hand=poseHand(f,'front');
+    const swordHand=poseHand(f,'front');
     const bladeAngle=P?(P.armF[0]+P.armF[1])*Math.PI/180:-.35;
     // This geometry overlays the existing Yuta katana exactly, instead of drawing a second sword.
-    const bladeBase={x:hand.x+Math.cos(bladeAngle)*8,y:hand.y+Math.sin(bladeAngle)*8};
+    const bladeBase={x:swordHand.x+Math.cos(bladeAngle)*8,y:swordHand.y+Math.sin(bladeAngle)*8};
     const bladeTip={x:bladeBase.x+Math.cos(bladeAngle)*54,y:bladeBase.y+Math.sin(bladeAngle)*54};
     const wipe=smooth(clamp((q-.18)/.49,0,1));
     const charge=clamp((q-.12)/.47,0,1);
