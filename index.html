@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JUJUTSU FIGHT v16 • Modular Build</title>
-<link rel="stylesheet" href="css/game.css?v=p1-p2-select-impact">
+<link rel="stylesheet" href="css/game.css?v=story-megumi-1">
 </head>
 <body>
 <div id="wrap">
@@ -22,6 +22,7 @@
 <div class="card yuta" data-char="yuta"><h2 style="color:#c9a6ff">YUTA OKKOTSU</h2><p>KATANA · CURSED ENERGY · RIKA · COPY<br>Speech · Rika Rush · Copy · Sky · RCT<br>ULT: MENACING BEAM / DOMAIN</p></div>
 <div class="card hakari" data-char="hakari"><h2 style="color:#ffd166">KINJI HAKARI</h2><p>BRAWLER · PRESSURE · HIGH RISK<br>Train · Rough · Idle Gamble · Jackpot<br>DOMAIN: IDLE DEATH GAMBLE</p><span class="tag hakari-tag">JACKPOT — HIT THE JACKPOT</span></div>
 <div class="card toji" data-char="toji"><h2 style="color:#7b8084">TOJI FUSHIGURO</h2><p>ASSASSIN · RUSHDOWN · WEAPON MASTER<br>Split Soul Katana · ISOH · Chain · Playful Cloud<br>HEAVENLY RESTRICTION</p><span class="tag toji-tag">ZERO CURSED ENERGY · HUNT</span><button class="tojiMovesetBtn" type="button" data-open-toji-moveset>VIEW MOVESET · DYNAMIC MOTION</button></div>
+<div class="card megumiComingSoon" data-char="megumi" aria-disabled="true" title="Megumi is not playable yet"><h2 style="color:#9fb3c9">MEGUMI FUSHIGURO</h2><p>SHADOW TECHNIQUE · SHIKIGAMI<br>DIVINE DOGS · NUE · TEN SHADOWS<br>CHARACTER IN DEVELOPMENT</p><span class="tag megumi-tag">COMING SOON</span></div>
 <div class="card heian hidden" data-char="heian_sukuna"><h2 style="color:#ff5566">HEIAN SUKUNA</h2><p>FOUR-ARM · ANCIENT · OVERWHELMING<br>Kamutoke · Hiten · World-Cutting Slash<br>DOMAIN: MALEVOLENT SHRINE</p><span class="tag heian-tag">TRAINING ONLY · 0 = World-Cutting Slash</span></div>
 <div class="card strongest hidden" data-char="the_strongest_today"><h2 style="color:#00e5ff">THE STRONGEST OF TODAY</h2><p>SPATIAL · SIX EYES · TWO MOVESETS<br>Spatial Shift · RCT · Simple Domain · Black Flash<br>Base Purple · Base Void · Six Eyes Overdrive<br>OVERDRIVE: Max Blue · Max Red · Purple Chant</p><span class="tag strongest-tag">TRAINING ONLY · 9 = OVERDRIVE</span></div>
 </div>
@@ -38,14 +39,14 @@
     DIFFICULTY · HARD</p>
     <span class="tag" style="border-color:#7fd8ff;color:#9fd8ff">UNLOCKED</span>
   </div>
-  <div class="card" style="opacity:.42; border-style:dashed">
-    <h2 style="color:#7b89a8">CHAPTER 2 · RISING CONFLICT</h2>
+  <div class="card" id="storyChapter2" data-chapter="2" data-status="locked" style="opacity:.42; border-style:dashed; cursor:pointer">
+    <h2 style="color:#c9a6ff">CHAPTER 2 · RISING CONFLICT</h2>
     <p>LOCKED · COMPLETE CHAPTER 1</p>
     <span class="tag">LOCKED</span>
   </div>
-  <div class="card" style="opacity:.28; border-style:dashed">
+  <div class="card" id="storyChapter3" data-chapter="3" data-status="locked" style="opacity:.28; border-style:dashed; cursor:pointer">
     <h2 style="color:#68758e">CHAPTER 3 · AWAKENING</h2>
-    <p>LOCKED</p>
+    <p>LOCKED · COMPLETE CHAPTER 2</p>
     <span class="tag">LOCKED</span>
   </div>
 </div>
@@ -130,7 +131,7 @@
 <script src="js/07_toji_map.js"></script>
 <script src="js/08_background.js"></script>
 <script src="js/09_menu.js"></script>
-<script src="js/10_story_cinematic.js"></script>
+<script src="js/10_story_cinematic.js?v=story-ch1-fix1"></script>
 <script src="js/11_young_gojo_cinematic.js"></script>
 <script src="js/12_modern_renderer_v19.js"></script>
 <script src="js/13_modern_animation_v19.js"></script>
