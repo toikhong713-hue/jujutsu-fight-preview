@@ -1073,7 +1073,7 @@ function drawProjectiles(){
     }else if(p.type==='strongest_purple'){
       drawStrongestPurpleProjectile(p,false);
     }else if(p.type==='beam'){
-      ctx.globalCompositeOperation='lighter';const halfW=p.w*.5,halfH=Math.max(18,p.h*.5),t=p.t;
+      ctx.globalCompositeOperation='lighter';const dir=Math.sign(p.vx)||1;ctx.scale(dir,1);const halfW=p.w*.5,halfH=Math.max(18,p.h*.5),t=p.t;
       const outer=ctx.createLinearGradient(-halfW,0,halfW,0);outer.addColorStop(0,'rgba(160,105,244,0)');outer.addColorStop(.12,'rgba(186,143,255,.20)');outer.addColorStop(.58,'rgba(211,180,255,.38)');outer.addColorStop(.9,'rgba(237,220,255,.62)');outer.addColorStop(1,'rgba(255,255,255,.02)');
       ctx.fillStyle=outer;ctx.beginPath();ctx.moveTo(-halfW,-halfH*.08);ctx.quadraticCurveTo(0,-halfH,halfW,0);ctx.quadraticCurveTo(0,halfH,-halfW,halfH*.08);ctx.closePath();ctx.fill();
       const body=ctx.createLinearGradient(0,-halfH,0,halfH);body.addColorStop(0,'rgba(180,130,255,0)');body.addColorStop(.24,'rgba(201,166,255,.88)');body.addColorStop(.5,'rgba(244,235,255,.98)');body.addColorStop(.76,'rgba(201,166,255,.88)');body.addColorStop(1,'rgba(180,130,255,0)');
