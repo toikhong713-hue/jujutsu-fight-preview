@@ -7,7 +7,7 @@
   if(window.JFF_CHARACTER_PRESENCE_V3)return;
   if(typeof G==='undefined'||typeof cam==='undefined'||typeof ctx==='undefined')return;
 
-  const DURATION=4.25, TAIL_FRAMES=108, FEAR_FRAMES=20;
+  const DURATION=7.15, TAIL_FRAMES=108, FEAR_FRAMES=20;
   const LOW_END=((navigator.hardwareConcurrency||0)>0&&navigator.hardwareConcurrency<=2)||
     ((navigator.deviceMemory||0)>0&&navigator.deviceMemory<=4);
   const baseResetRound=window.resetRound,baseStep=window.step;
@@ -151,28 +151,30 @@
     const t=c.t,a=G.fighters&&G.fighters[0],b=G.fighters&&G.fighters[1];
     if(!a||!b){G.presenceCine=null;restoreSfxGain();return;}
     let phase=0;
-    if(t>=.18&&t<.48)phase=1;
-    else if(t>=.48&&t<1.18)phase=2;
-    else if(t>=1.18&&t<1.48)phase=3;
-    else if(t>=1.48&&t<2.18)phase=4;
-    else if(t>=2.18&&t<2.82)phase=5;
-    else if(t>=2.82&&t<3.48)phase=6;
-    else if(t>=3.48)phase=7;
+    if(t>=.18&&t<2.18)phase=1;        // P1: two-second weighted walk-in
+    else if(t>=2.18&&t<2.88)phase=2;  // P1: signature move
+    else if(t>=2.88&&t<4.88)phase=3;  // P2: two-second weighted walk-in
+    else if(t>=4.88&&t<5.58)phase=4;  // P2: signature move
+    else if(t>=5.58&&t<6.18)phase=5;  // face-off
+    else if(t>=6.18&&t<6.68)phase=6;  // pressure release and impact
+    else if(t>=6.68)phase=7;          // FIGHT
     c.phase=phase;G.frame=(G.frame||0)+1;
     applyEntranceMotion(a,t,phase,0,c);
     applyEntranceMotion(b,t,phase,1,c);
     if(t<.18)camera(c.center,.80,430);
-    else if(t<1.18){
-      const q=clamp((t-.18)/1.0,0,1);
-      camera(a.x+35,mix(1.00,1.18,smooth(q)),t>.48?414:424);
-    }else if(t<2.18){
-      const q=clamp((t-1.18)/1.0,0,1);
-      camera(b.x-32,mix(1.00,1.18,smooth(q)),t>1.48?414:424);
-    }else if(t<2.82)camera(c.center,.89,426);
-    else if(t<3.48){
-      if(!c.pressureTriggered&&t>=2.88)pressureBurst(c);
-      const pulse=Math.sin((t-2.82)*Math.PI*11);
-      camera(c.center,.92+Math.max(0,pulse)*.045,414,Math.sin(t*71)*1.35,Math.cos(t*67)*.8);
+    else if(t<2.88){
+      const q=clamp((t-.18)/2.70,0,1);
+      const stepBeat=walkImpactPulse(t-.18);
+      camera(a.x+35,mix(1.00,1.17,smooth(q)),t>2.18?414:424,0,-stepBeat*1.45);
+    }else if(t<5.58){
+      const q=clamp((t-2.88)/2.70,0,1);
+      const stepBeat=walkImpactPulse(t-2.88);
+      camera(b.x-32,mix(1.00,1.17,smooth(q)),t>4.88?414:424,0,-stepBeat*1.45);
+    }else if(t<6.18)camera(c.center,.89,426);
+    else if(t<6.68){
+      if(!c.pressureTriggered&&t>=6.23)pressureBurst(c);
+      const pulse=Math.sin((t-6.18)*Math.PI*12);
+      camera(c.center,.92+Math.max(0,pulse)*.045,414,Math.sin(t*71)*1.2,Math.cos(t*67)*.7);
     }else camera(c.center,.91,426);
     if(t>=DURATION)finish();
   }
@@ -185,11 +187,12 @@
       f.x=local?c.startA:c.startB;f.y=GROUND;return;
     }
     if(phase===1&&local){
-      const q=out((t-.18)/.30);setPose(f,'entrance',q);
-      f.x=mix(c.startA,c.targetA,q);f.y=GROUND;
-      f.state=t<.42?'WALK':'IDLE';f.walk=t<.42?Math.sin(t*30)*1.5:0;
+      const q=clamp((t-.18)/2.0,0,1);
+      setPose(f,'entrance',q);
+      f.x=mix(c.startA,c.targetA,out(q));f.y=GROUND;
+      f.state='WALK';f.walk=q*(Math.PI*4/1.6);
     }else if(phase===2&&local){
-      const q=clamp((t-.48)/.70,0,1);setPose(f,'signature',q);
+      const q=clamp((t-2.18)/.70,0,1);setPose(f,'signature',q);
       const move=p.kind==='assassin'?11:(p.kind==='impact'?16:(p.kind==='rika'?5:
         (p.kind==='slaughter'||p.kind==='calamity'?10:(p.kind==='spatial'?13:7))));
       f.x=c.targetA+dir*signatureTravel(q,move);
@@ -198,11 +201,11 @@
     }else if((phase===1||phase===2)&&!local){
       setPose(f,'intro',0);f.x=c.startB;f.y=GROUND;f.state='IDLE';f.walk=0;
     }else if(phase===3&&!local){
-      const q=out((t-1.18)/.30);setPose(f,'entrance',q);
-      f.x=mix(c.startB,c.targetB,q);f.y=GROUND;
-      f.state=t<1.42?'WALK':'IDLE';f.walk=t<1.42?Math.sin(t*29)*1.4:0;
+      const q=clamp((t-2.88)/2.0,0,1);setPose(f,'entrance',q);
+      f.x=mix(c.startB,c.targetB,out(q));f.y=GROUND;
+      f.state='WALK';f.walk=q*(Math.PI*4/1.6);
     }else if(phase===4&&!local){
-      const q=clamp((t-1.48)/.70,0,1);setPose(f,'signature',q);
+      const q=clamp((t-4.88)/.70,0,1);setPose(f,'signature',q);
       const move=p.kind==='assassin'?11:(p.kind==='impact'?16:(p.kind==='rika'?5:
         (p.kind==='slaughter'||p.kind==='calamity'?10:(p.kind==='spatial'?13:7))));
       f.x=c.targetB+dir*signatureTravel(q,move);
@@ -211,7 +214,7 @@
     }else if((phase===3||phase===4)&&local){
       setPose(f,'faceoff',0);f.x=c.targetA;f.y=GROUND;f.state='IDLE';f.walk=0;
     }else if(phase===5||phase===6){
-      setPose(f,phase===5?'faceoff':'power',phase===5?0:clamp((t-2.82)/.66,0,1));
+      setPose(f,phase===5?'faceoff':'power',phase===5?0:clamp((t-6.18)/.50,0,1));
       f.x=local?c.targetA:c.targetB;f.y=GROUND;f.state='IDLE';f.walk=0;
     }else if(phase===7){
       f.x=local?c.targetA:c.targetB;f.y=GROUND;f.state='IDLE';f.walk=0;
@@ -219,6 +222,14 @@
     if(p.kind==='assassin'&&(phase===5||phase===6))f.x+=Math.sin(t*4.5)*.35;
     if(p.kind==='slaughter'&&(phase===5||phase===6))f.x+=Math.sin(t*2.5)*.25;
     if(p.kind==='calamity'&&phase>=5)f.y=GROUND-Math.abs(Math.sin(t*3.1))*1.0;
+  }
+  function walkImpactPulse(localT){
+    let peak=0;
+    for(let i=0;i<4;i++){
+      const age=localT-(.12+i*.48);
+      if(age>=0&&age<.14)peak=Math.max(peak,1-age/.14);
+    }
+    return peak;
   }
 
   // A readable action arc: anticipation, committed drive, follow-through, recovery.
@@ -347,12 +358,12 @@
     const id=keyId(f),p=profile(f);
     if(active()){
       const c=G.presenceCine,side=G.fighters[0]===f?0:1,ph=c.phase;
-      if(ph===1&&side===0)return {kind:'entrance',q:clamp((c.t-.18)/.30,0,1),intensity:.45,profile:p,t:c.t};
-      if(ph===2&&side===0)return {kind:'signature',q:clamp((c.t-.48)/.70,0,1),intensity:.88,profile:p,t:c.t};
-      if(ph===3&&side===1)return {kind:'entrance',q:clamp((c.t-1.18)/.30,0,1),intensity:.45,profile:p,t:c.t};
-      if(ph===4&&side===1)return {kind:'signature',q:clamp((c.t-1.48)/.70,0,1),intensity:.88,profile:p,t:c.t};
+      if(ph===1&&side===0)return {kind:'entrance',q:clamp((c.t-.18)/2.0,0,1),intensity:.72,profile:p,t:c.t,walkT:clamp(c.t-.18,0,2)};
+      if(ph===2&&side===0)return {kind:'signature',q:clamp((c.t-2.18)/.70,0,1),intensity:.88,profile:p,t:c.t};
+      if(ph===3&&side===1)return {kind:'entrance',q:clamp((c.t-2.88)/2.0,0,1),intensity:.72,profile:p,t:c.t,walkT:clamp(c.t-2.88,0,2)};
+      if(ph===4&&side===1)return {kind:'signature',q:clamp((c.t-4.88)/.70,0,1),intensity:.88,profile:p,t:c.t};
       if(ph===5)return {kind:'faceoff',q:0,intensity:.62,profile:p,t:c.t};
-      if(ph===6)return {kind:'power',q:clamp((c.t-2.82)/.66,0,1),intensity:.90,profile:p,t:c.t};
+      if(ph===6)return {kind:'power',q:clamp((c.t-6.18)/.50,0,1),intensity:.90,profile:p,t:c.t};
       if(ph===7)return {kind:'fight',q:1,intensity:.50,profile:p,t:c.t};
       return {kind:'intro',q:0,intensity:.15,profile:p,t:c.t};
     }
@@ -924,6 +935,43 @@
     }
     return null;
   }
+  function drawWalkImpact(f,info){
+    const localT=Number.isFinite(info.walkT)?info.walkT:clamp(info.q,0,1)*2;
+    const p=info.profile,color=p.color||'#c4d7e2';
+    const debrisCount=LOW_END?4:7;
+    for(let n=0;n<4;n++){
+      const age=localT-(.12+n*.48);
+      if(age<0||age>.36)continue;
+      const q=clamp(age/.36,0,1),fade=1-q;
+      const radius=9+age*155;
+      ctx.save();ctx.globalCompositeOperation='lighter';
+      ctx.globalAlpha=.42*fade;ctx.strokeStyle=color;ctx.lineWidth=2.5*fade+.65;
+      ctx.beginPath();ctx.ellipse(f.x,GROUND-2,radius,3+age*11,0,0,Math.PI*2);ctx.stroke();
+      ctx.globalAlpha=.28*fade;ctx.strokeStyle=p.hot||'#f5fbff';ctx.lineWidth=1.0;
+      ctx.beginPath();ctx.ellipse(f.x,GROUND-2,radius*.68,2+age*5,0,0,Math.PI*2);ctx.stroke();
+      if(age<.12){
+        const strength=1-age/.12;
+        ctx.globalAlpha=.30*strength;ctx.strokeStyle=p.hot||'#fff';ctx.lineWidth=1.2;
+        for(let i=0;i<5;i++){
+          const a=i*Math.PI*2/5+(f.facing<0?Math.PI:0),inner=10+i%2*3,outer=23+(i%3)*5;
+          ctx.beginPath();ctx.moveTo(f.x+Math.cos(a)*inner,GROUND-2+Math.sin(a)*2);
+          ctx.lineTo(f.x+Math.cos(a)*outer,GROUND-2+Math.sin(a)*4);ctx.stroke();
+        }
+      }
+      for(let i=0;i<debrisCount;i++){
+        const a=i/debrisCount*Math.PI*2+(n%2)*.24;
+        const travel=13+age*76+(i%3)*4;
+        const px=f.x+Math.cos(a)*travel;
+        const py=GROUND-4-Math.abs(Math.sin(a))*7-age*13*(.4+(i%3)*.15);
+        const size=(1.6+(i%3)*.55)*fade;
+        ctx.globalAlpha=.40*fade;ctx.fillStyle=i%3===0?(p.hot||'#effaff'):color;
+        ctx.beginPath();ctx.moveTo(px-size*1.6,py);ctx.lineTo(px,py-size*1.7);
+        ctx.lineTo(px+size*1.5,py+size*.3);ctx.closePath();ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
   function drawCineHudGlitch(strength){
     ctx.save();ctx.globalAlpha=.17*strength;ctx.strokeStyle='#d8f8ff';ctx.lineWidth=1;
     const shift=Math.sin((G.frame||0)*3.3)*3;
@@ -1074,6 +1122,7 @@
   };
   window.drawFighter=function(f){
     const info=f?getInfoForFighter(f):null;
+    if(f&&info&&active()&&info.kind==='entrance')drawWalkImpact(f,info);
     if(f&&info)drawAtmosphereBehind(f,info);
     baseDrawFighter.apply(this,arguments);
     if(f&&info){drawSignatureForeground(f,info);drawSignatureLabel(f,info);}
