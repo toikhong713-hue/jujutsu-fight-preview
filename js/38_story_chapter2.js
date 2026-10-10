@@ -183,6 +183,7 @@
     y.animT+=1.15;s.animT+=0.82;y.stateFrame++;s.stateFrame++;
     if(i===0){
       const q=phaseNorm(c.t,0);
+      y.storyCineGaitPhase+=0.018;s.storyCineGaitPhase+=0.012;
       setChapter2Camera(1118-36*q,458+Math.sin(q*Math.PI)*-5,0.82+q*0.015);
     }else if(i===1){
       const q=phaseNorm(c.t,1);
@@ -200,10 +201,11 @@
       y.x=c.startYuta+(c.endYuta-c.startYuta)*e;
       s.x=c.startSukuna+(c.endSukuna-c.startSukuna)*e;
       y.storyCineGaitPhase=-Math.PI/2+e*Math.PI*6;
-      s.storyCineGaitPhase=Math.PI/2+e*Math.PI*6;
+      // Sukuna takes fewer, longer steps; Yuta's cadence stays quicker.
+      s.storyCineGaitPhase=Math.PI/2+e*Math.PI*4;
       y.walk=1;s.walk=1;
       setChapter2Camera(1100+Math.sin(q*Math.PI)*3,440,0.86+0.10*e);
-      const ys=Math.floor(e*6+0.001),ss=Math.floor(e*6+0.001);
+      const ys=Math.floor(e*6+0.001),ss=Math.floor(e*4+0.001);
       if(ys>c.lastYutaStep){
         c.lastYutaStep=ys;playChapter2Footstep(y);
         spark(y.x,GROUND-7,4,'#beb4d0',1.4,3.8,13,0);
