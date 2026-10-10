@@ -169,7 +169,7 @@ function drawTojiInventoryCurse(f,P,fd){
 function drawRikaBehind(f){
   if(!f||f.id!=='yuta')return;const mode=f.storyCineRika||false;
   if((f.rikaTimer||0)<=0&&!mode)return;
-  const dir=f.facing||1,bx=f.x-dir*38,by=f.y,t=f.animT||0,alpha=mode?.98:Math.min(.94,(f.rikaTimer||0)/38),support=mode==='support'||mode==='catch';
+  const dir=f.facing||1,bx=f.x-dir*38,by=f.y,t=f.animT||0,alpha=mode ? .98 : Math.min(.94,(f.rikaTimer||0)/38),support=mode==='support'||mode==='catch';
   ctx.save();ctx.translate(bx,by);ctx.globalAlpha=alpha;ctx.save();ctx.globalCompositeOperation='lighter';
   const halo=ctx.createRadialGradient(0,-105,10,0,-105,108);halo.addColorStop(0,'rgba(238,219,255,.30)');halo.addColorStop(.55,'rgba(178,126,241,.17)');halo.addColorStop(1,'rgba(128,75,190,0)');
   ctx.fillStyle=halo;ctx.beginPath();ctx.ellipse(0,-105,70,116,0,0,Math.PI*2);ctx.fill();ctx.restore();
