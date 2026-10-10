@@ -1090,8 +1090,8 @@
   installPoseLayer();installGameplayPressure();
 
   window.JFF_CHARACTER_PRESENCE_V3={
-    version:'3.0',profiles:Object.keys(PROFILE),duration:DURATION,lowEnd:LOW_END,
+    version:'4.0',profiles:Object.keys(PROFILE),duration:DURATION,lowEnd:LOW_END,
     get active(){return active();},get time(){return G.presenceCine?G.presenceCine.t:0;}
   };
-  console.info('[JFF Presence V3] Character actions, environmental reaction and pressure system ready.');
+  console.info('[JFF Presence V4] Distinct roster startups, character actions and environmental pressure ready.');
 })();
