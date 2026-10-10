@@ -3,6 +3,55 @@
 const screens={menu:document.getElementById('menu'),charSelect:document.getElementById('charSelect'),storySelect:document.getElementById('storySelect'),controls:document.getElementById('controlsScreen'),pause:document.getElementById('pauseMenu')};
 function showScreen(name){for(const k in screens)screens[k].classList.remove('on');if(name&&screens[name])screens[name].classList.add('on');}
 let pendingMode=null;
+let selectedP1=null;
+const RANDOM_MATCH_ROSTER=['gojo','young_gojo','sukuna','yuta','hakari','toji'];
+const CHARACTER_KEY_MAP={
+  Digit1:'gojo',Numpad1:'gojo',Digit2:'young_gojo',Numpad2:'young_gojo',
+  Digit3:'sukuna',Numpad3:'sukuna',Digit4:'yuta',Numpad4:'yuta',
+  Digit5:'hakari',Numpad5:'hakari',Digit6:'toji',Numpad6:'toji',
+  Digit7:'heian_sukuna',Numpad7:'heian_sukuna',
+  Digit8:'the_strongest_today',Numpad8:'the_strongest_today'
+};
+function resetCharacterSelect(){
+  selectedP1=null;
+  document.querySelectorAll('#charSelect .card').forEach(c=>c.classList.remove('pickP1'));
+}
+function updateCharacterSelectPrompt(){
+  const title=document.querySelector('#charSelect .title');
+  const hint=document.querySelector('#charSelect .hint');
+  if(title)title.textContent=selectedP1?'PLAYER 2 // CHOOSE YOUR SORCERER':'PLAYER 1 // CHOOSE YOUR SORCERER';
+  if(hint){
+    if(selectedP1)hint.textContent='P1: '+selectedP1.replace(/_/g,' ').toUpperCase()+'  ·  SELECT P2  ·  ESC TO CHANGE P1';
+    else if(pendingMode==='cpu')hint.textContent='SELECT YOUR FIGHTER · CPU OPPONENT IS RANDOM · ESC TO BACK';
+    else if(pendingMode==='timeattack')hint.textContent='SELECT YOUR FIGHTER · RANDOM RIVAL · ESC TO BACK';
+    else hint.textContent='SELECT P1 FIRST, THEN P2 · 1–8 / CLICK A CARD · ESC TO BACK';
+  }
+}
+function randomOpponent(exclude){
+  const pool=RANDOM_MATCH_ROSTER.filter(id=>id!==exclude);
+  return pool[Math.floor(Math.random()*pool.length)]||'sukuna';
+}
+function beginCharacterSelect(mode,trainingOnly){
+  pendingMode=mode;resetCharacterSelect();showScreen('charSelect');toggleTrainingCards(!!trainingOnly);updateCharacterSelectPrompt();
+}
+function chooseCharacter(ch){
+  if((ch==='heian_sukuna'||ch==='the_strongest_today')&&pendingMode!=='training')return;
+  SFX.ui();
+  if(pendingMode==='cpu'||pendingMode==='timeattack'){
+    launch(pendingMode,ch,randomOpponent(ch));return;
+  }
+  if(pendingMode==='versus'||pendingMode==='training'){
+    if(!selectedP1){
+      selectedP1=ch;
+      document.querySelectorAll('#charSelect .card').forEach(c=>c.classList.toggle('pickP1',c.dataset.char===ch));
+      updateCharacterSelectPrompt();
+      return;
+    }
+    launch(pendingMode,selectedP1,ch);return;
+  }
+  const p2=(ch==='gojo'||ch==='young_gojo')?'sukuna':(ch==='sukuna'?'yuta':(ch==='yuta'?'hakari':(ch==='hakari'?'toji':(ch==='toji'?'young_gojo':'sukuna'))));
+  launch(pendingMode,ch,p2);
+}
 const menuItems=[...document.querySelectorAll('#mainMenuNav .menuItem')];
 let menuCursor=0;
 function setMenuCursor(i,focus=false){
@@ -20,11 +69,11 @@ function activateMenuItem(el){
   SFX.init();SFX.ui();
   const m=el.dataset.mode;
   if(m==='controls'){showScreen('controls');return;}
-  if(m==='versus'){pendingMode='versus';showScreen('charSelect');toggleTrainingCards(false);return;}
-  if(m==='cpu'){pendingMode='cpu';showScreen('charSelect');toggleTrainingCards(false);return;}
-  if(m==='training'){pendingMode='training';showScreen('charSelect');toggleTrainingCards(true);return;}
-  if(m==='survival'){pendingMode='survival';showScreen('charSelect');toggleTrainingCards(false);return;}
-  if(m==='timeattack'){pendingMode='timeattack';showScreen('charSelect');toggleTrainingCards(false);return;}
+  if(m==='versus'){beginCharacterSelect('versus',false);return;}
+  if(m==='cpu'){beginCharacterSelect('cpu',false);return;}
+  if(m==='training'){beginCharacterSelect('training',true);return;}
+  if(m==='survival'){beginCharacterSelect('survival',false);return;}
+  if(m==='timeattack'){beginCharacterSelect('timeattack',false);return;}
   if(m==='story'){pendingMode='story';showScreen('storySelect');return;}
 }
 menuItems.forEach((b,n)=>b.addEventListener('click',()=>{setMenuCursor(n);activateMenuItem(b);}));
@@ -58,18 +107,13 @@ document.addEventListener('keydown',(e)=>{
 document.getElementById('btnCtrlBack').addEventListener('click',()=>{showScreen('menu');});
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
 document.querySelectorAll('#charSelect .card').forEach(c=>{
-  c.addEventListener('click',()=>{
-    SFX.ui();
-    const ch=c.dataset.char;
-    if((ch==='heian_sukuna'||ch==='the_strongest_today')&&pendingMode!=='training')return;
-    const p2=(ch==='gojo'||ch==='young_gojo')?'sukuna':(ch==='sukuna'?'yuta':(ch==='yuta'?'hakari':(ch==='hakari'?'toji':(ch==='toji'?'young_gojo':'sukuna'))));
-    launch(pendingMode,ch,p2);
-  });
+  c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
 });
 document.getElementById('btnResume').addEventListener('click',()=>togglePause(false));
 document.getElementById('btnRestart').addEventListener('click',()=>{togglePause(false);startMatch(G.mode,G.fighters[0].id,G.fighters[1].id,G.difficulty);});
 document.getElementById('btnQuit').addEventListener('click',()=>{togglePause(false);G.mode='menu';showScreen('menu');});
 function launch(mode,p1,p2){
+  resetCharacterSelect();
   showScreen(null);
   if(mode==='story'){startChapter1();return;}
   if(mode==='survival'){G.survivalRound=1;}
@@ -202,17 +246,15 @@ function MenuKey(code){
       return;
     }
     if(screens.charSelect.classList.contains('on')){
-      const heianVisible=!document.querySelector('.card.heian').classList.contains('hidden');
-      const strongVisible=!document.querySelector('.card.strongest').classList.contains('hidden');
-      if(code==='Digit1'||code==='Numpad1')launch(pendingMode,'gojo','sukuna');
-      if(code==='Digit2'||code==='Numpad2')launch(pendingMode,'young_gojo','sukuna');
-      if(code==='Digit3'||code==='Numpad3')launch(pendingMode,'sukuna','yuta');
-      if(code==='Digit4'||code==='Numpad4')launch(pendingMode,'yuta','hakari');
-      if(code==='Digit5'||code==='Numpad5')launch(pendingMode,'hakari','toji');
-      if(code==='Digit6'||code==='Numpad6')launch(pendingMode,'toji','sukuna');
-      if(heianVisible&&(code==='Digit7'||code==='Numpad7'))launch(pendingMode,'heian_sukuna','sukuna');
-      if(strongVisible&&(code==='Digit8'||code==='Numpad8'))launch(pendingMode,'the_strongest_today','sukuna');
-      if(code==='Escape')showScreen('menu');
+      const ch=CHARACTER_KEY_MAP[code];
+      const card=ch&&document.querySelector('#charSelect .card[data-char="'+ch+'"]');
+      if(ch&&card&&!card.classList.contains('hidden')){chooseCharacter(ch);return;}
+      if(code==='Escape'){
+        if(selectedP1&&(pendingMode==='versus'||pendingMode==='training')){
+          resetCharacterSelect();updateCharacterSelectPrompt();return;
+        }
+        resetCharacterSelect();showScreen('menu');
+      }
       return;
     }
     if(screens.controls.classList.contains('on')){if(code==='Escape')showScreen('menu');return;}
