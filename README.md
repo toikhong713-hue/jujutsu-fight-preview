@@ -42,3 +42,14 @@ Keep the folder structure intact and open `index.html` in a modern browser.
 - Uses Canvas 2D lines, arcs, rings, diamonds, and small event-driven spark bursts. No external libraries, large textures, fullscreen blur, or always-on high-density particles.
 - VFX design principles were informed by [Riot's visual-effects guidance](https://www.riotgames.com/vi/artedu/visual-effects) and [League's VFX Style Guide](https://nexus.leagueoflegends.com/en-us/2017/10/dev-leagues-vfx-style-guide/): value, color, shape, timing, gameplay clarity and low clutter. Performance choices also follow [Epic's VFX optimization guide](https://dev.epicgames.com/documentation/en-us/unreal-engine/vfx-optimization-guide?application_version=4.27) and [Unity's graphics optimization advice](https://docs.unity.com/en-us/engine/6000.6/manual/analysis/graphics-performance-profiling/optimizing-graphics-performance), especially reducing overdraw and transparent screen coverage.
 - Existing damage, hitboxes, frame data, move costs and cooldowns are unchanged by this visual-only pass.
+
+
+## v37: optional PixiJS VFX prototype
+- Adds a transparent PixiJS 8.22.0 WebGL overlay for selected signature effects and projectiles.
+- Keeps the original Canvas 2D gameplay/render path unchanged.
+- Uses 1x resolution, small local effects, bounded projectile details, and a small custom GLSL distortion pass when supported.
+- Automatically falls back to a lightweight Canvas 2D overlay if the PixiJS CDN, WebGL, or custom filter fails.
+- In Training, a small diagnostic label reports the active renderer and recent CPU-side render cost.
+- Requires an internet connection to load PixiJS from jsDelivr for the WebGL prototype; gameplay still works if it fails.
+
+Reference: PixiJS 8 documentation on Application initialization, custom filters, and particle rendering; WebGL support is not a guarantee of improved performance on software-rendered or legacy systems.
