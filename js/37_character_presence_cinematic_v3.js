@@ -254,12 +254,14 @@
       {t:1,p:pose(5,[62,31],[111,15])}
     ],
     yuta:[
-      {t:0,p:pose(-5,[75,35],[150,-75])},
-      {t:.22,p:pose(-11,[135,-105],[165,-100],-57,-113,-97)},
-      {t:.43,p:pose(-12,[42,-48],[152,-100],-56,-114,-99,[83,8],[97,-8])},
-      {t:.63,p:pose(-15,[5,8],[130,-40],-54,-113,-98,[77,12],[108,-12])},
-      {t:.80,p:pose(-3,[20,8],[110,20],-57,-112,-97)},
-      {t:1,p:pose(-5,[75,35],[150,-75])}
+      // Left hand steadies the katana forward; the free hand rises to wipe the blade.
+      {t:0,p:pose(-3,[72,25],[145,-70])},
+      {t:.16,p:pose(-6,[286,-18],[205,-88],-58,-114,-98,[87,5],[96,-5])},
+      {t:.36,p:pose(-8,[292,-24],[236,-132],-59,-115,-99,[86,6],[98,-6])},
+      {t:.56,p:pose(-10,[292,-20],[270,-145],-59,-115,-99,[86,6],[98,-6])},
+      {t:.76,p:pose(-7,[285,-12],[250,-125],-58,-114,-98,[87,5],[97,-5])},
+      {t:.90,p:pose(-4,[280,-8],[155,-54],-58,-113,-98)},
+      {t:1,p:pose(-3,[72,25],[145,-70])}
     ],
     hakari:[
       {t:0,p:pose(5,[72,30],[118,12])},
@@ -270,12 +272,14 @@
       {t:1,p:pose(5,[72,30],[118,12])}
     ],
     toji:[
-      {t:0,p:pose(14,[150,-115],[118,14],-55,-109,-93,[84,10],[99,-9])},
-      {t:.27,p:pose(18,[168,-145],[118,14],-54,-110,-93,[78,12],[104,-10])},
-      {t:.48,p:pose(20,[40,-32],[145,-72],-53,-109,-95,[72,13],[111,-12])},
-      {t:.67,p:pose(10,[4,18],[134,-26],-52,-109,-96,[74,13],[111,-11])},
-      {t:.83,p:pose(16,[32,6],[120,8],-54,-109,-94)},
-      {t:1,p:pose(14,[150,-115],[118,14],-55,-109,-93)}
+      // A low predator stance, rear arm reaching into the storage curse, then a sharp draw.
+      {t:0,p:pose(19,[65,25],[135,-42],-54,-109,-93,[82,13],[105,-10])},
+      {t:.18,p:pose(24,[58,18],[214,-96],-53,-110,-94,[78,15],[109,-11])},
+      {t:.38,p:pose(16,[42,4],[272,-132],-53,-110,-94,[74,14],[111,-12])},
+      {t:.52,p:pose(21,[22,-16],[304,-176],-52,-111,-95,[72,14],[112,-12])},
+      {t:.68,p:pose(13,[12,-6],[286,-140],-53,-110,-95,[76,12],[108,-11])},
+      {t:.84,p:pose(17,[42,5],[170,-48],-54,-109,-94)},
+      {t:1,p:pose(19,[65,25],[135,-42],-54,-109,-93)}
     ],
     heian_sukuna:[
       {t:0,p:pose(9,[72,34],[115,14])},
@@ -532,12 +536,123 @@
     }
     ctx.restore();
   }
+  function poseHand(f,which){
+    const dir=f.facing||1;
+    const P=typeof computePose==='function'?computePose(f):null;
+    if(!P||typeof joint!=='function')return {x:f.x+dir*18,y:f.y-76};
+    const arm=which==='back'?P.armB:P.armF;
+    const sh={x:f.x+P.lean*.28*dir+(which==='back'?-dir*4:dir*4),y:f.y+P.shY+10};
+    const elbow=joint(sh,arm[0],17);
+    const hand=joint(elbow,arm[0]+arm[1],17);
+    const a=(arm[0]+arm[1])*Math.PI/180;
+    return {x:hand.x+Math.cos(a)*6,y:hand.y+Math.sin(a)*6};
+  }
+  function drawYutaSwordWipe(f,q,t){
+    const dir=f.facing||1;
+    const hilt=poseHand(f,'front');
+    const bladeBase={x:f.x+dir*26,y:f.y-61};
+    const bladeTip={x:f.x+dir*43,y:f.y-139};
+    const wipe=smooth(clamp((q-.13)/.58,0,1));
+    const settle=clamp((q-.73)/.27,0,1);
+    const hand={x:mix(bladeBase.x,bladeTip.x,wipe),y:mix(bladeBase.y,bladeTip.y,wipe)};
+    ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+    // Katana held upright in front of Yuta, with a dark spine and a clean steel edge.
+    ctx.globalAlpha=.96;ctx.strokeStyle='#20242d';ctx.lineWidth=8;
+    ctx.beginPath();ctx.moveTo(bladeBase.x-dir*3,bladeBase.y+8);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
+    ctx.strokeStyle='#cfd8e8';ctx.lineWidth=3.4;ctx.beginPath();ctx.moveTo(bladeBase.x,bladeBase.y);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
+    ctx.globalCompositeOperation='lighter';
+    const glow=clamp((q-.12)/.42,0,1)*(1-clamp((q-.82)/.18,0,1)*.45);
+    ctx.globalAlpha=.20+.54*glow;ctx.strokeStyle='#a98cff';ctx.lineWidth=10;
+    ctx.beginPath();ctx.moveTo(bladeBase.x,bladeBase.y);ctx.lineTo(bladeTip.x,bladeTip.y);ctx.stroke();
+    ctx.globalAlpha=.95;ctx.strokeStyle='#eff8ff';ctx.lineWidth=1.3;
+    ctx.beginPath();ctx.moveTo(bladeBase.x+dir*1.4,bladeBase.y-1);ctx.lineTo(bladeTip.x+dir*1.4,bladeTip.y);ctx.stroke();
+    // The wiping hand visibly travels along the steel, with a soft blue-violet trail.
+    if(q>.10&&q<.86){
+      ctx.globalAlpha=.32;ctx.strokeStyle='#c8b5ff';ctx.lineWidth=7;
+      ctx.beginPath();ctx.moveTo(hand.x-dir*5,hand.y+12);ctx.lineTo(hand.x+dir*5,hand.y-13);ctx.stroke();
+      ctx.globalAlpha=.92;ctx.fillStyle='#f5f1ff';ctx.beginPath();ctx.arc(hand.x,hand.y,4.2,0,Math.PI*2);ctx.fill();
+    }
+    const sparkleCount=LOW_END?5:9;
+    for(let i=0;i<sparkleCount;i++){
+      const z=(i/sparkleCount+q*.78)%1;
+      const x=mix(bladeBase.x,bladeTip.x,z),y=mix(bladeBase.y,bladeTip.y,z);
+      const pulse=.45+.55*Math.sin(t*21+i*2.4);
+      ctx.globalAlpha=glow*pulse*(.28+.65*(1-z*.4));
+      ctx.strokeStyle=i%3===0?'#ffffff':'#b7a0ff';ctx.lineWidth=i%3===0?1.5:1;
+      const r=2.5+(i%3)*1.2;
+      ctx.beginPath();ctx.moveTo(x-r*2,y);ctx.lineTo(x+r*2,y);ctx.moveTo(x,y-r*2);ctx.lineTo(x,y+r*2);ctx.stroke();
+      ctx.beginPath();ctx.arc(x+Math.sin(t*7+i)*4,y+Math.cos(t*8+i)*3,1.2,0,Math.PI*2);ctx.fillStyle='#e8dcff';ctx.fill();
+    }
+    // Settled finishing guard and restrained cursed-energy rings.
+    if(settle>.1){
+      ctx.globalAlpha=.34*settle;ctx.strokeStyle='#9b83f4';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.ellipse(f.x+dir*24,f.y-78,26+settle*18,5+settle*3,0,0,Math.PI*2);ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function drawTojiCurseDraw(f,q,t){
+    const dir=f.facing||1;
+    const back=poseHand(f,'back');
+    const mouth={x:f.x-dir*(43+Math.sin(q*Math.PI)*4),y:f.y-105-Math.sin(q*Math.PI)*4};
+    const draw=smooth(clamp((q-.16)/.43,0,1));
+    const hold=clamp((q-.63)/.37,0,1);
+    // A compact storage curse silhouette sits behind Toji, never reusing the M1 animation.
+    ctx.save();ctx.globalCompositeOperation='source-over';
+    const sx=mouth.x-dir*3,sy=mouth.y+2;
+    ctx.globalAlpha=.78*(1-hold*.45);ctx.fillStyle='#101318';
+    ctx.beginPath();ctx.ellipse(sx,sy,25,13,-dir*.15,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#29222f';ctx.beginPath();ctx.ellipse(sx-dir*8,sy-5,15,10,-.3,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#58616a';ctx.lineWidth=1.2;ctx.globalAlpha=.72*(1-hold*.4);
+    for(let i=0;i<4;i++){
+      ctx.beginPath();ctx.moveTo(sx-dir*(18+i*2),sy-3+i*2);ctx.quadraticCurveTo(sx-dir*(28+i*3),sy+13+i*2,sx-dir*(13+i*3),sy+17+i*2);ctx.stroke();
+    }
+    // Teeth/mouth opening and a brief inhale before the weapon snaps free.
+    ctx.fillStyle='#020305';ctx.beginPath();ctx.ellipse(sx+dir*4,sy+1,13,5,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#d5dce0';ctx.lineWidth=1.2;ctx.beginPath();ctx.moveTo(sx-dir*7,sy-1);ctx.lineTo(sx+dir*12,sy-1);ctx.stroke();
+    ctx.restore();
+    // ISOH travels from the curse's mouth to Toji's rear hand; use the game's actual model.
+    const px=mix(mouth.x,back.x,draw),py=mix(mouth.y,back.y,draw);
+    const angle=mix(-.32*dir,-.08*dir,draw)+Math.sin(q*26)*.05*(1-draw);
+    const visible=clamp((q-.14)/.14,0,1);
+    if(visible>.01&&typeof drawTojiCineInvertedSpear==='function'){
+      ctx.save();ctx.globalAlpha=visible;ctx.globalCompositeOperation='source-over';
+      if(q<.63){
+        ctx.globalAlpha=.22*(1-draw);ctx.strokeStyle='#dbe6eb';ctx.lineWidth=5;
+        ctx.beginPath();ctx.moveTo(mouth.x,mouth.y);ctx.lineTo(px,py);ctx.stroke();
+      }
+      drawTojiCineInvertedSpear(ctx,{x:px,y:py},angle,dir,Math.floor(q*180));
+      ctx.restore();
+    }else{
+      // Fallback silhouette if the shared ISOH renderer is unavailable.
+      ctx.save();ctx.translate(px,py);ctx.rotate(angle);ctx.strokeStyle='#cbd5dc';ctx.lineWidth=4;
+      ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(43,0);ctx.stroke();ctx.strokeStyle='#343941';ctx.lineWidth=8;
+      ctx.beginPath();ctx.moveTo(-8,0);ctx.lineTo(6,0);ctx.stroke();ctx.restore();
+    }
+    // A short, angular snap trail and a single-frame visual impact on the catch.
+    if(q>.30&&q<.72){
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.58*(1-draw);
+      drawPath([[mouth.x,mouth.y],[mix(mouth.x,back.x,.55),mix(mouth.y,back.y,.55)-9*dir],[back.x,back.y]],'#dbe8ee',2.4,.7);
+      ctx.restore();
+    }
+    if(q>.58&&q<.76){
+      const flash=1-Math.abs(q-.67)/.09;
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.55*flash;ctx.strokeStyle='#effaff';ctx.lineWidth=2.2;
+      ctx.beginPath();ctx.moveTo(back.x-9,back.y);ctx.lineTo(back.x+9,back.y);ctx.moveTo(back.x,back.y-10);ctx.lineTo(back.x,back.y+10);ctx.stroke();ctx.restore();
+    }
+    if(q>.67){
+      const pressure=clamp((q-.67)/.33,0,1);
+      ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.28*pressure;
+      ctx.strokeStyle='#9daab3';ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.ellipse(f.x,f.y-3,38+pressure*36,5+pressure*3,0,0,Math.PI*2);ctx.stroke();
+      ctx.restore();
+    }
+  }
   function drawSignatureForeground(f,info){
     if(!info||typeof ctx==='undefined')return;
     const id=keyId(f),p=profile(f),q=info.q||0,t=info.t||0,dir=f.facing||1;
     if(info.kind==='signature'&&p.kind==='jackpot')drawCoin(f,q,t);
-    if(info.kind==='signature'&&p.kind==='rika')drawKatana(f,q,t,'#d8c6ff');
-    if(info.kind==='signature'&&p.kind==='assassin')drawKatana(f,q,t,'#d4e0e5');
+    if(info.kind==='signature'&&p.kind==='rika')drawYutaSwordWipe(f,q,t);
+    if(info.kind==='signature'&&p.kind==='assassin')drawTojiCurseDraw(f,q,t);
     if(p.kind==='limitless'&&(info.kind==='signature'||info.kind==='power')){
       const q2=info.kind==='signature'?q:info.q||0;
       ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.45*Math.sin(t*4)*.5;
