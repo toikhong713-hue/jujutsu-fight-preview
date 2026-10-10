@@ -82,11 +82,11 @@ const MAX_PARTICLES=560,MAX_AFTERIMAGES=12,ULT_HOLD_THRESHOLD=28;
 const KEY={},KP={};
 const KEYMAP={
   p1:{left:'KeyA',right:'KeyD',up:'KeyW',down:'KeyS',light:'Digit1',heavy:'Digit2',s1:'Digit3',s2:'Digit4',s3:'Digit5',s4:'Digit6',s5:'Digit7',block:'KeyF',guardCancel:'KeyS',ult:'Digit9',def:'KeyR',wcs:'Digit0',awaken:'KeyG',form:'KeyH',copy:'KeyQ',special1:'KeyZ',special2:'KeyX',soru:'ShiftLeft'},
-  p2:{left:'ArrowLeft',right:'ArrowRight',up:'ArrowUp',down:'ArrowDown',light:'Numpad1',heavy:'Numpad2',s1:'Numpad3',s2:'Numpad4',s3:'Numpad5',s4:'Numpad6',s5:'Numpad9',block:'NumpadMultiply',guardCancel:'ArrowDown',ult:'Numpad7',def:'Numpad8',wcs:'NumpadDivide',awaken:'Numpad0',form:'NumpadAdd',copy:'NumpadDecimal',special1:'NumpadSubtract',special2:'NumpadEnter',soru:'NumpadAdd'}
+  p2:{left:'ArrowLeft',right:'ArrowRight',up:'ArrowUp',down:'ArrowDown',light:'Numpad1',heavy:'Numpad2',s1:'Numpad3',s2:'Numpad4',s3:'Numpad5',s4:'Numpad6',s5:'Numpad9',block:'NumpadEnter',guardCancel:'ArrowDown',ult:'Numpad7',def:'Numpad8',wcs:'NumpadDivide',awaken:'Numpad0',form:'NumpadAdd',copy:'NumpadDecimal',special1:'NumpadSubtract',special2:'NumpadDivide',soru:'NumpadAdd'}
 };
 addEventListener('keydown',e=>{
   if(!KEY[e.code])KP[e.code]=true;KEY[e.code]=true;
-  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Numpad0','Numpad1','Numpad2','Numpad3','Numpad4','Numpad5','Numpad6','Numpad7','Numpad8','Numpad9','NumpadAdd','NumpadDecimal','NumpadDivide','NumpadMultiply'].includes(e.code))e.preventDefault();
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space','Numpad0','Numpad1','Numpad2','Numpad3','Numpad4','Numpad5','Numpad6','Numpad7','Numpad8','Numpad9','NumpadAdd','NumpadDecimal','NumpadDivide','NumpadMultiply','NumpadEnter'].includes(e.code))e.preventDefault();
   SFX.init();MenuKey(e.code);
 });
 addEventListener('keyup',e=>{KEY[e.code]=false;});
