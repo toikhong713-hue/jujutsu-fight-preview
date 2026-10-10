@@ -53,3 +53,10 @@ Keep the folder structure intact and open `index.html` in a modern browser.
 - Requires an internet connection to load PixiJS from jsDelivr for the WebGL prototype; gameplay still works if it fails.
 
 Reference: PixiJS 8 documentation on Application initialization, custom filters, and particle rendering; WebGL support is not a guarantee of improved performance on software-rendered or legacy systems.
+
+## v38 smoothness-only update
+- Keeps the fixed 60 Hz gameplay update step and existing combat values unchanged.
+- Interpolates fighter, projectile and camera positions for smoother presentation between simulation ticks.
+- Caches static arena geometry once instead of redrawing building windows, trees, rubble and ground cracks on every frame.
+- Uses the lightweight Canvas 2D VFX path automatically on very low-end hardware, and drops VFX quality if real frame pacing dips.
+- No hitbox, damage, cooldown, move data, controls or combat logic changes.

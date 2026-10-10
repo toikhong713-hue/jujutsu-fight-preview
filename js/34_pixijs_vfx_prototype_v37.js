@@ -5,7 +5,8 @@
    and falls back to Canvas2D when Pixi/WebGL isn't available. */
 (function(){
   if (window.JFF_V37_PIXI_VFX) return;
-  window.JFF_V37_PIXI_VFX = { ready:false, renderer:'booting', quality:'high', avgCost:0 };
+  const JFF_V37_LOW_END = ((navigator.hardwareConcurrency || 0) > 0 && navigator.hardwareConcurrency <= 2) || ((navigator.deviceMemory || 0) > 0 && navigator.deviceMemory <= 4);
+  window.JFF_V37_PIXI_VFX = { ready:false, renderer:'booting', quality:JFF_V37_LOW_END?'low':'high', avgCost:0, lowEndProfile:JFF_V37_LOW_END };
 
   const W0 = 1280, H0 = 720;
   const wrap = document.getElementById('wrap');
@@ -277,6 +278,8 @@
     app=null;stage=null;pixiG=null;fighterLayers=[];projectileG=null;impactG=null;shaderFilters=[];
     window.JFF_V37_PIXI_VFX.renderer='CANVAS 2D FALLBACK';window.JFF_V37_PIXI_VFX.ready=true;
     window.JFF_V37_PIXI_VFX.reason=String(reason||'WebGL unavailable').slice(0,80);
+    window.JFF_V37_PIXI_VFX.forceFallback=(why)=>switchToFallback(why||'FRAME RATE GUARD');
+    window.JFF_V37_PIXI_VFX.setQuality=(q)=>{window.JFF_V37_PIXI_VFX.quality=q==='low'?'low':'high';shaderFilters.forEach(f=>{try{f.enabled=window.JFF_V37_PIXI_VFX.quality==='high';}catch(_){}});};
     if(fallbackCanvas)fallbackCanvas.style.display='block';
   }
   function makeShader(){
@@ -346,6 +349,8 @@
       fallbackCanvas.style.display='none';
       app.canvas.addEventListener('webglcontextlost',e=>{try{e.preventDefault();}catch(_){}switchToFallback('WEBGL CONTEXT LOST');});
       window.JFF_V37_PIXI_VFX.renderer='PIXI WEBGL';window.JFF_V37_PIXI_VFX.ready=true;window.JFF_V37_PIXI_VFX.shader=shaderAvailable?'CUSTOM GLSL':'VECTOR ONLY';
+      window.JFF_V37_PIXI_VFX.forceFallback=(why)=>switchToFallback(why||'FRAME RATE GUARD');
+      window.JFF_V37_PIXI_VFX.setQuality=(q)=>{window.JFF_V37_PIXI_VFX.quality=q==='low'?'low':'high';shaderFilters.forEach(f=>{try{f.enabled=window.JFF_V37_PIXI_VFX.quality==='high';}catch(_){}});};
       console.info('[JFF V37] Pixi VFX online. Shader:',window.JFF_V37_PIXI_VFX.shader);
     }catch(e){console.warn('[JFF V37] Pixi/WebGL unavailable; using Canvas2D fallback.',e);switchToFallback(e&&e.message||'init failed');}
   }
@@ -368,5 +373,6 @@
   }
 
   /* CDN script load can fail without affecting boot: fallback remains ready. */
-  bootPixi();
+  if(JFF_V37_LOW_END){switchToFallback('LOW-END PERFORMANCE PROFILE');}
+  else{bootPixi();}
 })();

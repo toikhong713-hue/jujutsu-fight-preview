@@ -247,8 +247,9 @@ function loop(now){
   requestAnimationFrame(loop);
   let dt=now-last;last=now;if(dt>120)dt=120;acc+=dt;
   let guard=0;
-  while(acc>=STEP_MS&&guard<6){step();acc-=STEP_MS;guard++;}
+  while(acc>=STEP_MS&&guard<6){if(window.JFFFramePacingV38)window.JFFFramePacingV38.beforeStep();step();acc-=STEP_MS;guard++;}
   if(acc>STEP_MS*6)acc=0;
+  window.__JFF_RENDER_ALPHA_V38=Math.min(1,Math.max(0,acc/STEP_MS));
   render();
 }
 showScreen('menu');
