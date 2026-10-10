@@ -35,6 +35,7 @@ function beginCharacterSelect(mode,trainingOnly){
   pendingMode=mode;resetCharacterSelect();showScreen('charSelect');toggleTrainingCards(!!trainingOnly);updateCharacterSelectPrompt();
 }
 function chooseCharacter(ch){
+  if(ch==='megumi')return;
   if((ch==='heian_sukuna'||ch==='the_strongest_today')&&pendingMode!=='training')return;
   SFX.ui();
   if(pendingMode==='cpu'||pendingMode==='timeattack'){
@@ -74,7 +75,7 @@ function activateMenuItem(el){
   if(m==='training'){beginCharacterSelect('training',true);return;}
   if(m==='survival'){beginCharacterSelect('survival',false);return;}
   if(m==='timeattack'){beginCharacterSelect('timeattack',false);return;}
-  if(m==='story'){pendingMode='story';showScreen('storySelect');return;}
+  if(m==='story'){pendingMode='story';syncStoryArchive();showScreen('storySelect');return;}
 }
 menuItems.forEach((b,n)=>b.addEventListener('click',()=>{setMenuCursor(n);activateMenuItem(b);}));
 setMenuCursor(0);
@@ -105,7 +106,49 @@ document.addEventListener('keydown',(e)=>{
   if(/^Digit[1-6]$/.test(e.code)){e.preventDefault();setTojiFrame(tojiWeaponRow*6+Number(e.code.slice(-1))-1);}
 },true);
 document.getElementById('btnCtrlBack').addEventListener('click',()=>{showScreen('menu');});
+function storyFlag(key){try{return localStorage.getItem(key)==='1';}catch(e){return false;}}
+function syncStoryArchive(){
+  const chapter1Done=storyFlag('jff_story_ch1_complete');
+  const chapter2Done=storyFlag('jff_story_ch2_complete');
+  const chapter2Unlocked=chapter1Done||storyFlag('jff_story_unlocked_ch2');
+  const c1=document.getElementById('storyChapter1');
+  const c2=document.getElementById('storyChapter2');
+  const c3=document.getElementById('storyChapter3');
+  const tag1=c1&&c1.querySelector('.tag');
+  const tag2=c2&&c2.querySelector('.tag');
+  const tag3=c3&&c3.querySelector('.tag');
+  if(tag1)tag1.textContent=chapter1Done?'COMPLETED · REPLAY':'UNLOCKED';
+  if(c1)c1.dataset.status=chapter1Done?'completed':'unlocked';
+  if(c2){
+    c2.style.opacity=chapter2Unlocked?'0.78':'0.42';
+    c2.style.borderColor=chapter2Unlocked?'#c9a6ff':'#354057';
+    c2.dataset.status=chapter2Unlocked?'unlocked':'locked';
+    const p=c2.querySelector('p');
+    if(p)p.textContent=chapter2Unlocked?'UNLOCKED · PLAYABLE CONTENT IN DEVELOPMENT':'LOCKED · COMPLETE CHAPTER 1';
+    if(tag2)tag2.textContent=chapter2Unlocked?'UNLOCKED · COMING SOON':'LOCKED';
+  }
+  if(c3){
+    c3.style.opacity=chapter2Done?'0.75':'0.28';
+    c3.dataset.status=chapter2Done?'unlocked':'locked';
+    const p=c3.querySelector('p');
+    if(p)p.textContent=chapter2Done?'UNLOCKED · PLAYABLE CONTENT IN DEVELOPMENT':'LOCKED · COMPLETE CHAPTER 2';
+    if(tag3)tag3.textContent=chapter2Done?'UNLOCKED · COMING SOON':'LOCKED';
+  }
+}
+function showStoryArchiveNotice(message){
+  const dlg=document.getElementById('dialogue');
+  if(!dlg)return;
+  const c2Unlocked=storyFlag('jff_story_ch1_complete')||storyFlag('jff_story_unlocked_ch2');
+  dlg.querySelector('.who').textContent='CAMPAIGN ARCHIVE';
+  dlg.querySelector('.say').textContent=message||(c2Unlocked
+    ?'CHAPTER 2 IS UNLOCKED IN YOUR ARCHIVE, BUT ITS PLAYABLE STORY IS STILL IN DEVELOPMENT.\n\nReplay Chapter 1 while the next chapter is being built.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'
+    :'CHAPTER 2 IS LOCKED. COMPLETE CHAPTER 1 TO UNLOCK IT.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');
+  dlg.classList.add('on');
+  G.storyArchiveNotice=true;
+}
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
+document.getElementById('storyChapter2')?.addEventListener('click',()=>showStoryArchiveNotice());
+document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice('CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
 document.querySelectorAll('#charSelect .card').forEach(c=>{
   c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
 });
@@ -152,10 +195,10 @@ function storyScene(label,who,text,dur,cb){
   setTimeout(()=>{dlg.classList.remove('on');if(cb)cb();},dur);
 }
 function storyBattlePause(label,who,text,dur,next){
-  G.story.cutscene=true;G.roundState='intro';G.roundTimer=dur/16;
+  G.story.cutscene=true;G.storyCutscene=true;G.roundState='intro';G.roundTimer=dur/16;
   storyScene(label,who,text,dur,()=>{
     if(G.matchOver)return;
-    G.roundState='fight';G.story.cutscene=false;if(next)next();
+    G.storyCutscene=false;G.roundState='fight';G.story.cutscene=false;if(next)next();
   });
 }
 function storyCheckpoint(name){
@@ -165,11 +208,13 @@ function storyCheckpoint(name){
   localStorage.setItem('jff_story_ch1_checkpoint_name',name);
 }
 function triggerChapter1Event(){
-  if(G.mode!=='story'||!G.story||G.story.cutscene||G.matchOver||G.clash)return;
+  if(G.mode!=='story'||!G.story||G.matchOver)return;
   const f1=G.fighters[0],f2=G.fighters[1];
   if(!f1||!f2)return;
   const p2hp=f2.hp/f2.maxHp;
   const p1hp=f1.hp/f1.maxHp;
+  if(p1hp<=0.25)G.story.flags.clean=false;
+  if(G.story.cutscene||G.clash)return;
   if(G.story.phase===1&&p2hp<=0.72){
     G.story.phase=2;G.story.act=1;storyCheckpoint('RISING_CONFLICT');
     f2.awakened=true;f2.awakenGlow=50;f2.meter=Math.min(100,f2.meter+40);
@@ -206,23 +251,26 @@ function handleChapter1ClashResolution(){
   if(G.story.phase===3){
     G.story.clashResolved=true;G.story.phase=4;G.story.act=3;
     storyCheckpoint('POST_DOMAIN');
-    const w=G.clash&&G.clash.winner;
-    G.story.flags.clashWinner=w?w.id:'collapse';
+    if(!G.story.flags.clashWinner)G.story.flags.clashWinner='collapse';
   }
 }
 function showStoryEnding(success){
   const dlg=document.getElementById('dialogue');
+  if(!dlg)return;
   const clean=!!(G.story&&G.story.flags&&G.story.flags.clean);
+  const clashWinner=G.story&&G.story.flags?G.story.flags.clashWinner:null;
   let headline='CHAPTER 1 COMPLETE';
-  let body='ENCOUNTER CLEARED. The next chapter awaits.';
-  if(!success){headline='CHAPTER 1 FAILED';body='The encounter is unfinished. Restart Chapter 1 and try again.';}
-  else if(clean){headline='CHAPTER 1 COMPLETE · CLEAN';body='You reached the final exchange without falling below 25% HP.\n\nA special ending flag has been recorded.';}
-  else if(G.story&&G.story.flags&&G.story.flags.clashWinner==='gojo'){body='Unlimited Void wins the first great collision.\n\nA hidden route flag has been recorded.';}
-  else if(G.story&&G.story.flags&&G.story.flags.clashWinner==='sukuna'){body='Malevolent Shrine survives the clash.\n\nA hidden route flag has been recorded.';}
+  let body='ENCOUNTER CLEARED. The campaign archive has been updated.';
+  if(!success){headline='CHAPTER 1 FAILED';body='The encounter is unfinished. You can retry Chapter 1 and take another route through the fight.';}
+  else if(clean){headline='CHAPTER 1 COMPLETE · CLEAN';body='You won without ever dropping below 25% HP. A clean-route flag has been recorded.';}
+  else if(clashWinner&&G.fighters[0]&&clashWinner===G.fighters[0].id){body='Your Domain wins the great collision. A domain-victory route has been recorded.';}
+  else if(clashWinner==='sukuna'){body='Malevolent Shrine wins the great collision. A domain-victory route has been recorded.';}
+  else{body='Both domains collapsed. The first collision has opened the door to the next chapter.';}
   dlg.querySelector('.who').textContent=headline;
-  dlg.querySelector('.say').textContent=body+'\n\nPress ENTER / SPACE / ESC to return to the menu.';
+  dlg.querySelector('.say').textContent=body+'\n\nPRESS R TO REPLAY CHAPTER 1 · ENTER / SPACE / ESC TO RETURN.';
   dlg.classList.add('on');G.matchOverScreen=true;
-  if(success){localStorage.setItem('jff_story_ch1_complete','1');localStorage.setItem('jff_story_unlocked_ch2','1');}
+  if(G.story)G.story.ending=success?'victory':'defeat';
+  if(success){try{localStorage.setItem('jff_story_ch1_complete','1');localStorage.setItem('jff_story_unlocked_ch2','1');}catch(e){}}
 }
 function showResult(){
   const w=G.winner;const dlg=document.getElementById('dialogue');
@@ -238,10 +286,19 @@ function hideResult(){
   G.matchOverScreen=false;G.mode='menu';showScreen('menu');G.fighters=[];
 }
 function MenuKey(code){
+  if(G.mode==='menu'&&G.storyArchiveNotice){
+    if(code==='Enter'||code==='Space'||code==='Escape'){
+      document.getElementById('dialogue').classList.remove('on');
+      G.storyArchiveNotice=false;
+    }
+    return;
+  }
   if(G.mode==='menu'){
     if(screens.storySelect.classList.contains('on')){
-      if(code==='Digit1'||code==='Numpad1')launch('story','gojo','sukuna');
-      if(code==='Digit2'||code==='Numpad2')launch('story','young_gojo','sukuna');
+      if(code==='Digit1'||code==='Numpad1'){launch('story','gojo','sukuna');return;}
+      if(code==='Digit2'||code==='Numpad2'){launch('story','young_gojo','sukuna');return;}
+      if(code==='Digit3'||code==='Numpad3'){showStoryArchiveNotice();return;}
+      if(code==='Enter'||code==='Space'){launch('story','gojo','sukuna');return;}
       if(code==='Escape')showScreen('menu');
       return;
     }
