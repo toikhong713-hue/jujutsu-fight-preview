@@ -507,129 +507,32 @@ function nextRound(){
   G.round++;resetRound();
 }
 function endMatch(){
-  G.matchOver=true;G.hakariCin=null;
-  G.winner=G.fighters[0].wins>G.fighters[1].wins?G.fighters[0]:G.fighters[1];
-  if(G.fighters[0].wins===G.fighters[1].wins)G.winner=G.fighters[0];
-  const p1won=(G.winner===G.fighters[0]);
-  if(G.mode==='survival'){setTimeout(()=>{if(p1won){G.survivalRound++;const p1char=G.fighters[0].id;const chars=['gojo','young_gojo','sukuna','yuta','hakari','toji'];const p2char=chars[Math.floor(Math.random()*chars.length)];const r=G.survivalRound;const diff=(r<3)?'easy':(r<6)?'normal':(r<10)?'hard':'expert';showTransition('SURVIVAL','BATTLE '+r+'  —  '+diff.toUpperCase(),800,()=>{startMatch('survival',p1char,p2char,diff);});}else{showResult();}},900);return;}
-function launch(mode,p1,p2){
-  showScreen(null);
-  if(mode==='story'){startChapter1(p1||'gojo');return;}
-  if(mode==='survival'){G.survivalRound=1;}
-  startMatch(mode,p1,p2,G.difficulty);
-}
-/* ===== STORY CONTROLLER ===== */
-const STORY_CHAPTERS={
-  1:{title:'ENCOUNTER',subtitle:'THE STRONGEST MEETS THE KING OF CURSES',
-     p1:'gojo',p2:'sukuna',diff:'hard',
-     acts:[
-       {name:'PROLOGUE',speaker:'GOJO SATORU',text:'So this is the one everyone has been talking about.',tone:'#7fd8ff'},
-       {name:'RISING CONFLICT',speaker:'SUKUNA',text:'You came here to test a legend. Do not blink.',tone:'#ff7a7a'},
-       {name:'DOMAIN CLASH',speaker:'BOTH',text:'Then let us settle this with our domains.',tone:'#ffd166'},
-       {name:'FINAL EXCHANGE',speaker:'GOJO SATORU',text:'No more testing. I am ending this.',tone:'#7fd8ff'},
-       {name:'EPILOGUE',speaker:'NARRATOR',text:'The first collision has only opened the door.',tone:'#c9d7ff'}
-     ]}
-};
-function startChapter1(p1Char='gojo'){
-  G.story={chapter:1,act:0,phase:0,cutscene:true,clashStarted:false,clashResolved:false,ending:null,checkpoint:0,flags:{clean:false,clashWinner:null}};
-  localStorage.setItem('jff_story_ch1_started','1');
-  // Build the actual match first, then freeze the combat simulation under the cinematic intro.
-  startMatch('story',p1Char,'sukuna','hard');
-  G.storyCutscene=true;
-  G.story.cutscene=true;
-  G.roundState='intro';
-  G.roundTimer=999999;
-  G.storyIntro={active:true,t:0,phase:0,phaseChanged:-1,taunt:'',tauntWho:'',subtitle:'',introDone:false};
-  const gojo=G.fighters[0], sukuna=G.fighters[1];
-  // Start both fighters off-camera. Their actual movement is driven by storyIntroTick().
-  gojo.x=820;gojo.y=GROUND;gojo.facing=1;gojo.state='WALK';gojo.stateFrame=0;gojo.animT=0;
-  sukuna.x=2380;sukuna.y=GROUND;sukuna.facing=-1;sukuna.state='IDLE';sukuna.stateFrame=0;sukuna.animT=0;
-  gojo.vx=0;gojo.vy=0;sukuna.vx=0;sukuna.vy=0;
-  cam.x=1100;cam.y=430;cam.zoom=1;cam.tx=1100;cam.ty=430;cam.tzoom=1;
-  cam.cine=1;cam.cineX=780;cam.cineY=455;cam.cineZoom=1.42;
-  flash(1,'#000000');
-}
-function storyScene(label,who,text,dur,cb){
-  G.story.cutscene=true;
-  const dlg=document.getElementById('dialogue');
-  dlg.querySelector('.who').textContent=who;
-  dlg.querySelector('.say').textContent=label+'\n\n'+text;
-  dlg.classList.add('on');
-  setTimeout(()=>{dlg.classList.remove('on');if(cb)cb();},dur);
-}
-function storyBattlePause(label,who,text,dur,next){
-  G.story.cutscene=true;G.roundState='intro';G.roundTimer=dur/16;
-  storyScene(label,who,text,dur,()=>{
-    if(G.matchOver)return;
-    G.roundState='fight';G.story.cutscene=false;if(next)next();
-  });
-}
-function storyCheckpoint(name){
-  if(!G.story)return;
-  G.story.checkpoint=G.story.phase;
-  localStorage.setItem('jff_story_ch1_checkpoint',String(G.story.checkpoint));
-  localStorage.setItem('jff_story_ch1_checkpoint_name',name);
-}
-function triggerChapter1Event(){
-  if(G.mode!=='story'||!G.story||G.story.cutscene||G.matchOver||G.clash)return;
+  if(G.matchOver)return;
+  G.matchOver=true;
+  G.hakariCin=null;
   const f1=G.fighters[0],f2=G.fighters[1];
-  if(!f1||!f2)return;
-  const p2hp=f2.hp/f2.maxHp;
-  const p1hp=f1.hp/f1.maxHp;
-  if(G.story.phase===1&&p2hp<=0.72){
-    G.story.phase=2;G.story.act=1;storyCheckpoint('RISING_CONFLICT');
-    f2.awakened=true;f2.awakenGlow=50;f2.meter=Math.min(100,f2.meter+40);
-    flash(0.75,'#ff3344');shake(18);camPunch(0.22);
-    storyBattlePause('RISING CONFLICT','SUKUNA','Now you have my attention.',1300);
-    return;
-  }
-  if(G.story.phase===2&&p2hp<=0.45){
-    G.story.phase=3;G.story.act=2;storyCheckpoint('DOMAIN CLASH');
-    f1.meter=100;f2.meter=100;
-    flash(1,'#ffffff');shake(24);camPunch(0.28);
-    storyBattlePause('DOMAIN CLASH','BOTH','DOMAIN EXPANSION.',900,()=>{
-      if(!G.clash&&!G.matchOver){
-        G.story.clashStarted=true;
-        triggerClash(f1,f2);
+  if(!f1||!f2){setTimeout(()=>showResult(),900);return;}
+  G.winner=f1.wins>f2.wins?f1:f2;
+  if(f1.wins===f2.wins)G.winner=f1;
+  const p1won=G.winner===f1;
+  if(G.mode==='survival'){
+    setTimeout(()=>{
+      if(p1won){
+        G.survivalRound++;
+        const p1char=f1.id;
+        const chars=['gojo','young_gojo','sukuna','yuta','hakari','toji'];
+        const p2char=chars[Math.floor(Math.random()*chars.length)];
+        const r=G.survivalRound;
+        const diff=(r<3)?'easy':(r<6)?'normal':(r<10)?'hard':'expert';
+        showTransition('SURVIVAL','BATTLE '+r+'  -  '+diff.toUpperCase(),800,()=>{
+          startMatch('survival',p1char,p2char,diff);
+        });
+      }else{
+        showResult();
       }
-    });
+    },900);
     return;
   }
-  if(G.story.phase===4&&p2hp<=0.18){
-    G.story.phase=5;G.story.act=3;storyCheckpoint('FINAL EXCHANGE');
-    f1.meter=Math.max(f1.meter,100);f1.energy=Math.max(f1.energy,75);
-    f2.meter=Math.max(f2.meter,80);
-    flash(0.9,'#ffffff');shake(20);camPunch(0.25);
-    storyBattlePause('FINAL EXCHANGE','GOJO SATORU','No more testing.',900);
-    return;
-  }
-  if(G.story.phase===5&&p1hp>0&&p1hp<=0.25&&f2.hp>0){
-    G.story.flags.clean=false;
-  }
-}
-function handleChapter1ClashResolution(){
-  if(!G.story||!G.story.clashStarted||G.story.clashResolved||G.clash)return;
-  if(G.story.phase===3){
-    G.story.clashResolved=true;G.story.phase=4;G.story.act=3;
-    storyCheckpoint('POST_DOMAIN');
-    const w=G.clash&&G.clash.winner;
-    G.story.flags.clashWinner=w?w.id:'collapse';
-  }
-}
-function showStoryEnding(success){
-  const dlg=document.getElementById('dialogue');
-  const clean=!!(G.story&&G.story.flags&&G.story.flags.clean);
-  let headline='CHAPTER 1 COMPLETE';
-  let body='ENCOUNTER CLEARED. The next chapter awaits.';
-  if(!success){headline='CHAPTER 1 FAILED';body='The encounter is unfinished. Restart Chapter 1 and try again.';}
-  else if(clean){headline='CHAPTER 1 COMPLETE · CLEAN';body='You reached the final exchange without falling below 25% HP.\n\nA special ending flag has been recorded.';}
-  else if(G.story&&G.story.flags&&G.story.flags.clashWinner==='gojo'){body='Unlimited Void wins the first great collision.\n\nA hidden route flag has been recorded.';}
-  else if(G.story&&G.story.flags&&G.story.flags.clashWinner==='sukuna'){body='Malevolent Shrine survives the clash.\n\nA hidden route flag has been recorded.';}
-  dlg.querySelector('.who').textContent=headline;
-  dlg.querySelector('.say').textContent=body+'\n\nPress ENTER / SPACE / ESC to return to the menu.';
-  dlg.classList.add('on');G.matchOverScreen=true;
-  if(success){localStorage.setItem('jff_story_ch1_complete','1');localStorage.setItem('jff_story_unlocked_ch2','1');}
-}
   setTimeout(()=>{showResult();},900);
 }
 /* ===== CAMERA ===== */
