@@ -186,18 +186,26 @@
     if(typeof base!=='function')return;
     window.applyCharacterIdentityPose=function(P,f){
       const result=base(P,f);
-      if(!f||!P||!active()||!f.presencePose)return result;
+      const story=storyIntro()&&G.ch1Cine&&G.ch1Cine.active;
+      if(!f||!P||(!active()&&!story))return result;
+      let poseName=f.presencePose;
+      if(story){
+        const phase=G.ch1Cine.phase;
+        if(f.id==='gojo')poseName=phase===1?'entrance':phase===2?'reveal':phase>=6?'faceoff':null;
+        else if(f.id==='sukuna')poseName=phase===4?'entrance':phase===5?'reveal':phase>=6?'faceoff':null;
+      }
+      if(!poseName)return result;
       const id=(f.id==='sukuna'&&f.form===1)?'yuji':f.id;
       const idle=IDLE_POSES[id],spec=POSE_OVERRIDES[id];
       if(!idle||!spec)return result;
-      if(f.presencePose==='intro'||f.presencePose==='entrance'){
+      if(poseName==='intro'||poseName==='entrance'){
         const low=id==='toji'||id==='sukuna'||id==='heian_sukuna';
         const entry=Object.assign({},idle,{lean:idle.lean+(low?4:0),hipY:idle.hipY+(low?-2:0)});
-        weightedPose(P,idle,entry,f.presencePoseWeight||0);
+        weightedPose(P,idle,entry,story?1:(f.presencePoseWeight||0));
       }else{
-        const pose=spec[f.presencePose];
-        if(pose){const target=Object.assign({},idle,pose);weightedPose(P,idle,target,f.presencePoseWeight||0);}
-        else if(f.presencePose==='faceoff')weightedPose(P,idle,Object.assign({},idle,{lean:idle.lean+(id==='toji'?3:0)}),.7);
+        const pose=spec[poseName];
+        if(pose){const target=Object.assign({},idle,pose);weightedPose(P,idle,target,story?1:(f.presencePoseWeight||0));}
+        else if(poseName==='faceoff')weightedPose(P,idle,Object.assign({},idle,{lean:idle.lean+(id==='toji'?3:0)}),.7);
       }
       return result;
     };
@@ -284,6 +292,17 @@
     ctx.strokeStyle='#ffffff';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-8,y-15);ctx.lineTo(x+8,y+15);ctx.moveTo(x+8,y-15);ctx.lineTo(x-8,y+15);ctx.stroke();
     ctx.restore();
   }
+  function drawStoryTension(){
+    const s=G.ch1Cine;
+    if(!s||!s.active||s.phase<6||typeof ctx==='undefined'||!G.fighters||G.fighters.length<2)return;
+    const a=G.fighters[0],b=G.fighters[1],x=(a.x+b.x)/2,y=GROUND-82;
+    const q=.18+.28*(.5+.5*Math.sin(s.t*31));
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=q;
+    ctx.strokeStyle=PROFILE.gojo.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(a.x+48,y+Math.sin(s.t*24)*5);ctx.lineTo(x-6,y-10);ctx.stroke();
+    ctx.strokeStyle=PROFILE.sukuna.color;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(b.x-48,y-Math.sin(s.t*24)*5);ctx.lineTo(x+6,y+10);ctx.stroke();
+    ctx.strokeStyle='#fff';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-8,y-15);ctx.lineTo(x+8,y+15);ctx.moveTo(x+8,y-15);ctx.lineTo(x-8,y+15);ctx.stroke();
+    ctx.restore();
+  }
   function drawOverlay(){
     const c=G.presenceCine;if(!c||!c.active||typeof ctx==='undefined')return;
     const t=c.t,phase=c.phase,a=G.fighters[0],b=G.fighters[1],pa=profile(a),pb=profile(b);
@@ -332,13 +351,19 @@
     }
   };
   window.drawFighter=function(f){
-    const c=G.presenceCine;
+    const c=G.presenceCine,story=storyIntro()&&G.ch1Cine&&G.ch1Cine.active;
     if(f){
       const inCine=!!(c&&c.active);
       const awakened=!!(f.awakened||f.ultCharging||f.domainCharge>0||f.jackpot>0||f.tojiHunt>0||f.infinity>0);
       let alpha=inCine ? 0.76 : (f.presenceAuraFrames>0 ? (0.34*f.presenceAuraFrames/TAIL_FRAMES) : (awakened ? 0.20 : 0));
+      if(story){
+        const ph=G.ch1Cine.phase;
+        const isGojo=f.id==='gojo',isSukuna=f.id==='sukuna';
+        alpha=(ph===1&&isGojo)?0.48:(ph===2&&isGojo)?0.72:(ph===4&&isSukuna)?0.56:(ph===5&&isSukuna)?0.78:(ph>=6?0.34:0);
+      }
       if(alpha>0)drawPresence(f,alpha,(G.frame||0)*.055+(c?c.seed:0));
       if(inCine&&G.fighters[0]===f)drawTension(c);
+      if(story&&G.fighters[0]===f)drawStoryTension();
     }
     baseDrawFighter.apply(this,arguments);
   };
