@@ -293,7 +293,8 @@ function updateFighter(f,inp){
       if(dir!==0){
         if(f.lastDir===dir&&f.tapTimer>0&&f.dashCd<=0){doDash(f,inp,false);f.tapTimer=0;return;}
         f.lastDir=dir;f.tapTimer=10;
-        const spd=f.def.walk*(f.awakened?1.12:1)*((f.restless>0||f.jackpot>0)?1.15:1)* (f.tojiHunt>0?1.18:1);
+        const presenceWalkScale=Number.isFinite(f.presenceWalkMultiplier)?f.presenceWalkMultiplier:1;
+        const spd=f.def.walk*(f.awakened?1.12:1)*((f.restless>0||f.jackpot>0)?1.15:1)* (f.tojiHunt>0?1.18:1)*clamp(presenceWalkScale,0.1,1);
         f.x+=dir*spd;f.x=clamp(f.x,WALL,ARENA_W-WALL);f.facing=dir>0?1:-1;f.state='WALK';f.walk+=0.22;
       }else{f.state='IDLE';f.walk*=0.9;f.facing=f.opp.x>f.x?1:-1;}
     }
