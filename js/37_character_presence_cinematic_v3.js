@@ -715,14 +715,14 @@
           if(triggerFear(enemy,f,domain))enemy.presenceDomainToken=domain;
         }
       }
-      let useInput=inp;
-      if(f&&f.presenceFearFrames>0){
-        f.presenceFearFrames--;
-        if(inp&&(f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')){
-          useInput=Object.assign({},inp,{left:(inp.left||0)*.64,right:(inp.right||0)*.64});
-        }
+      // The movement code tests left/right as booleans, so scaling those inputs
+      // does not slow movement. Apply a real multiplier at the walk-speed formula.
+      if(f){
+        const canBeSlowed=f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH';
+        f.presenceWalkMultiplier=(f.presenceFearFrames>0&&canBeSlowed)?0.64:1;
+        if(f.presenceFearFrames>0)f.presenceFearFrames--;
       }
-      return baseUpdateFighter.call(this,f,useInput);
+      return baseUpdateFighter.call(this,f,inp);
     };
   }
 
