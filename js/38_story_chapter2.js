@@ -67,6 +67,7 @@
     if(dlg)dlg.classList.remove('on');
   }
   function startStoryChapter2(){
+    try{if(typeof SFX!=='undefined'&&SFX.init){SFX.init();if(SFX.ctx&&SFX.ctx.state==='suspended')SFX.ctx.resume();}}catch(_){}
     if(!story2Unlocked()){
       if(typeof showStoryArchiveNotice==='function')showStoryArchiveNotice('CHAPTER 2 IS LOCKED. COMPLETE CHAPTER 1 FIRST.\n\nWIN CHAPTER 1 TO UNLOCK RISING CONFLICT.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');
       return false;
