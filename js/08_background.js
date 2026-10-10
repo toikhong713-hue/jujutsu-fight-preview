@@ -1441,7 +1441,7 @@ function drawUI(){
   ctx.fillText('●'.repeat(p2w)+'○'.repeat(Math.max(0,2-p2w)),W/2+34,80);
   if(G.mode==='timeattack'&&G.timeAttackResult===0){const t=(performance.now()-G.timeAttackStart)/1000;ctx.font='900 18px "Segoe UI", system-ui, sans-serif';ctx.fillStyle='#ffd166';ctx.fillText(t.toFixed(2)+'s',W/2,104);}
   if(G.mode==='survival'){ctx.font='800 15px "Segoe UI", system-ui, sans-serif';ctx.fillStyle='#ffb060';ctx.fillText('SURVIVAL — BATTLE '+G.survivalRound,W/2,128);}
-  if(G.mode==='story'&&G.story){ctx.font='800 15px "Segoe UI", system-ui, sans-serif';ctx.fillStyle='#9fd8ff';ctx.fillText('CHAPTER 1 · ENCOUNTER · ACT '+(G.story.act||0),W/2,128);}
+  if(G.mode==='story'&&G.story){ctx.font='800 15px "Segoe UI", system-ui, sans-serif';ctx.fillStyle=G.story.chapter===2?'#c9a6ff':'#9fd8ff';const chapterTitle=G.story.chapter===2?'CHAPTER 2 · RISING CONFLICT':'CHAPTER 1 · ENCOUNTER';ctx.fillText(chapterTitle+' · ACT '+(G.story.act||0),W/2,128);}
   ctx.restore();
   if(G.comboDisplay){
     const cd=G.comboDisplay;const side=cd.owner===f1?'left':'right';const cx=side==='left'?300:W-300;
