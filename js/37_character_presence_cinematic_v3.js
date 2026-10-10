@@ -641,7 +641,7 @@
   // High-impact grading only runs for a brief pressure spike. Low-end devices use a
   // half-resolution source to cap bandwidth; during normal play there is no frame copy.
   const post=document.createElement('canvas');
-  post.width=LOW_END?640:W;post.height=LOW_END?360:H;
+  post.width=LOW_END?960:W;post.height=LOW_END?540:H;
   const postCtx=post.getContext('2d',{alpha:false,desynchronized:true});
   function postFxStrength(){
     if(active()){
