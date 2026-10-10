@@ -255,8 +255,8 @@ function updateFighter(f,inp){
   if(f.state!=='ATTACK'&&!f.onGround&&inp.block){f.state='BLOCK';f.blocking=true;f.stateFrame=0;f.parry=0;physics(f);return;}
   if((f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')&&f.onGround&&doubleBlockPress){if(tryGrab(f))return;}
 
-  /* v40: Keep P2's physical block key separate from the character-specific R/def skill.
-     The latter is mapped to Numpad8; block is mapped to NumpadMultiply. */
+  /* v41: NumpadEnter is P2 Block; Numpad8 remains the character-specific R/def skill.
+     NumpadDivide is shared safely by WCS and Toji/Young Gojo X per-character checks. */
   if(f.isP2&&inp.block&&f.onGround&&
      (f.state==='IDLE'||f.state==='WALK'||f.state==='CROUCH')){
     f.state='BLOCK';f.blocking=true;f.stateFrame=0;f.parry=0;
