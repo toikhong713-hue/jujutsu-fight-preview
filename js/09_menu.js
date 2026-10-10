@@ -148,7 +148,7 @@ function showStoryArchiveNotice(message){
 }
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
 document.getElementById('storyChapter2')?.addEventListener('click',()=>{if(window.startStoryChapter2)window.startStoryChapter2();else showStoryArchiveNotice();});
-document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice('CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
+document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice(storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3')?'CHAPTER 3 IS UNLOCKED IN YOUR ARCHIVE, BUT ITS PLAYABLE STORY IS STILL IN DEVELOPMENT.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.':'CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
 document.querySelectorAll('#charSelect .card').forEach(c=>{
   c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
 });
