@@ -8,7 +8,7 @@ function applyCharacterIdentityPose(P,f){
   const t=f.animT||0, s=Math.sin(t*0.045), s2=Math.sin(t*0.095);
   const cineGait=f.storyCineGait, cinePhase=f.storyCineGaitPhase||0;
   if(cineGait){
-    const w=Math.sin(cinePhase), wSide=Math.sin(cinePhase+Math.PI);
+    const w=Math.sin(cinePhase);
     if(cineGait==='yuta-walk'){
       P.hipY=-58-Math.abs(w)*3.2;P.shY=-97+Math.sin(cinePhase*2)*0.7;
       P.headY=-113+Math.sin(cinePhase*2)*0.8;P.lean=3+w*3.8;
@@ -52,7 +52,7 @@ function applyCharacterIdentityPose(P,f){
       return true;
     }
     if(cineGait==='yuta-strike'){
-      const hit=Math.max(0,Math.sin(cinePhase*Math.PI));
+      const hit=Math.max(0,Math.sin(cinePhase));
       P.hipY=-55-hit*3;P.shY=-94;P.headY=-112;P.lean=15+hit*9;
       P.armF=[35,-88+hit*7];P.armB=[146,-48];
       P.legF=[70,18];P.legB=[119,-13];
