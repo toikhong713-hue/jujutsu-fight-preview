@@ -5,7 +5,7 @@
 */
 (function(){
   if(window.__JFF_STORY_CHAPTER2_V2__)return;
-  window.__JFF_STORY_CHAPTER2_V1__=true;
+  window.__JFF_STORY_CHAPTER2_V2__=true;
 
   const baseStep=step;
   const baseRender=render;
