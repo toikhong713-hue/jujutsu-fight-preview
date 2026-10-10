@@ -8,6 +8,7 @@
   const GAME_STEP = step;
   const GAME_RENDER = render;
   const GAME_DRAW_UI = drawUI;
+  const GAME_SHOW_RESULT = showResult;
   const GAME_MENU_KEY = MenuKey;
   const PHASES=[
     {a:0.00,b:0.95,n:'TITLE'},
@@ -41,24 +42,19 @@
     G.paused=false;
     showScreen('menu');
   }
-  function beginStoryChapter1(){
-    // Hard reset only Story-specific state before entering Chapter 1.
+  function beginStoryChapter1(p1Char='gojo'){
     clearStoryCine();
-    G.story={chapter:1,act:0,phase:0,cutscene:true,clashStarted:false,clashResolved:false,ending:null,checkpoint:0,flags:{clean:true,clashWinner:null}};
-    localStorage.setItem('jff_story_ch1_started','1');
-    // Build a normal Story match. Nothing from the old Story intro is called.
-    startMatch('story','gojo','sukuna','hard');
-    G.mode='story';
-    G.storyCutscene=true;
-    G.story.cutscene=true;
-    G.roundState='intro';
-    G.roundTimer=999999;
-    G.matchOver=false;
-    const gojo=G.fighters[0], sukuna=G.fighters[1];
-    gojo.x=620;gojo.y=GROUND;gojo.vx=0;gojo.vy=0;gojo.facing=1;gojo.state='IDLE';gojo.stateFrame=0;gojo.animT=0;gojo.walk=0;
+    const protagonist=p1Char==='young_gojo'?'young_gojo':'gojo';
+    G.story={chapter:1,p1:protagonist,act:0,phase:0,cutscene:true,clashStarted:false,clashResolved:false,ending:null,checkpoint:0,flags:{clean:true,clashWinner:null}};
+    try{localStorage.setItem('jff_story_ch1_started','1');}catch(e){}
+    startMatch('story',protagonist,'sukuna','hard');
+    G.mode='story';G.storyCutscene=true;G.story.cutscene=true;
+    G.roundState='intro';G.roundTimer=999999;G.matchOver=false;
+    const hero=G.fighters[0],sukuna=G.fighters[1];
+    hero.x=620;hero.y=GROUND;hero.vx=0;hero.vy=0;hero.facing=1;hero.state='IDLE';hero.stateFrame=0;hero.animT=0;hero.walk=0;
     sukuna.x=2440;sukuna.y=GROUND;sukuna.vx=0;sukuna.vy=0;sukuna.facing=-1;sukuna.state='IDLE';sukuna.stateFrame=0;sukuna.animT=0;sukuna.walk=0;
-    gojo.awakenGlow=0;sukuna.awakenGlow=0;
-    G.ch1Cine={active:true,t:0,phase:-1,subtitle:'',who:'',taunt:'',flash:0};
+    hero.awakenGlow=0;sukuna.awakenGlow=0;
+    G.ch1Cine={active:true,t:0,phase:-1,subtitle:'',who:'',taunt:'',flash:0,heroId:protagonist};
     cam.x=1100;cam.y=430;cam.zoom=1;cam.tx=1100;cam.ty=430;cam.tzoom=1;cam.cine=0;
     G.flash=1;G.flashColor='#000000';
   }
@@ -70,14 +66,15 @@
       c.subtitle='CHAPTER 1  •  ENCOUNTER';
       g.state='IDLE';s.state='IDLE';
     }else if(i===1){
-      c.subtitle='POV 01  •  GOJO SATORU';
+      c.subtitle='POV 01  •  '+(g.id==='young_gojo'?'YOUNG GOJO':'GOJO SATORU');
       g.state='WALK';g.walk=1;s.state='IDLE';s.walk=0;
       flash(0.55,'#05060a');
     }else if(i===2){
-      c.subtitle='THE STRONGEST';c.who='GOJO SATORU';
-      c.taunt='Still standing there? I came all this way.';
+      const young=g.id==='young_gojo';
+      c.subtitle=young?'THE LIMITLESS PRODIGY':'THE STRONGEST';c.who=young?'YOUNG GOJO':'GOJO SATORU';
+      c.taunt=young?'You are the curse everyone fears? Let us find out.':'Still standing there? I came all this way.';
       g.state='IDLE';g.walk=0;g.awakenGlow=45;
-      ring(g.x,g.y-70,'#7fd8ff',76,28);burst(g.x,g.y-70,20,'#4fc3f7',8,11,28);SFX.ui();
+      ring(g.x,g.y-70,young?'#bfe8ff':'#7fd8ff',76,28);burst(g.x,g.y-70,20,young?'#8fdcff':'#4fc3f7',8,11,28);SFX.ui();
     }else if(i===3){
       flash(1,'#000000');
     }else if(i===4){
@@ -169,7 +166,7 @@
     }else{
       ctx.textAlign='left';ctx.globalAlpha=0.92;ctx.font='800 13px "Segoe UI",system-ui,sans-serif';ctx.fillStyle='#d8e5ff';ctx.fillText(c.subtitle||'CHAPTER 1  •  ENCOUNTER',34,H-92);
       if(c.taunt){
-        const accent=c.who==='GOJO SATORU'?'#7fd8ff':'#ff7a7a';
+        const accent=(c.who==='GOJO SATORU'||c.who==='YOUNG GOJO')?'#7fd8ff':'#ff7a7a';
         const bx=58,by=H-170,bw=W-116,bh=70;
         ctx.globalAlpha=0.96;ctx.fillStyle='rgba(3,6,13,0.90)';ctx.fillRect(bx,by,bw,bh);
         ctx.strokeStyle=accent;ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
@@ -177,7 +174,7 @@
         ctx.font='700 18px "Segoe UI",system-ui,sans-serif';ctx.fillStyle='#fff';ctx.fillText(c.taunt,bx+20,by+52);
       }
       if(i===6){
-        ctx.textAlign='center';ctx.globalAlpha=1;ctx.font='900 32px "Segoe UI",system-ui,sans-serif';ctx.fillStyle='#fff';ctx.fillText('GOJO SATORU  VS  RYOMEN SUKUNA',W/2,110);
+        ctx.textAlign='center';ctx.globalAlpha=1;ctx.font='900 32px "Segoe UI",system-ui,sans-serif';ctx.fillStyle='#fff';ctx.fillText((G.fighters[0].id==='young_gojo'?'YOUNG GOJO':'GOJO SATORU')+'  VS  RYOMEN SUKUNA',W/2,110);
         ctx.font='700 13px "Segoe UI",system-ui,sans-serif';ctx.fillStyle='#b9c8df';ctx.fillText('THE STRONGEST  •  THE KING OF CURSES',W/2,135);
       }
       if(i===7){
@@ -203,7 +200,7 @@
     if(mode!=='story')G.story=null;
     showScreen(null);
     if(mode==='story'){
-      beginStoryChapter1();
+      beginStoryChapter1(p1||'gojo');
       return;
     }
     if(mode==='survival')G.survivalRound=1;
@@ -212,6 +209,14 @@
   // Replace both entry points so every Story entry uses only the clean controller.
   launch=launchClean;
   startChapter1=beginStoryChapter1;
+  showResult=function(){
+    if(G.mode==='story'&&G.story){
+      const hero=G.fighters&&G.fighters[0];
+      showStoryEnding(!!(hero&&G.winner===hero&&hero.hp>0));
+      return;
+    }
+    GAME_SHOW_RESULT.apply(this,arguments);
+  };
   // Keep the base step for all modes. During Story Cine, base step freezes combat
   // because G.storyCutscene is true, then this deterministic tick advances the film.
   step=function(){
@@ -229,9 +234,16 @@
   MenuKey=function(code){
     if(G.ch1Cine&&G.ch1Cine.active&&G.mode==='story'){
       if(code==='Escape'){abortStoryCine();return;}
-      if(code==='Enter'||code==='Space'){
-        finishStoryCine();
+      if(code==='Enter'||code==='Space'){finishStoryCine();return;}
+      return;
+    }
+    if(G.mode==='story'&&G.matchOverScreen){
+      if(code==='KeyR'){
+        beginStoryChapter1(G.story&&G.story.p1==='young_gojo'?'young_gojo':'gojo');
         return;
+      }
+      if(code==='Enter'||code==='Space'||code==='Escape'){
+        G.story=null;hideResult();return;
       }
       return;
     }
