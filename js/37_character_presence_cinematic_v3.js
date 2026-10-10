@@ -487,25 +487,47 @@
   }
   function drawKatana(f,q,t,steel){
     if(q<.17)return;
-    const dir=f.facing||1,draw=clamp((q-.17)/.38,0,1),slash=clamp((q-.52)/.28,0,1);
-    const bx=f.x+dir*(8+draw*9),by=f.y-55-draw*17;
-    const ex=bx+dir*(25+draw*48),ey=by-(draw*42+7);
-    ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';
-    ctx.globalAlpha=.78;ctx.strokeStyle=steel;ctx.lineWidth=3.8;
-    ctx.beginPath();ctx.moveTo(bx,by);ctx.lineTo(ex,ey);ctx.stroke();
-    ctx.globalAlpha=.95;ctx.strokeStyle='#f8ffff';ctx.lineWidth=1.2;
-    ctx.beginPath();ctx.moveTo(bx+dir*2,by-1);ctx.lineTo(ex-dir*2,ey+1);ctx.stroke();
-    ctx.globalAlpha=.85;ctx.strokeStyle=steel;ctx.lineWidth=4.5;
-    ctx.beginPath();ctx.moveTo(bx-dir*7,by+5);ctx.lineTo(bx+dir*5,by-6);ctx.stroke();
-    if(slash>0){
-      const a0=dir>0?-.20:Math.PI-.20,a1=dir>0?1.25:Math.PI+1.25;
-      ctx.globalAlpha=.15+.64*Math.sin(slash*Math.PI);
-      ctx.strokeStyle='#f4f9ff';ctx.lineWidth=2.6+slash*1.8;
-      ctx.beginPath();ctx.ellipse(f.x+dir*22,f.y-82,35+slash*84,24+slash*58,dir*.2,a0,a1);ctx.stroke();
-      ctx.globalAlpha=.65*(1-slash*.4);ctx.strokeStyle=steel;ctx.lineWidth=2.2;
-      ctx.beginPath();ctx.moveTo(f.x-dir*8,f.y-45);ctx.quadraticCurveTo(f.x+dir*52,f.y-108,f.x+dir*(105+slash*30),f.y-126+slash*24);ctx.stroke();
+    const dir=f.facing||1;
+    const draw=clamp((q-.17)/.38,0,1),slash=clamp((q-.52)/.28,0,1);
+    // Anchor the weapon to the actual animated forearm and hand. The pose is
+    // the same procedural skeleton used by the fighter renderer.
+    let hx=f.x+dir*13,hy=f.y-65,handAngle=-.55;
+    try{
+      if(typeof computePose==='function'&&typeof joint==='function'){
+        const P=computePose(f),shoulder={x:f.x+P.lean*.28*dir,y:f.y+P.shY};
+        const elbow=joint(shoulder,P.armF[0],20);
+        const hand=joint(elbow,P.armF[0]+P.armF[1],20);
+        const a=(P.armF[0]+P.armF[1])*Math.PI/180;
+        hx=hand.x+Math.cos(a)*7;hy=hand.y+Math.sin(a)*7;handAngle=a;
+      }
+    }catch(_){}
+    const bladeAngle=handAngle+dir*(-.72+draw*.54+slash*.38);
+    const handleLen=12,bladeLen=38+draw*27+slash*9;
+    const gx=hx-dir*Math.cos(bladeAngle)*handleLen*.35;
+    const gy=hy-Math.sin(bladeAngle)*handleLen*.35;
+    const tx=hx+dir*Math.cos(bladeAngle)*bladeLen;
+    const ty=hy+Math.sin(bladeAngle)*bladeLen;
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.lineCap='round';ctx.lineJoin='round';
+    // Dark grip and a compact guard make the sword read as a held object.
+    ctx.globalAlpha=.98;ctx.strokeStyle='#24262b';ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(hx,hy);ctx.stroke();
+    ctx.globalAlpha=.92;ctx.strokeStyle='#aeb8c2';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(hx-dir*4,hy-4);ctx.lineTo(hx+dir*4,hy+4);ctx.stroke();
+    ctx.globalAlpha=.68;ctx.strokeStyle=steel;ctx.lineWidth=5;
+    ctx.beginPath();ctx.moveTo(hx,hy);ctx.lineTo(tx,ty);ctx.stroke();
+    ctx.globalAlpha=.98;ctx.strokeStyle='#f8ffff';ctx.lineWidth=1.45;
+    ctx.beginPath();ctx.moveTo(hx+dir*2,hy-1);ctx.lineTo(tx,ty);ctx.stroke();
+    if(slash>.02){
+      const sweep=slash*Math.PI*.82;
+      ctx.globalAlpha=.62*(1-slash*.45);ctx.strokeStyle=steel;ctx.lineWidth=2.2;
+      ctx.beginPath();
+      ctx.arc(hx+dir*8,hy-12,44+sweep*13,bladeAngle-dir*.45,bladeAngle+dir*(.55+sweep),dir<0);
+      ctx.stroke();
       if(slash>.42){
-        for(let i=0;i<3;i++){const yy=f.y-104+i*12;drawPath([[f.x+dir*(12+i*7),yy+10],[f.x+dir*(42+i*8),yy-10]],'#fff',1.2,(1-slash*.4)*.75);}
+        for(let i=0;i<3;i++){
+          const yy=hy-18+i*10;
+          drawPath([[hx+dir*(10+i*5),yy+8],[hx+dir*(42+i*8),yy-10]],'#fff',1.2,(1-slash*.4)*.75);
+        }
       }
     }
     ctx.restore();
