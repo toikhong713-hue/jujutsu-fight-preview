@@ -550,8 +550,9 @@
   function drawYutaSwordWipe(f,q,t){
     const dir=f.facing||1;
     const hilt=poseHand(f,'front');
-    const bladeBase={x:f.x+dir*26,y:f.y-61};
-    const bladeTip={x:f.x+dir*43,y:f.y-139};
+    // The katana's hilt is anchored to Yuta's animated front hand, not a fixed body offset.
+    const bladeBase={x:hilt.x,y:hilt.y};
+    const bladeTip={x:hilt.x+dir*17,y:hilt.y-78};
     const wipe=smooth(clamp((q-.13)/.58,0,1));
     const settle=clamp((q-.73)/.27,0,1);
     const hand={x:mix(bladeBase.x,bladeTip.x,wipe),y:mix(bladeBase.y,bladeTip.y,wipe)};
