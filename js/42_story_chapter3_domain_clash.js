@@ -60,10 +60,11 @@
     c.stage='intro';c.t=0;c.phase='phase1';c.domainsActive=false;c.shrineVisible=false;
     G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
     G.matchOver=false;G.matchOverScreen=false;G.paused=false;G.winner=null;
-    const center=ARENA_W/2;
-    resetActor(c.gojo,center-85,1);resetActor(c.sukuna,center+180,-1);
+    const center=c.openingCenter||1200;
+    // Match Chapter 2's final blocking: Yuta 950, Gojo 1085, Sukuna 1320, camera 1110.
+    resetActor(c.gojo,1085,1);resetActor(c.sukuna,1320,-1);
     c.gojo.ai=null;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
-    c.sukuna.state='ATTACK';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.65;
+    c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.65;
     addYutaProp(c);
     camera(center,GROUND-120,.91);G.flash=.22;G.flashColor='#e4faff';G.shake=3;
   }
@@ -84,7 +85,7 @@
     g.ai=null;
     const c={active:true,stage:'intro',t:0,phase:'phase1',gojo:g,sukuna:s,yuta:null,lastLine:'',caption:null,
       domainsActive:false,shrineVisible:false,shrineFade:0,domainStarted:false,endingStarted:false,completed:false,
-      openingCenter:ARENA_W/2,fromClash:false};
+      openingCenter:1200,fromClash:false};
     G.story3=c;window.__JFF_CH3_ACTIVE__=c;
     safeStore('jff_story_ch3_started','1');setupOpening(c);
     console.info('[JFF Chapter 3] Awakening started; opening continues from the Chapter 2 interception.');
@@ -98,14 +99,14 @@
     c.domainStarted=true;c.domainsActive=false;c.shrineVisible=false;c.shrineFade=0;
     G.story.phase=2;G.story.act=2;G.story.clashStarted=true;G.story.cutscene=true;
     G.storyCutscene=true;G.roundState='intro';G.roundTimer=999999;G.domain=null;G.clash=null;
-    const center=ARENA_W/2;
+    const center=c&&c.openingCenter?c.openingCenter:1200;
     resetActor(c.gojo,center-170,1);resetActor(c.sukuna,center+170,-1);
     c.gojo.storyCinePose='guard';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.6;
     camera(center,GROUND-155,.92);G.flash=.72;G.flashColor='#eafaff';G.shake=11;play('domain');
     return true;
   }
   function releaseDomainControl(c){
-    const center=ARENA_W/2;
+    const center=c&&c.openingCenter?c.openingCenter:1200;
     removeYutaProp(c);
     resetActor(c.gojo,center-220,1);resetActor(c.sukuna,center+220,-1);
     c.gojo.ai=null;
@@ -123,7 +124,7 @@
     const g=c.gojo,s=c.sukuna;if(g){g.awakenGlow=85;g.meter=Math.max(g.meter||0,100);}
     if(s)s.awakenGlow=.9;
     G.flash=.78;G.flashColor='#eafaff';G.shake=18;camPunch(.28);play('domain');
-    floatText(ARENA_W/2,GROUND-300,'THE STRONGEST AWAKENS','#dff8ff',28,100);
+    floatText((c&&c.openingCenter)||1200,GROUND-300,'THE STRONGEST AWAKENS','#dff8ff',28,100);
   }
   function startEnding(c,won){
     if(!c||c.endingStarted)return;
@@ -132,7 +133,7 @@
     G.storyCutscene=true;G.story.cutscene=true;G.story.ending=won?'victory':'defeat';
     G.matchOver=true;G.matchOverScreen=false;G.roundState='over';G.paused=false;removeYutaProp(c);
     if(won){
-      const center=ARENA_W/2;resetActor(c.gojo,center-110,1);resetActor(c.sukuna,center+140,-1);
+      const center=c&&c.openingCenter?c.openingCenter:1200;resetActor(c.gojo,center-110,1);resetActor(c.sukuna,center+140,-1);
       c.gojo.ai=null;c.sukuna.hp=0;c.sukuna.state='KNOCKDOWN';c.gojo.awakenGlow=75;
       camera(center,GROUND-130,.86);G.flash=.5;G.flashColor='#ffffff';
     }else{c.gojo.state='DEFEAT';camera((c.gojo.x+c.sukuna.x)/2,GROUND-120,.9);}
@@ -155,35 +156,73 @@
   function restartChapter3(){G.story3=null;window.__JFF_CH3_ACTIVE__=null;startChapter3();}
 
   function tickOpening(c){
-    c.t+=STEP;const t=c.t,center=ARENA_W/2;
-    G.frame++;G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
-    c.gojo.animT+=.8;c.sukuna.animT+=.62;if(c.yuta)c.yuta.animT+=.7;
-    if(t<.72){
-      camera(center,GROUND-120,.91);
-      c.gojo.x=center-85;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
-      c.sukuna.x=center+180;c.sukuna.y=GROUND;c.sukuna.state='ATTACK';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=center-175;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>.2)line(c,'yuta-opening','YUTA','Gojo-sensei...','#d8c5ff');
-    }else if(t<1.65){
-      camera(center-25,GROUND-123,.98);
-      c.gojo.x=mix(center-85,center-35,ease((t-.72)/.93));c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
-      c.sukuna.x=center+180;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=mix(center-175,center-285,ease((t-.72)/.93));c.yuta.state='WALK';c.yuta.storyCinePose='support';}
-      if(t>.84)line(c,'gojo-opening','GOJO','Stay behind me, Yuta.','#a9e9ff');
-    }else if(t<2.35){
-      camera(center,GROUND-135,.9);
-      c.gojo.x=center-220;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose=null;
-      c.sukuna.x=center+220;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose=null;
-      if(c.yuta){c.yuta.x=center-330;c.yuta.state='IDLE';}
-      if(t>1.8)line(c,'sukuna-opening','SUKUNA','Show me, Satoru Gojo.','#ff8b98');
+    // Ten-second startup continuous with the prior chapter's hallway and final shot.
+    c.t+=STEP;const t=c.t,center=c.openingCenter||1200;
+    G.frame++;G.flash=Math.max(0,(G.flash||0)-.026);G.shake=Math.max(0,(G.shake||0)-.38);
+    c.gojo.animT+=.62;c.sukuna.animT+=.49;if(c.yuta)c.yuta.animT+=.46;
+    if(t<1.55){
+      camera(1110+Math.sin(t*1.8)*1.8,440,.91+Math.sin(t*1.4)*.006);
+      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.facing=1;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.facing=-1;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
+      if(c.yuta){c.yuta.x=950;c.yuta.y=GROUND;c.yuta.facing=1;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(t>.25)line(c,'yuta-opening','YUTA','He stopped it... with one hand?','#d8c5ff');
+      if(t>.95&&Math.floor(t*30)%10===0)try{spark(1107,GROUND-130,2,'#dffaff',1.5,3.5,10,0);}catch(e){}
+    }else if(t<3.15){
+      camera(1015,440,1.18+Math.sin((t-1.55)*1.7)*.015);
+      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
+      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(t>1.8)line(c,'gojo-reassures-yuta','GOJO','You did enough, Yuta. Stay behind me.','#a9e9ff');
+      if(Math.floor(t*24)%9===0)try{ring(1087,GROUND-115,'#83dfff',44,18);}catch(e){}
+    }else if(t<4.85){
+      const q=ease((t-3.15)/1.15);
+      camera(1265,GROUND-118,1.08+Math.sin(q*Math.PI)*.025);
+      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.72?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.45+.4*q;
+      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(t>3.4)line(c,'sukuna-rises','SUKUNA','Reverse cursed technique... and now the strongest arrives.','#ff8b98');
+      if(Math.floor(t*30)%7===0)try{spark(1320+rnd(-26,26),GROUND-rnd(60,138),2,'#a8ced7',1.4,4.2,13,0);}catch(e){}
+    }else if(t<6.55){
+      const q=ease((t-4.85)/1.7);
+      camera(mix(1160,1090,q),GROUND-125,1.02+q*.045);
+      c.gojo.x=mix(1085,1125,q);c.gojo.y=GROUND;c.gojo.state=q<.5?'BLOCK':'WALK';c.gojo.storyCinePose=q<.5?'guard':null;c.gojo.walk=q>.5?1:0;
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.8;
+      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(t>5.05)line(c,'gojo-challenge','GOJO','You wanted my attention. Now you have it.','#a9e9ff');
+      if(Math.floor(t*60)%8===0)try{ring(1118,GROUND-92,'#80dcff',32+q*30,18);}catch(e){}
+    }else if(t<8.15){
+      const q=ease((t-6.55)/1.6);
+      camera(1220,GROUND-132,.98+Math.sin(q*Math.PI)*.035);
+      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
+      if(c.yuta){c.yuta.x=mix(950,900,q);c.yuta.state='WALK';c.yuta.walk=1;c.yuta.storyCinePose='support';}
+      if(t>6.85)line(c,'sukuna-challenge','SUKUNA','Then prove that title. Show me the limitless.','#ff8b98');
+      if(Math.floor(t*60)%10===0)try{spark(1320+rnd(-32,32),GROUND-rnd(60,155),2,'#ff5566',1.6,4.5,13,0);}catch(e){}
+    }else if(t<9.45){
+      const q=ease((t-8.15)/1.3);
+      camera(mix(1210,1200,q),GROUND-142,.9+q*.025);
+      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
+      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
+      if(t>8.45)line(c,'narrator-battlefield','NARRATOR','The corridor falls silent. Neither man looks away.','#d8e8ff');
+      if(Math.floor(t*60)%5===0){G.flash=.045;G.flashColor=(Math.floor(t*10)%2)?'#7fd8ff':'#ff334f';G.shake=Math.max(G.shake,1.2);}
+    }else if(t<10){
+      const q=clamp01((t-9.45)/.55);
+      camera(1200,GROUND-138,.925+q*.015);
+      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
+      if(c.yuta){c.yuta.x=900;c.yuta.state='IDLE';}
+      if(t>9.55)line(c,'fight-call','NARRATOR','AWAKENING  /  CLASH OF THE STRONGEST','#eaf7ff');
+      if(q>.72){G.flash=.24;G.flashColor='#eafaff';}
     }else{
-      stopVoice();removeYutaProp(c);resetActor(c.gojo,center-220,1);resetActor(c.sukuna,center+220,-1);c.gojo.ai=null;
+      stopVoice();removeYutaProp(c);
+      resetActor(c.gojo,1125,1);resetActor(c.sukuna,1320,-1);c.gojo.ai=null;
       c.stage='combat';c.phase='phase1';c.t=0;c.lastLine='';c.caption=null;
       G.storyCutscene=false;G.story.cutscene=false;G.roundState='fight';G.roundTimer=0;G.matchOver=false;G.matchOverScreen=false;
-      camera(center,GROUND-135,.9);
+      camera(1200,440,.91);
     }
   }
-  function tickDomainIntro(c){
+    function tickDomainIntro(c){
     c.t+=STEP;const t=c.t,center=ARENA_W/2;
     G.frame++;G.flash=Math.max(0,(G.flash||0)-.028);G.shake=Math.max(0,(G.shake||0)-.52);
     c.gojo.animT+=.82;c.sukuna.animT+=.66;c.gojo.y=GROUND;c.sukuna.y=GROUND;c.gojo.vx=0;c.sukuna.vx=0;
@@ -257,7 +296,7 @@
   function drawShrine(){
     const c=chapter3(),d=G.domain&&(G.domain.type==='shrine'||G.domain.type==='shrine_heian')?G.domain:null;
     const special=!!(c&&c.shrineVisible);if(!d&&!special)return;
-    const center=ARENA_W/2,baseY=GROUND-10;let alpha=.9;
+    const center=(c&&c.openingCenter)||1200,baseY=GROUND-10;let alpha=.9;
     if(d){const appear=clamp01((d.maxTimer-d.timer)/26),leave=clamp01(d.timer/26);alpha=Math.min(appear,leave)*.96;}
     else if(c&&c.stage==='domainIntro')alpha=clamp01((c.t-2.38)/.34)*.94;
     else if(c&&c.domainsActive)alpha=.88;
