@@ -1,6 +1,6 @@
 'use strict';
 /* ===== MENU ===== */
-const screens={menu:document.getElementById('menu'),charSelect:document.getElementById('charSelect'),storySelect:document.getElementById('storySelect'),controls:document.getElementById('controlsScreen'),pause:document.getElementById('pauseMenu')};
+const screens={menu:document.getElementById('menu'),storyHub:document.getElementById('storyHub'),charSelect:document.getElementById('charSelect'),storySelect:document.getElementById('storySelect'),controls:document.getElementById('controlsScreen'),pause:document.getElementById('pauseMenu')};
 function showScreen(name){for(const k in screens)screens[k].classList.remove('on');if(name&&screens[name])screens[name].classList.add('on');}
 let pendingMode=null;
 let selectedP1=null;
@@ -75,13 +75,13 @@ function activateMenuItem(el){
   if(m==='training'){beginCharacterSelect('training',true);return;}
   if(m==='survival'){beginCharacterSelect('survival',false);return;}
   if(m==='timeattack'){beginCharacterSelect('timeattack',false);return;}
-  if(m==='story'){pendingMode='story';syncStoryArchive();showScreen('storySelect');return;}
+  if(m==='story'){pendingMode='story';syncStoryHub();showScreen('storyHub');return;}
 }
 menuItems.forEach((b,n)=>b.addEventListener('click',()=>{setMenuCursor(n);activateMenuItem(b);}));
 setMenuCursor(0);
 document.addEventListener('keydown',(e)=>{
   if(G.mode!=='menu'||!screens.menu.classList.contains('on'))return;
-  if(screens.storySelect.classList.contains('on')||screens.charSelect.classList.contains('on')||screens.controls.classList.contains('on'))return;
+  if(screens.storyHub.classList.contains('on')||screens.storySelect.classList.contains('on')||screens.charSelect.classList.contains('on')||screens.controls.classList.contains('on'))return;
   if(e.code==='ArrowDown'||e.code==='KeyS'){e.preventDefault();e.stopPropagation();setMenuCursor(menuCursor+1,true);return;}
   if(e.code==='ArrowUp'||e.code==='KeyW'){e.preventDefault();e.stopPropagation();setMenuCursor(menuCursor-1,true);return;}
   if(e.code==='Enter'||e.code==='Space'){
@@ -146,6 +146,36 @@ function showStoryArchiveNotice(message){
   dlg.classList.add('on');
   G.storyArchiveNotice=true;
 }
+
+function syncStoryHub(){
+  const c1=storyFlag('jff_story_ch1_complete'),c2=storyFlag('jff_story_ch2_complete');
+  const status=document.getElementById('storyArcClashStatus');
+  if(status){if(c2)status.textContent='CHAPTERS 1–2 COMPLETE';else if(c1)status.textContent='CHAPTER 1 COMPLETE · CHAPTER 2 AVAILABLE';else status.textContent='CHAPTER 1 AVAILABLE';}
+}
+const STORY_ARC_INFO={
+  'cursed-bond':{title:'CURSED BOND',body:'YUTA OKKOTSU · RIKA\n\nThis story arc is planned, but its exploration map, NPCs and missions are not playable yet. It will remain marked COMING SOON until a working first mission is ready.'},
+  vessel:{title:'THE VESSEL',body:'YUJI ITADORI\n\nThis character story is planned and has not entered playable development yet. No unfinished chapter will be shown as playable.'},
+  shadows:{title:'SHADOWS UNBOUND',body:'MEGUMI FUSHIGURO\n\nThis character story is planned and has not entered playable development yet. Ten Shadows missions will be developed as a separate gameplay route.'},
+  resonance:{title:'RESONANCE',body:'NOBARA KUGISAKI\n\nThis character story is planned and has not entered playable development yet.'},
+  'hidden-inventory':{title:'HIDDEN INVENTORY',body:'YOUNG GOJO · TOJI FUSHIGURO\n\nThis past-era story is planned. Its timeline and separate character perspectives will be defined before implementation.'},
+  'heavenly-restriction':{title:'HEAVENLY RESTRICTION',body:'MAKI ZENIN\n\nThis character story is planned and has not entered playable development yet.'},
+  'curse-king':{title:'AGE OF THE CURSE KING',body:'HEIAN SUKUNA\n\nThis story arc is planned. Its exact timeline and relationship to the other routes will be settled before production.'}
+};
+function showStoryHubNotice(arc){
+  const info=STORY_ARC_INFO[arc];if(!info)return;
+  const dlg=document.getElementById('dialogue');if(!dlg)return;
+  dlg.querySelector('.who').textContent=info.title+' · COMING SOON';
+  dlg.querySelector('.say').textContent=info.body+'\n\nPRESS ENTER / SPACE / ESC TO CLOSE.';
+  dlg.classList.add('on');G.storyArchiveNotice=true;
+}
+function openStoryArc(arc){
+  SFX.ui();
+  if(arc==='clash'){pendingMode='story';syncStoryArchive();showScreen('storySelect');return;}
+  showStoryHubNotice(arc);
+}
+document.querySelectorAll('#storyHub [data-story-arc]').forEach(card=>card.addEventListener('click',()=>openStoryArc(card.dataset.storyArc)));
+document.getElementById('storyHubBack').addEventListener('click',()=>{SFX.ui();showScreen('menu');});
+
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
 document.getElementById('storyChapter2')?.addEventListener('click',()=>{if(window.startStoryChapter2)window.startStoryChapter2();else showStoryArchiveNotice();});
 document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice(storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3')?'CHAPTER 3 IS UNLOCKED IN YOUR ARCHIVE, BUT ITS PLAYABLE STORY IS STILL IN DEVELOPMENT.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.':'CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
@@ -294,7 +324,14 @@ function MenuKey(code){
     return;
   }
   if(G.mode==='menu'){
+    if(screens.storyHub.classList.contains('on')){
+      if(code==='Escape'){showScreen('menu');return;}
+      const arcKeys={Digit1:'clash',Numpad1:'clash',Digit2:'cursed-bond',Numpad2:'cursed-bond',Digit3:'vessel',Numpad3:'vessel',Digit4:'shadows',Numpad4:'shadows',Digit5:'resonance',Numpad5:'resonance',Digit6:'hidden-inventory',Numpad6:'hidden-inventory',Digit7:'heavenly-restriction',Numpad7:'heavenly-restriction',Digit8:'curse-king',Numpad8:'curse-king'};
+      if(arcKeys[code]){openStoryArc(arcKeys[code]);return;}
+      return;
+    }
     if(screens.storySelect.classList.contains('on')){
+      if(code==='Escape'){showScreen('storyHub');return;}
       if(code==='Digit1'||code==='Numpad1'){launch('story','gojo','sukuna');return;}
       if(code==='Digit2'||code==='Numpad2'){launch('story','young_gojo','sukuna');return;}
       if(code==='Digit3'||code==='Numpad3'){showStoryArchiveNotice();return;}
