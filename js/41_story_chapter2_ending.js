@@ -43,7 +43,23 @@
   s.x=1320;s.y=GROUND;s.vx=0;s.vy=0;s.facing=-1;s.state='KNOCKDOWN';s.stateFrame=0;s.storyCinePose=null;s.maxHp=G.ch2EndingCine.sukunaMax;s.hp=low;
   camera(1110,440,.91);G.flash=.48;G.flashColor='#eef7ff';G.shake=5;
   return true;
- } function enterBeat(c,i){
+ } function speakLine(){
+  try{
+   if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;
+   window.speechSynthesis.cancel();
+   const u=new SpeechSynthesisUtterance("You're my enemy.");u.lang='en-US';u.rate=.78;u.pitch=.48;u.volume=.86;
+   const voices=window.speechSynthesis.getVoices(),voice=voices.find(v=>/^en(-|_)?US/i.test(v.lang)&&/male|david|mark|alex|daniel/i.test(v.name));
+   if(voice)u.voice=voice;
+   u.onend=()=>{try{if(!film()||G.ch2EndingCine.beat!==7)return;const echo=new SpeechSynthesisUtterance("You're my enemy.");echo.lang='en-US';echo.rate=.92;echo.pitch=.43;echo.volume=.22;if(voice)echo.voice=voice;window.speechSynthesis.speak(echo);}catch(e){}};
+   window.speechSynthesis.speak(u);
+  }catch(e){}
+ }
+ function finishCard(){
+  const c=G.ch2EndingCine;if(!c)return;
+  c.t=25;c.beat=8;c.finished=true;G.matchOver=true;G.matchOverScreen=true;G.roundState='over';G.storyCutscene=true;G.story.cutscene=true;
+  if(!c.registered){unlock3();c.registered=true;}
+ }
+ function enterBeat(c,i){
   c.beat=i;const y=G.fighters[0],s=G.fighters[1],g=c.gojoActor;
   if(i===0){y.state='BLOCK';y.storyCinePose='guard';s.state='KNOCKDOWN';camera(1110,440,.91);}
   else if(i===1){s.state='KNOCKDOWN';camera(s.x,GROUND-110,1.82);}
@@ -199,6 +215,6 @@
   }
   oldKey.apply(this,arguments);
  };
- window.JFF_CH2_ENDING={version:2,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
+ window.JFF_CH2_ENDING={version:3,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
  console.info('[JFF Story Chapter 2] Inevitable Intervention ending ready.');
 })();
