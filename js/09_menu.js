@@ -128,11 +128,14 @@ function syncStoryArchive(){
     if(tag2)tag2.textContent=chapter2Unlocked?'PLAY CHAPTER 2':'LOCKED';
   }
   if(c3){
-    c3.style.opacity=chapter2Done?'0.75':'0.28';
-    c3.dataset.status=chapter2Done?'unlocked':'locked';
+    const chapter3Done=storyFlag('jff_story_ch3_complete');
+    const chapter3Unlocked=chapter2Done||storyFlag('jff_story_unlocked_ch3');
+    c3.style.opacity=chapter3Unlocked?'0.82':'0.28';
+    c3.style.borderColor=chapter3Unlocked?'#7fd8ff':'#354057';
+    c3.dataset.status=chapter3Done?'completed':(chapter3Unlocked?'unlocked':'locked');
     const p=c3.querySelector('p');
-    if(p)p.textContent=chapter2Done?'UNLOCKED · PLAYABLE CONTENT IN DEVELOPMENT':'LOCKED · COMPLETE CHAPTER 2';
-    if(tag3)tag3.textContent=chapter2Done?'UNLOCKED · COMING SOON':'LOCKED';
+    if(p)p.textContent=chapter3Done?'CHAPTER COMPLETE · REPLAY AWAKENING':(chapter3Unlocked?'UNLOCKED · GOJO VS SUKUNA · DOMAIN CLASH':'LOCKED · COMPLETE CHAPTER 2');
+    if(tag3)tag3.textContent=chapter3Done?'COMPLETED · REPLAY':(chapter3Unlocked?'PLAY CHAPTER 3':'LOCKED');
   }
 }
 function showStoryArchiveNotice(message){
@@ -178,7 +181,7 @@ document.getElementById('storyHubBack').addEventListener('click',()=>{SFX.ui();s
 
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
 document.getElementById('storyChapter2')?.addEventListener('click',()=>{if(window.startStoryChapter2)window.startStoryChapter2();else showStoryArchiveNotice();});
-document.getElementById('storyChapter3')?.addEventListener('click',()=>showStoryArchiveNotice(storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3')?'CHAPTER 3 IS UNLOCKED IN YOUR ARCHIVE, BUT ITS PLAYABLE STORY IS STILL IN DEVELOPMENT.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.':'CHAPTER 3 IS NOT AVAILABLE YET. COMPLETE CHAPTER 2 WHEN ITS PLAYABLE STORY RELEASES.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.'));
+document.getElementById('storyChapter3')?.addEventListener('click',()=>{if((storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3'))&&window.startStoryChapter3){SFX.ui();window.startStoryChapter3();}else showStoryArchiveNotice('CHAPTER 3 IS LOCKED. COMPLETE CHAPTER 2 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');});
 document.querySelectorAll('#charSelect .card').forEach(c=>{
   c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
 });
@@ -334,7 +337,7 @@ function MenuKey(code){
       if(code==='Escape'){showScreen('storyHub');return;}
       if(code==='Digit1'||code==='Numpad1'){launch('story','gojo','sukuna');return;}
       if(code==='Digit2'||code==='Numpad2'){launch('story','young_gojo','sukuna');return;}
-      if(code==='Digit3'||code==='Numpad3'){showStoryArchiveNotice();return;}
+      if(code==='Digit3'||code==='Numpad3'){if((storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3'))&&window.startStoryChapter3){window.startStoryChapter3();}else showStoryArchiveNotice('CHAPTER 3 IS LOCKED. COMPLETE CHAPTER 2 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');return;}
       if(code==='Enter'||code==='Space'){launch('story','gojo','sukuna');return;}
       if(code==='Escape')showScreen('menu');
       return;
