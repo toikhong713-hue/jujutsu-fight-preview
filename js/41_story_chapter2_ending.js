@@ -1,8 +1,8 @@
 'use strict';
 /* Chapter 2 cliffhanger: The Inevitable Intervention. */
 (function(){
- if(window.__JFF_CH2_ENDING_V3__)return;
- window.__JFF_CH2_ENDING_V3__=true;
+ if(window.__JFF_CH2_ENDING_V4__)return;
+ window.__JFF_CH2_ENDING_V4__=true;
  const oldStep=window.step,oldRender=window.render,oldKey=MenuKey,oldResult=showResult,oldPose=window.computePose,oldDrawProjectiles=window.drawProjectiles;
  const clamp01=v=>Math.max(0,Math.min(1,v)),mix=(a,b,t)=>a+(b-a)*t;
  const ease=v=>{v=clamp01(v);return v*v*(3-2*v);};
@@ -150,24 +150,22 @@
    const fade=Math.max(0,i===6?1-c.slashDissolve:1);
    const widthScale=Math.max(.12,Math.min(1,c.slashWidth||1));
    const contactX=c.gojoBlockX+20,apexX=i===4?Math.max(contactX,c.slashCX):contactX;
-   const apexY=GROUND-126,groundY=GROUND-7,rise=groundY-apexY;
-   const leftX=Math.min((y&&y.x||950)-28,apexX-300);
-   const rightX=Math.max((s&&s.x||1320)+82,apexX+360);
-   const leftSpan=apexX-leftX,rightSpan=rightX-apexX,centers=[];
-   function addArcBranch(side,count){
-    for(let n=0;n<=count;n++){
-     if(side==='right'&&n===0)continue;
-     const u=n/count;
-     const x=side==='left'?leftX+leftSpan*u:apexX+rightSpan*u;
-     const y0=side==='left'?apexY+rise*(1-u)*(1-u):apexY+rise*u*u;
-     const slope=side==='left'?-2*rise*(1-u)/leftSpan:2*rise*u/rightSpan;
-     const ripple=1.55*Math.sin(u*23-t*37+(side==='left'?0:1.2))*Math.pow(Math.sin(Math.PI*u),2);
-     const norm=Math.sqrt(1+slope*slope);
-     const taper=Math.pow(Math.max(0,Math.sin(Math.PI*u)),.62);
-     centers.push({x,y:y0+ripple,slope,nx:-slope/norm,ny:1/norm,taper,side,u});
-    }
+   const apexY=GROUND-126,groundY=GROUND-5;
+   /* Sideways parenthesis arc "(":
+      the center bulges LEFT toward Yuta; its upper and lower ends sit to the RIGHT.
+      The leftmost centerline point is anchored to Gojo's hand contact. */
+   const radiusX=260,radiusY=groundY-apexY,curveEndX=apexX+radiusX,centers=[];
+   const segments=84;
+   for(let n=0;n<=segments;n++){
+    const u=n/segments,angle=(u*2-1)*Math.PI/2;
+    const x=apexX+radiusX*(1-Math.cos(angle));
+    const y0=apexY+radiusY*Math.sin(angle);
+    const tangentX=radiusX*Math.sin(angle),tangentY=radiusY*Math.cos(angle);
+    const norm=Math.hypot(tangentX,tangentY)||1;
+    const ripple=1.2*Math.sin(2*Math.PI*u)*Math.sin(Math.PI*u)*Math.sin(t*32+u*17);
+    const taper=Math.pow(Math.max(0,Math.sin(Math.PI*u)),.48);
+    centers.push({x,y:y0+ripple,nx:-tangentY/norm,ny:tangentX/norm,taper,u});
    }
-   addArcBranch('left',36);addArcBranch('right',42);
    function fillArcBand(halfWidth,fill){
     const top=[],bottom=[];
     for(const p of centers){
@@ -183,9 +181,8 @@
    function drawDistortion(offset,color,lineWidth,alpha,phase){
     ctx.beginPath();
     for(let k=0;k<centers.length;k++){
-     const p=centers[k];
-     const wobble=offset*Math.sin(p.u*Math.PI)*Math.sin(t*34+p.u*22+phase+(p.side==='right'?1.1:0));
-     const xx=p.x+wobble*.42,yy=p.y+wobble;
+     const p=centers[k],wobble=offset*Math.sin(p.u*Math.PI)*Math.sin(t*34+p.u*22+phase);
+     const xx=p.x+wobble*.35,yy=p.y+wobble;
      if(k===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);
     }
     ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.globalAlpha=fade*alpha;ctx.stroke();
@@ -199,37 +196,37 @@
    fillArcBand(48,'#02040a');
    fillArcBand(39,'#721525');
    fillArcBand(31,'#080b12');
-   const core=ctx.createLinearGradient(leftX,apexY,rightX,groundY);
+   const core=ctx.createLinearGradient(apexX,apexY,curveEndX,groundY);
    core.addColorStop(0,'#ffffff');core.addColorStop(.34,'#dceefa');core.addColorStop(.56,'#ffffff');core.addColorStop(.79,'#d5e8f2');core.addColorStop(1,'#ffffff');
    fillArcBand(20,core);
    fillArcBand(11,'#ffffff');
+   /* Leading wedge points LEFT toward Yuta; its base merges into the arc by Gojo's hands. */
    ctx.globalCompositeOperation='source-over';
-   ctx.beginPath();ctx.moveTo(apexX,apexY);
-   ctx.lineTo(apexX+78,apexY-19*widthScale);
-   ctx.lineTo(apexX+66,apexY);
-   ctx.lineTo(apexX+78,apexY+19*widthScale);
+   ctx.beginPath();ctx.moveTo(apexX-34,apexY);
+   ctx.lineTo(apexX+39,apexY-17*widthScale);
+   ctx.lineTo(apexX+29,apexY);
+   ctx.lineTo(apexX+39,apexY+17*widthScale);
    ctx.closePath();ctx.fillStyle='#02040a';ctx.fill();
    ctx.strokeStyle='rgba(240,250,255,.75)';ctx.lineWidth=1.4;ctx.stroke();
-   ctx.beginPath();ctx.moveTo(apexX+1,apexY);
-   ctx.lineTo(apexX+62,apexY-7*widthScale);
-   ctx.lineTo(apexX+70,apexY);
-   ctx.lineTo(apexX+62,apexY+7*widthScale);
+   ctx.beginPath();ctx.moveTo(apexX-31,apexY);
+   ctx.lineTo(apexX+31,apexY-6.5*widthScale);
+   ctx.lineTo(apexX+38,apexY);
+   ctx.lineTo(apexX+31,apexY+6.5*widthScale);
    ctx.closePath();ctx.fillStyle='#ffffff';ctx.fill();
+   /* Lower endpoint reaches the floor: scrape marks are anchored there. */
    ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade*.82;
    ctx.strokeStyle='rgba(255,54,77,.82)';ctx.lineWidth=5.5;
-   ctx.beginPath();ctx.moveTo(leftX-44,GROUND-5);ctx.lineTo(leftX+108,GROUND-5);ctx.stroke();
-   ctx.beginPath();ctx.moveTo(rightX-118,GROUND-5);ctx.lineTo(rightX+28,GROUND-5);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(curveEndX-112,GROUND-5);ctx.lineTo(curveEndX+34,GROUND-5);ctx.stroke();
    ctx.strokeStyle='rgba(244,251,255,.9)';ctx.lineWidth=1.7;
-   ctx.beginPath();ctx.moveTo(leftX-20,GROUND-7);ctx.lineTo(leftX+80,GROUND-7);ctx.stroke();
-   ctx.beginPath();ctx.moveTo(rightX-95,GROUND-7);ctx.lineTo(rightX+14,GROUND-7);ctx.stroke();
-   for(let k=0;k<8;k++){
-    const ex=rightX-94+k*15,ey=GROUND-5;
+   ctx.beginPath();ctx.moveTo(curveEndX-93,GROUND-7);ctx.lineTo(curveEndX+14,GROUND-7);ctx.stroke();
+   for(let k=0;k<10;k++){
+    const ex=curveEndX-91+k*12,ey=GROUND-5;
     ctx.globalAlpha=fade*(.22+(k%3)*.1);
     ctx.strokeStyle=k%2?'#ff5a72':'#effaff';ctx.lineWidth=k%2?1.8:1.2;
     ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex+9,ey-3-(k%3)*2);ctx.stroke();
    }
    if((i===5||i===6)&&qAt(t,i)>.04){
-    const q=qAt(t,i),pulse=1+Math.sin(t*42)*.045;
+    const pulse=1+Math.sin(t*42)*.045;
     ctx.globalAlpha=fade*(i===6?.65:.3);
     for(let k=0;k<4;k++){
      const rx=(18+k*17)*pulse,ry=(7+k*7)*pulse;
@@ -311,6 +308,6 @@
   }
   oldKey.apply(this,arguments);
  };
- window.JFF_CH2_ENDING={version:5,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
- console.info('[JFF Story Chapter 2] Inevitable Intervention ending v5: curved apex locks to Gojo hands.');
+ window.JFF_CH2_ENDING={version:6,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
+ console.info('[JFF Story Chapter 2] Inevitable Intervention ending v6: sideways parenthesis arc.');
 })();
