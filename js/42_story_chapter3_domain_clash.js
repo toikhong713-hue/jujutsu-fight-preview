@@ -46,7 +46,7 @@
     if(c.gojo)c.gojo.opp=c.sukuna;if(c.sukuna)c.sukuna.opp=c.gojo;
   }
   function addYutaProp(c){
-    if(!c.yuta&&typeof createFighter==='function')c.yuta=createFighter('yuta',ARENA_W/2-270,1,true);
+    if(!c.yuta&&typeof createFighter==='function')c.yuta=createFighter('yuta',(c.openingCenter||1200)-250,1,true);
     const y=c.yuta;if(!y)return;
     y.ai=null;y.opp=c.gojo;y.x=ARENA_W/2-270;y.y=GROUND;y.vx=0;y.vy=0;y.facing=1;
     y.state='IDLE';y.stateFrame=0;y.animT=0;y.walk=0;y.storyCinePose='support';y.rikaTimer=0;y.move=null;y.hitstun=0;
