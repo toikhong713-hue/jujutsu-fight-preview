@@ -27,7 +27,7 @@
   G.ch2CinematicV3=null;const y=G.fighters&&G.fighters[0],s=G.fighters&&G.fighters[1];if(!y||!s)return false;
   y.x=760;y.y=GROUND;y.vx=0;y.vy=0;y.facing=1;y.state='IDLE';y.stateFrame=0;y.animT=0;y.walk=0;
   s.x=1680;s.y=GROUND;s.vx=0;s.vy=0;s.facing=-1;s.state='IDLE';s.stateFrame=0;s.animT=0;s.walk=0;
-  y.hp=y.maxHp;y.rikaTimer=0;y.storyCinePose='ready';y.storyCineRika=null;y.storyEnhanceVisual=false;
+  y.hp=y.maxHp;y.rikaTimer=0;G.ch2CorridorDamaged=false;G.ch2CorridorSlashed=false;y.storyCinePose='ready';y.storyCineRika=null;y.storyEnhanceVisual=false;
   s.storyCinePose='calm';s.awakenGlow=0;y.awakenGlow=0;
   G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
   G.ch2StoryboardV4={active:true,t:0,duration:18,phase:-1,impactApplied:false,clashMade:false,lastSlash:-1,healStart:.34,deflectSound:false};
@@ -55,8 +55,8 @@
   const y=G.fighters[0],s=G.fighters[1];y.animT+=1.2;s.animT+=.82;y.stateFrame++;s.stateFrame++;
   if(i===0){camera(1200-18*q,445,.66+q*.025);y.storyCinePose='ready';s.storyCinePose='calm';if(Math.floor(c.t*60)%11===0)try{spark(1320+q*80,GROUND-95,2,'#ff4a5e',1.8,4,12,0);}catch(e){}}
   else if(i===1){y.x=760;s.x=1680;y.storyEnhanceVisual=true;camera(760,430,1.35+Math.sin(q*Math.PI)*.04);if(Math.floor(c.t*60)%5===0)try{spark(y.x+48,GROUND-112,2,'#e8dbff',1.4,4,12,0);}catch(e){}}
-  else if(i===2){camera(1200,445,.70+Math.sin(q*Math.PI)*.03);y.x=760;s.x=1640-50*ease(q);y.storyCinePose='guard';s.storyCinePose='slash';if(Math.floor(c.t*60)%3===0){const xx=mix(s.x-100,y.x+55,.24+(Math.floor(c.t*60)%9)*.06);try{spark(xx,GROUND-rnd(55,190),3,'#ff3049',2.7,5,15,0);}catch(e){}}if(q>.2&&q<.86&&Math.floor(c.t*60)%7===0)try{ring(1090+q*140,GROUND-65,'#ff283d',34,19);}catch(e){}}
-  else if(i===3){const u=ease(clamp01(q/.40));y.x=mix(760,660,u);y.y=GROUND-(q<.25?24+Math.sin(q*11)*36:0);y.storyCinePose=q<.42?'hurt':'down';y.state=q<.42?'KNOCKBACK':'KNOCKDOWN';s.x=1530;camera(940-36*u,430,1.08+u*.08);if(q>=.30&&!c.impactApplied){c.impactApplied=true;c.healStart=.34;y.hp=Math.max(1,Math.round(y.maxHp*c.healStart));y.x=660;y.y=GROUND;y.state='KNOCKDOWN';y.storyCinePose='down';G.flash=.70;G.flashColor='#f5f2ff';G.shake=22;G.hitstop=Math.max(G.hitstop||0,7);sfx('heavy');try{burst(y.x-10,GROUND-118,28,'#d5bdff',5,11,28);ring(y.x,GROUND-132,'#e9dbff',115,36);spark(y.x-12,GROUND-145,10,'#ffffff',3,7,20,0);}catch(e){}}}
+  else if(i===2){G.ch2CorridorSlashed=true;camera(1200,445,.70+Math.sin(q*Math.PI)*.03);y.x=760;s.x=1640-50*ease(q);y.storyCinePose='guard';s.storyCinePose='slash';if(Math.floor(c.t*60)%3===0){const xx=mix(s.x-100,y.x+55,.24+(Math.floor(c.t*60)%9)*.06);try{spark(xx,GROUND-rnd(55,190),3,'#ff3049',2.7,5,15,0);}catch(e){}}if(q>.2&&q<.86&&Math.floor(c.t*60)%7===0)try{ring(1090+q*140,GROUND-65,'#ff283d',34,19);}catch(e){}}
+  else if(i===3){const u=ease(clamp01(q/.40));y.x=mix(760,660,u);y.y=GROUND-(q<.25?24+Math.sin(q*11)*36:0);y.storyCinePose=q<.42?'hurt':'down';y.state=q<.42?'KNOCKBACK':'KNOCKDOWN';s.x=1530;camera(940-36*u,430,1.08+u*.08);if(q>=.30&&!c.impactApplied){c.impactApplied=true;G.ch2CorridorDamaged=true;c.healStart=.34;y.hp=Math.max(1,Math.round(y.maxHp*c.healStart));y.x=660;y.y=GROUND;y.state='KNOCKDOWN';y.storyCinePose='down';G.flash=.70;G.flashColor='#f5f2ff';G.shake=22;G.hitstop=Math.max(G.hitstop||0,7);sfx('heavy');try{burst(y.x-10,GROUND-118,28,'#d5bdff',5,11,28);ring(y.x,GROUND-132,'#e9dbff',115,36);spark(y.x-12,GROUND-145,10,'#ffffff',3,7,20,0);}catch(e){}}}
   else if(i===4){y.x=680;y.y=GROUND;y.state='KNOCKDOWN';y.storyCinePose='support';y.storyCineRika='support';camera(900,435,1.02);if(Math.floor(c.t*60)%4===0)try{spark(y.x-24+rnd(-15,15),GROUND-90+rnd(-24,20),2,'#d9c5ff',1.1,4,15,0);}catch(e){}}
   else if(i===5){y.x=700;y.y=GROUND;y.state='IDLE';y.storyCinePose='rct';y.storyCineRika='support';const healQ=clamp01((q-.27)/.73);if(c.impactApplied)y.hp=Math.min(y.maxHp,Math.round(mix(y.maxHp*c.healStart,y.maxHp,healQ)));camera(700,435,1.04+Math.sin(q*Math.PI)*.025);if(Math.floor(c.t*60)%3===0)try{const hx=y.x+14,hy=GROUND-75;spark(hx+rnd(-22,22),hy+rnd(-34,22),1,'#8fffe1',.9,3,18,0);if(Math.floor(c.t*60)%12===0)ring(hx,hy,'#81f5d9',18+q*26,18);}catch(e){}}
   else if(i===6){const u=Math.pow(q,.54);y.x=mix(700,1110,u);y.y=GROUND;y.state='DASH';y.storyCinePose='dash';y.storyCineRika=null;s.x=1640;camera(1060+q*80,440,.76+q*.08);if(Math.floor(c.t*60)%2===0)try{if(typeof pushAfterimage==='function')pushAfterimage(y,computePose(y));spark(y.x-32,GROUND-89,2,'#d5bbff',1.8,4,13,0);}catch(e){}}
@@ -84,11 +84,11 @@
   ctx.fillStyle='rgba(220,234,250,.30)';for(let k=0;k<5;k++){const xx=1040+k*74;ctx.fillRect(xx,118,30,4);ctx.fillStyle='rgba(220,234,250,.10)';ctx.beginPath();ctx.ellipse(xx+15,126,34,9,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(220,234,250,.30)';}
   ctx.fillStyle='#303640';ctx.strokeStyle='rgba(195,205,222,.48)';ctx.lineWidth=3;ctx.fillRect(584,118,78,GROUND-118);ctx.strokeRect(584,118,78,GROUND-118);
   ctx.strokeStyle='rgba(12,15,22,.75)';ctx.lineWidth=2;for(let k=0;k<5;k++){const yy=190+k*58;ctx.beginPath();ctx.moveTo(590,yy);ctx.lineTo(655,yy-11);ctx.stroke();}
-  const c=film();if(c&&c.phase>=0&&phases[c.phase].n==='WALL_BOUNCE'){const q=qAt(c.t,3),a=clamp01((q-.27)*2.8);ctx.save();ctx.globalAlpha=a;ctx.strokeStyle='rgba(8,10,15,.95)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(645,GROUND-125);ctx.lineTo(616,GROUND-149);ctx.lineTo(599,GROUND-142);ctx.lineTo(589,GROUND-172);ctx.moveTo(645,GROUND-125);ctx.lineTo(668,GROUND-151);ctx.lineTo(655,GROUND-173);ctx.lineTo(680,GROUND-189);ctx.moveTo(645,GROUND-125);ctx.lineTo(634,GROUND-100);ctx.lineTo(613,GROUND-88);ctx.moveTo(645,GROUND-125);ctx.lineTo(670,GROUND-105);ctx.lineTo(680,GROUND-78);ctx.stroke();ctx.restore();}
-  if(c&&c.t<3){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.32;ctx.strokeStyle='#ff3048';ctx.lineWidth=3;for(let k=0;k<4;k++){const xx=790+k*195;ctx.beginPath();ctx.moveTo(xx,GROUND-10);ctx.lineTo(xx+70,GROUND-28);ctx.lineTo(xx+138,GROUND-25);ctx.stroke();}ctx.restore();}
+  const c=film();const inImpact=c&&c.phase>=0&&phases[c.phase].n==='WALL_BOUNCE';const damageAlpha=inImpact?clamp01((qAt(c.t,3)-.27)*2.8):(G.ch2CorridorDamaged?1:0);if(damageAlpha>0){ctx.save();ctx.globalAlpha=damageAlpha;ctx.strokeStyle='rgba(8,10,15,.95)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(645,GROUND-125);ctx.lineTo(616,GROUND-149);ctx.lineTo(599,GROUND-142);ctx.lineTo(589,GROUND-172);ctx.moveTo(645,GROUND-125);ctx.lineTo(668,GROUND-151);ctx.lineTo(655,GROUND-173);ctx.lineTo(680,GROUND-189);ctx.moveTo(645,GROUND-125);ctx.lineTo(634,GROUND-100);ctx.lineTo(613,GROUND-88);ctx.moveTo(645,GROUND-125);ctx.lineTo(670,GROUND-105);ctx.lineTo(680,GROUND-78);ctx.stroke();ctx.restore();}
+  if((c&&c.t<3)||G.ch2CorridorSlashed){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=(c&&c.t<3)?.32:.24;ctx.strokeStyle='#ff3048';ctx.lineWidth=3;for(let k=0;k<4;k++){const xx=790+k*195;ctx.beginPath();ctx.moveTo(xx,GROUND-10);ctx.lineTo(xx+70,GROUND-28);ctx.lineTo(xx+138,GROUND-25);ctx.stroke();}ctx.restore();}
   ctx.restore();
  }
- if(typeof baseArena==='function')window.drawArenaWorld=function(){if(film()){hallway();return;}baseArena.apply(this,arguments);};
+ if(typeof baseArena==='function')window.drawArenaWorld=function(){const chapterTwoMap=G.mode==='story'&&G.story&&G.story.chapter===2;if(film()||chapterTwoMap){hallway();return;}baseArena.apply(this,arguments);};
  function bladeDetail(t){
   ctx.save();ctx.fillStyle='#080a10';ctx.fillRect(0,0,W,H);const wall=ctx.createLinearGradient(0,0,W,H);wall.addColorStop(0,'#252b35');wall.addColorStop(.6,'#10151e');wall.addColorStop(1,'#07090e');ctx.fillStyle=wall;ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(170,187,207,.15)';ctx.lineWidth=2;for(let k=0;k<11;k++){ctx.beginPath();ctx.moveTo(k*137,0);ctx.lineTo(k*137-70,H);ctx.stroke();}
@@ -137,6 +137,6 @@
   if(G.mode==='menu'&&screens.storySelect.classList.contains('on')&&(code==='Digit3'||code==='Numpad3')){start();return;}
   baseMenuKey.apply(this,arguments);
  };
- window.JFF_STORY_CHAPTER2={version:4,start,get active(){return G.mode==='story'&&G.story&&G.story.chapter===2;},get cinematic(){return !!film();},get elapsed(){return film()?film().t:0;}};
+ window.JFF_STORY_CHAPTER2={version:5,start,get active(){return G.mode==='story'&&G.story&&G.story.chapter===2;},get cinematic(){return !!film();},get elapsed(){return film()?film().t:0;}};
  console.info('[JFF Story Chapter 2] 18s storyboard cut loaded.');
 })();
