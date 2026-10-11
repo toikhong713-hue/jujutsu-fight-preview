@@ -54,6 +54,8 @@
   }
   function clearTransient(){
     G.storyCutscene=false;G.clash=null;G.domain=null;G.hakariCin=null;
+    G.ch1Cine=null;G.storyIntro=null;G.startupCine=null;G.presenceCine=null;G.presenceFx=null;
+    G.ch2EndingCine=null;G.ch2StoryboardV4=null;G.ch2CinematicV3=null;G.ch2Cine=null;
     G.flash=0;G.shake=0;G.shakeX=0;G.shakeY=0;G.zoomPunch=0;G.camPunch=0;cam.cine=0;stopVoice();
   }
   function setupOpening(c){
@@ -158,7 +160,7 @@
   function tickOpening(c){
     // Ten-second startup continuous with the prior chapter's hallway and final shot.
     c.t+=STEP;const t=c.t,center=c.openingCenter||1200;
-    G.frame++;G.flash=Math.max(0,(G.flash||0)-.026);G.shake=Math.max(0,(G.shake||0)-.38);
+    G.flash=Math.max(0,(G.flash||0)-.026);G.shake=Math.max(0,(G.shake||0)-.38);
     c.gojo.animT+=.62;c.sukuna.animT+=.49;if(c.yuta)c.yuta.animT+=.46;
     if(t<1.55){
       camera(1110+Math.sin(t*1.8)*1.8,440,.91+Math.sin(t*1.4)*.006);
@@ -224,7 +226,7 @@
   }
     function tickDomainIntro(c){
     c.t+=STEP;const t=c.t,center=ARENA_W/2;
-    G.frame++;G.flash=Math.max(0,(G.flash||0)-.028);G.shake=Math.max(0,(G.shake||0)-.52);
+    G.flash=Math.max(0,(G.flash||0)-.028);G.shake=Math.max(0,(G.shake||0)-.52);
     c.gojo.animT+=.82;c.sukuna.animT+=.66;c.gojo.y=GROUND;c.sukuna.y=GROUND;c.gojo.vx=0;c.sukuna.vx=0;
     if(t<1.35){
       camera(center-105,GROUND-145,1.08);c.gojo.x=center-145;c.gojo.storyCinePose='domain-form';c.gojo.state='ATTACK';
@@ -254,7 +256,7 @@
   }
   function tickEnding(c){
     c.t+=STEP;const t=c.t,center=ARENA_W/2;
-    G.frame++;G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
+    G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
     if(c.stage==='defeat'){
       camera((c.gojo.x+c.sukuna.x)/2,GROUND-125,.9);
       if(t>2.6){c.stage='failedCard';c.t=2.6;G.matchOverScreen=true;G.roundState='over';}
@@ -455,7 +457,7 @@
   window.step=function(){
     const c=chapter3();
     if(c&&G.mode==='story'){
-      if(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'){tick();return;}
+      if(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'){baseStep.apply(this,arguments);tick();return;}
       if(c.stage==='complete'||c.stage==='failedCard')return;
       if(c.stage==='combat'){tick();return;}
     }
