@@ -37,7 +37,7 @@
   G.fighters.push(gojo);
   const low=Math.max(1,Math.round(s.maxHp*.025));
   G.ch2EndingCine={active:true,finished:false,t:0,duration:25,beat:-1,sukunaLow:low,sukunaMax:s.maxHp,registered:false,said:false,
-    gojoActor:gojo,gojoStartX:320,gojoBlockX:1085,slashOriginX:1460,slashImpactX:1235,slashCX:1460,slashActive:false,slashBlocked:false,slashDissolve:0,slashCharge:0,slashFlight:0,slashWidth:1};
+    gojoActor:gojo,gojoStartX:320,gojoBlockX:1085,slashOriginX:1460,slashImpactX:1265,slashCX:1460,slashActive:false,slashBlocked:false,slashDissolve:0,slashCharge:0,slashFlight:0,slashWidth:1};
   G.matchOver=false;G.matchOverScreen=false;G.winner=null;G.paused=false;G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
   y.x=950;y.y=GROUND;y.vx=0;y.vy=0;y.facing=1;y.state='BLOCK';y.stateFrame=0;y.storyCinePose='guard';y.storyCineRika=null;y.rikaTimer=0;
   s.x=1320;s.y=GROUND;s.vx=0;s.vy=0;s.facing=-1;s.state='KNOCKDOWN';s.stateFrame=0;s.storyCinePose=null;s.maxHp=G.ch2EndingCine.sukunaMax;s.hp=low;
