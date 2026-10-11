@@ -386,7 +386,7 @@
       if(c.stage==='defeat')drawEndCard(c,true);
     }else if(c.stage==='complete')drawEndCard(c,false);
     else if(c.stage==='failedCard')drawEndCard(c,true);
-    if(c.domainsActive)drawDomainClashFX(c);
+    if(c.domainsActive&&c.stage==='combat')drawDomainClashFX(c);
   };
   if(typeof baseTriggerClash==='function')window.triggerClash=function(a,b){
     const c=chapter3();
