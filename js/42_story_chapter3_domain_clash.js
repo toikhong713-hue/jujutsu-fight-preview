@@ -190,7 +190,7 @@
       c.gojo.x=mix(1085,1125,q);c.gojo.y=GROUND;c.gojo.state=q<.5?'BLOCK':'WALK';c.gojo.storyCinePose=q<.5?'guard':null;c.gojo.walk=q>.5?1:0;
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.8;
       if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>5.2)line(c,'gojo-challenge','GOJO',"You wanted me here. I'm here.",'#a9e9ff');
+      if(t>5.85)line(c,'gojo-challenge','GOJO',"You wanted me here. I'm here.",'#a9e9ff');
       if(Math.floor(t*60)%8===0)try{ring(1118,GROUND-92,'#80dcff',32+q*30,18);}catch(e){}
     }else if(t<8.15){
       const q=ease((t-6.55)/1.6);
@@ -198,7 +198,7 @@
       c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
       if(c.yuta){c.yuta.x=mix(950,900,q);c.yuta.state='WALK';c.yuta.walk=1;c.yuta.storyCinePose='support';}
-      if(t>7.1)line(c,'sukuna-challenge','SUKUNA','Then show me the Limitless.','#ff8b98');
+      if(t>7.9)line(c,'sukuna-challenge','SUKUNA','Then show me the Limitless.','#ff8b98');
       if(Math.floor(t*60)%10===0)try{spark(1320+rnd(-32,32),GROUND-rnd(60,155),2,'#ff5566',1.6,4.5,13,0);}catch(e){}
     }else if(t<9.45){
       const q=ease((t-8.15)/1.3);
