@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>JUJUTSU FIGHT v16 • Modular Build</title>
-<link rel="stylesheet" href="css/game.css?v=story-megumi-1">
+<link rel="stylesheet" href="css/game.css?v=story-hub-v1">
 </head>
 <body>
 <div id="wrap">
@@ -28,9 +28,25 @@
 </div>
 <div class="hint">PRESS 1–8 / CLICK A CARD · ESC TO GO BACK</div>
 </div>
+<!-- STORY HUB: arc select is separate from chapter select. -->
+<div id="storyHub" class="screen">
+  <div class="storyHubTopline"><span>JUJUTSU CHRONICLES</span><span>STORY ARCHIVE // 08 ARCS PLANNED</span></div>
+  <header class="storyHubHeader"><div class="storyHubEyebrow">CHOOSE YOUR STORY</div><h1 class="title">STORY HUB</h1><p>Different characters. Different journeys. One cursed world.</p></header>
+  <div class="storyHubGrid">
+    <button type="button" class="storyHubCard arcPlayable" data-story-arc="clash" data-arc-key="1"><span class="storyHubNumber">ARC 01 · AVAILABLE</span><strong>CLASH OF THE STRONGEST</strong><span class="storyHubDescription">Gojo, Sukuna and the collision that changes everything.</span><span class="storyHubStatus" id="storyArcClashStatus">CHAPTER 1 AVAILABLE</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="cursed-bond" data-arc-key="2"><span class="storyHubNumber">ARC 02</span><strong>CURSED BOND</strong><span class="storyHubDescription">Yuta and Rika. Explore, meet NPCs, investigate and fight.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="vessel" data-arc-key="3"><span class="storyHubNumber">ARC 03</span><strong>THE VESSEL</strong><span class="storyHubDescription">Yuji Itadori, the people he protects and the curse within.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="shadows" data-arc-key="4"><span class="storyHubNumber">ARC 04</span><strong>SHADOWS UNBOUND</strong><span class="storyHubDescription">Megumi's Ten Shadows, investigations and tactical missions.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="resonance" data-arc-key="5"><span class="storyHubNumber">ARC 05</span><strong>RESONANCE</strong><span class="storyHubDescription">Nobara follows a trail of connected curse incidents.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="hidden-inventory" data-arc-key="6"><span class="storyHubNumber">ARC 06</span><strong>HIDDEN INVENTORY</strong><span class="storyHubDescription">Young Gojo and Toji from two distinct perspectives.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="heavenly-restriction" data-arc-key="7"><span class="storyHubNumber">ARC 07</span><strong>HEAVENLY RESTRICTION</strong><span class="storyHubDescription">Maki's path, weapon skill and the Zenin legacy.</span><span class="storyHubStatus">COMING SOON</span></button>
+    <button type="button" class="storyHubCard arcSoon" data-story-arc="curse-king" data-arc-key="8"><span class="storyHubNumber">ARC 08</span><strong>AGE OF THE CURSE KING</strong><span class="storyHubDescription">Heian-era Sukuna. Timeline and story route to be defined.</span><span class="storyHubStatus">COMING SOON</span></button>
+  </div>
+  <div class="storyHubBottom"><button type="button" id="storyHubBack">← MAIN MENU</button><span>1–8 SELECT ARC · CLICK A CARD · ESC BACK</span></div>
+</div>
 <div id="storySelect" class="screen">
-<h1 class="title" style="font-size:42px">STORY MODE</h1>
-<div class="sub">CAMPAIGN ARCHIVE · CHAPTER SELECT</div><div class="sub" style="margin-top:-6px;color:#8fb9d6">CHAPTER 1 ROUTE: <b>1</b> GOJO · <b>2</b> YOUNG GOJO</div>
+<h1 class="title" style="font-size:42px">CLASH OF THE STRONGEST</h1>
+<div class="sub">ARC 01 · CHAPTER SELECT</div><div class="sub" style="margin-top:-6px;color:#8fb9d6">CHAPTER 1 ROUTE: <b>1</b> GOJO · <b>2</b> YOUNG GOJO</div>
 <div class="cards" style="margin-top:18px">
   <div class="card" id="storyChapter1" data-chapter="1" style="border-color:#7fd8ff; cursor:pointer">
     <h2 style="color:#7fd8ff">CHAPTER 1 · ENCOUNTER</h2>
@@ -50,7 +66,7 @@
     <span class="tag">LOCKED</span>
   </div>
 </div>
-<div class="hint" style="margin-top:20px">PRESS 1 / CLICK CHAPTER 1 · 2 YOUNG GOJO ROUTE · 3 / CLICK CHAPTER 2 · ESC BACK</div>
+<div class="hint" style="margin-top:20px">PRESS 1 / CLICK CHAPTER 1 · 2 YOUNG GOJO ROUTE · 3 / CLICK CHAPTER 2 · ESC BACK TO STORY HUB</div>
 </div>
 <div id="menu" class="screen on menuScreen">
   <div class="menuNoise"></div>
@@ -64,14 +80,14 @@
       <h1 class="title">JUJUTSU<br><span>FIGHT</span></h1>
       <div class="heroRule"><span></span><b>DOMAIN // COMBAT // STORY</b><span></span></div>
       <p class="heroCopy">Fight with precision. Break the neutral. Build your meter. Decide who owns the battlefield.</p>
-      <div class="heroBadges"><span>6+ MODES</span><span>STORY CH.1</span><span>LOCAL 1V1</span></div>
+      <div class="heroBadges"><span>6+ MODES</span><span>STORY HUB</span><span>LOCAL 1V1</span></div>
     </section>
     <section class="menuCommand">
       <div class="commandHeader"><div><span class="eyebrow">MAIN MENU</span><h2 id="menuModeTitle">LOCAL 1V1</h2></div><span id="menuModeIndex" class="indexBadge">01</span></div>
       <div class="menuNav" id="mainMenuNav">
         <button class="menuItem active" data-mode="versus" data-title="LOCAL 1V1" data-index="01" data-copy="Two players. Same screen. Pure neutral, reads and outplays." data-tag="P1 vs P2"><span class="itemNum">01</span><span><b>LOCAL 1V1</b><small>PLAYER VS PLAYER</small></span><i>›</i></button>
         <button class="menuItem" data-mode="cpu" data-title="CPU BATTLE" data-index="02" data-copy="Pick your fighter and challenge an adaptive CPU opponent." data-tag="P1 vs CPU"><span class="itemNum">02</span><span><b>CPU BATTLE</b><small>PLAYER VS CPU</small></span><i>›</i></button>
-        <button class="menuItem" data-mode="story" data-title="STORY" data-index="03" data-copy="Cinematic encounters, boss phases and chapter progression." data-tag="CHAPTER 1"><span class="itemNum">03</span><span><b>STORY</b><small>CHAPTER CAMPAIGN</small></span><i>›</i></button>
+        <button class="menuItem" data-mode="story" data-title="STORY HUB" data-index="03" data-copy="Choose a character-driven arc, from cinematic duels to future exploration stories." data-tag="STORY ARCHIVE"><span class="itemNum">03</span><span><b>STORY</b><small>CHAPTER CAMPAIGN</small></span><i>›</i></button>
         <button class="menuItem" data-mode="training" data-title="TRAINING" data-index="04" data-copy="Test routes, frame data, hitboxes and every cursed technique." data-tag="SANDBOX"><span class="itemNum">04</span><span><b>TRAINING</b><small>LAB / PRACTICE</small></span><i>›</i></button>
         <button class="menuItem" data-mode="survival" data-title="SURVIVAL" data-index="05" data-copy="Keep winning. Every round pushes the pressure higher." data-tag="ENDLESS"><span class="itemNum">05</span><span><b>SURVIVAL</b><small>ENDLESS RUN</small></span><i>›</i></button>
         <button class="menuItem" data-mode="timeattack" data-title="TIME ATTACK" data-index="06" data-copy="Finish the fight as fast as possible and chase your best time." data-tag="SPEEDRUN"><span class="itemNum">06</span><span><b>TIME ATTACK</b><small>CLEAR SPEED</small></span><i>›</i></button>
@@ -130,7 +146,7 @@
 <script src="js/06_combat_systems.js?v=rika-rct-v3"></script>
 <script src="js/07_toji_map.js"></script>
 <script src="js/08_background.js?v=rika-beam-v4"></script>
-<script src="js/09_menu.js"></script>
+<script src="js/09_menu.js?v=story-hub-v1"></script>
 <script src="js/10_story_cinematic.js?v=story-ch1-fix1"></script>
 <script src="js/11_young_gojo_cinematic.js"></script>
 <script src="js/12_modern_renderer_v19.js"></script>
