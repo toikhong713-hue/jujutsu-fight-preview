@@ -48,8 +48,8 @@
   else if(i===7){camera(1120,435,1);if(!c.said){c.said=true;play('speech');speakLine();}}
   else if(i===8){camera(1100,435,.92);unlock3();c.registered=true;}
  }
- function speakLine(){try{if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("You're my enemy.");u.lang='en-US';u.rate=.78;u.pitch=.48;u.volume=.86;const vs=window.speechSynthesis.getVoices();const v=vs.find(v=>/^en(-|_)?US/i.test(v.lang)&&/male|david|mark|alex|daniel/i.test(v.name));if(v)u.voice=v;window.speechSynthesis.speak(u);}catch(e){}}
- function finishCard(){const c=G.ch2EndingCine;if(!c)return;c.t=25;c.beat=8;c.finished=true;G.matchOver=true;G.matchOverScreen=true;G.roundState='over';G.storyCutscene=true;G.story.cutscene=true;unlock3();}
+ function speakLine(){try{if(!window.speechSynthesis||!window.SpeechSynthesisUtterance)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance("You're my enemy.");u.lang='en-US';u.rate=.78;u.pitch=.48;u.volume=.86;const vs=window.speechSynthesis.getVoices();const v=vs.find(v=>/^en(-|_)?US/i.test(v.lang)&&/male|david|mark|alex|daniel/i.test(v.name));if(v)u.voice=v;u.onend=()=>{try{if(!film()||G.ch2EndingCine.beat!==7)return;const echo=new SpeechSynthesisUtterance("You're my enemy.");echo.lang='en-US';echo.rate=.92;echo.pitch=.43;echo.volume=.22;if(v)echo.voice=v;window.speechSynthesis.speak(echo);}catch(e){}};window.speechSynthesis.speak(u);}catch(e){}}
+ function finishCard(){const c=G.ch2EndingCine;if(!c)return;c.t=25;c.beat=8;c.finished=true;G.matchOver=true;G.matchOverScreen=true;G.roundState='over';G.storyCutscene=true;G.story.cutscene=true;if(!c.registered){unlock3();c.registered=true;}}
  function tick(){
   const c=film();if(!c||c.finished)return;c.t=Math.min(25,c.t+1/60);const i=phaseAt(c.t),q=qAt(c.t,i);if(i!==c.beat)enterBeat(c,i);
   const y=G.fighters&&G.fighters[0],s=G.fighters&&G.fighters[1];
