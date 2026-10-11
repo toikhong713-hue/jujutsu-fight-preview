@@ -94,21 +94,21 @@
     camera(965+Math.sin(c.t*20)*2,GROUND-110,1.68+Math.sin(q*Math.PI)*.025);if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===4){
     y.x=950;y.y=GROUND;y.state='BLOCK';y.storyCinePose='guard';s.x=1320;s.state='ATTACK';s.awakenGlow=.8;
-    c.slashCX=mix(s.x+80,c.gojoBlockX+190,ease(q));c.slashActive=q>.10;c.slashBlocked=false;
+    c.slashCX=mix(s.x+80,c.gojoBlockX+155,ease(q));c.slashActive=q>.10;c.slashBlocked=false;
     camera(mix(1135,1160,q),GROUND-110,.98+Math.sin(q*Math.PI)*.025);
     if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===5){
     y.x=950;y.state='BLOCK';y.storyCinePose='guard';s.x=1320;s.state='ATTACK';s.awakenGlow=.7;
     const appear=ease(clamp01(q/.15));g.x=mix(c.gojoStartX,c.gojoBlockX,appear);g.y=GROUND;g.facing=1;
     g.storyCinePose=q<.15?'arrival':'infinity';g.state=q<.15?'DASH':'BLOCK';
-    c.slashCX=c.gojoBlockX+190;c.slashActive=true;c.slashBlocked=false;
+    c.slashCX=c.gojoBlockX+155;c.slashActive=true;c.slashBlocked=false;
     camera(1120+Math.sin(q*Math.PI)*3,GROUND-110,.98+Math.sin(q*Math.PI)*.035);
     if(q<.19&&Math.floor(c.t*60)%2===0)try{spark(g.x-15,GROUND-135,3,'#a9efff',2.2,5,13,0);spark(g.x-22,GROUND-95,2,'#eefcff',1.6,4,12,0);}catch(e){}
    }else if(i===6){
     g.x=c.gojoBlockX;g.y=GROUND;g.facing=1;g.storyCinePose='infinity';g.state='BLOCK';
-    y.x=950;y.state='BLOCK';s.x=1320;s.state='ATTACK';c.slashCX=c.gojoBlockX+190;c.slashActive=true;c.slashBlocked=true;
+    y.x=950;y.state='BLOCK';s.x=1320;s.state='ATTACK';c.slashCX=c.gojoBlockX+155;c.slashActive=true;c.slashBlocked=true;
     camera(1185,GROUND-110,1.06+Math.sin(q*Math.PI)*.025);
-    if(Math.floor(c.t*60)%8===0)try{spark(g.x+45+rnd(-8,8),GROUND-130+rnd(-18,18),2,'#d7f9ff',1.3,3,12,0);}catch(e){}
+    if(Math.floor(c.t*60)%8===0)try{spark(g.x+20+rnd(-8,8),GROUND-126+rnd(-18,18),2,'#d7f9ff',1.3,3,12,0);}catch(e){}
     if(q>.60)c.slashDissolve=clamp01((q-.60)/.34);
    }else if(i===7){
     g.x=c.gojoBlockX;g.y=GROUND;g.facing=1;g.storyCinePose='infinity';g.state='IDLE';y.x=950;y.state='IDLE';s.x=1320;s.state='IDLE';
@@ -137,7 +137,7 @@
   }
   if((i===4||i===5||i===6)&&c.slashActive&&c.slashDissolve<1){
    const cx=c.slashCX,fade=i===6?1-c.slashDissolve:1;
-   const sx=cx+124,sy=GROUND-177,ex=cx-116,ey=GROUND-76,ctrlx=cx+7,ctrly=GROUND-255;
+   const sx=cx+124,sy=GROUND-177,ex=cx-116,ey=GROUND-126,ctrlx=cx+7,ctrly=GROUND-238;
    ctx.save();ctx.globalCompositeOperation='source-over';ctx.globalAlpha=Math.max(0,fade);ctx.lineCap='round';ctx.lineJoin='round';
    ctx.strokeStyle='rgba(2,4,9,.97)';ctx.lineWidth=48;ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(ctrlx,ctrly,ex,ey);ctx.stroke();
    ctx.strokeStyle='rgba(4,8,15,.98)';ctx.lineWidth=39;ctx.beginPath();ctx.moveTo(sx+2,sy-1);ctx.quadraticCurveTo(ctrlx,ctrly-1,ex-1,ey);ctx.stroke();
@@ -148,7 +148,7 @@
    ctx.restore();
   }
   if((i===5||i===6||i===7)&&g&&g.x>=c.gojoBlockX-6){
-   const hx=g.x+47,hy=GROUND-132;ctx.save();ctx.globalCompositeOperation='lighter';
+   const hx=g.x+20,hy=GROUND-126;ctx.save();ctx.globalCompositeOperation='lighter';
    for(let k=0;k<5;k++){const r=17+k*10+Math.sin(t*17+k*1.4)*2;ctx.globalAlpha=(i===5?.22:.52)-k*.065;ctx.strokeStyle=k%2?'#9feaff':'#ecfdff';ctx.lineWidth=k===0?2.7:1.25;ctx.beginPath();ctx.ellipse(hx,hy,r*1.05,r*1.22,t*.12+k*.13,0,Math.PI*2);ctx.stroke();}
    ctx.globalAlpha=i===5?.28:.48;ctx.strokeStyle='#a7eaff';ctx.lineWidth=1.4;
    for(let k=0;k<7;k++){const yy=GROUND-183+k*17;ctx.beginPath();ctx.moveTo(hx+58,yy);ctx.quadraticCurveTo(hx+26,yy+((k%2)?8:-8),hx+(k-3)*5,hy+(k-3)*3);ctx.stroke();}
@@ -190,7 +190,7 @@
  }
  if(typeof oldPose==='function')window.computePose=function(f){
   const P=oldPose.apply(this,arguments),c=film();
-  if(c&&f&&f===c.gojoActor){const arriving=c.beat===5&&qAt(c.t,5)<.16;P.hipY=-58+Math.sin(c.t*5)*.7;P.shY=-96;P.headY=-113;P.headX=0;P.lean=arriving?9:2;P.armF=arriving?[-74,38]:[-88,58];P.armB=[112,24];P.legF=arriving?[66,-24]:[88,5];P.legB=arriving?[118,-18]:[94,-6];}
+  if(c&&f&&f===c.gojoActor){const arriving=c.beat===5&&qAt(c.t,5)<.16,speaking=c.beat===7;P.hipY=-58+Math.sin(c.t*5)*.7;P.shY=-96;P.headY=-113;P.headX=0;P.lean=arriving?9:2;P.armF=arriving?[-74,38]:(speaking?[70,28]:[-88,58]);P.armB=[112,24];P.legF=arriving?[66,-24]:[88,5];P.legB=arriving?[118,-18]:[94,-6];}
   return P;
  };
  if(typeof oldDrawProjectiles==='function')window.drawProjectiles=function(){oldDrawProjectiles.apply(this,arguments);if(film())drawEndingWorldFX();};
