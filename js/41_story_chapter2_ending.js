@@ -1,8 +1,8 @@
 'use strict';
 /* Chapter 2 cliffhanger: The Inevitable Intervention. */
 (function(){
- if(window.__JFF_CH2_ENDING_V2__)return;
- window.__JFF_CH2_ENDING_V2__=true;
+ if(window.__JFF_CH2_ENDING_V3__)return;
+ window.__JFF_CH2_ENDING_V3__=true;
  const oldStep=window.step,oldRender=window.render,oldKey=MenuKey,oldResult=showResult,oldPose=window.computePose,oldDrawProjectiles=window.drawProjectiles;
  const clamp01=v=>Math.max(0,Math.min(1,v)),mix=(a,b,t)=>a+(b-a)*t;
  const ease=v=>{v=clamp01(v);return v*v*(3-2*v);};
@@ -37,7 +37,7 @@
   G.fighters.push(gojo);
   const low=Math.max(1,Math.round(s.maxHp*.025));
   G.ch2EndingCine={active:true,finished:false,t:0,duration:25,beat:-1,sukunaLow:low,sukunaMax:s.maxHp,registered:false,said:false,
-    gojoActor:gojo,gojoStartX:320,gojoBlockX:1085,slashOriginX:1460,slashImpactX:1265,slashCX:1460,slashActive:false,slashBlocked:false,slashDissolve:0,slashCharge:0,slashFlight:0,slashWidth:1};
+    gojoActor:gojo,gojoStartX:320,gojoBlockX:1085,slashOriginX:1460,slashImpactX:1105,slashCX:1460,slashActive:false,slashBlocked:false,slashDissolve:0,slashCharge:0,slashFlight:0,slashWidth:1};
   G.matchOver=false;G.matchOverScreen=false;G.winner=null;G.paused=false;G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
   y.x=950;y.y=GROUND;y.vx=0;y.vy=0;y.facing=1;y.state='BLOCK';y.stateFrame=0;y.storyCinePose='guard';y.storyCineRika=null;y.rikaTimer=0;
   s.x=1320;s.y=GROUND;s.vx=0;s.vy=0;s.facing=-1;s.state='KNOCKDOWN';s.stateFrame=0;s.storyCinePose=null;s.maxHp=G.ch2EndingCine.sukunaMax;s.hp=low;
@@ -147,67 +147,99 @@
    ctx.restore();
   }
   if((i===4||i===5||i===6)&&c.slashActive&&c.slashDissolve<1){
-   const cx=c.slashCX,fade=i===6?1-c.slashDissolve:1;
+   const fade=Math.max(0,i===6?1-c.slashDissolve:1);
    const widthScale=Math.max(.12,Math.min(1,c.slashWidth||1));
-   const chargeScale=i===4&&c.t<beats[4].a+(beats[4].b-beats[4].a)*.14?(.52+.48*(c.slashCharge||0)):1;
-   const len=300*chargeScale,left=cx-len*.5,right=cx+len*.5,cy=GROUND-138;
-   ctx.save();ctx.globalAlpha=Math.max(0,fade);ctx.lineCap='butt';ctx.lineJoin='miter';
-   /* Straight, left-facing spatial cut. All accent trails remain nearly horizontal. */
-   ctx.globalCompositeOperation='lighter';
-   ctx.strokeStyle='rgba(255,35,65,'+(.22+.22*Math.sin(t*32)*Math.sin(t*32))+')';
-   ctx.lineWidth=8*widthScale;ctx.beginPath();ctx.moveTo(right+8,cy);ctx.lineTo(left-22,cy);ctx.stroke();
-   ctx.strokeStyle='rgba(255,105,125,'+(.18+.12*Math.sin(t*21)*Math.sin(t*21))+')';
-   ctx.lineWidth=2.5*widthScale;
-   for(let k=-1;k<=1;k+=2){ctx.beginPath();ctx.moveTo(right-8,cy+k*17*widthScale);ctx.lineTo(left+15,cy+k*17*widthScale);ctx.stroke();}
-   if(i===4&&c.slashFlight>0&&c.slashFlight<1){
-    const travel=c.slashFlight;
-    for(let k=0;k<4;k++){
-     const u=k/4,tx=cx+52+u*62,ty=cy+(k%2?8:-8);
-     ctx.globalAlpha=Math.max(0,fade)*(.30+travel*.34);
-     ctx.strokeStyle=k%2?'#ff6277':'#f4fdff';ctx.lineWidth=(2.2-k*.25)*widthScale;
-     ctx.beginPath();ctx.moveTo(tx+34,ty);ctx.lineTo(tx-22,ty);ctx.stroke();
+   const contactX=c.gojoBlockX+20,apexX=i===4?Math.max(contactX,c.slashCX):contactX;
+   const apexY=GROUND-126,groundY=GROUND-7,rise=groundY-apexY;
+   const leftX=Math.min((y&&y.x||950)-28,apexX-300);
+   const rightX=Math.max((s&&s.x||1320)+82,apexX+360);
+   const leftSpan=apexX-leftX,rightSpan=rightX-apexX,centers=[];
+   function addArcBranch(side,count){
+    for(let n=0;n<=count;n++){
+     if(side==='right'&&n===0)continue;
+     const u=n/count;
+     const x=side==='left'?leftX+leftSpan*u:apexX+rightSpan*u;
+     const y0=side==='left'?apexY+rise*(1-u)*(1-u):apexY+rise*u*u;
+     const slope=side==='left'?-2*rise*(1-u)/leftSpan:2*rise*u/rightSpan;
+     const ripple=1.55*Math.sin(u*23-t*37+(side==='left'?0:1.2))*Math.pow(Math.sin(Math.PI*u),2);
+     const norm=Math.sqrt(1+slope*slope);
+     const taper=Math.pow(Math.max(0,Math.sin(Math.PI*u)),.62);
+     centers.push({x,y:y0+ripple,slope,nx:-slope/norm,ny:1/norm,taper,side,u});
     }
    }
-   ctx.globalAlpha=Math.max(0,fade);
-   /* Outer black body and hard outline. The left tip is the direction of travel. */
-   ctx.globalCompositeOperation='source-over';
-   ctx.beginPath();
-   ctx.moveTo(right-22,cy-27*widthScale);
-   ctx.lineTo(left+34,cy-10*widthScale);
-   ctx.lineTo(left,cy);
-   ctx.lineTo(left+34,cy+10*widthScale);
-   ctx.lineTo(right-22,cy+27*widthScale);
-   ctx.lineTo(right+8,cy+8*widthScale);
-   ctx.lineTo(right+19,cy);
-   ctx.lineTo(right+8,cy-8*widthScale);
-   ctx.closePath();
-   ctx.fillStyle='#03050a';ctx.fill();
-   ctx.strokeStyle='rgba(0,0,0,.98)';ctx.lineWidth=3.5;ctx.stroke();
-   /* Thick white core, with a cold-blue edge to separate it from the black silhouette. */
-   const blade=ctx.createLinearGradient(left,cy,right,cy);
-   blade.addColorStop(0,'#ffffff');blade.addColorStop(.34,'#f8fdff');blade.addColorStop(.72,'#cbeaf2');blade.addColorStop(1,'#ffffff');
-   ctx.beginPath();
-   ctx.moveTo(right-28,cy-12*widthScale);
-   ctx.lineTo(left+32,cy-4.5*widthScale);
-   ctx.lineTo(left+8,cy);
-   ctx.lineTo(left+32,cy+4.5*widthScale);
-   ctx.lineTo(right-28,cy+12*widthScale);
-   ctx.lineTo(right+3,cy+3*widthScale);
-   ctx.lineTo(right+10,cy);
-   ctx.lineTo(right+3,cy-3*widthScale);
-   ctx.closePath();
-   ctx.fillStyle=blade;ctx.fill();
-   ctx.strokeStyle='rgba(239,251,255,.92)';ctx.lineWidth=1.25*widthScale;ctx.stroke();
+   addArcBranch('left',36);addArcBranch('right',42);
+   function fillArcBand(halfWidth,fill){
+    const top=[],bottom=[];
+    for(const p of centers){
+     const hw=halfWidth*p.taper*widthScale;
+     top.push({x:p.x-p.nx*hw,y:p.y-p.ny*hw});
+     bottom.push({x:p.x+p.nx*hw,y:p.y+p.ny*hw});
+    }
+    ctx.beginPath();ctx.moveTo(top[0].x,top[0].y);
+    for(let k=1;k<top.length;k++)ctx.lineTo(top[k].x,top[k].y);
+    for(let k=bottom.length-1;k>=0;k--)ctx.lineTo(bottom[k].x,bottom[k].y);
+    ctx.closePath();ctx.fillStyle=fill;ctx.fill();
+   }
+   function drawDistortion(offset,color,lineWidth,alpha,phase){
+    ctx.beginPath();
+    for(let k=0;k<centers.length;k++){
+     const p=centers[k];
+     const wobble=offset*Math.sin(p.u*Math.PI)*Math.sin(t*34+p.u*22+phase+(p.side==='right'?1.1:0));
+     const xx=p.x+wobble*.42,yy=p.y+wobble;
+     if(k===0)ctx.moveTo(xx,yy);else ctx.lineTo(xx,yy);
+    }
+    ctx.strokeStyle=color;ctx.lineWidth=lineWidth;ctx.globalAlpha=fade*alpha;ctx.stroke();
+   }
+   ctx.save();ctx.globalAlpha=fade;ctx.lineJoin='round';ctx.lineCap='round';
    ctx.globalCompositeOperation='lighter';
-   ctx.globalAlpha=Math.max(0,fade)*(.82+.18*Math.sin(t*38)*Math.sin(t*38));
-   ctx.strokeStyle='#ffffff';ctx.lineWidth=3.5*widthScale;
-   ctx.beginPath();ctx.moveTo(left+12,cy);ctx.lineTo(right-16,cy);ctx.stroke();
-   /* Small fractured edges, deliberately constrained to a shallow horizontal band. */
-   for(let k=0;k<7;k++){
-    const u=.12+k*.125,xx=left+len*u,yy=cy+Math.sin(t*19+k*1.7)*3.6*widthScale;
-    ctx.globalAlpha=Math.max(0,fade)*(.25+(k%2)*.12);
-    ctx.strokeStyle=k%2?'#ff536a':'#e9fbff';ctx.lineWidth=k%2?2.2:1.3;
-    ctx.beginPath();ctx.moveTo(xx+13,yy-1.5);ctx.lineTo(xx-11,yy+1.5);ctx.stroke();
+   drawDistortion(12,'rgba(105,220,255,.68)',2.2,.82,.2);
+   drawDistortion(8,'rgba(255,42,79,.78)',3,.7,2.1);
+   drawDistortion(4,'rgba(235,250,255,.8)',1.3,.76,4.3);
+   fillArcBand(58,'rgba(255,35,65,.24)');
+   fillArcBand(48,'#02040a');
+   fillArcBand(39,'#721525');
+   fillArcBand(31,'#080b12');
+   const core=ctx.createLinearGradient(leftX,apexY,rightX,groundY);
+   core.addColorStop(0,'#ffffff');core.addColorStop(.34,'#dceefa');core.addColorStop(.56,'#ffffff');core.addColorStop(.79,'#d5e8f2');core.addColorStop(1,'#ffffff');
+   fillArcBand(20,core);
+   fillArcBand(11,'#ffffff');
+   ctx.globalCompositeOperation='source-over';
+   ctx.beginPath();ctx.moveTo(apexX,apexY);
+   ctx.lineTo(apexX+78,apexY-19*widthScale);
+   ctx.lineTo(apexX+66,apexY);
+   ctx.lineTo(apexX+78,apexY+19*widthScale);
+   ctx.closePath();ctx.fillStyle='#02040a';ctx.fill();
+   ctx.strokeStyle='rgba(240,250,255,.75)';ctx.lineWidth=1.4;ctx.stroke();
+   ctx.beginPath();ctx.moveTo(apexX+1,apexY);
+   ctx.lineTo(apexX+62,apexY-7*widthScale);
+   ctx.lineTo(apexX+70,apexY);
+   ctx.lineTo(apexX+62,apexY+7*widthScale);
+   ctx.closePath();ctx.fillStyle='#ffffff';ctx.fill();
+   ctx.globalCompositeOperation='lighter';ctx.globalAlpha=fade*.82;
+   ctx.strokeStyle='rgba(255,54,77,.82)';ctx.lineWidth=5.5;
+   ctx.beginPath();ctx.moveTo(leftX-44,GROUND-5);ctx.lineTo(leftX+108,GROUND-5);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(rightX-118,GROUND-5);ctx.lineTo(rightX+28,GROUND-5);ctx.stroke();
+   ctx.strokeStyle='rgba(244,251,255,.9)';ctx.lineWidth=1.7;
+   ctx.beginPath();ctx.moveTo(leftX-20,GROUND-7);ctx.lineTo(leftX+80,GROUND-7);ctx.stroke();
+   ctx.beginPath();ctx.moveTo(rightX-95,GROUND-7);ctx.lineTo(rightX+14,GROUND-7);ctx.stroke();
+   for(let k=0;k<8;k++){
+    const ex=rightX-94+k*15,ey=GROUND-5;
+    ctx.globalAlpha=fade*(.22+(k%3)*.1);
+    ctx.strokeStyle=k%2?'#ff5a72':'#effaff';ctx.lineWidth=k%2?1.8:1.2;
+    ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex+9,ey-3-(k%3)*2);ctx.stroke();
+   }
+   if((i===5||i===6)&&qAt(t,i)>.04){
+    const q=qAt(t,i),pulse=1+Math.sin(t*42)*.045;
+    ctx.globalAlpha=fade*(i===6?.65:.3);
+    for(let k=0;k<4;k++){
+     const rx=(18+k*17)*pulse,ry=(7+k*7)*pulse;
+     ctx.strokeStyle=k%2?'rgba(255,72,105,.72)':'rgba(205,246,255,.78)';
+     ctx.lineWidth=k===0?2.2:1.25;
+     ctx.beginPath();ctx.ellipse(contactX,apexY,rx,ry,-.04,Math.PI*.10,Math.PI*1.90);ctx.stroke();
+    }
+    if(i===6&&Math.floor(t*60)%3===0){
+     try{spark(contactX,apexY,2,'#f2fdff',2.4,3.8,10,0);spark(contactX-8,apexY+3,2,'#ff4d69',2,3,9,0);}catch(e){}
+    }
    }
    ctx.restore();
   }
@@ -279,6 +311,6 @@
   }
   oldKey.apply(this,arguments);
  };
- window.JFF_CH2_ENDING={version:4,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
- console.info('[JFF Story Chapter 2] Inevitable Intervention ending v4: fast horizontal slash.');
+ window.JFF_CH2_ENDING={version:5,get active(){return !!film();},get elapsed(){return film()?film().t:0;},start:startEnding};
+ console.info('[JFF Story Chapter 2] Inevitable Intervention ending v5: curved apex locks to Gojo hands.');
 })();
