@@ -62,13 +62,13 @@
  function enterBeat(c,i){
   c.beat=i;const y=G.fighters[0],s=G.fighters[1],g=c.gojoActor;
   if(i===0){y.state='BLOCK';y.storyCinePose='guard';s.state='KNOCKDOWN';camera(1110,440,.91);}
-  else if(i===1){s.state='KNOCKDOWN';camera(s.x,GROUND-110,1.82);}
+  else if(i===1){s.state='KNOCKDOWN';camera(s.x,GROUND-110,2.25);}
   else if(i===2){s.state='IDLE';s.awakenGlow=1;camera(s.x+6,GROUND-100,1.18);play('awaken');play('heal');}
-  else if(i===3){y.state='HITSTUN';y.storyCinePose='hurt';s.state='IDLE';camera(y.x,GROUND-110,1.68);}
+  else if(i===3){y.state='HITSTUN';y.storyCinePose='hurt';s.state='IDLE';camera(y.x,GROUND-110,2.02);}
   else if(i===4){y.state='BLOCK';y.storyCinePose='guard';s.state='ATTACK';camera((y.x+s.x)/2,GROUND-108,.98);play('throwTech');c.slashActive=true;}
   else if(i===5){y.state='BLOCK';y.storyCinePose='guard';s.state='ATTACK';camera(1120,GROUND-110,.98);play('dash');G.flash=.32;G.flashColor='#dffbff';}
   else if(i===6){camera((g.x+s.x)/2,GROUND-112,1.06);c.slashBlocked=true;play('block');play('clash');G.flash=.58;G.flashColor='#e5fbff';G.shake=14;}
-  else if(i===7){camera(g.x+38,GROUND-110,1.42);if(!c.said){c.said=true;play('speech');speakLine();}}
+  else if(i===7){camera(g.x+38,GROUND-110,1.70);if(!c.said){c.said=true;play('speech');speakLine();}}
   else if(i===8){camera(1100,GROUND-105,.92);unlock3();c.registered=true;}
  }
  function tick(){
@@ -83,7 +83,7 @@
     camera(1110+Math.sin(c.t*27)*2.3,440+Math.sin(c.t*17)*2,.91+Math.sin(c.t*2)*.012);
     s.x=1320;s.y=GROUND;s.state='KNOCKDOWN';if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===1){
-    camera(s.x+Math.sin(c.t*4)*2,GROUND-110,1.82+Math.sin(q*Math.PI)*.035);
+    camera(s.x+Math.sin(c.t*4)*2,GROUND-110,2.25+Math.sin(q*Math.PI)*.025);
     s.x=1320;s.y=GROUND;s.state='KNOCKDOWN';if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===2){
     s.hp=Math.max(1,Math.round(mix(c.sukunaLow,c.sukunaMax*.42,ease(q))));s.state=q>.4?'IDLE':'KNOCKDOWN';s.awakenGlow=.8;
@@ -92,28 +92,28 @@
     if(Math.floor(c.t*60)%6===0)try{spark(s.x+rnd(-38,38),GROUND-rnd(70,150),2,'#171c2a',1.5,5,14,0);spark(s.x+rnd(-27,27),GROUND-rnd(75,145),1,'#a8ced7',1,3,12,0);}catch(e){}
    }else if(i===3){
     y.x=950;y.y=GROUND;y.state='HITSTUN';y.storyCinePose='hurt';s.x=1320;s.state='IDLE';s.awakenGlow=.65;
-    camera(965+Math.sin(c.t*20)*2,GROUND-110,1.68+Math.sin(q*Math.PI)*.025);if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
+    camera(965+Math.sin(c.t*20)*2,GROUND-110,2.02+Math.sin(q*Math.PI)*.02);if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===4){
     y.x=950;y.y=GROUND;y.state='BLOCK';y.storyCinePose='guard';s.x=1320;s.state='ATTACK';s.awakenGlow=.8;
-    c.slashCX=mix(s.x+80,c.gojoBlockX+155,ease(q));c.slashActive=q>.10;c.slashBlocked=false;
+    c.slashCX=mix(s.x+80,c.gojoBlockX+164,ease(q));c.slashActive=q>.10;c.slashBlocked=false;
     camera(mix(1135,1160,q),GROUND-110,.98+Math.sin(q*Math.PI)*.025);
     if(g){g.x=c.gojoStartX;g.storyCinePose='arrival';}
    }else if(i===5){
     y.x=950;y.state='BLOCK';y.storyCinePose='guard';s.x=1320;s.state='ATTACK';s.awakenGlow=.7;
     const appear=ease(clamp01(q/.15));g.x=mix(c.gojoStartX,c.gojoBlockX,appear);g.y=GROUND;g.facing=1;
     g.storyCinePose=q<.15?'arrival':'infinity';g.state=q<.15?'DASH':'BLOCK';
-    c.slashCX=c.gojoBlockX+155;c.slashActive=true;c.slashBlocked=false;
+    c.slashCX=c.gojoBlockX+164;c.slashActive=true;c.slashBlocked=false;
     camera(1120+Math.sin(q*Math.PI)*3,GROUND-110,.98+Math.sin(q*Math.PI)*.035);
     if(q<.19&&Math.floor(c.t*60)%2===0)try{spark(g.x-15,GROUND-135,3,'#a9efff',2.2,5,13,0);spark(g.x-22,GROUND-95,2,'#eefcff',1.6,4,12,0);}catch(e){}
    }else if(i===6){
     g.x=c.gojoBlockX;g.y=GROUND;g.facing=1;g.storyCinePose='infinity';g.state='BLOCK';
-    y.x=950;y.state='BLOCK';s.x=1320;s.state='ATTACK';c.slashCX=c.gojoBlockX+155;c.slashActive=true;c.slashBlocked=true;
+    y.x=950;y.state='BLOCK';s.x=1320;s.state='ATTACK';c.slashCX=c.gojoBlockX+164;c.slashActive=true;c.slashBlocked=true;
     camera(1185,GROUND-110,1.06+Math.sin(q*Math.PI)*.025);
     if(Math.floor(c.t*60)%8===0)try{spark(g.x+20+rnd(-8,8),GROUND-126+rnd(-18,18),2,'#d7f9ff',1.3,3,12,0);}catch(e){}
     if(q>.60)c.slashDissolve=clamp01((q-.60)/.34);
    }else if(i===7){
     g.x=c.gojoBlockX;g.y=GROUND;g.facing=1;g.storyCinePose='infinity';g.state='IDLE';y.x=950;y.state='IDLE';s.x=1320;s.state='IDLE';
-    c.slashDissolve=1;camera(g.x+35,GROUND-110,1.42+Math.sin(q*Math.PI)*.02);
+    c.slashDissolve=1;camera(g.x+35,GROUND-110,1.70+Math.sin(q*Math.PI)*.02);
    }else{
     g.x=c.gojoBlockX;g.storyCinePose='infinity';g.state='IDLE';c.slashActive=false;camera(1100,GROUND-105,.92);
    }
