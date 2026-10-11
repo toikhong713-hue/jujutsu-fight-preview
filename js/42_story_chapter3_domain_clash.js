@@ -165,14 +165,14 @@
       c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.facing=1;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.facing=-1;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
       if(c.yuta){c.yuta.x=950;c.yuta.y=GROUND;c.yuta.facing=1;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>.25)line(c,'yuta-opening','YUTA','He stopped it... with one hand?','#d8c5ff');
+      if(t>.25)line(c,'yuta-opening','YUTA','He blocked it... barehanded?','#d8c5ff');
       if(t>.95&&Math.floor(t*30)%10===0)try{spark(1107,GROUND-130,2,'#dffaff',1.5,3.5,10,0);}catch(e){}
     }else if(t<3.15){
       camera(1015,440,1.18+Math.sin((t-1.55)*1.7)*.015);
       c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
       if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>1.8)line(c,'gojo-reassures-yuta','GOJO','You did enough, Yuta. Stay behind me.','#a9e9ff');
+      if(t>1.8)line(c,'gojo-reassures-yuta','GOJO',"Stay back, Yuta. I'll handle this.",'#a9e9ff');
       if(Math.floor(t*24)%9===0)try{ring(1087,GROUND-115,'#83dfff',44,18);}catch(e){}
     }else if(t<4.85){
       const q=ease((t-3.15)/1.15);
@@ -180,7 +180,7 @@
       c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.72?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.45+.4*q;
       if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>3.4)line(c,'sukuna-rises','SUKUNA','Reverse cursed technique... and now the strongest arrives.','#ff8b98');
+      if(t>3.95)line(c,'sukuna-rises','SUKUNA','So... the strongest finally arrives.','#ff8b98');
       if(Math.floor(t*30)%7===0)try{spark(1320+rnd(-26,26),GROUND-rnd(60,138),2,'#a8ced7',1.4,4.2,13,0);}catch(e){}
     }else if(t<6.55){
       const q=ease((t-4.85)/1.7);
@@ -188,7 +188,7 @@
       c.gojo.x=mix(1085,1125,q);c.gojo.y=GROUND;c.gojo.state=q<.5?'BLOCK':'WALK';c.gojo.storyCinePose=q<.5?'guard':null;c.gojo.walk=q>.5?1:0;
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.8;
       if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
-      if(t>5.05)line(c,'gojo-challenge','GOJO','You wanted my attention. Now you have it.','#a9e9ff');
+      if(t>5.2)line(c,'gojo-challenge','GOJO',"You wanted me here. I'm here.",'#a9e9ff');
       if(Math.floor(t*60)%8===0)try{ring(1118,GROUND-92,'#80dcff',32+q*30,18);}catch(e){}
     }else if(t<8.15){
       const q=ease((t-6.55)/1.6);
@@ -196,7 +196,7 @@
       c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
       if(c.yuta){c.yuta.x=mix(950,900,q);c.yuta.state='WALK';c.yuta.walk=1;c.yuta.storyCinePose='support';}
-      if(t>6.85)line(c,'sukuna-challenge','SUKUNA','Then prove that title. Show me the limitless.','#ff8b98');
+      if(t>7.1)line(c,'sukuna-challenge','SUKUNA','Then show me the Limitless.','#ff8b98');
       if(Math.floor(t*60)%10===0)try{spark(1320+rnd(-32,32),GROUND-rnd(60,155),2,'#ff5566',1.6,4.5,13,0);}catch(e){}
     }else if(t<9.45){
       const q=ease((t-8.15)/1.3);
@@ -204,7 +204,7 @@
       c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
       if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
-      if(t>8.45)line(c,'narrator-battlefield','NARRATOR','The corridor falls silent. Neither man looks away.','#d8e8ff');
+      if(t>8.45&&c.lastLine!=='narrator-battlefield'){c.lastLine='narrator-battlefield';c.caption={speaker:'NARRATOR',text:'The corridor falls silent. Neither man looks away.',color:'#d8e8ff'};}
       if(Math.floor(t*60)%5===0){G.flash=.045;G.flashColor=(Math.floor(t*10)%2)?'#7fd8ff':'#ff334f';G.shake=Math.max(G.shake,1.2);}
     }else if(t<10){
       const q=clamp01((t-9.45)/.55);
@@ -212,7 +212,7 @@
       c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
       if(c.yuta){c.yuta.x=900;c.yuta.state='IDLE';}
-      if(t>9.55)line(c,'fight-call','NARRATOR','AWAKENING  /  CLASH OF THE STRONGEST','#eaf7ff');
+      if(t>9.55)line(c,'fight-call','NARRATOR','FIGHT!','#eaf7ff');
       if(q>.72){G.flash=.24;G.flashColor='#eafaff';}
     }else{
       stopVoice();removeYutaProp(c);
