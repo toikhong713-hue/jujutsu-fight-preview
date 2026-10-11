@@ -68,7 +68,7 @@
     c.gojo.ai=null;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
     c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.65;
     addYutaProp(c);
-    camera(center,GROUND-120,.91);G.flash=.22;G.flashColor='#e4faff';G.shake=3;
+    camera(1110,GROUND-120,.91);G.flash=.22;G.flashColor='#e4faff';G.shake=3;
   }
   function startChapter3(){
     if(!stored('jff_story_unlocked_ch3')&&!stored('jff_story_ch2_complete')){
