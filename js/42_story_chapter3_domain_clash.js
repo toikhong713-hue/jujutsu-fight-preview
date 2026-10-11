@@ -158,70 +158,88 @@
   function restartChapter3(){G.story3=null;window.__JFF_CH3_ACTIVE__=null;startChapter3();}
 
   function tickOpening(c){
-    // Ten-second startup continuous with the prior chapter's hallway and final shot.
+    // Ten-second, continuous Chapter 2 -> Chapter 3 intro, with purposeful camera cuts.
     c.t+=STEP;const t=c.t,center=c.openingCenter||1200;
-    G.flash=Math.max(0,(G.flash||0)-.026);G.shake=Math.max(0,(G.shake||0)-.38);
-    c.gojo.animT+=.62;c.sukuna.animT+=.49;if(c.yuta)c.yuta.animT+=.46;
+    G.flash=Math.max(0,(G.flash||0)-.032);G.shake=Math.max(0,(G.shake||0)-.34);
+    c.gojo.animT+=.62+Math.sin(t*3.2)*.025;
+    c.sukuna.animT+=.49+Math.sin(t*2.4)*.02;
+    if(c.yuta)c.yuta.animT+=.46+Math.sin(t*4.1)*.035;
+
     if(t<1.55){
-      camera(1110+Math.sin(t*1.8)*1.8,440,.91+Math.sin(t*1.4)*.006);
+      // Establishing shot: preserve the exact final Chapter 2 blocking.
+      camera(1110+Math.sin(t*1.25)*2.5,440,.91+Math.sin(t*1.1)*.005);
       c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.facing=1;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.facing=-1;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
       if(c.yuta){c.yuta.x=950;c.yuta.y=GROUND;c.yuta.facing=1;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
       if(t>.25)line(c,'yuta-opening','YUTA','He blocked it... barehanded?','#d8c5ff');
-      if(t>.95&&Math.floor(t*30)%10===0)try{spark(1107,GROUND-130,2,'#dffaff',1.5,3.5,10,0);}catch(e){}
+      if(t>.72&&Math.floor(t*30)%8===0)try{spark(1087+rnd(-8,8),GROUND-130,2,'#dffaff',1.5,3.5,10,0);}catch(e){}
+      if(t>1.05&&Math.floor(t*60)%17===0)try{spark(1210+rnd(-90,90),GROUND-5,1,'#b7c7d8',.8,2,18,0);}catch(e){}
     }else if(t<3.15){
-      camera(1015,440,1.18+Math.sin((t-1.55)*1.7)*.015);
-      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
+      // POV 1: Yuta's view toward the person shielding him.
+      const q=ease((t-1.55)/1.6);
+      camera(1018+Math.sin(q*Math.PI)*5,440,1.13+Math.sin(q*Math.PI)*.055);
+      c.gojo.x=1085+q*5;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='reassure';
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(c.yuta){c.yuta.x=mix(950,929,q);c.yuta.y=GROUND;c.yuta.state=q>.72?'WALK':'IDLE';c.yuta.walk=q>.72?1:0;c.yuta.storyCinePose='support';}
       if(t>1.8)line(c,'gojo-reassures-yuta','GOJO',"Stay back, Yuta. I'll handle this.",'#a9e9ff');
-      if(Math.floor(t*24)%9===0)try{ring(1087,GROUND-115,'#83dfff',44,18);}catch(e){}
+      if(Math.floor(t*24)%12===0)try{ring(1088,GROUND-112,'#83dfff',39+q*10,18);}catch(e){}
     }else if(t<4.85){
-      const q=ease((t-3.15)/1.15);
-      camera(1265,GROUND-118,1.08+Math.sin(q*Math.PI)*.025);
-      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.72?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.45+.4*q;
-      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      // POV 2: slow push toward Sukuna as he rises. The body pose changes every frame.
+      const q=ease((t-3.15)/1.7);
+      camera(mix(1238,1280,q),GROUND-120,1.04+Math.sin(q*Math.PI)*.09);
+      c.gojo.x=1090;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='calm';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.82?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='rise';c.sukuna.awakenGlow=.42+.46*q;
+      if(c.yuta){c.yuta.x=929;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
       if(t>3.95)line(c,'sukuna-rises','SUKUNA','So... the strongest finally arrives.','#ff8b98');
-      if(Math.floor(t*30)%7===0)try{spark(1320+rnd(-26,26),GROUND-rnd(60,138),2,'#a8ced7',1.4,4.2,13,0);}catch(e){}
+      if(Math.floor(t*30)%7===0)try{spark(1320+rnd(-30,30),GROUND-rnd(52,142),2,'#a8ced7',1.4,4.2,13,0);}catch(e){}
+      if(q>.72&&Math.floor(t*60)%14===0){G.shake=Math.max(G.shake,1.15);try{spark(1260+rnd(-65,65),GROUND-4,1,'#b8c1d0',1,2.8,18,0);}catch(e){}}
     }else if(t<6.55){
+      // POV 3: Gojo takes one deliberate step forward. Camera travels with him.
       const q=ease((t-4.85)/1.7);
-      camera(mix(1160,1090,q),GROUND-125,1.02+q*.045);
-      c.gojo.x=mix(1085,1125,q);c.gojo.y=GROUND;c.gojo.state=q<.5?'BLOCK':'WALK';c.gojo.storyCinePose=q<.5?'guard':null;c.gojo.walk=q>.5?1:0;
+      camera(mix(1160,1115,q),GROUND-125,1.02+q*.045);
+      c.gojo.x=mix(1090,1138,q);c.gojo.y=GROUND;c.gojo.state=q<.3?'BLOCK':'WALK';c.gojo.storyCinePose=q<.3?'guard':'advance';c.gojo.walk=q>.3?1:0;
       c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.8;
-      if(c.yuta){c.yuta.x=950;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      if(c.yuta){c.yuta.x=929;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
       if(t>5.85)line(c,'gojo-challenge','GOJO',"You wanted me here. I'm here.",'#a9e9ff');
-      if(Math.floor(t*60)%8===0)try{ring(1118,GROUND-92,'#80dcff',32+q*30,18);}catch(e){}
+      if(Math.floor(t*60)%10===0)try{ring(1120+q*16,GROUND-92,'#80dcff',30+q*34,18);}catch(e){}
+      if(Math.floor(t*60)%16===0)try{spark(1090+q*44,GROUND-8,1,'#dffaff',1,2.3,12,0);}catch(e){}
     }else if(t<8.15){
+      // Over-shoulder release: Yuta yields space while the two fighters square up.
       const q=ease((t-6.55)/1.6);
-      camera(1220,GROUND-132,.98+Math.sin(q*Math.PI)*.035);
-      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
-      if(c.yuta){c.yuta.x=mix(950,900,q);c.yuta.state='WALK';c.yuta.walk=1;c.yuta.storyCinePose='support';}
+      camera(1220+Math.sin(q*Math.PI)*8,GROUND-132,.98+Math.sin(q*Math.PI)*.035);
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
+      if(c.yuta){c.yuta.x=mix(929,900,q);c.yuta.y=GROUND;c.yuta.state=q>.12?'WALK':'IDLE';c.yuta.walk=q>.12?1:0;c.yuta.storyCinePose='retreat';}
       if(t>7.9)line(c,'sukuna-challenge','SUKUNA','Then show me the Limitless.','#ff8b98');
       if(Math.floor(t*60)%10===0)try{spark(1320+rnd(-32,32),GROUND-rnd(60,155),2,'#ff5566',1.6,4.5,13,0);}catch(e){}
     }else if(t<9.45){
+      // Pull out to the master shot. The dialogue stops so the silence can land.
       const q=ease((t-8.15)/1.3);
       camera(mix(1210,1200,q),GROUND-142,.9+q*.025);
-      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
-      if(t>8.45&&c.lastLine!=='narrator-battlefield'){c.lastLine='narrator-battlefield';c.caption={speaker:'NARRATOR',text:'The corridor falls silent. Neither man looks away.',color:'#d8e8ff'};}
-      if(Math.floor(t*60)%5===0){G.flash=.045;G.flashColor=(Math.floor(t*10)%2)?'#7fd8ff':'#ff334f';G.shake=Math.max(G.shake,1.2);}
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';
+      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='retreat';}
+      if(t>8.28&&c.lastLine!=='narrator-battlefield'){
+        stopVoice();c.lastLine='narrator-battlefield';
+        c.caption={speaker:'NARRATOR',text:'The corridor falls silent. Neither man looks away.',color:'#d8e8ff'};
+      }
+      if(Math.floor(t*60)%9===0)try{spark(1200+rnd(-250,250),GROUND-rnd(35,145),1,'#c3d2e6',.8,2.5,17,0);}catch(e){}
+      if(Math.floor(t*60)%20===0){G.shake=Math.max(G.shake,.45);}
     }else if(t<10){
+      // Final frame and a single soft impact, then hand control over without a hard reset.
       const q=clamp01((t-9.45)/.55);
-      camera(1200,GROUND-138,.925+q*.015);
-      c.gojo.x=1125;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='guard';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=900;c.yuta.state='IDLE';}
-      if(t>9.55)line(c,'fight-call','NARRATOR','FIGHT!','#eaf7ff');
-      if(q>.72){G.flash=.24;G.flashColor='#eafaff';}
+      camera(mix(1200,1205,q),mix(GROUND-142,GROUND-138,q),mix(.925,.91,q));
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';
+      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='retreat';}
+      if(t>9.67)line(c,'fight-call','NARRATOR','FIGHT!','#eaf7ff');
+      if(q>.78&&!c.transitionFlash){G.flash=Math.max(G.flash,.14);G.flashColor='#eafaff';c.transitionFlash=true;}
     }else{
       stopVoice();removeYutaProp(c);
-      resetActor(c.gojo,1125,1);resetActor(c.sukuna,1320,-1);c.gojo.ai=null;
+      resetActor(c.gojo,1138,1);resetActor(c.sukuna,1320,-1);c.gojo.ai=null;
       c.stage='combat';c.phase='phase1';c.t=0;c.lastLine='';c.caption=null;
       G.storyCutscene=false;G.story.cutscene=false;G.roundState='fight';G.roundTimer=0;G.matchOver=false;G.matchOverScreen=false;
-      camera(1200,440,.91);
+      camera(1205,440,.91);
     }
   }
     function tickDomainIntro(c){
@@ -365,6 +383,31 @@
     if(Math.floor(t*2)%2===0){ctx.globalAlpha=.24;ctx.strokeStyle='#d9f7ff';ctx.beginPath();ctx.moveTo(gx+55,gy-15);ctx.lineTo(sx-55,sy+10);ctx.stroke();}
     ctx.restore();
   }
+  function drawOpeningFilmFX(c){
+    const t=c.t||0;ctx.save();
+    // Soft lens falloff and restrained dust: screen-space only, no expensive blur filters.
+    const radius=Math.max(W,H)*.78;
+    const vg=ctx.createRadialGradient(W*.5,H*.47,Math.min(W,H)*.18,W*.5,H*.47,radius);
+    vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(.62,'rgba(0,0,0,.08)');vg.addColorStop(1,'rgba(0,0,0,.42)');
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=.055;ctx.fillStyle='#c6d8ef';
+    for(let y=44;y<H-40;y+=7)ctx.fillRect(0,y,W,1);
+    for(let k=0;k<11;k++){
+      const x=((k*173+t*(11+k%4*3))%Math.max(1,W));
+      const y=68+((k*97+t*(5+k%3*2))%Math.max(1,H-132));
+      ctx.globalAlpha=.12+(k%3)*.035;ctx.fillStyle=k%4===0?'#ff9da9':'#dceaff';
+      ctx.beginPath();ctx.arc(x,y,1+(k%2)*.45,0,Math.PI*2);ctx.fill();
+    }
+    let shot='SHOT 01  /  MASTER SHOT',accent='#dceaff';
+    if(t>=1.55&&t<3.15){shot='POV 1  /  YUTA: THE PROTECTOR';accent='#b9a1ff';}
+    else if(t>=3.15&&t<4.85){shot='POV 2  /  SUKUNA: THE CHALLENGE';accent='#ff8293';}
+    else if(t>=4.85&&t<6.55){shot='POV 3  /  GOJO: THE COUNTERSTEP';accent='#9fe9ff';}
+    else if(t>=6.55&&t<8.15){shot='OVER-SHOULDER  /  THE DISTANCE CLOSES';accent='#dceaff';}
+    else if(t>=8.15&&t<9.45){shot='MASTER SHOT  /  THE CORRIDOR HOLDS ITS BREATH';accent='#dceaff';}
+    else if(t>=9.45){shot='FINAL FRAME  /  FIGHT';accent='#ffffff';}
+    ctx.globalAlpha=.88;ctx.textAlign='center';ctx.font='800 10px Consolas,monospace';ctx.fillStyle=accent;ctx.fillText(shot,W/2,84);
+    ctx.restore();
+  }
   function drawCaption(c){
     const t=c.t;ctx.save();
     ctx.fillStyle='rgba(2,4,10,.72)';ctx.fillRect(0,0,W,31);ctx.fillRect(0,H-32,W,32);
@@ -403,9 +446,26 @@
     const P=basePose.apply(this,arguments),c=chapter3();
     if(!c||!f||!(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'))return P;
     if(c.stage==='intro'){
-      if(f===c.gojo){P.hipY=-56;P.shY=-95;P.headY=-112;P.lean=-8;P.armF=[-55,-18];P.armB=[-50,4];P.legF=[58,47];P.legB=[128,-18];if(c.t>.85&&c.t<2.3){P.lean=-2;P.armF=[-42,11];P.armB=[-70,6];}}
-      else if(f===c.sukuna){P.hipY=-57;P.shY=-95;P.headY=-112;P.lean=8;P.armF=[-15,-20];P.armB=[-30,15];P.legF=[86,6];P.legB=[96,-8];}
-      else if(f===c.yuta){P.hipY=-56;P.shY=-94;P.headY=-111;P.lean=-4;P.armF=[-45,20];P.armB=[-24,-15];P.legF=[87,4];P.legB=[95,-7];}
+      const t=c.t||0,breath=Math.sin(t*4.1)*.8;
+      if(f===c.gojo){
+        P.hipY=-56+breath*.22;P.shY=-95+breath*.25;P.headY=-112+breath*.28;P.lean=-5+Math.sin(t*2.2)*1.5;
+        P.armF=[-55,-18];P.armB=[-50,4];P.legF=[58,47];P.legB=[128,-18];
+        if(t>1.55&&t<3.15){const q=ease((t-1.55)/1.6);P.lean=-2-q*2;P.armF=[mix(-55,-83,q),mix(-18,-6,q)];P.armB=[mix(-50,-66,q),4+q*5];}
+        else if(t>=3.15&&t<4.85){P.lean=-2+Math.sin(t*2)*.7;P.armF=[-48,6];P.armB=[-61,-3];}
+        else if(t>=4.85&&t<6.55){const q=clamp01((t-4.85)/1.7);P.lean=-4+q*3;P.armF=[-58+Math.sin(t*8)*6,-10];P.armB=[-42-Math.sin(t*8)*5,4];P.legF=[58+Math.sin(t*8)*13,47];P.legB=[128-Math.sin(t*8)*13,-18];}
+        else if(t>=6.55){P.lean=-1+Math.sin(t*2.8)*.6;P.armF=[-64,-7];P.armB=[-53,2];P.legF=[74,8];P.legB=[92,-8];}
+      }else if(f===c.sukuna){
+        let q=clamp01((t-3.15)/1.7);q=ease(q);
+        P.hipY=-57+q*1.5+breath*.2;P.shY=-95+q*.5;P.headY=-112+q*.25;P.lean=10*(1-q)+Math.sin(t*3)*.6;
+        P.armF=[mix(-15,-42,q)+Math.sin(t*3.5)*2,mix(-20,5,q)];P.armB=[mix(-30,-58,q),mix(15,-8,q)];
+        P.legF=[mix(86,76,q),mix(6,10,q)];P.legB=[mix(96,98,q),mix(-8,-7,q)];
+        if(t>=6.55){const menace=Math.sin(t*5)*2;P.lean=3+menace*.25;P.armF=[-44+menace,10];P.armB=[-58-menace, -7];P.legF=[77,7];P.legB=[98,-7];}
+      }else if(f===c.yuta){
+        P.hipY=-56+breath*.22;P.shY=-94+breath*.24;P.headY=-111+breath*.26;P.lean=-3+Math.sin(t*4)*.45;
+        P.armF=[-45,20];P.armB=[-24,-15];P.legF=[87,4];P.legB=[95,-7];
+        if(t>1.55&&t<3.15){const q=clamp01((t-1.55)/1.6);P.lean=-4+q*3;P.armF=[-45-q*12,20-q*3];}
+        if(t>=6.55&&t<8.15){const q=clamp01((t-6.55)/1.6);P.lean=-3+q*5;P.armF=[-45+q*5,20+q*4];P.legF=[87+Math.sin(t*8)*10,4];P.legB=[95-Math.sin(t*8)*10,-7];}
+      }
     }else if(c.stage==='domainIntro'){
       if(f===c.gojo){P.hipY=-57;P.shY=-96;P.headY=-113;P.lean=-3;P.legF=[80,8];P.legB=[96,-8];P.armF=c.t<1.35?[-95,18]:[-72,20];P.armB=c.t<1.35?[-108,-12]:[-88,-5];}
       else if(f===c.sukuna){P.hipY=-58;P.shY=-97;P.headY=-114;P.lean=4;P.legF=[82,3];P.legB=[105,-11];P.armF=c.t<3.95?[-12,-35]:[-38,18];P.armB=c.t<3.95?[-28,18]:[-58,-8];}
@@ -420,6 +480,7 @@
     baseRender.apply(this,arguments);
     const c=chapter3();if(!c||G.mode!=='story')return;
     if(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'){
+      if(c.stage==='intro')drawOpeningFilmFX(c);
       drawCaption(c);
       if(c.stage==='intro'&&c.t<.18){ctx.save();ctx.fillStyle='rgba(0,0,0,'+(.4*(1-c.t/.18))+')';ctx.fillRect(0,0,W,H);ctx.restore();}
       if(c.stage==='domainIntro'&&c.t>3.85&&c.t<5.2){ctx.save();ctx.globalAlpha=.08+Math.sin(c.t*24)*.04;ctx.fillStyle=(Math.floor(c.t*20)%2)?'#83dcff':'#ff5167';ctx.fillRect(0,0,W,H);ctx.restore();}
