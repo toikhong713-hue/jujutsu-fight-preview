@@ -646,76 +646,84 @@
     ctx.restore();
   }
 
-  const endingPoseGojo=[
-    {t:0,hipY:-58,shY:-96,headY:-113,lean:-3,armF:[55,-92],armB:[123,-150],legF:[74,8],legB:[104,-8]},
-    {t:1.45,hipY:-58,shY:-96,headY:-113,lean:-5,armF:[48,-96],armB:[120,-142],legF:[72,9],legB:[105,-9]},
-    {t:2,hipY:-52,shY:-88,headY:-104,lean:-20,armF:[12,-68],armB:[40,-58],legF:[54,22],legB:[112,-15]},
-    {t:2.45,hipY:-58,shY:-96,headY:-113,lean:16,armF:[80,-22],armB:[135,-70],legF:[102,18],legB:[110,-12]},
-    {t:2.9,hipY:-58,shY:-96,headY:-113,lean:-8,armF:[12,-78],armB:[40,-65],legF:[70,14],legB:[105,-9]},
-    {t:3.45,hipY:-56,shY:-92,headY:-109,lean:20,armF:[130,-12],armB:[22,-75],legF:[125,42],legB:[74,-18]},
-    {t:4.05,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-91],armB:[122,-143],legF:[80,8],legB:[102,-8]},
-    {t:4.85,hipY:-52,shY:-88,headY:-104,lean:-19,armF:[10,-78],armB:[45,-66],legF:[54,21],legB:[111,-14]},
-    {t:5.55,hipY:-58,shY:-96,headY:-113,lean:28,armF:[75,-20],armB:[140,-65],legF:[112,34],legB:[73,-20]},
-    {t:6.25,hipY:-58,shY:-96,headY:-113,lean:-3,armF:[55,-92],armB:[123,-150],legF:[74,8],legB:[104,-8]},
-    {t:6.95,hipY:-58,shY:-96,headY:-113,lean:-5,armF:[24,-110],armB:[130,-82],legF:[72,8],legB:[104,-8]},
-    {t:7.7,hipY:-58,shY:-96,headY:-113,lean:10,armF:[18,-106],armB:[120,-58],legF:[91,16],legB:[101,-11]},
-    {t:8.55,hipY:-58,shY:-96,headY:-113,lean:22,armF:[82,-22],armB:[138,-74],legF:[111,26],legB:[78,-17]},
-    {t:9.45,hipY:-53,shY:-90,headY:-107,lean:-16,armF:[18,-78],armB:[35,-58],legF:[57,17],legB:[115,-13]},
-    {t:10.3,hipY:-58,shY:-96,headY:-113,lean:25,armF:[81,-20],armB:[138,-72],legF:[109,23],legB:[77,-16]},
-    {t:11.15,hipY:-58,shY:-96,headY:-113,lean:-12,armF:[15,-78],armB:[43,-65],legF:[67,16],legB:[109,-10]},
-    {t:12.05,hipY:-56,shY:-93,headY:-110,lean:24,armF:[125,-14],armB:[27,-76],legF:[120,34],legB:[78,-18]},
-    {t:12.9,hipY:-58,shY:-96,headY:-113,lean:30,armF:[128,-14],armB:[35,-70],legF:[132,42],legB:[72,-18]},
-    {t:13.55,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[57,-91],armB:[122,-145],legF:[78,8],legB:[104,-8]},
-    {t:14.55,hipY:-58,shY:-96,headY:-113,lean:0,armF:[24,-112],armB:[132,-100],legF:[74,8],legB:[104,-8]},
-    {t:15.35,hipY:-54,shY:-91,headY:-108,lean:-12,armF:[14,-77],armB:[42,-67],legF:[62,16],legB:[112,-12]},
-    {t:16.2,hipY:-58,shY:-96,headY:-113,lean:12,armF:[30,-112],armB:[130,-105],legF:[94,19],legB:[93,-10]},
-    {t:16.95,hipY:-55,shY:-93,headY:-110,lean:34,armF:[12,-122],armB:[138,-115],legF:[120,36],legB:[70,-23]},
-    {t:17.25,hipY:-58,shY:-96,headY:-113,lean:3,armF:[17,-128],armB:[140,-122],legF:[98,22],legB:[110,-12]},
-    {t:17.75,hipY:-54,shY:-91,headY:-108,lean:17,armF:[28,-91],armB:[135,-100],legF:[116,20],legB:[84,-16]},
-    {t:18.45,hipY:-58,shY:-96,headY:-113,lean:-4,armF:[54,-85],armB:[120,-132],legF:[75,10],legB:[102,-8]},
-    {t:19.25,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-70],armB:[118,-105],legF:[82,8],legB:[101,-8]},
-    {t:20,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-70],armB:[118,-105],legF:[82,8],legB:[101,-8]}
+  const finalFightKeys=[
+    [0,-190,190,0,0,'guard','guard',0,.82,''],[.62,-188,187,0,0,'guard','guard',0,.82,''],[.88,-185,172,0,0,'guard','crouch',0,.84,''],
+    [1.08,-180,126,0,4,'brace','lunge',-12,.91,''],[1.3,-174,88,0,0,'infinity','slashWind',-8,1,''],[1.48,-170,82,0,0,'infinity','slash',-5,1.04,'slash_block'],
+    [1.68,-169,88,0,0,'brace','recover',-5,1.01,''],[1.85,-160,100,0,0,'punchWind','guard',0,1.02,''],[2.08,-126,100,0,0,'punch','hitBack',0,1.05,'gojo_punch'],
+    [2.24,-125,93,0,0,'recover','block',0,1.02,''],[2.4,-130,70,0,0,'brace','elbowWind',-5,1.02,''],[2.55,-148,53,0,0,'hitBack','elbow',-8,1.08,'sukuna_elbow'],
+    [2.77,-152,59,0,0,'recoil','recover',-8,1.04,''],[2.9,-137,62,0,0,'kickWind','guard',-8,1.06,''],[3.1,-104,96,0,12,'kick','hitBack',-2,1.08,'gojo_kick'],
+    [3.32,-115,111,0,8,'recover','stagger',0,1.01,''],[3.6,-132,125,0,0,'guard','guard',0,.88,''],[4.05,-130,105,0,0,'lowDodge','slashWind',0,.96,''],
+    [4.2,-138,74,0,0,'lowDodge','slash',-5,1.04,'slash_one'],[4.4,-151,64,0,0,'highDodge','recover',-8,1.06,''],[4.56,-165,54,22,0,'highDodge','slashWind',-12,1.08,''],
+    [4.72,-171,48,28,0,'highDodge','slash',-12,1.09,'slash_two'],[4.92,-158,54,4,0,'landing','recover',-8,1.04,''],[5.08,-125,78,0,0,'punch','hitBack',0,1.07,'gojo_counter'],
+    [5.28,-118,92,0,0,'recover','stagger',0,1.01,''],[5.46,-118,88,0,0,'brace','slashWind',0,1,''],[5.62,-150,56,12,0,'lowDodge','slash',-8,1.08,'slash_three'],
+    [5.82,-161,52,0,0,'landing','recover',-8,1.04,''],[6,-96,76,0,0,'dash','brace',-6,1.02,''],[6.2,-50,99,0,0,'bodyStrike','hitBack',0,1.08,'gojo_body'],
+    [6.42,-38,108,0,0,'bodyStrike','stagger',0,1.08,''],[6.58,-48,116,0,0,'brace','slashWind',0,1.02,''],[6.78,-57,100,0,0,'parry','slash',-4,1.09,'parry_slash'],
+    [6.98,-59,101,0,0,'recover','stagger',-4,1.03,''],[7.2,-60,101,0,0,'blueCharge','brace',0,.99,''],[7.52,-59,78,0,0,'blueRelease','pulled',0,1.02,'blue_pull'],
+    [7.8,-60,48,0,0,'blueRelease','pulled',2,1.06,''],[8.04,-72,50,0,0,'lowDodge','slashWind',-4,1.08,''],[8.2,-84,61,0,0,'lowDodge','slash',-8,1.09,'blue_cut'],
+    [8.42,-97,72,0,0,'landing','recover',-8,1.04,''],[8.63,-101,83,0,0,'redCharge','brace',-4,1.02,''],[8.88,-94,148,0,14,'redRelease','hitBack',0,1,'red_burst'],
+    [9.14,-90,172,0,6,'recover','stagger',0,.91,''],[9.4,-32,159,0,0,'dash','brace',0,.91,''],[9.62,0,120,0,0,'punch','hitBack',5,1,'gojo_rush_punch'],
+    [9.82,-4,120,0,0,'recover','stagger',5,1,''],[10.02,-9,74,0,0,'infinity','slashWind',0,1.02,''],[10.2,-2,65,0,0,'parry','slash',-4,1.08,'close_slash'],
+    [10.42,8,84,0,0,'elbow','hitBack',0,1.08,'gojo_counter_two'],[10.64,6,105,0,0,'recover','stagger',0,1.02,''],[10.9,3,122,0,0,'guard','recover',0,.98,''],
+    [11.12,2,74,0,0,'block','slashWind',0,1.03,''],[11.32,-6,65,0,0,'parry','slash',-5,1.08,'slash_counter'],[11.5,5,79,0,0,'punch','hitBack',0,1.08,'gojo_counter_three'],
+    [11.72,0,97,0,0,'recover','stagger',0,1.03,''],[11.94,-20,76,0,0,'lowDodge','slashWind',-4,1.03,''],[12.12,-15,70,0,0,'lowDodge','slash',-5,1.06,'last_slash'],
+    [12.32,-2,94,0,0,'counterPunch','hitBack',0,1.06,'gojo_counter_four'],[12.52,-25,128,0,0,'guard','recoil',0,.92,''],[12.82,-30,122,0,0,'purpleCharge','crouch',0,.9,''],
+    [13.1,-34,108,0,0,'purpleCharge','lunge',0,.92,''],[13.4,-48,72,0,0,'purpleCharge','dash',0,.95,''],[13.65,-62,36,0,0,'purpleCharge','slashWind',0,.98,''],
+    [13.9,-69,31,0,0,'redBlue','slashWind',0,1,''],[14.16,-73,46,0,0,'purpleCharge','slash',0,1,''],[14.42,-76,70,0,0,'purpleCharge','recover',0,.96,'purple_converge'],
+    [14.68,-78,90,0,0,'purpleCharge','brace',0,.92,''],[14.92,-81,112,0,0,'purpleFire','dash',0,.88,'purple_launch'],[15.16,-84,141,0,0,'purpleFire','slash',0,.84,''],
+    [15.42,-87,169,0,0,'purpleFire','slash',0,.82,'slash_vs_purple'],[15.72,-90,184,0,0,'purpleFire','recoil',0,.8,''],[16,-94,192,0,0,'purpleRecoil','hitBack',0,.78,'purple_collision'],
+    [16.22,-97,202,0,22,'recoil','fly',0,.79,''],[16.48,-100,211,0,34,'recoil','fly',0,.8,''],[16.74,-99,218,0,32,'guard','fly',0,.81,''],
+    [17,-96,222,0,22,'guard','fall',0,.82,''],[17.24,-92,225,0,12,'guard','fall',0,.83,'sukuna_fall'],[17.48,-90,224,0,3,'guard','fall',0,.84,''],
+    [17.7,-88,220,0,0,'guard','fall',0,.84,''],[18,-88,218,0,0,'guard','fallen',0,.85,'ground_slam'],[18.28,-86,218,0,0,'recover','fallen',0,.86,''],
+    [18.65,-84,218,0,0,'guard','fallen',0,.86,''],[19,-84,218,0,0,'finalPose','fallen',0,.86,''],[19.5,-84,218,0,0,'finalPose','fallen',0,.86,''],[20,-84,218,0,0,'finalPose','fallen',0,.86,'']
   ];
-  const endingPoseSukuna=[
-    {t:0,hipY:-58,shY:-97,headY:-114,lean:5,armF:[64,-45],armB:[116,-55],legF:[82,6],legB:[105,-10]},
-    {t:1.5,hipY:-57,shY:-95,headY:-112,lean:10,armF:[58,-42],armB:[120,-62],legF:[81,8],legB:[104,-9]},
-    {t:1.95,hipY:-45,shY:-76,headY:-93,lean:23,armF:[25,-80],armB:[150,-75],legF:[42,18],legB:[142,-18]},
-    {t:2.4,hipY:-58,shY:-96,headY:-113,lean:28,armF:[8,-100],armB:[150,-20],legF:[110,22],legB:[55,-12]},
-    {t:2.85,hipY:-56,shY:-93,headY:-110,lean:-12,armF:[150,-30],armB:[20,-90],legF:[60,18],legB:[117,-15]},
-    {t:3.4,hipY:-58,shY:-97,headY:-114,lean:-6,armF:[35,-100],armB:[120,-75],legF:[77,8],legB:[107,-10]},
-    {t:4,hipY:-58,shY:-96,headY:-113,lean:20,armF:[14,-105],armB:[145,-30],legF:[111,25],legB:[76,-18]},
-    {t:4.55,hipY:-58,shY:-96,headY:-113,lean:4,armF:[62,-44],armB:[117,-56],legF:[82,6],legB:[105,-10]},
-    {t:5,hipY:-45,shY:-77,headY:-94,lean:21,armF:[15,-108],armB:[148,-28],legF:[103,19],legB:[58,-15]},
-    {t:5.72,hipY:-58,shY:-96,headY:-113,lean:24,armF:[12,-112],armB:[145,-22],legF:[112,26],legB:[74,-18]},
-    {t:6.45,hipY:-43,shY:-76,headY:-93,lean:28,armF:[22,-93],armB:[154,-42],legF:[40,20],legB:[140,-18]},
-    {t:7.15,hipY:-58,shY:-97,headY:-114,lean:25,armF:[5,-110],armB:[151,-25],legF:[111,22],legB:[74,-18]},
-    {t:7.9,hipY:-54,shY:-90,headY:-107,lean:-20,armF:[38,-72],armB:[126,-86],legF:[55,18],legB:[115,-14]},
-    {t:8.55,hipY:-58,shY:-97,headY:-114,lean:20,armF:[12,-105],armB:[146,-30],legF:[110,22],legB:[75,-17]},
-    {t:9.25,hipY:-58,shY:-97,headY:-114,lean:28,armF:[10,-112],armB:[150,-22],legF:[112,24],legB:[72,-18]},
-    {t:9.95,hipY:-51,shY:-88,headY:-105,lean:-18,armF:[37,-85],armB:[122,-78],legF:[58,18],legB:[115,-14]},
-    {t:10.65,hipY:-58,shY:-97,headY:-114,lean:20,armF:[15,-106],armB:[150,-25],legF:[108,23],legB:[74,-17]},
-    {t:11.35,hipY:-52,shY:-88,headY:-105,lean:-16,armF:[38,-78],armB:[122,-80],legF:[58,16],legB:[114,-13]},
-    {t:12.1,hipY:-58,shY:-97,headY:-114,lean:26,armF:[8,-110],armB:[146,-22],legF:[113,24],legB:[74,-17]},
-    {t:12.9,hipY:-58,shY:-97,headY:-114,lean:2,armF:[62,-44],armB:[117,-56],legF:[82,6],legB:[105,-10]},
-    {t:13.65,hipY:-58,shY:-97,headY:-114,lean:17,armF:[12,-106],armB:[146,-25],legF:[110,21],legB:[75,-17]},
-    {t:14.45,hipY:-45,shY:-77,headY:-94,lean:29,armF:[17,-100],armB:[148,-24],legF:[43,20],legB:[141,-18]},
-    {t:15.25,hipY:-58,shY:-97,headY:-114,lean:30,armF:[7,-113],armB:[151,-20],legF:[113,24],legB:[73,-18]},
-    {t:16.15,hipY:-56,shY:-94,headY:-111,lean:34,armF:[5,-119],armB:[150,-115],legF:[118,35],legB:[70,-23]},
-    {t:16.95,hipY:-55,shY:-94,headY:-111,lean:20,armF:[12,-125],armB:[150,-116],legF:[111,30],legB:[75,-20]},
-    {t:17.25,hipY:-58,shY:-97,headY:-114,lean:-19,armF:[40,-75],armB:[125,-77],legF:[55,18],legB:[118,-14]},
-    {t:17.8,hipY:-48,shY:-83,headY:-100,lean:-23,armF:[30,-50],armB:[145,-45],legF:[52,23],legB:[127,-18]},
-    {t:18.35,hipY:-32,shY:-55,headY:-69,lean:22,armF:[32,32],armB:[142,-44],legF:[43,34],legB:[133,-36]},
-    {t:18.9,hipY:-18,shY:-29,headY:-37,lean:58,armF:[92,76],armB:[140,-34],legF:[22,45],legB:[136,-40]},
-    {t:19.35,hipY:-16,shY:-28,headY:-35,lean:62,armF:[94,78],armB:[142,-36],legF:[20,46],legB:[137,-42]},
-    {t:20,hipY:-16,shY:-28,headY:-35,lean:62,armF:[94,78],armB:[142,-36],legF:[20,46],legB:[137,-42]}
-  ];
-  function applyEndingPose(P,frames,t){
-    let i=0;while(i<frames.length-2&&t>frames[i+1].t)i++;
-    const a=frames[i],b=frames[i+1],q=ease(clamp01((t-a.t)/Math.max(.001,b.t-a.t)));
-    for(const k of ['hipY','shY','headY','lean'])P[k]=mix(a[k],b[k],q);
+  const mkFinalPose=(hipY,shY,headY,lean,afx,afy,abx,aby,lfx,lfy,lbx,lby,headX=0)=>({hipY,shY,headY,headX,lean,armF:[afx,afy],armB:[abx,aby],legF:[lfx,lfy],legB:[lbx,lby]});
+  const FINAL_FIGHT_POSES={
+    guard:mkFinalPose(-58,-96,-112,-3,76,24,106,22,84,8,96,-7),
+    brace:mkFinalPose(-58,-96,-112,-8,42,-42,132,8,78,14,100,-8),
+    crouch:mkFinalPose(-47,-81,-103,-23,34,34,146,16,65,27,125,-8),
+    lunge:mkFinalPose(-62,-100,-120,28,14,-42,150,-18,58,-28,126,-12,2),
+    slashWind:mkFinalPose(-58,-96,-114,-13,60,-40,145,-22,86,9,94,-8),
+    slash:mkFinalPose(-62,-100,-120,18,10,-60,100,25,94,4,86,-8,2),
+    infinity:mkFinalPose(-58,-96,-113,-4,-60,-30,90,20,88,6,94,-6),
+    punchWind:mkFinalPose(-54,-94,-108,-18,125,58,90,25,92,10,90,-8),
+    punch:mkFinalPose(-64,-102,-120,22,-8,-8,100,30,96,2,84,-10,2),
+    counterPunch:mkFinalPose(-63,-100,-119,17,-4,-12,116,21,92,4,86,-8,2),
+    recover:mkFinalPose(-58,-96,-112,3,74,20,104,22,88,6,94,-6),
+    elbowWind:mkFinalPose(-55,-92,-108,-15,135,28,92,22,94,9,88,-8),
+    elbow:mkFinalPose(-62,-100,-119,23,8,-30,110,30,94,4,86,-9,2),
+    hitBack:mkFinalPose(-55,-88,-105,-25,145,22,26,-62,112,22,76,-17,-3),
+    recoil:mkFinalPose(-56,-90,-107,-30,140,30,150,-36,118,26,72,-18,-4),
+    kickWind:mkFinalPose(-55,-92,-109,-22,20,-72,118,8,76,18,108,-18),
+    kick:mkFinalPose(-61,-100,-118,23,12,-18,126,24,132,-2,78,-10,1),
+    stagger:mkFinalPose(-54,-87,-104,-19,145,26,24,-66,114,20,76,-15,-3),
+    lowDodge:mkFinalPose(-46,-80,-102,-27,98,42,134,-8,65,17,119,-11,-2),
+    highDodge:mkFinalPose(-68,-103,-120,-8,22,-70,144,-18,66,-35,120,-20,-3),
+    landing:mkFinalPose(-48,-82,-103,-17,100,33,138,-4,68,21,118,-9),
+    block:mkFinalPose(-58,-96,-113,-5,-55,-28,104,23,84,8,96,-7),
+    parry:mkFinalPose(-60,-99,-116,8,2,-52,145,-35,92,5,87,-8,2),
+    blueCharge:mkFinalPose(-58,-97,-116,-9,50,-50,55,-45,86,6,94,-6,2),
+    blueRelease:mkFinalPose(-61,-100,-119,15,8,-12,45,15,92,4,88,-7,2),
+    pulled:mkFinalPose(-57,-91,-108,28,-3,-50,146,-12,58,18,120,-12,2),
+    redCharge:mkFinalPose(-58,-97,-116,-10,50,-50,126,8,88,6,94,-6,2),
+    redRelease:mkFinalPose(-62,-100,-119,19,2,-8,110,24,92,4,86,-8,2),
+    dash:mkFinalPose(-55,-101,-119,28,14,-42,154,-14,58,-34,128,-18,2),
+    bodyStrike:mkFinalPose(-62,-100,-118,20,-8,-8,100,30,96,2,84,-10,2),
+    redBlue:mkFinalPose(-59,-97,-116,3,25,-56,146,-34,88,6,94,-6,2),
+    purpleCharge:mkFinalPose(-60,-99,-120,-5,-30,-80,-30,-80,88,6,94,-6,2),
+    purpleFire:mkFinalPose(-62,-100,-120,17,10,-60,10,-60,94,4,86,-8,2),
+    purpleRecoil:mkFinalPose(-56,-91,-108,-18,140,30,150,-32,110,22,76,-16,-4),
+    fly:mkFinalPose(-49,-82,-100,-12,136,24,24,-65,68,-25,126,-20,-3),
+    fall:mkFinalPose(-31,-54,-69,24,28,35,140,-38,44,32,132,-33,-5),
+    fallen:mkFinalPose(-16,-28,-35,62,94,78,142,-36,20,46,137,-42,-5),
+    finalPose:mkFinalPose(-58,-96,-113,-2,58,-70,118,-105,82,8,101,-8)
+  };
+  function fightKeyIndex(t){let i=0;while(i<finalFightKeys.length-2&&t>finalFightKeys[i+1][0])i++;return i;}
+  function blendFightPose(P,aName,bName,q,t){
+    const a=FINAL_FIGHT_POSES[aName]||FINAL_FIGHT_POSES.guard,b=FINAL_FIGHT_POSES[bName]||a;
+    for(const k of ['hipY','shY','headY','headX','lean'])P[k]=mix(a[k],b[k],q);
     for(const k of ['armF','armB','legF','legB'])P[k]=[mix(a[k][0],b[k][0],q),mix(a[k][1],b[k][1],q)];
+    P.hipY+=Math.sin(t*4.2)*.07;P.shY+=Math.sin(t*4.2)*.05;P.headY+=Math.sin(t*2.6)*.18;
   }
-
   if(typeof basePose==='function')window.computePose=function(f){
     const P=basePose.apply(this,arguments),c=chapter3();
     if(!c||!f||!(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'))return P;
