@@ -163,6 +163,11 @@
     c.t+=STEP;const t=c.t,center=c.openingCenter||1200;
     G.flash=Math.max(0,(G.flash||0)-.032);G.shake=Math.max(0,(G.shake||0)-.34);
     c.gojo.animT+=.62+Math.sin(t*3.2)*.025;
+    if(t>3.25&&t<8.3&&Math.floor(t*30)%36===0){
+      G.shake=Math.max(G.shake,.8+Math.min(.7,(t-3.25)*.12));
+      try{ring(c.sukuna.x,GROUND-7,'#ff435b',34+Math.min(20,(t-3.25)*4),18);}catch(e){}
+      try{spark(c.sukuna.x+rnd(-42,42),GROUND-6,2,'#aeb6c5',1.1,2.8,16,0);}catch(e){}
+    }
     c.sukuna.animT+=.49+Math.sin(t*2.4)*.02;
     if(c.yuta)c.yuta.animT+=.46+Math.sin(t*4.1)*.035;
 
@@ -434,19 +439,67 @@
     ctx.restore();
   }
   function drawOpeningFilmFX(c){
-    const t=c.t||0;ctx.save();
-    // Soft lens falloff and restrained dust: screen-space only, no expensive blur filters.
-    const radius=Math.max(W,H)*.78;
-    const vg=ctx.createRadialGradient(W*.5,H*.47,Math.min(W,H)*.18,W*.5,H*.47,radius);
-    vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(.62,'rgba(0,0,0,.08)');vg.addColorStop(1,'rgba(0,0,0,.42)');
+    const t=c.t||0,pressure=ease(clamp01((t-2.6)/4.4));
+    ctx.save();
+    const radius=Math.max(W,H)*(.74+pressure*.08);
+    const vg=ctx.createRadialGradient(W*.5,H*.47,Math.min(W,H)*.16,W*.5,H*.47,radius);
+    vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(.48,'rgba(0,0,0,'+(.08+pressure*.06)+')');vg.addColorStop(1,'rgba(0,0,0,'+(.36+pressure*.20)+')');
     ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
-    ctx.globalAlpha=.055;ctx.fillStyle='#c6d8ef';
-    for(let y=44;y<H-40;y+=7)ctx.fillRect(0,y,W,1);
-    for(let k=0;k<11;k++){
+
+    // Cheap screen-space aura fields, synchronized to the fighters and camera.
+    const screenX=x=>W/2+(x-cam.x)*cam.zoom;
+    const screenY=y=>H/2+(y-cam.y)*cam.zoom;
+    const gx=screenX(c.gojo.x),gy=screenY(GROUND-78);
+    const sx=screenX(c.sukuna.x),sy=screenY(GROUND-78);
+    const pulse=.5+.5*Math.sin(t*4.6);
+    ctx.save();ctx.globalCompositeOperation='screen';
+    const gojoGlow=ctx.createRadialGradient(gx,gy,5,gx,gy,95*cam.zoom);
+    gojoGlow.addColorStop(0,'rgba(95,214,255,'+(.08+pressure*.10)+')');
+    gojoGlow.addColorStop(.42,'rgba(61,170,255,'+(.05+pressure*.055)+')');
+    gojoGlow.addColorStop(1,'rgba(40,115,255,0)');
+    ctx.fillStyle=gojoGlow;ctx.beginPath();ctx.ellipse(gx,gy,68*cam.zoom,100*cam.zoom,0,0,Math.PI*2);ctx.fill();
+
+    const sukunaGlow=ctx.createRadialGradient(sx,sy,4,sx,sy,(105+pressure*42)*cam.zoom);
+    sukunaGlow.addColorStop(0,'rgba(255,65,83,'+(.12+pressure*.18+pulse*.035)+')');
+    sukunaGlow.addColorStop(.40,'rgba(191,18,43,'+(.08+pressure*.10)+')');
+    sukunaGlow.addColorStop(1,'rgba(72,0,12,0)');
+    ctx.fillStyle=sukunaGlow;ctx.beginPath();ctx.ellipse(sx,sy,(78+pressure*14)*cam.zoom,(114+pressure*16)*cam.zoom,0,0,Math.PI*2);ctx.fill();
+
+    // Expanding pressure rings. Sukuna's red rings grow heavier as he stands.
+    for(let i=0;i<3;i++){
+      const phase=(t*.27+i/3)%1,r=(22+phase*(50+pressure*25))*cam.zoom;
+      ctx.globalAlpha=(1-phase)*(.15+pressure*.18);
+      ctx.strokeStyle=i%2?'#ff5268':'#ff9aa7';ctx.lineWidth=1.2+i*.35;
+      ctx.beginPath();ctx.ellipse(sx,sy,r,r*(1.22+pressure*.10),0,0,Math.PI*2);ctx.stroke();
+    }
+    for(let i=0;i<2;i++){
+      const phase=(t*.20+i*.5)%1,r=(18+phase*42)*cam.zoom;
+      ctx.globalAlpha=(1-phase)*(.10+pressure*.10);
+      ctx.strokeStyle='#8cddff';ctx.lineWidth=1;
+      ctx.beginPath();ctx.ellipse(gx,gy,r,r*1.25,0,0,Math.PI*2);ctx.stroke();
+    }
+
+    // Air between the two fighters appears to buckle under opposing cursed energy.
+    ctx.globalAlpha=.12+pressure*.20;
+    for(let i=0;i<7;i++){
+      const q=i/6,y=mix(gy-35*cam.zoom,sy+24*cam.zoom,q);
+      const mid=(gx+sx)*.5+Math.sin(t*8+i*1.7)*(4+pressure*12);
+      ctx.strokeStyle=i%2?'#ff4b61':'#8ddfff';ctx.lineWidth=i%3===0?1.8:1;
+      ctx.beginPath();ctx.moveTo(gx+18*cam.zoom,y);
+      ctx.bezierCurveTo(mid-38,y+Math.sin(t*7+i)*7,mid+32,y-Math.cos(t*6+i)*9,sx-18*cam.zoom,y+Math.sin(t*5+i)*3);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    // A few dust flecks and fine scan lines add texture without expensive blur filters.
+    ctx.globalAlpha=.035;ctx.fillStyle='#d5e1f2';
+    for(let y=44;y<H-40;y+=8)ctx.fillRect(0,y,W,1);
+    const particleCount=12+Math.round(pressure*7);
+    for(let k=0;k<particleCount;k++){
       const x=((k*173+t*(11+k%4*3))%Math.max(1,W));
       const y=68+((k*97+t*(5+k%3*2))%Math.max(1,H-132));
-      ctx.globalAlpha=.12+(k%3)*.035;ctx.fillStyle=k%4===0?'#ff9da9':'#dceaff';
-      ctx.beginPath();ctx.arc(x,y,1+(k%2)*.45,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=.10+(k%3)*.025+pressure*.035;
+      ctx.fillStyle=k%4===0?'#ff9da9':'#dceaff';ctx.beginPath();ctx.arc(x,y,1+(k%2)*.5,0,Math.PI*2);ctx.fill();
     }
     let shot='SHOT 01  /  MASTER SHOT',accent='#dceaff';
     if(t>=1.55&&t<3.15){shot='POV 1  /  YUTA: THE PROTECTOR';accent='#b9a1ff';}
@@ -496,25 +549,48 @@
     const P=basePose.apply(this,arguments),c=chapter3();
     if(!c||!f||!(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'))return P;
     if(c.stage==='intro'){
-      const t=c.t||0,breath=Math.sin(t*4.1)*.8;
+      const t=c.t||0,breath=Math.sin(t*3.7)*.65;
       if(f===c.gojo){
-        P.hipY=-56+breath*.22;P.shY=-95+breath*.25;P.headY=-112+breath*.28;P.lean=-5+Math.sin(t*2.2)*1.5;
-        P.armF=[-55,-18];P.armB=[-50,4];P.legF=[58,47];P.legB=[128,-18];
-        if(t>1.55&&t<3.15){const q=ease((t-1.55)/1.6);P.lean=-2-q*2;P.armF=[mix(-55,-83,q),mix(-18,-6,q)];P.armB=[mix(-50,-66,q),4+q*5];}
-        else if(t>=3.15&&t<4.85){P.lean=-2+Math.sin(t*2)*.7;P.armF=[-48,6];P.armB=[-61,-3];}
-        else if(t>=4.85&&t<6.55){const q=clamp01((t-4.85)/1.7);P.lean=-4+q*3;P.armF=[-58+Math.sin(t*8)*6,-10];P.armB=[-42-Math.sin(t*8)*5,4];P.legF=[58+Math.sin(t*8)*13,47];P.legB=[128-Math.sin(t*8)*13,-18];}
-        else if(t>=6.55){P.lean=-1+Math.sin(t*2.8)*.6;P.armF=[-64,-7];P.armB=[-53,2];P.legF=[74,8];P.legB=[92,-8];}
+        P.hipY=-56+breath*.18;P.shY=-95+breath*.25;P.headY=-112+breath*.22;
+        P.lean=-3+Math.sin(t*2.1)*.8;P.legF=[73,10];P.legB=[105,-9];
+        // No overhead arms: compact chest-level guard, with a short reassuring gesture to Yuta.
+        P.armF=[55,-95];P.armB=[125,-160];
+        if(t>=1.55&&t<3.15){
+          const q=ease((t-1.55)/1.6);P.lean=-2-q;
+          P.armF=[mix(55,42,q),mix(-95,-62,q)];P.armB=[mix(125,120,q),mix(-160,-150,q)];
+        }else if(t>=3.15&&t<4.85){
+          P.lean=-3+Math.sin(t*2)*.6;P.armF=[57,-92];P.armB=[123,-154];
+        }else if(t>=4.85&&t<6.55){
+          const q=ease((t-4.85)/1.7);P.lean=-4+q*2.5;
+          P.armF=[mix(57,43,q),mix(-92,-54,q)];P.armB=[mix(123,115,q),mix(-154,-132,q)];
+          P.legF=[73+Math.sin(t*7)*4,10];P.legB=[105-Math.sin(t*7)*4,-9];
+        }else if(t>=6.55){
+          P.lean=-1+Math.sin(t*2.6)*.5;P.armF=[57,-92];P.armB=[123,-154];
+          P.legF=[78,8];P.legB=[99,-8];
+        }
       }else if(f===c.sukuna){
-        let q=clamp01((t-3.15)/1.7);q=ease(q);
-        P.hipY=-57+q*1.5+breath*.2;P.shY=-95+q*.5;P.headY=-112+q*.25;P.lean=10*(1-q)+Math.sin(t*3)*.6;
-        P.armF=[mix(-15,-42,q)+Math.sin(t*3.5)*2,mix(-20,5,q)];P.armB=[mix(-30,-58,q),mix(15,-8,q)];
-        P.legF=[mix(86,76,q),mix(6,10,q)];P.legB=[mix(96,98,q),mix(-8,-7,q)];
-        if(t>=6.55){const menace=Math.sin(t*5)*2;P.lean=3+menace*.25;P.armF=[-44+menace,10];P.armB=[-58-menace, -7];P.legF=[77,7];P.legB=[98,-7];}
+        const rise=ease(clamp01((t-3.15)/1.7));
+        if(t<3.15){
+          // Chapter 2 continuity: Sukuna is still down, bracing against the floor.
+          P.hipY=-35+breath*.15;P.shY=-57;P.headY=-71;P.lean=19+Math.sin(t*2.4)*.8;
+          P.armF=[25,40];P.armB=[155,-70];P.legF=[35,18];P.legB=[145,-18];
+        }else{
+          // A controlled rise into a low, predatory stance. Arms never point vertically overhead.
+          P.hipY=mix(-35,-57,rise);P.shY=mix(-57,-95,rise);P.headY=mix(-71,-112,rise);
+          P.lean=mix(19,4,rise)+Math.sin(t*2.5)*.5;
+          P.armF=[mix(25,65,rise),mix(40,-96,rise)];
+          P.armB=[mix(155,120,rise),mix(-70,-75,rise)];
+          P.legF=[mix(35,82,rise),mix(18,5,rise)];P.legB=[mix(145,104,rise),mix(-18,-10,rise)];
+        }
+        if(t>=6.55){
+          const menace=Math.sin(t*4.7)*1.4;P.lean=4+menace*.35;
+          P.armF=[62+menace,-45];P.armB=[116-menace,-58];P.legF=[80,7];P.legB=[104,-9];
+        }
       }else if(f===c.yuta){
-        P.hipY=-56+breath*.22;P.shY=-94+breath*.24;P.headY=-111+breath*.26;P.lean=-3+Math.sin(t*4)*.45;
-        P.armF=[-45,20];P.armB=[-24,-15];P.legF=[87,4];P.legB=[95,-7];
-        if(t>1.55&&t<3.15){const q=clamp01((t-1.55)/1.6);P.lean=-4+q*3;P.armF=[-45-q*12,20-q*3];}
-        if(t>=6.55&&t<8.15){const q=clamp01((t-6.55)/1.6);P.lean=-3+q*5;P.armF=[-45+q*5,20+q*4];P.legF=[87+Math.sin(t*8)*10,4];P.legB=[95-Math.sin(t*8)*10,-7];}
+        P.hipY=-56+breath*.18;P.shY=-94+breath*.2;P.headY=-111+breath*.22;P.lean=-3+Math.sin(t*3.8)*.35;
+        P.armF=[82,12];P.armB=[119,-54];P.legF=[87,4];P.legB=[95,-7];
+        if(t>1.55&&t<3.15){const q=clamp01((t-1.55)/1.6);P.lean=-4+q*3;P.armF=[82+q*7,12-q*4];}
+        if(t>=6.55&&t<8.15){const q=clamp01((t-6.55)/1.6);P.lean=-3+q*5;P.armF=[82+q*5,12+q*4];P.legF=[87+Math.sin(t*8)*7,4];P.legB=[95-Math.sin(t*8)*7,-7];}
       }
     }else if(c.stage==='domainIntro'){
       const t=c.t||0;
