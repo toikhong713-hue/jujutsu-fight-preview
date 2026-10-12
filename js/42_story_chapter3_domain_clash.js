@@ -65,8 +65,8 @@
     const center=c.openingCenter||1200;
     // Match Chapter 2's final blocking: Yuta 950, Gojo 1085, Sukuna 1320, camera 1110.
     resetActor(c.gojo,1085,1);resetActor(c.sukuna,1320,-1);
-    c.gojo.ai=null;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
-    c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.65;
+    c.gojo.ai=null;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-low-guard';
+    c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='ch3-sukuna-recover';c.sukuna.awakenGlow=.65;
     addYutaProp(c);
     camera(1110,GROUND-120,.91);G.flash=.22;G.flashColor='#e4faff';G.shake=3;
   }
@@ -174,28 +174,32 @@
     if(t<1.55){
       // Establishing shot: preserve the exact final Chapter 2 blocking.
       camera(1110+Math.sin(t*1.25)*2.5,440,.91+Math.sin(t*1.1)*.005);
-      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.facing=1;c.gojo.state='BLOCK';c.gojo.storyCinePose='guard';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.facing=-1;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=950;c.yuta.y=GROUND;c.yuta.facing=1;c.yuta.state='IDLE';c.yuta.storyCinePose='support';}
+      c.gojo.x=1085;c.gojo.y=GROUND;c.gojo.facing=1;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-low-guard';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.facing=-1;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='ch3-sukuna-recover';
+      if(c.yuta){c.yuta.x=950;c.yuta.y=GROUND;c.yuta.facing=1;c.yuta.state='KNOCKDOWN';c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>.25)line(c,'yuta-opening','YUTA','He blocked it... barehanded?','#d8c5ff');
+      if(t>.36&&t<1.35&&Math.floor(t*36)%8===0){
+        try{spark(938+rnd(-18,18),GROUND-3,1,'#c4ccd8',1,2.6,16,0);}catch(e){}
+      }
+      if(t>.42&&t<.50){G.shake=Math.max(G.shake,2.1);try{ring(938,GROUND-5,'#c6d2df',32,13);}catch(e){}}
       if(t>.72&&Math.floor(t*30)%8===0)try{spark(1087+rnd(-8,8),GROUND-130,2,'#dffaff',1.5,3.5,10,0);}catch(e){}
       if(t>1.05&&Math.floor(t*60)%17===0)try{spark(1210+rnd(-90,90),GROUND-5,1,'#b7c7d8',.8,2,18,0);}catch(e){}
     }else if(t<3.15){
       // POV 1: Yuta's view toward the person shielding him.
       const q=ease((t-1.55)/1.6);
       camera(1018+Math.sin(q*Math.PI)*5,440,1.13+Math.sin(q*Math.PI)*.055);
-      c.gojo.x=1085+q*5;c.gojo.y=GROUND;c.gojo.state='BLOCK';c.gojo.storyCinePose='reassure';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='wcs-aim';
-      if(c.yuta){c.yuta.x=mix(950,929,q);c.yuta.y=GROUND;c.yuta.state=q>.72?'WALK':'IDLE';c.yuta.walk=q>.72?1:0;c.yuta.storyCinePose='support';}
+      c.gojo.x=1085+q*5;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-reassure';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='KNOCKDOWN';c.sukuna.storyCinePose='ch3-sukuna-recover';
+      if(c.yuta){c.yuta.x=mix(950,938,q);c.yuta.y=GROUND;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>1.8)line(c,'gojo-reassures-yuta','GOJO',"Stay back, Yuta. I'll handle this.",'#a9e9ff');
       if(Math.floor(t*24)%12===0)try{ring(1088,GROUND-112,'#83dfff',39+q*10,18);}catch(e){}
     }else if(t<4.85){
       // POV 2: slow push toward Sukuna as he rises. The body pose changes every frame.
       const q=ease((t-3.15)/1.7);
       camera(mix(1238,1280,q),GROUND-120,1.04+Math.sin(q*Math.PI)*.09);
-      c.gojo.x=1090;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='calm';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.82?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='rise';c.sukuna.awakenGlow=.42+.46*q;
-      if(c.yuta){c.yuta.x=929;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
+      c.gojo.x=1090;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-calm';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state=q<.82?'KNOCKDOWN':'IDLE';c.sukuna.storyCinePose='ch3-sukuna-rise';c.sukuna.awakenGlow=.42+.46*q;
+      if(c.yuta){c.yuta.x=938;c.yuta.y=GROUND;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>3.95)line(c,'sukuna-rises','SUKUNA','So... the strongest finally arrives.','#ff8b98');
       if(Math.floor(t*30)%7===0)try{spark(1320+rnd(-30,30),GROUND-rnd(52,142),2,'#a8ced7',1.4,4.2,13,0);}catch(e){}
       if(q>.72&&Math.floor(t*60)%14===0){G.shake=Math.max(G.shake,1.15);try{spark(1260+rnd(-65,65),GROUND-4,1,'#b8c1d0',1,2.8,18,0);}catch(e){}}
@@ -203,9 +207,9 @@
       // POV 3: Gojo takes one deliberate step forward. Camera travels with him.
       const q=ease((t-4.85)/1.7);
       camera(mix(1160,1115,q),GROUND-125,1.02+q*.045);
-      c.gojo.x=mix(1090,1138,q);c.gojo.y=GROUND;c.gojo.state=q<.3?'BLOCK':'WALK';c.gojo.storyCinePose=q<.3?'guard':'advance';c.gojo.walk=q>.3?1:0;
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.8;
-      if(c.yuta){c.yuta.x=929;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='support';}
+      c.gojo.x=mix(1090,1138,q);c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-advance';c.gojo.walk=q>.3?1:0;
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='ch3-sukuna-final-stance';c.sukuna.awakenGlow=.8;
+      if(c.yuta){c.yuta.x=938;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>5.85)line(c,'gojo-challenge','GOJO',"You wanted me here. I'm here.",'#a9e9ff');
       if(Math.floor(t*60)%10===0)try{ring(1120+q*16,GROUND-92,'#80dcff',30+q*34,18);}catch(e){}
       if(Math.floor(t*60)%16===0)try{spark(1090+q*44,GROUND-8,1,'#dffaff',1,2.3,12,0);}catch(e){}
@@ -213,18 +217,18 @@
       // Over-shoulder release: Yuta yields space while the two fighters square up.
       const q=ease((t-6.55)/1.6);
       camera(1220+Math.sin(q*Math.PI)*8,GROUND-132,.98+Math.sin(q*Math.PI)*.035);
-      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
-      if(c.yuta){c.yuta.x=mix(929,900,q);c.yuta.y=GROUND;c.yuta.state=q>.12?'WALK':'IDLE';c.yuta.walk=q>.12?1:0;c.yuta.storyCinePose='retreat';}
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-final-stance';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='ch3-sukuna-final-stance';c.sukuna.awakenGlow=.72+.2*Math.sin(t*5);
+      if(c.yuta){c.yuta.x=938;c.yuta.y=GROUND;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>7.9)line(c,'sukuna-challenge','SUKUNA','Then show me the Limitless.','#ff8b98');
       if(Math.floor(t*60)%10===0)try{spark(1320+rnd(-32,32),GROUND-rnd(60,155),2,'#ff5566',1.6,4.5,13,0);}catch(e){}
     }else if(t<9.45){
       // Pull out to the master shot. The dialogue stops so the silence can land.
       const q=ease((t-8.15)/1.3);
       camera(mix(1210,1200,q),GROUND-142,.9+q*.025);
-      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';
-      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='retreat';}
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-final-stance';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='ch3-sukuna-final-stance';
+      if(c.yuta){c.yuta.x=938;c.yuta.y=GROUND;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>8.28&&c.lastLine!=='narrator-battlefield'){
         stopVoice();c.lastLine='narrator-battlefield';
         c.caption={speaker:'NARRATOR',text:'The corridor falls silent. Neither man looks away.',color:'#d8e8ff'};
@@ -235,9 +239,9 @@
       // Final frame and a single soft impact, then hand control over without a hard reset.
       const q=clamp01((t-9.45)/.55);
       camera(mix(1200,1205,q),mix(GROUND-142,GROUND-138,q),mix(.925,.91,q));
-      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='battle-ready';
-      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='challenge';
-      if(c.yuta){c.yuta.x=900;c.yuta.y=GROUND;c.yuta.state='IDLE';c.yuta.walk=0;c.yuta.storyCinePose='retreat';}
+      c.gojo.x=1138;c.gojo.y=GROUND;c.gojo.state='IDLE';c.gojo.storyCinePose='ch3-gojo-final-stance';
+      c.sukuna.x=1320;c.sukuna.y=GROUND;c.sukuna.state='IDLE';c.sukuna.storyCinePose='ch3-sukuna-final-stance';
+      if(c.yuta){c.yuta.x=938;c.yuta.y=GROUND;c.yuta.state='KNOCKDOWN';c.yuta.walk=0;c.yuta.storyCinePose='ch3-yuta-fallen';}
       if(t>9.67)line(c,'fight-call','NARRATOR','FIGHT!','#eaf7ff');
       if(q>.78&&!c.transitionFlash){G.flash=Math.max(G.flash,.14);G.flashColor='#eafaff';c.transitionFlash=true;}
     }else{
@@ -587,10 +591,23 @@
           P.armF=[62+menace,-45];P.armB=[116-menace,-58];P.legF=[80,7];P.legB=[104,-9];
         }
       }else if(f===c.yuta){
-        P.hipY=-56+breath*.18;P.shY=-94+breath*.2;P.headY=-111+breath*.22;P.lean=-3+Math.sin(t*3.8)*.35;
-        P.armF=[82,12];P.armB=[119,-54];P.legF=[87,4];P.legB=[95,-7];
-        if(t>1.55&&t<3.15){const q=clamp01((t-1.55)/1.6);P.lean=-4+q*3;P.armF=[82+q*7,12-q*4];}
-        if(t>=6.55&&t<8.15){const q=clamp01((t-6.55)/1.6);P.lean=-3+q*5;P.armF=[82+q*5,12+q*4];P.legF=[87+Math.sin(t*8)*7,4];P.legB=[95-Math.sin(t*8)*7,-7];}
+        // New Chapter 3-only collapse pose: recoil, hit the floor, then remain visibly down.
+        // This replaces the old upright support/retreat pose from earlier chapters.
+        const fall=ease(clamp01((t-.28)/.86));
+        P.hipY=mix(-55,-15,fall)+Math.sin(t*3.1)*.22;
+        P.shY=mix(-94,-27,fall)+Math.sin(t*2.4)*.18;
+        P.headY=mix(-111,-32,fall)+Math.sin(t*2.1)*.2;
+        P.lean=mix(-5,54,fall)+Math.sin(t*2.8)*.35;
+        P.armF=[mix(82,92,fall),mix(12,78,fall)];
+        P.armB=[mix(119,142,fall),mix(-54,-36,fall)];
+        P.legF=[mix(87,22,fall),mix(4,48,fall)];
+        P.legB=[mix(95,137,fall),mix(-7,-42,fall)];
+        if(t>=1.22){
+          // Settled on his side, one arm braced on the floor, with subtle breathing only.
+          P.hipY=-15+Math.sin(t*3.1)*.22;P.shY=-27+Math.sin(t*2.4)*.18;P.headY=-32+Math.sin(t*2.1)*.2;
+          P.lean=54+Math.sin(t*2.8)*.35;
+          P.armF=[92,78];P.armB=[142,-36];P.legF=[22,48];P.legB=[137,-42];
+        }
       }
     }else if(c.stage==='domainIntro'){
       const t=c.t||0;
