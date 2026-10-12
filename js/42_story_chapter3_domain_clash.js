@@ -87,7 +87,7 @@
     g.ai=null;
     const c={active:true,stage:'intro',t:0,phase:'phase1',gojo:g,sukuna:s,yuta:null,lastLine:'',caption:null,
       domainsActive:false,shrineVisible:false,shrineFade:0,domainStarted:false,endingStarted:false,completed:false,
-      openingCenter:1200,fromClash:false};
+      openingCenter:1200,shrineCenter:null,fromClash:false};
     G.story3=c;window.__JFF_CH3_ACTIVE__=c;
     safeStore('jff_story_ch3_started','1');setupOpening(c);
     console.info('[JFF Chapter 3] Awakening started; opening continues from the Chapter 2 interception.');
@@ -102,6 +102,7 @@
     G.story.phase=2;G.story.act=2;G.story.clashStarted=true;G.story.cutscene=true;
     G.storyCutscene=true;G.roundState='intro';G.roundTimer=999999;G.domain=null;G.clash=null;
     const center=c&&c.openingCenter?c.openingCenter:1200;
+    c.shrineCenter=center+175; // Keep the shrine's apex directly under Sukuna's rise pose.
     resetActor(c.gojo,center-170,1);resetActor(c.sukuna,center+170,-1);
     c.gojo.storyCinePose='guard';c.sukuna.storyCinePose='wcs-aim';c.sukuna.awakenGlow=.6;
     camera(center,GROUND-155,.92);G.flash=.72;G.flashColor='#eafaff';G.shake=11;play('domain');
@@ -243,7 +244,7 @@
     }
   }
     function tickDomainIntro(c){
-    c.t+=STEP;const t=c.t,center=ARENA_W/2;
+    c.t+=STEP;const t=c.t,center=c.openingCenter||1200;
     G.flash=Math.max(0,(G.flash||0)-.028);G.shake=Math.max(0,(G.shake||0)-.52);
     c.gojo.animT+=.82;c.sukuna.animT+=.66;c.gojo.y=GROUND;c.sukuna.y=GROUND;c.gojo.vx=0;c.sukuna.vx=0;
     if(t<1.35){
@@ -258,18 +259,18 @@
     }else if(t<3.95){
       c.shrineVisible=true;const q=ease((t-2.45)/.55);camera(center+135,GROUND-260,1.0);
       c.gojo.x=center-185;c.gojo.storyCinePose='domain-complete';c.gojo.state='IDLE';
-      c.sukuna.x=center+175;c.sukuna.y=GROUND-440*q;c.sukuna.state='IDLE';c.sukuna.storyCinePose='shrine-king';
+      c.sukuna.x=center+175;c.sukuna.y=GROUND-460*q;c.sukuna.state='IDLE';c.sukuna.storyCinePose='shrine-king';
       if(t>2.65)line(c,'shrine-king','SUKUNA','A domain without a shell. Now look closely.','#ff8190');
       if(Math.floor(t*60)%8===0){try{ring(center,GROUND-250,'#ff334f',130+Math.random()*25,22);}catch(e){}}
     }else if(t<5.15){
       c.shrineVisible=true;camera(center,GROUND-300,.82);c.gojo.x=center-185;c.gojo.y=GROUND;c.gojo.storyCinePose='domain-complete';c.gojo.state='IDLE';
-      c.sukuna.x=center+175;c.sukuna.y=GROUND-440;c.sukuna.storyCinePose='shrine-king';c.sukuna.state='IDLE';c.domainsActive=true;
+      c.sukuna.x=center+175;c.sukuna.y=GROUND-460;c.sukuna.storyCinePose='shrine-king';c.sukuna.state='IDLE';c.domainsActive=true;
       if(t>4.02)line(c,'domains-collide','NARRATOR','UNLIMITED VOID  ×  MALEVOLENT SHRINE','#f4f7ff');
       if(t>4&&Math.floor(t*60)%4===0){G.flash=.15;G.flashColor=(Math.floor(t*22)%2)?'#7fd8ff':'#ff334f';G.shake=Math.max(G.shake,4);}
     }else if(t<6.15){
       c.shrineVisible=true;c.domainsActive=true;const q=ease((t-5.15)/1);camera(center,GROUND-140,.9);
       c.gojo.x=center-220;c.gojo.y=GROUND;c.gojo.storyCinePose='guard';c.gojo.state='IDLE';
-      c.sukuna.x=center+220;c.sukuna.y=mix(GROUND-440,GROUND,q);c.sukuna.state='IDLE';c.sukuna.storyCinePose='shrine-king';
+      c.sukuna.x=center+220;c.sukuna.y=mix(GROUND-460,GROUND,q);c.sukuna.state='IDLE';c.sukuna.storyCinePose='shrine-king';
     }else{stopVoice();releaseDomainControl(c);}
   }
   function tickEnding(c){
@@ -316,7 +317,7 @@
   function drawShrine(){
     const c=chapter3(),d=G.domain&&(G.domain.type==='shrine'||G.domain.type==='shrine_heian')?G.domain:null;
     const special=!!(c&&c.shrineVisible);if(!d&&!special)return;
-    const center=(c&&c.openingCenter)||1200,baseY=GROUND-10;let alpha=.9;
+    const center=(c&&c.active&&Number.isFinite(c.shrineCenter))?c.shrineCenter:ARENA_W/2,baseY=GROUND-10;let alpha=.9;
     if(d){const appear=clamp01((d.maxTimer-d.timer)/26),leave=clamp01(d.timer/26);alpha=Math.min(appear,leave)*.96;}
     else if(c&&c.stage==='domainIntro')alpha=clamp01((c.t-2.38)/.34)*.94;
     else if(c&&c.domainsActive)alpha=.88;
@@ -344,6 +345,55 @@
       ctx.fillStyle='rgba(255,58,80,.36)';ctx.fillRect(x-w/2,top,3,baseY-top);
       ctx.fillStyle='rgba(4,2,8,.72)';ctx.fillRect(x-w/2-3,top-9,w+6,12);
     }
+    // Bone heaps, ribs and skulls ring the shrine. They are drawn before fighters so Sukuna stays readable.
+    ctx.save();ctx.globalAlpha=alpha*.94;ctx.lineCap='round';ctx.lineJoin='round';
+    function boneSegment(x1,y1,x2,y2,w){
+      ctx.strokeStyle='#766b63';ctx.lineWidth=w+2;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+      ctx.strokeStyle='#d4c8b5';ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+      const r=w*.68;ctx.fillStyle='#b9ad9a';
+      for(const p of [[x1,y1],[x2,y2]]){ctx.beginPath();ctx.arc(p[0],p[1],r,0,Math.PI*2);ctx.fill();}
+    }
+    function skull(x,y,scale,tilt){
+      ctx.save();ctx.translate(x,y);ctx.rotate(tilt);ctx.scale(scale,scale);
+      ctx.fillStyle='#7e746b';ctx.beginPath();ctx.ellipse(0,-5,13,11,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#d9cdb8';ctx.beginPath();ctx.ellipse(0,-7,11,10,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(-7,0);ctx.lineTo(7,0);ctx.lineTo(5,7);ctx.lineTo(-5,7);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#302a2a';
+      ctx.beginPath();ctx.ellipse(-4,-7,2.7,3.2,0,0,Math.PI*2);ctx.ellipse(4,-7,2.7,3.2,0,0,Math.PI*2);ctx.fill();
+      ctx.beginPath();ctx.moveTo(0,-4);ctx.lineTo(-2,0);ctx.lineTo(2,0);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#766b63';ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-4,3);ctx.lineTo(-4,6);ctx.moveTo(0,3);ctx.lineTo(0,6);ctx.moveTo(4,3);ctx.lineTo(4,6);ctx.stroke();
+      ctx.restore();
+    }
+    const piles=[
+      {x:center-452,y:baseY+5,s:.72,r:-.28,skull:true},
+      {x:center-390,y:baseY+11,s:.92,r:.18,skull:true},
+      {x:center-315,y:baseY+8,s:.68,r:-.52,skull:false},
+      {x:center+315,y:baseY+8,s:.68,r:.45,skull:false},
+      {x:center+390,y:baseY+10,s:.90,r:-.18,skull:true},
+      {x:center+452,y:baseY+5,s:.72,r:.32,skull:true}
+    ];
+    for(let i=0;i<piles.length;i++){
+      const p=piles[i];ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.scale(p.s,p.s);
+      boneSegment(-32,4,28,-5,6);boneSegment(-20,-10,34,13,5);boneSegment(-26,15,18,-15,4.8);
+      // A partial rib cage and vertebrae make these read as remains, not random pebbles.
+      ctx.strokeStyle='#d4c8b5';ctx.lineWidth=3.2;
+      ctx.beginPath();ctx.moveTo(-5,-17);ctx.lineTo(-3,17);ctx.stroke();
+      for(let rib=0;rib<4;rib++){
+        const yy=-12+rib*8;
+        ctx.beginPath();ctx.moveTo(-5,yy);ctx.quadraticCurveTo(-21,yy-3,-22,yy+6);
+        ctx.moveTo(-3,yy);ctx.quadraticCurveTo(14,yy-4,17,yy+5);ctx.stroke();
+      }
+      ctx.fillStyle='#c8bca8';
+      for(let v=0;v<4;v++){ctx.beginPath();ctx.ellipse(-4,-13+v*8,4,3,0,0,Math.PI*2);ctx.fill();}
+      if(p.skull)skull(8,-22,.84,(i%2?-1:1)*.12);
+      ctx.restore();
+    }
+    // A few taller crossed femurs at both ends of the altar.
+    boneSegment(center-485,baseY-20,center-430,baseY+18,5.5);
+    boneSegment(center-420,baseY-26,center-470,baseY+16,5);
+    boneSegment(center+485,baseY-20,center+430,baseY+18,5.5);
+    boneSegment(center+420,baseY-26,center+470,baseY+16,5);
+    ctx.restore();
     // Central cursed maw and layered inner altar.
     ctx.fillStyle='#020106';ctx.fillRect(center-54,baseY-248,108,248);
     ctx.strokeStyle='rgba(255,53,77,.82)';ctx.lineWidth=3;ctx.strokeRect(center-54,baseY-248,108,248);
@@ -467,8 +517,32 @@
         if(t>=6.55&&t<8.15){const q=clamp01((t-6.55)/1.6);P.lean=-3+q*5;P.armF=[-45+q*5,20+q*4];P.legF=[87+Math.sin(t*8)*10,4];P.legB=[95-Math.sin(t*8)*10,-7];}
       }
     }else if(c.stage==='domainIntro'){
-      if(f===c.gojo){P.hipY=-57;P.shY=-96;P.headY=-113;P.lean=-3;P.legF=[80,8];P.legB=[96,-8];P.armF=c.t<1.35?[-95,18]:[-72,20];P.armB=c.t<1.35?[-108,-12]:[-88,-5];}
-      else if(f===c.sukuna){P.hipY=-58;P.shY=-97;P.headY=-114;P.lean=4;P.legF=[82,3];P.legB=[105,-11];P.armF=c.t<3.95?[-12,-35]:[-38,18];P.armB=c.t<3.95?[-28,18]:[-58,-8];}
+      const t=c.t||0;
+      if(f===c.gojo){
+        P.hipY=-57+Math.sin(t*3)*.35;P.shY=-96;P.headY=-113+Math.sin(t*2)*.25;P.lean=-2.5;
+        P.legF=[80,8];P.legB=[96,-8];
+        if(t<5.15){
+          // Gojo's hands meet at the upper chest: elbows bent, not both arms pointing skyward.
+          P.armF=[38,148];P.armB=[-6,148];
+        }else{
+          const q=ease((t-5.15)/1.0);
+          P.armF=[mix(38,74,q),mix(148,26,q)];P.armB=[mix(-6,110,q),mix(148,18,q)];
+        }
+      }else if(f===c.sukuna){
+        P.hipY=-58;P.shY=-97;P.headY=-114;P.lean=4+Math.sin(t*2.6)*.4;
+        P.legF=[82,3];P.legB=[105,-11];
+        if(t<2.45){
+          // Menacing idle while Gojo opens Unlimited Void.
+          P.armF=[72,36];P.armB=[115,14];
+        }else if(t<5.15){
+          // Sukuna's Enmaten seal is held in front of the torso as Malevolent Shrine forms.
+          // Values account for the extra arm articulation used by the Heian renderer.
+          P.armF=[4,213];P.armB=[20,213];
+        }else{
+          const q=ease((t-5.15)/.95);
+          P.armF=[mix(4,72,q),mix(213,36,q)];P.armB=[mix(20,115,q),mix(213,14,q)];
+        }
+      }
     }else if(c.stage==='ending'&&f===c.gojo){P.hipY=-57;P.shY=-96;P.headY=-113;P.lean=2;P.armF=[64,28];P.armB=[112,18];P.legF=[88,7];P.legB=[95,-7];}
     return P;
   };
