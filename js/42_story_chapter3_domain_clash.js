@@ -646,6 +646,76 @@
     ctx.restore();
   }
 
+  const endingPoseGojo=[
+    {t:0,hipY:-58,shY:-96,headY:-113,lean:-3,armF:[55,-92],armB:[123,-150],legF:[74,8],legB:[104,-8]},
+    {t:1.45,hipY:-58,shY:-96,headY:-113,lean:-5,armF:[48,-96],armB:[120,-142],legF:[72,9],legB:[105,-9]},
+    {t:2,hipY:-52,shY:-88,headY:-104,lean:-20,armF:[12,-68],armB:[40,-58],legF:[54,22],legB:[112,-15]},
+    {t:2.45,hipY:-58,shY:-96,headY:-113,lean:16,armF:[80,-22],armB:[135,-70],legF:[102,18],legB:[110,-12]},
+    {t:2.9,hipY:-58,shY:-96,headY:-113,lean:-8,armF:[12,-78],armB:[40,-65],legF:[70,14],legB:[105,-9]},
+    {t:3.45,hipY:-56,shY:-92,headY:-109,lean:20,armF:[130,-12],armB:[22,-75],legF:[125,42],legB:[74,-18]},
+    {t:4.05,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-91],armB:[122,-143],legF:[80,8],legB:[102,-8]},
+    {t:4.85,hipY:-52,shY:-88,headY:-104,lean:-19,armF:[10,-78],armB:[45,-66],legF:[54,21],legB:[111,-14]},
+    {t:5.55,hipY:-58,shY:-96,headY:-113,lean:28,armF:[75,-20],armB:[140,-65],legF:[112,34],legB:[73,-20]},
+    {t:6.25,hipY:-58,shY:-96,headY:-113,lean:-3,armF:[55,-92],armB:[123,-150],legF:[74,8],legB:[104,-8]},
+    {t:6.95,hipY:-58,shY:-96,headY:-113,lean:-5,armF:[24,-110],armB:[130,-82],legF:[72,8],legB:[104,-8]},
+    {t:7.7,hipY:-58,shY:-96,headY:-113,lean:10,armF:[18,-106],armB:[120,-58],legF:[91,16],legB:[101,-11]},
+    {t:8.55,hipY:-58,shY:-96,headY:-113,lean:22,armF:[82,-22],armB:[138,-74],legF:[111,26],legB:[78,-17]},
+    {t:9.45,hipY:-53,shY:-90,headY:-107,lean:-16,armF:[18,-78],armB:[35,-58],legF:[57,17],legB:[115,-13]},
+    {t:10.3,hipY:-58,shY:-96,headY:-113,lean:25,armF:[81,-20],armB:[138,-72],legF:[109,23],legB:[77,-16]},
+    {t:11.15,hipY:-58,shY:-96,headY:-113,lean:-12,armF:[15,-78],armB:[43,-65],legF:[67,16],legB:[109,-10]},
+    {t:12.05,hipY:-56,shY:-93,headY:-110,lean:24,armF:[125,-14],armB:[27,-76],legF:[120,34],legB:[78,-18]},
+    {t:12.9,hipY:-58,shY:-96,headY:-113,lean:30,armF:[128,-14],armB:[35,-70],legF:[132,42],legB:[72,-18]},
+    {t:13.55,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[57,-91],armB:[122,-145],legF:[78,8],legB:[104,-8]},
+    {t:14.55,hipY:-58,shY:-96,headY:-113,lean:0,armF:[24,-112],armB:[132,-100],legF:[74,8],legB:[104,-8]},
+    {t:15.35,hipY:-54,shY:-91,headY:-108,lean:-12,armF:[14,-77],armB:[42,-67],legF:[62,16],legB:[112,-12]},
+    {t:16.2,hipY:-58,shY:-96,headY:-113,lean:12,armF:[30,-112],armB:[130,-105],legF:[94,19],legB:[93,-10]},
+    {t:16.95,hipY:-55,shY:-93,headY:-110,lean:34,armF:[12,-122],armB:[138,-115],legF:[120,36],legB:[70,-23]},
+    {t:17.25,hipY:-58,shY:-96,headY:-113,lean:3,armF:[17,-128],armB:[140,-122],legF:[98,22],legB:[110,-12]},
+    {t:17.75,hipY:-54,shY:-91,headY:-108,lean:17,armF:[28,-91],armB:[135,-100],legF:[116,20],legB:[84,-16]},
+    {t:18.45,hipY:-58,shY:-96,headY:-113,lean:-4,armF:[54,-85],armB:[120,-132],legF:[75,10],legB:[102,-8]},
+    {t:19.25,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-70],armB:[118,-105],legF:[82,8],legB:[101,-8]},
+    {t:20,hipY:-58,shY:-96,headY:-113,lean:-2,armF:[58,-70],armB:[118,-105],legF:[82,8],legB:[101,-8]}
+  ];
+  const endingPoseSukuna=[
+    {t:0,hipY:-58,shY:-97,headY:-114,lean:5,armF:[64,-45],armB:[116,-55],legF:[82,6],legB:[105,-10]},
+    {t:1.5,hipY:-57,shY:-95,headY:-112,lean:10,armF:[58,-42],armB:[120,-62],legF:[81,8],legB:[104,-9]},
+    {t:1.95,hipY:-45,shY:-76,headY:-93,lean:23,armF:[25,-80],armB:[150,-75],legF:[42,18],legB:[142,-18]},
+    {t:2.4,hipY:-58,shY:-96,headY:-113,lean:28,armF:[8,-100],armB:[150,-20],legF:[110,22],legB:[55,-12]},
+    {t:2.85,hipY:-56,shY:-93,headY:-110,lean:-12,armF:[150,-30],armB:[20,-90],legF:[60,18],legB:[117,-15]},
+    {t:3.4,hipY:-58,shY:-97,headY:-114,lean:-6,armF:[35,-100],armB:[120,-75],legF:[77,8],legB:[107,-10]},
+    {t:4,hipY:-58,shY:-96,headY:-113,lean:20,armF:[14,-105],armB:[145,-30],legF:[111,25],legB:[76,-18]},
+    {t:4.55,hipY:-58,shY:-96,headY:-113,lean:4,armF:[62,-44],armB:[117,-56],legF:[82,6],legB:[105,-10]},
+    {t:5,hipY:-45,shY:-77,headY:-94,lean:21,armF:[15,-108],armB:[148,-28],legF:[103,19],legB:[58,-15]},
+    {t:5.72,hipY:-58,shY:-96,headY:-113,lean:24,armF:[12,-112],armB:[145,-22],legF:[112,26],legB:[74,-18]},
+    {t:6.45,hipY:-43,shY:-76,headY:-93,lean:28,armF:[22,-93],armB:[154,-42],legF:[40,20],legB:[140,-18]},
+    {t:7.15,hipY:-58,shY:-97,headY:-114,lean:25,armF:[5,-110],armB:[151,-25],legF:[111,22],legB:[74,-18]},
+    {t:7.9,hipY:-54,shY:-90,headY:-107,lean:-20,armF:[38,-72],armB:[126,-86],legF:[55,18],legB:[115,-14]},
+    {t:8.55,hipY:-58,shY:-97,headY:-114,lean:20,armF:[12,-105],armB:[146,-30],legF:[110,22],legB:[75,-17]},
+    {t:9.25,hipY:-58,shY:-97,headY:-114,lean:28,armF:[10,-112],armB:[150,-22],legF:[112,24],legB:[72,-18]},
+    {t:9.95,hipY:-51,shY:-88,headY:-105,lean:-18,armF:[37,-85],armB:[122,-78],legF:[58,18],legB:[115,-14]},
+    {t:10.65,hipY:-58,shY:-97,headY:-114,lean:20,armF:[15,-106],armB:[150,-25],legF:[108,23],legB:[74,-17]},
+    {t:11.35,hipY:-52,shY:-88,headY:-105,lean:-16,armF:[38,-78],armB:[122,-80],legF:[58,16],legB:[114,-13]},
+    {t:12.1,hipY:-58,shY:-97,headY:-114,lean:26,armF:[8,-110],armB:[146,-22],legF:[113,24],legB:[74,-17]},
+    {t:12.9,hipY:-58,shY:-97,headY:-114,lean:2,armF:[62,-44],armB:[117,-56],legF:[82,6],legB:[105,-10]},
+    {t:13.65,hipY:-58,shY:-97,headY:-114,lean:17,armF:[12,-106],armB:[146,-25],legF:[110,21],legB:[75,-17]},
+    {t:14.45,hipY:-45,shY:-77,headY:-94,lean:29,armF:[17,-100],armB:[148,-24],legF:[43,20],legB:[141,-18]},
+    {t:15.25,hipY:-58,shY:-97,headY:-114,lean:30,armF:[7,-113],armB:[151,-20],legF:[113,24],legB:[73,-18]},
+    {t:16.15,hipY:-56,shY:-94,headY:-111,lean:34,armF:[5,-119],armB:[150,-115],legF:[118,35],legB:[70,-23]},
+    {t:16.95,hipY:-55,shY:-94,headY:-111,lean:20,armF:[12,-125],armB:[150,-116],legF:[111,30],legB:[75,-20]},
+    {t:17.25,hipY:-58,shY:-97,headY:-114,lean:-19,armF:[40,-75],armB:[125,-77],legF:[55,18],legB:[118,-14]},
+    {t:17.8,hipY:-48,shY:-83,headY:-100,lean:-23,armF:[30,-50],armB:[145,-45],legF:[52,23],legB:[127,-18]},
+    {t:18.35,hipY:-32,shY:-55,headY:-69,lean:22,armF:[32,32],armB:[142,-44],legF:[43,34],legB:[133,-36]},
+    {t:18.9,hipY:-18,shY:-29,headY:-37,lean:58,armF:[92,76],armB:[140,-34],legF:[22,45],legB:[136,-40]},
+    {t:19.35,hipY:-16,shY:-28,headY:-35,lean:62,armF:[94,78],armB:[142,-36],legF:[20,46],legB:[137,-42]},
+    {t:20,hipY:-16,shY:-28,headY:-35,lean:62,armF:[94,78],armB:[142,-36],legF:[20,46],legB:[137,-42]}
+  ];
+  function applyEndingPose(P,frames,t){
+    let i=0;while(i<frames.length-2&&t>frames[i+1].t)i++;
+    const a=frames[i],b=frames[i+1],q=ease(clamp01((t-a.t)/Math.max(.001,b.t-a.t)));
+    for(const k of ['hipY','shY','headY','lean'])P[k]=mix(a[k],b[k],q);
+    for(const k of ['armF','armB','legF','legB'])P[k]=[mix(a[k][0],b[k][0],q),mix(a[k][1],b[k][1],q)];
+  }
+
   if(typeof basePose==='function')window.computePose=function(f){
     const P=basePose.apply(this,arguments),c=chapter3();
     if(!c||!f||!(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'))return P;
@@ -733,7 +803,15 @@
           P.armF=[mix(4,72,q),mix(213,36,q)];P.armB=[mix(180,115,q),mix(-213,14,q)];
         }
       }
-    }else if(c.stage==='ending'&&f===c.gojo){P.hipY=-57;P.shY=-96;P.headY=-113;P.lean=2;P.armF=[64,28];P.armB=[112,18];P.legF=[88,7];P.legB=[95,-7];}
+    }else if(c.stage==='ending'){
+      const t=c.t||0;
+      if(f===c.gojo)applyEndingPose(P,endingPoseGojo,t);
+      else if(f===c.sukuna)applyEndingPose(P,endingPoseSukuna,t);
+      else if(f===c.yuta){
+        P.hipY=-15+Math.sin(t*2.8)*.22;P.shY=-27+Math.sin(t*2.1)*.2;P.headY=-32+Math.sin(t*1.8)*.18;P.lean=54;
+        P.armF=[92,78];P.armB=[142,-36];P.legF=[22,48];P.legB=[137,-42];
+      }
+    }
     return P;
   };
   if(typeof baseDrawUI==='function')window.drawUI=function(){
