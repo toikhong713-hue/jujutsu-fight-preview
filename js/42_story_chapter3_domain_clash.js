@@ -523,10 +523,10 @@
         P.legF=[80,8];P.legB=[96,-8];
         if(t<5.15){
           // Gojo's hands meet at the upper chest: elbows bent, not both arms pointing skyward.
-          P.armF=[38,148];P.armB=[-6,148];
+          P.armF=[38,148];P.armB=[132,-162];
         }else{
           const q=ease((t-5.15)/1.0);
-          P.armF=[mix(38,74,q),mix(148,26,q)];P.armB=[mix(-6,110,q),mix(148,18,q)];
+          P.armF=[mix(38,74,q),mix(148,26,q)];P.armB=[mix(132,110,q),mix(-162,18,q)];
         }
       }else if(f===c.sukuna){
         P.hipY=-58;P.shY=-97;P.headY=-114;P.lean=4+Math.sin(t*2.6)*.4;
@@ -537,10 +537,10 @@
         }else if(t<5.15){
           // Sukuna's Enmaten seal is held in front of the torso as Malevolent Shrine forms.
           // Values account for the extra arm articulation used by the Heian renderer.
-          P.armF=[4,213];P.armB=[20,213];
+          P.armF=[4,213];P.armB=[180,-213];
         }else{
           const q=ease((t-5.15)/.95);
-          P.armF=[mix(4,72,q),mix(213,36,q)];P.armB=[mix(20,115,q),mix(213,14,q)];
+          P.armF=[mix(4,72,q),mix(213,36,q)];P.armB=[mix(180,115,q),mix(-213,14,q)];
         }
       }
     }else if(c.stage==='ending'&&f===c.gojo){P.hipY=-57;P.shY=-96;P.headY=-113;P.lean=2;P.armF=[64,28];P.armB=[112,18];P.legF=[88,7];P.legB=[95,-7];}
