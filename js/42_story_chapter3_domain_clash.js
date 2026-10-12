@@ -579,8 +579,9 @@
     ctx.fillStyle=vignette;ctx.fillRect(0,0,W,H);
 
     if(t<15.15){
-      const p=clamp01(t/2),launchY=mix(GROUND-128,GROUND-330,ease(p));
-      const bx=sx(center-35),by=sy(launchY);
+      const p=clamp01(t/2),drift=ease(clamp01((t-5.6)/2)),orbX=t>5.6?mix(center-35,center+7,drift):center-35;
+      const launchY=mix(GROUND-128,GROUND-330,ease(p));
+      const bx=sx(orbX),by=sy(launchY);
       const radius=(t<2?13+6*clamp01(t/1.5):19)*scale;
       ctx.save();ctx.globalCompositeOperation='lighter';
       const glow=ctx.createRadialGradient(bx,by,1,bx,by,radius*3.5);
@@ -595,8 +596,9 @@
       ctx.restore();
     }
     if(t>=2&&t<15.15){
-      const p=clamp01((t-2)/2),riseY=mix(GROUND-135,GROUND-330,ease(p));
-      const rx=sx(center+57),ry=sy(riseY),radius=(t<4?12+7*clamp01((t-2)/1.6):19)*scale;
+      const p=clamp01((t-2)/2),drift=ease(clamp01((t-5.6)/2)),orbX=t>5.6?mix(center+57,center+7,drift):center+57;
+      const riseY=mix(GROUND-135,GROUND-330,ease(p));
+      const rx=sx(orbX),ry=sy(riseY),radius=(t<4?12+7*clamp01((t-2)/1.6):19)*scale;
       ctx.save();ctx.globalCompositeOperation='lighter';
       const glow=ctx.createRadialGradient(rx,ry,1,rx,ry,radius*3.5);
       glow.addColorStop(0,'rgba(255,255,255,.96)');glow.addColorStop(.18,'rgba(255,215,225,.94)');
