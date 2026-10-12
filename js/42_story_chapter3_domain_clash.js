@@ -529,7 +529,7 @@
     const t=c.t;ctx.save();
     ctx.fillStyle='rgba(2,4,10,.72)';ctx.fillRect(0,0,W,31);ctx.fillRect(0,H-32,W,32);
     ctx.fillStyle='#9eb4d7';ctx.font='800 9px Consolas,monospace';ctx.textAlign='left';ctx.fillText('JUJUTSU CHRONICLES  /  CHAPTER 3',25,20);
-    ctx.textAlign='right';ctx.fillStyle='#6b819f';ctx.fillText(c.stage==='intro'?'CONTINUING FROM CHAPTER 2':(c.stage==='domainIntro'?'DOMAIN COLLISION':(c.stage==='ending'?'FINAL EXCHANGE':(c.stage==='defeat'?'DEFEAT':'AWAKENING'))),W-25,20);
+    ctx.textAlign='right';ctx.fillStyle='#6b819f';ctx.fillText(c.stage==='intro'?'CONTINUING FROM CHAPTER 2':(c.stage==='domainIntro'?'DOMAIN COLLISION':(c.stage==='ending'?'HOLLOW PURPLE / EYES IN THE DARK':(c.stage==='defeat'?'DEFEAT':'AWAKENING'))),W-25,20);
     ctx.globalAlpha=.68;ctx.fillStyle='#000';ctx.fillRect(0,31,W,1);ctx.globalAlpha=1;
     if(c.caption){
       const cue=c.caption,bw=Math.min(830,W-100),bx=(W-bw)/2,by=H-127,bh=76;
@@ -683,7 +683,7 @@
     if(!failed){
       const grad=ctx.createLinearGradient(W*.2,0,W*.8,0);grad.addColorStop(0,'#8fe8ff');grad.addColorStop(.5,'#f4f7ff');grad.addColorStop(1,'#ff8190');
       ctx.textAlign='center';ctx.font='900 38px Impact,"Segoe UI",sans-serif';ctx.fillStyle='rgba(255,61,91,.32)';ctx.fillText('CHAPTER 3 COMPLETE',W/2-2,H*.46+2);ctx.fillStyle=grad;ctx.fillText('CHAPTER 3 COMPLETE',W/2,H*.46);
-      ctx.font='800 14px "Segoe UI",sans-serif';ctx.fillStyle='#d7e6ff';ctx.fillText('AWAKENING  /  CLASH OF THE STRONGEST',W/2,H*.54);
+      ctx.font='800 14px "Segoe UI",sans-serif';ctx.fillStyle='#d7e6ff';ctx.fillText('AWAKENING  /  THE EYES IN THE DARK',W/2,H*.54);
       ctx.fillStyle='#6e819d';ctx.font='800 10px Consolas,monospace';ctx.fillText('ENTER / SPACE  ·  STORY ARCHIVE',W/2,H*.83);
     }else{
       ctx.textAlign='center';ctx.font='900 38px Impact,"Segoe UI",sans-serif';ctx.fillStyle='#ff8190';ctx.fillText('CHAPTER 3 FAILED',W/2,H*.46);
@@ -774,6 +774,31 @@
   function triggerFinalFightEvent(c,event,t){
     c.finalFxEvent=event;c.finalFxAt=t;
     const g=c.gojo,s=c.sukuna,cx=(g.x+s.x)*.5,cy=GROUND-95;
+    if(event==='blue_launch'||event==='red_launch'){
+      G.flash=.13;G.flashColor=event==='blue_launch'?'#dff9ff':'#ffdfe5';G.shake=Math.max(G.shake,2.8);
+      try{ring(g.x+20,GROUND-128,event==='blue_launch'?'#78dcff':'#ff526f',55,16);burst(g.x+20,GROUND-128,10,event==='blue_launch'?'#9feaff':'#ff8a9d',1.1,3.2,18,0);}catch(e){}
+      return;
+    }else if(event==='orb_converge'){
+      G.flash=.18;G.flashColor='#f2dcff';G.shake=Math.max(G.shake,4.6);
+      try{ring((g.x+s.x)*.5,GROUND-325,'#cfa1ff',95,21);burst((g.x+s.x)*.5,GROUND-325,16,'#e8d6ff',1.8,5,24,0);}catch(e){}
+      return;
+    }else if(event==='purple_flash'){
+      G.flash=.48;G.flashColor='#e3b9ff';G.shake=Math.max(G.shake,9);
+      try{ring((g.x+s.x)*.5,GROUND-325,'#f6e8ff',160,29);burst((g.x+s.x)*.5,GROUND-325,28,'#ddaaff',2.5,8,29,0);}catch(e){}
+      play('clash');return;
+    }else if(event==='soft_landing'){
+      G.flash=.055;G.flashColor='#e9edf5';G.shake=Math.max(G.shake,1.6);
+      try{ring(g.x,GROUND-5,'#c6cbd6',52,18);burst(g.x,GROUND-6,8,'#bcc3d0',.7,2.2,17,0);}catch(e){}
+      return;
+    }else if(event==='mangekyo'||event==='genjutsu_wave'){
+      G.flash=.13;G.flashColor='#ff264f';G.shake=Math.max(G.shake,event==='mangekyo'?4.5:2.5);
+      try{ring(g.x,GROUND-130,'#ff405b',event==='mangekyo'?76:46,18);}catch(e){}
+      return;
+    }else if(event==='crow_escape'){
+      G.flash=.12;G.flashColor='#24101f';G.shake=Math.max(G.shake,3.2);
+      try{burst(s.x,GROUND-95,18,'#191721',1.6,4.8,23,0);ring(s.x,GROUND-95,'#8d1c39',80,21);}catch(e){}
+      return;
+    }
     if(['slash_block','parry_slash','close_slash','slash_counter','last_slash','blue_cut','slash_vs_purple'].includes(event)){
       G.flash=.105;G.flashColor=event==='slash_vs_purple'?'#e4faff':'#ff8190';G.shake=Math.max(G.shake,3.8);
       try{ring(cx,cy,'#ff6578',44,15);burst(cx,cy,7,'#ffd3d8',1.3,3.2,11,0);}catch(e){}play('block');
