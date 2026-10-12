@@ -150,7 +150,7 @@
   function markComplete(c){
     if(c.completed)return;
     removeYutaProp(c);
-    c.completed=true;c.stage='complete';c.t=42;G.storyCutscene=true;G.story.cutscene=true;
+    c.completed=true;c.stage='complete';c.t=62;G.storyCutscene=true;G.story.cutscene=true;
     G.matchOver=true;G.matchOverScreen=true;G.roundState='over';
     safeStore('jff_story_ch3_complete','1');safeStore('jff_story_unlocked_ch3','1');
     try{if(typeof syncStoryArchive==='function')syncStoryArchive();}catch(e){}
@@ -295,7 +295,7 @@
       if(c.t>2.6){c.stage='failedCard';c.t=2.6;G.matchOverScreen=true;G.roundState='over';}
       return;
     }
-    c.t=Math.min(42,c.t+STEP);const t=c.t;
+    c.t=Math.min(62,c.t+STEP);const t=c.t,phaseT=t<20?t:t-20;
     G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
     if(!g||!s)return;
     const i=fightKeyIndex(t),a=finalFightKeys[i],b=finalFightKeys[Math.min(i+1,finalFightKeys.length-1)];
@@ -306,33 +306,40 @@
     g.facing=1;s.facing=-1;g.vx=0;s.vx=0;g.vy=0;s.vy=0;g.walk=0;s.walk=0;
     g.state='IDLE';s.state='IDLE';g.move=null;s.move=null;g.hitstun=0;s.hitstun=0;
     g.storyCinePose='ch3-final-'+a[5];s.storyCinePose='ch3-final-'+a[6];
-    g.animT+=.54+Math.sin(t*4.7)*.025;s.animT+=.46+Math.sin(t*3.9)*.025;
-    if(c.yuta){
-      c.yuta.x=center-390;c.yuta.y=GROUND;c.yuta.vx=0;c.yuta.vy=0;c.yuta.walk=0;
-      c.yuta.state='KNOCKDOWN';c.yuta.storyCinePose='ch3-yuta-fallen';c.yuta.animT+=.12;
+    g.animT+=.72+Math.sin(phaseT*7.1)*.04;s.animT+=.68+Math.sin(phaseT*6.7)*.04;
+    if(c.yuta){c.yuta.x=center-390;c.yuta.y=GROUND;c.yuta.vx=0;c.yuta.vy=0;c.yuta.walk=0;c.yuta.state='KNOCKDOWN';c.yuta.storyCinePose='ch3-yuta-fallen';c.yuta.animT+=.16;}
+    let camY=GROUND-137;
+    if(t>=20){
+      camY=GROUND-140;
+      if(phaseT>=6.7&&phaseT<15)camY=GROUND-205;
+      else if(phaseT>=15&&phaseT<17.2)camY=GROUND-mix(205,142,ease(clamp01((phaseT-15)/2.2)));
     }
-    let camY=GROUND-140;
-    if(t>=6.7&&t<15)camY=GROUND-205;
-    else if(t>=15&&t<17.2)camY=GROUND-mix(205,142,ease(clamp01((t-15)/2.2)));
     camera(center+mix(a[7],b[7],q),camY,mix(a[8],b[8],q));
-    if(t>=35.2){
-      const escape=ease(clamp01((t-35.2)/1.8));
+    if(t>=20&&phaseT>=35.2){
+      const escape=ease(clamp01((phaseT-35.2)/1.8));
       s.x=center+mix(250,980,escape);s.y=GROUND;s.storyCinePose='ch3-final-wallLean';
     }
-    if(t>.38&&t<.9)line(c,'ending-blue','GOJO','Blue.','#9fe9ff');
-    if(t>2.04&&t<2.48)line(c,'ending-red','GOJO','Red.','#ff9ba8');
-    if(t>9.72&&t<10.2)line(c,'ending-purple','GOJO','MURASAKI!','#e7c8ff');
-    if(t>21.12&&t<21.7)line(c,'ending-aftermath-gojo','GOJO','Phù... đúng là tốn sức thật.','#9fe9ff');
-    if(t>22.15&&t<22.7)line(c,'ending-aftermath-sukuna','SUKUNA','Đừng vội ăn mừng, Gojo Satoru.','#ff8190');
-    if(t>23.22&&t<23.8)line(c,'ending-aftermath-gojo2','GOJO','Vậy thì đứng dậy đi.','#9fe9ff');
-    if(t>25.35&&t<25.9)line(c,'ending-final-warning','GOJO','Kết thúc rồi, Sukuna.','#9fe9ff');
-    if(t>27.18&&t<27.65)line(c,'itachi-reveal-line','ITACHI','Sharingan.','#ff5268');
-    if(t>28.05&&t<28.55)line(c,'gojo-notices-itachi','GOJO','Cái... gì?','#9fe9ff');
-    if(t>30.22&&t<30.75)line(c,'gojo-genjutsu-line','GOJO','Không gian này... đang bóp méo?','#9fe9ff');
-    if(t>33.2&&t<33.75)line(c,'itachi-escape-line','ITACHI','Chúng ta rời đi, Sukuna.','#ff5268');
-    if(t>35.85&&t<36.4)line(c,'sukuna-retreat-line','SUKUNA','Tch... món nợ này chưa xong đâu, Gojo.','#ff8190');
-    if(t>38.05&&t<38.7)line(c,'gojo-recovered-line','GOJO','Ảo giác...? Ai vừa cứu hắn?','#9fe9ff');
-    if(t>=42){c.t=42;markComplete(c);}
+    if(t<20){
+      if(t>.62&&t<.88)line(c,'ending-sukuna','SUKUNA','Too slow.','#ff8190');
+      if(t>7.02&&t<7.28)line(c,'ending-blue-old','GOJO','Blue.','#9fe9ff');
+      if(t>8.64&&t<8.88)line(c,'ending-red-old','GOJO','Red.','#a9e9ff');
+      if(t>13&&t<13.3)line(c,'ending-purple-old','GOJO','Hollow Purple.','#a9e9ff');
+    }else{
+      if(phaseT>.38&&phaseT<.9)line(c,'ending-blue','GOJO','Blue.','#9fe9ff');
+      if(phaseT>2.04&&phaseT<2.48)line(c,'ending-red','GOJO','Red.','#ff9ba8');
+      if(phaseT>9.72&&phaseT<10.2)line(c,'ending-purple','GOJO','MURASAKI!','#e7c8ff');
+      if(phaseT>21.12&&phaseT<21.7)line(c,'ending-aftermath-gojo','GOJO','Phù... đúng là tốn sức thật.','#9fe9ff');
+      if(phaseT>22.15&&phaseT<22.7)line(c,'ending-aftermath-sukuna','SUKUNA','Đừng vội ăn mừng, Gojo Satoru.','#ff8190');
+      if(phaseT>23.22&&phaseT<23.8)line(c,'ending-aftermath-gojo2','GOJO','Vậy thì đứng dậy đi.','#9fe9ff');
+      if(phaseT>25.35&&phaseT<25.9)line(c,'ending-final-warning','GOJO','Kết thúc rồi, Sukuna.','#9fe9ff');
+      if(phaseT>27.18&&phaseT<27.65)line(c,'itachi-reveal-line','ITACHI','Sharingan.','#ff5268');
+      if(phaseT>28.05&&phaseT<28.55)line(c,'gojo-notices-itachi','GOJO','Cái... gì?','#9fe9ff');
+      if(phaseT>30.22&&phaseT<30.75)line(c,'gojo-genjutsu-line','GOJO','Không gian này... đang bóp méo?','#9fe9ff');
+      if(phaseT>33.2&&phaseT<33.75)line(c,'itachi-escape-line','ITACHI','Chúng ta rời đi, Sukuna.','#ff5268');
+      if(phaseT>35.85&&phaseT<36.4)line(c,'sukuna-retreat-line','SUKUNA','Tch... món nợ này chưa xong đâu, Gojo.','#ff8190');
+      if(phaseT>38.05&&phaseT<38.7)line(c,'gojo-recovered-line','GOJO','Ảo giác...? Ai vừa cứu hắn?','#9fe9ff');
+    }
+    if(t>=62){c.t=62;markComplete(c);}
   }
   function tick(){
     const c=chapter3();if(!c)return;
@@ -549,7 +556,7 @@
     const t=c.t;ctx.save();
     ctx.fillStyle='rgba(2,4,10,.72)';ctx.fillRect(0,0,W,31);ctx.fillRect(0,H-32,W,32);
     ctx.fillStyle='#9eb4d7';ctx.font='800 9px Consolas,monospace';ctx.textAlign='left';ctx.fillText('JUJUTSU CHRONICLES  /  CHAPTER 3',25,20);
-    ctx.textAlign='right';ctx.fillStyle='#6b819f';ctx.fillText(c.stage==='intro'?'CONTINUING FROM CHAPTER 2':(c.stage==='domainIntro'?'DOMAIN COLLISION':(c.stage==='ending'?'HOLLOW PURPLE / EYES IN THE DARK':(c.stage==='defeat'?'DEFEAT':'AWAKENING'))),W-25,20);
+    ctx.textAlign='right';ctx.fillStyle='#6b819f';ctx.fillText(c.stage==='intro'?'CONTINUING FROM CHAPTER 2':(c.stage==='domainIntro'?'DOMAIN COLLISION':(c.stage==='ending'?(c.t<20?'FINAL EXCHANGE':'HOLLOW PURPLE / EYES IN THE DARK'):(c.stage==='defeat'?'DEFEAT':'AWAKENING'))),W-25,20);
     ctx.globalAlpha=.68;ctx.fillStyle='#000';ctx.fillRect(0,31,W,1);ctx.globalAlpha=1;
     if(c.caption){
       const cue=c.caption,bw=Math.min(830,W-100),bx=(W-bw)/2,by=H-127,bh=76;
@@ -564,8 +571,145 @@
     }
     ctx.restore();
   }
+  function drawCombatChoreographyFX(c) {
+    const t = c.t || 0;
+    const g = c.gojo, enemy = c.sukuna;
+    if (!g || !enemy) return;
+    const center = c.openingCenter || ARENA_W / 2;
+    const screenX = function(x) { return W / 2 + (x - cam.x) * cam.zoom; };
+    const screenY = function(y) { return H / 2 + (y - cam.y) * cam.zoom; };
+    const gx = screenX(g.x), sx = screenX(enemy.x);
+    const gy = screenY(GROUND - 108), sy = screenY(GROUND - 108);
+    ctx.save();
+    const vignette = ctx.createRadialGradient(W*.5,H*.46,Math.min(W,H)*.24,W*.5,H*.46,Math.max(W,H)*.78);
+    vignette.addColorStop(0, 'rgba(0,0,0,0)');
+    vignette.addColorStop(1, 'rgba(0,0,0,.28)');
+    ctx.fillStyle = vignette;
+    ctx.fillRect(0,0,W,H);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const slashTimes = [[1.3,1.7],[4.06,4.43],[4.56,4.91],[5.48,5.86],[6.58,6.94],[8.04,8.36],[10,10.34],[11.08,11.42],[11.92,12.25],[14.1,14.58],[15.3,15.78]];
+    for (let i = 0; i < slashTimes.length; i++) {
+      const start = slashTimes[i][0], end = slashTimes[i][1];
+      if (t < start || t > end) continue;
+      const p = (t - start) / (end - start);
+      const alpha = Math.sin(p * Math.PI);
+      for (let k = 0; k < 3; k++) {
+        ctx.globalAlpha = alpha * (k === 0 ? .85 : .3);
+        ctx.strokeStyle = k === 1 ? '#ffb6c0' : '#ff445b';
+        ctx.lineWidth = (k === 0 ? 2.4 : 1) * cam.zoom;
+        ctx.beginPath();
+        ctx.moveTo(sx - 8 * cam.zoom, sy - (62 - k*12) * cam.zoom);
+        ctx.quadraticCurveTo((sx+gx)*.5, sy - 8 * cam.zoom, gx + 8 * cam.zoom, gy + (5+k*12)*cam.zoom);
+        ctx.stroke();
+      }
+    }
+    if (t >= 7.12 && t <= 8.92) {
+      const ox = screenX(g.x+42), oy = screenY(GROUND-124);
+      const radius = (17 + Math.sin(t*8)*1.5) * cam.zoom;
+      const orb = ctx.createRadialGradient(ox,oy,1,ox,oy,radius*2.4);
+      orb.addColorStop(0,'rgba(250,254,255,.98)');
+      orb.addColorStop(.24,'rgba(128,225,255,.88)');
+      orb.addColorStop(.62,'rgba(43,135,255,.34)');
+      orb.addColorStop(1,'rgba(35,99,255,0)');
+      ctx.fillStyle = orb;
+      ctx.globalAlpha = .97;
+      ctx.beginPath(); ctx.arc(ox,oy,radius*2.4,0,Math.PI*2); ctx.fill();
+      for (let i = 0; i < 4; i++) {
+        ctx.globalAlpha = .4 - i*.06;
+        ctx.strokeStyle = i%2 ? '#e6fbff' : '#65cfff';
+        ctx.lineWidth = 1.1;
+        ctx.beginPath();
+        ctx.ellipse(ox,oy,radius*(1.15+i*.32),radius*(.72+i*.22),t*1.3+i*.65,0,Math.PI*2);
+        ctx.stroke();
+      }
+    }
+    if (t >= 8.63 && t < 9.32) {
+      const p = clamp01((t-8.78)/.45);
+      const ox = screenX(g.x+42), oy = screenY(GROUND-118);
+      const radius = (12+p*32)*cam.zoom;
+      ctx.globalAlpha = 1-p*.55;
+      ctx.strokeStyle = '#ff415b'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(ox,oy,radius,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha = (1-p)*.65;
+      ctx.beginPath(); ctx.arc(ox,oy,radius*1.5,0,Math.PI*2); ctx.stroke();
+    }
+    if (t >= 12.82 && t < 14.95) {
+      const p = clamp01((t-12.82)/1.95);
+      const ox = screenX(g.x+44), oy = screenY(GROUND-127);
+      const radius = (10+p*10)*cam.zoom;
+      ctx.globalAlpha = .88;
+      ctx.strokeStyle = '#7fddff'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(ox-15*cam.zoom,oy,radius,0,Math.PI*2); ctx.stroke();
+      ctx.globalAlpha = .9;
+      ctx.strokeStyle = '#ff5268';
+      ctx.beginPath(); ctx.arc(ox+17*cam.zoom,oy-5*cam.zoom,radius*.86,0,Math.PI*2); ctx.stroke();
+    }
+    if (t >= 14.92 && t < 16.55) {
+      const progress = clamp01((t-14.92)/1.12);
+      const x1 = screenX(g.x+45), y1 = screenY(GROUND-125);
+      const x2 = screenX(mix(g.x+80,center+42,progress)), y2 = screenY(GROUND-120);
+      let fade = 1;
+      if (t > 16.02) fade = clamp01((16.55-t)/.53);
+      ctx.globalAlpha = .19*fade; ctx.strokeStyle = '#8ce4ff'; ctx.lineWidth = 34*cam.zoom; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.globalAlpha = .8*fade; ctx.strokeStyle = '#bd83ff'; ctx.lineWidth = 16*cam.zoom;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.globalAlpha = .98*fade; ctx.strokeStyle = '#f4faff'; ctx.lineWidth = 4*cam.zoom;
+      ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.lineCap = 'butt';
+    }
+    if (t >= 16 && t < 17.65) {
+      const p = clamp01((t-16)/1.55);
+      const cx = screenX(center+42), cy = screenY(GROUND-120);
+      const radius = (18+p*250)*cam.zoom;
+      ctx.globalAlpha = (1-p)*.78; ctx.strokeStyle = '#f4fbff'; ctx.lineWidth = 2.2+p;
+      ctx.beginPath(); ctx.ellipse(cx,cy,radius,radius*.55,0,0,Math.PI*2); ctx.stroke();
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.PI*2*i/12 + t*.25;
+        const inner = 34*cam.zoom, outer = (90+p*175)*cam.zoom;
+        ctx.globalAlpha = (1-p)*.24;
+        ctx.strokeStyle = i%2 ? '#ff647b' : '#99e2ff';
+        ctx.beginPath();
+        ctx.moveTo(cx+Math.cos(angle)*inner,cy+Math.sin(angle)*inner*.65);
+        ctx.lineTo(cx+Math.cos(angle)*outer,cy+Math.sin(angle)*outer*.65);
+        ctx.stroke();
+      }
+    }
+    const age = t - (c.finalFxAt === undefined ? -100 : c.finalFxAt);
+    if (age >= 0 && age < .27) {
+      const cx = screenX((g.x+enemy.x)*.5), cy = screenY(GROUND-105);
+      const p = age/.27;
+      ctx.globalAlpha = (1-p)*.72;
+      ctx.strokeStyle = c.finalFxEvent === 'red_burst' ? '#ff5268' : '#f4fbff';
+      ctx.beginPath();
+      ctx.ellipse(cx,cy,(18+p*58)*cam.zoom,(10+p*40)*cam.zoom,0,0,Math.PI*2);
+      ctx.stroke();
+    }
+    ctx.restore();
+    let shot = '01 / READ THE OPPONENT';
+    if (t >= 2 && t < 4.05) shot = '02 / INFINITY COUNTER';
+    else if (t >= 4.05 && t < 6) shot = '03 / CLOSE-QUARTERS EXCHANGE';
+    else if (t >= 6 && t < 7.1) shot = '04 / PARRY AND BODY SHOTS';
+    else if (t >= 7.1 && t < 8.63) shot = '05 / BLUE PULL';
+    else if (t >= 8.63 && t < 9.4) shot = '06 / RED REPULSION';
+    else if (t >= 9.4 && t < 12.6) shot = '07 / COMBO COUNTERS';
+    else if (t >= 12.6 && t < 14.92) shot = '08 / CONVERGENCE';
+    else if (t >= 14.92 && t < 16) shot = '09 / HOLLOW PURPLE';
+    else if (t >= 16 && t < 18.65) shot = '10 / IMPACT AND FALL';
+    else if (t >= 18.65) shot = '11 / AFTERMATH';
+    ctx.globalAlpha = .88; ctx.textAlign = 'center'; ctx.font = '800 10px Consolas,monospace';
+    ctx.fillStyle = (t >= 14.92 && t < 18) ? '#efe0ff' : '#dce8fa';
+    ctx.fillText(shot,W/2,58);
+    ctx.textAlign = 'left'; ctx.globalAlpha = .7; ctx.fillStyle = '#b9c9df';
+    ctx.font = '800 9px Consolas,monospace'; ctx.fillText('FINAL EXCHANGE / 20 SEC',24,H-46);
+    ctx.restore();
+  }
+
   function drawEndingCinematicFX(c) {
-    const t=c.t||0,g=c.gojo,enemy=c.sukuna;
+    const timelineT=c.t||0;
+    if(timelineT<20){drawCombatChoreographyFX(c);return;}
+    const t=timelineT-20,g=c.gojo,enemy=c.sukuna;
     if(!g||!enemy)return;
     const center=c.openingCenter||ARENA_W/2;
     const sx=x=>W/2+(x-cam.x)*cam.zoom;
@@ -761,34 +905,119 @@
   }
 
   const finalFightKeys=[
-    [0,-82,190,0,0,'blueCharge','guard',0,.86,'blue_launch'],
-    [1,-82,190,0,0,'blueRelease','guard',0,.89,''],
-    [2,-82,190,0,0,'blueRelease','guard',0,.92,''],
-    [2.08,-82,190,0,0,'redCharge','brace',0,.92,'red_launch'],
-    [3,-82,190,0,0,'redCharge','brace',0,.94,''],
-    [4,-82,190,0,0,'redRelease','brace',0,.96,''],
-    [5.2,-82,190,0,0,'redRelease','brace',0,.97,''],
-    [6.2,-76,188,12,0,'redBlue','brace',0,.98,'orb_converge'],
-    [7,-70,188,42,0,'armsWide','brace',0,1.0,''],
-    [8.4,-58,188,122,0,'armsWide','brace',0,1.03,''],
-    [10,-48,188,204,0,'armsWide','hitBack',0,1.06,'purple_flash'],
-    [12.5,-48,188,204,0,'armsWide','hitBack',0,1.08,''],
-    [15,-48,212,168,0,'fall','wallLean',0,1.0,'aftermath_reveal'],
-    [17,-48,212,145,0,'fall','wallLean',0,.98,''],
-    [19,-48,212,86,0,'fall','wallLean',0,.96,''],
-    [21,-48,212,0,0,'landing','wallLean',0,.95,'soft_landing'],
-    [22.2,-48,212,0,0,'finalPose','wallLean',0,.95,''],
-    [24.9,-35,204,0,0,'finalPose','wallLean',0,.96,''],
-    [25.5,-18,202,0,0,'guard','wallLean',0,.99,''],
-    [26.6,-18,202,0,0,'guard','wallLean',0,1.02,'itachi_reveal'],
-    [27.4,-18,202,0,0,'guard','wallLean',0,1.04,'mangekyo'],
-    [29.3,-18,202,0,0,'stagger','wallLean',0,1.08,'genjutsu_wave'],
-    [31.5,-18,202,0,0,'hitBack','wallLean',0,1.12,''],
-    [33.1,-18,202,0,0,'stagger','wallLean',0,1.08,'escape_start'],
-    [35.2,-14,250,0,0,'stagger','wallLean',25,1.02,'crow_escape'],
-    [37,-8,980,0,0,'recover','wallLean',60,.96,''],
-    [39,8,980,0,0,'guard','wallLean',22,.93,'gojo_recovers'],
-    [42,8,980,0,0,'finalPose','wallLean',0,.90,'']
+    [0,-190,190,0,0,"guard","guard",0,0.82,""],
+    [0.62,-188,187,0,0,"guard","guard",0,0.82,""],
+    [0.88,-185,172,0,0,"guard","crouch",0,0.84,""],
+    [1.08,-138,100,0,4,"brace","lunge",-12,0.91,""],
+    [1.3,-92,46,0,0,"infinity","slashWind",-8,1,""],
+    [1.48,-64,35,0,0,"infinity","slash",-5,1.04,"slash_block"],
+    [1.68,-65,38,0,0,"brace","recover",-5,1.01,""],
+    [1.85,-56,38,0,0,"punchWind","guard",0,1.02,""],
+    [2.08,-18,30,0,0,"punch","hitBack",0,1.05,"gojo_punch"],
+    [2.24,-23,27,0,0,"recover","block",0,1.02,""],
+    [2.4,-38,12,0,0,"brace","elbowWind",-5,1.02,""],
+    [2.55,-58,12,0,0,"hitBack","elbow",-8,1.08,"sukuna_elbow"],
+    [2.77,-66,18,0,0,"recoil","recover",-8,1.04,""],
+    [2.9,-52,20,0,0,"kickWind","guard",-8,1.06,""],
+    [3.1,-22,45,0,12,"kick","hitBack",-2,1.08,"gojo_kick"],
+    [3.32,-30,62,0,8,"recover","stagger",0,1.01,""],
+    [3.6,-56,100,0,0,"guard","guard",0,0.88,""],
+    [4.05,-60,72,0,0,"lowDodge","slashWind",0,0.96,""],
+    [4.2,-68,30,0,0,"lowDodge","slash",-5,1.04,"slash_one"],
+    [4.4,-82,24,0,0,"highDodge","recover",-8,1.06,""],
+    [4.56,-93,12,22,0,"highDodge","slashWind",-12,1.08,""],
+    [4.72,-101,5,28,0,"highDodge","slash",-12,1.09,"slash_two"],
+    [4.92,-88,12,4,0,"landing","recover",-8,1.04,""],
+    [5.08,-55,24,0,0,"punch","hitBack",0,1.07,"gojo_counter"],
+    [5.28,-46,36,0,0,"recover","stagger",0,1.01,""],
+    [5.46,-45,30,0,0,"brace","slashWind",0,1,""],
+    [5.62,-74,5,12,0,"lowDodge","slash",-8,1.08,"slash_three"],
+    [5.82,-84,2,0,0,"landing","recover",-8,1.04,""],
+    [6,-40,31,0,0,"dash","brace",-6,1.02,""],
+    [6.2,-8,40,0,0,"bodyStrike","hitBack",0,1.08,"gojo_body"],
+    [6.42,-3,48,0,0,"bodyStrike","stagger",0,1.08,""],
+    [6.58,-11,54,0,0,"brace","slashWind",0,1.02,""],
+    [6.78,-21,34,0,0,"parry","slash",-4,1.09,"parry_slash"],
+    [6.98,-22,37,0,0,"recover","stagger",-4,1.03,""],
+    [7.2,-23,39,0,0,"blueCharge","brace",0,0.99,""],
+    [7.52,-24,13,0,0,"blueRelease","pulled",0,1.02,"blue_pull"],
+    [7.8,-25,5,0,0,"blueRelease","pulled",2,1.06,""],
+    [8.04,-37,8,0,0,"lowDodge","slashWind",-4,1.08,""],
+    [8.2,-46,15,0,0,"lowDodge","slash",-8,1.09,"blue_cut"],
+    [8.42,-57,29,0,0,"landing","recover",-8,1.04,""],
+    [8.63,-62,39,0,0,"redCharge","brace",-4,1.02,""],
+    [8.88,-53,103,0,14,"redRelease","hitBack",0,1,"red_burst"],
+    [9.14,-49,129,0,6,"recover","stagger",0,0.91,""],
+    [9.4,-20,110,0,0,"dash","brace",0,0.91,""],
+    [9.62,0,50,0,0,"punch","hitBack",5,1,"gojo_rush_punch"],
+    [9.82,-4,54,0,0,"recover","stagger",5,1,""],
+    [10.02,-14,29,0,0,"infinity","slashWind",0,1.02,""],
+    [10.2,-10,18,0,0,"parry","slash",-4,1.08,"close_slash"],
+    [10.42,-8,32,0,0,"elbow","hitBack",0,1.08,"gojo_counter_two"],
+    [10.64,-12,43,0,0,"recover","stagger",0,1.02,""],
+    [10.9,-12,55,0,0,"guard","recover",0,0.98,""],
+    [11.12,-12,24,0,0,"block","slashWind",0,1.03,""],
+    [11.32,-20,13,0,0,"parry","slash",-5,1.08,"slash_counter"],
+    [11.5,-8,25,0,0,"punch","hitBack",0,1.08,"gojo_counter_three"],
+    [11.72,-11,43,0,0,"recover","stagger",0,1.03,""],
+    [11.94,-30,23,0,0,"lowDodge","slashWind",-4,1.03,""],
+    [12.12,-28,18,0,0,"lowDodge","slash",-5,1.06,"last_slash"],
+    [12.32,-11,30,0,0,"counterPunch","hitBack",0,1.06,"gojo_counter_four"],
+    [12.52,-36,70,0,0,"guard","recoil",0,0.92,""],
+    [12.82,-40,65,0,0,"purpleCharge","crouch",0,0.9,""],
+    [13.1,-43,55,0,0,"purpleCharge","lunge",0,0.92,""],
+    [13.4,-55,30,0,0,"purpleCharge","dash",0,0.95,""],
+    [13.65,-65,5,0,0,"purpleCharge","slashWind",0,0.98,""],
+    [13.9,-70,2,0,0,"redBlue","slashWind",0,1,""],
+    [14.16,-74,12,0,0,"purpleCharge","slash",0,1,""],
+    [14.42,-76,35,0,0,"purpleCharge","recover",0,0.96,"purple_converge"],
+    [14.68,-78,46,0,0,"purpleCharge","brace",0,0.92,""],
+    [14.92,-81,61,0,0,"purpleFire","dash",0,0.88,"purple_launch"],
+    [15.16,-84,85,0,0,"purpleFire","slash",0,0.84,""],
+    [15.42,-87,108,0,0,"purpleFire","slash",0,0.82,"slash_vs_purple"],
+    [15.72,-90,120,0,0,"purpleFire","recoil",0,0.8,""],
+    [16,-94,135,0,0,"purpleRecoil","hitBack",0,0.78,"purple_collision"],
+    [16.22,-97,145,0,22,"recoil","fly",0,0.79,""],
+    [16.48,-100,158,0,34,"recoil","fly",0,0.8,""],
+    [16.74,-99,170,0,32,"guard","fly",0,0.81,""],
+    [17,-96,180,0,22,"guard","fall",0,0.82,""],
+    [17.24,-92,187,0,12,"guard","fall",0,0.83,"sukuna_fall"],
+    [17.48,-90,185,0,3,"guard","fall",0,0.84,""],
+    [17.7,-88,182,0,0,"guard","fall",0,0.84,""],
+    [18,-88,178,0,0,"guard","fallen",0,0.85,"ground_slam"],
+    [18.28,-86,178,0,0,"recover","fallen",0,0.86,""],
+    [18.65,-84,178,0,0,"guard","fallen",0,0.86,""],
+    [19,-84,178,0,0,"finalPose","fallen",0,0.86,""],
+    [19.5,-84,178,0,0,"finalPose","fallen",0,0.86,""],
+    [20,-84,178,0,0,"finalPose","fallen",0,0.86,""],
+    [20,-82,190,0,0,"blueCharge","guard",0,0.86,"blue_launch"],
+    [21,-82,190,0,0,"blueRelease","guard",0,0.89,""],
+    [22,-82,190,0,0,"blueRelease","guard",0,0.92,""],
+    [22.08,-82,190,0,0,"redCharge","brace",0,0.92,"red_launch"],
+    [23,-82,190,0,0,"redCharge","brace",0,0.94,""],
+    [24,-82,190,0,0,"redRelease","brace",0,0.96,""],
+    [25.2,-82,190,0,0,"redRelease","brace",0,0.97,""],
+    [26.2,-76,188,12,0,"redBlue","brace",0,0.98,"orb_converge"],
+    [27,-70,188,42,0,"armsWide","brace",0,1,""],
+    [28.4,-58,188,122,0,"armsWide","brace",0,1.03,""],
+    [30,-48,188,204,0,"armsWide","hitBack",0,1.06,"purple_flash"],
+    [32.5,-48,188,204,0,"armsWide","hitBack",0,1.08,""],
+    [35,-48,212,168,0,"fall","wallLean",0,1,"aftermath_reveal"],
+    [37,-48,212,145,0,"fall","wallLean",0,0.98,""],
+    [39,-48,212,86,0,"fall","wallLean",0,0.96,""],
+    [41,-48,212,0,0,"landing","wallLean",0,0.95,"soft_landing"],
+    [42.2,-48,212,0,0,"finalPose","wallLean",0,0.95,""],
+    [44.9,-35,204,0,0,"finalPose","wallLean",0,0.96,""],
+    [45.5,-18,202,0,0,"guard","wallLean",0,0.99,""],
+    [46.6,-18,202,0,0,"guard","wallLean",0,1.02,"itachi_reveal"],
+    [47.4,-18,202,0,0,"guard","wallLean",0,1.04,"mangekyo"],
+    [49.3,-18,202,0,0,"stagger","wallLean",0,1.08,"genjutsu_wave"],
+    [51.5,-18,202,0,0,"hitBack","wallLean",0,1.12,""],
+    [53.1,-18,202,0,0,"stagger","wallLean",0,1.08,"escape_start"],
+    [55.2,-14,250,0,0,"stagger","wallLean",25,1.02,"crow_escape"],
+    [57,-8,980,0,0,"recover","wallLean",60,0.96,""],
+    [59,8,980,0,0,"guard","wallLean",22,0.93,"gojo_recovers"],
+    [62,8,980,0,0,"finalPose","wallLean",0,0.9,""]
   ];
   const mkFinalPose=(hipY,shY,headY,lean,afx,afy,abx,aby,lfx,lfy,lbx,lby,headX=0)=>({hipY,shY,headY,headX,lean,armF:[afx,afy],armB:[abx,aby],legF:[lfx,lfy],legB:[lbx,lby]});
   const FINAL_FIGHT_POSES={
