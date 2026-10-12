@@ -298,9 +298,10 @@
     c.t=Math.min(20,c.t+STEP);const t=c.t;G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
     if(!g||!s)return;
     const i=fightKeyIndex(t),a=finalFightKeys[i],b=finalFightKeys[Math.min(i+1,finalFightKeys.length-1)];
-    const q=ease(clamp01((t-a[0])/Math.max(.001,b[0]-a[0])));c.finalKeyIndex=i;
+    const raw=clamp01((t-a[0])/Math.max(.001,b[0]-a[0])),q=ease(raw);c.finalKeyIndex=i;
     if(c.finalSeenKey!==i){c.finalSeenKey=i;if(a[9])triggerFinalFightEvent(c,a[9],t);}
-    g.x=center+mix(a[1],b[1],q);s.x=center+mix(a[2],b[2],q);g.y=GROUND-mix(a[3],b[3],q);s.y=GROUND-mix(a[4],b[4],q);
+    // Root motion keeps momentum across beats; pose and vertical arcs ease independently.
+    g.x=center+mix(a[1],b[1],raw);s.x=center+mix(a[2],b[2],raw);g.y=GROUND-mix(a[3],b[3],q);s.y=GROUND-mix(a[4],b[4],q);
     g.facing=1;s.facing=-1;g.vx=0;s.vx=0;g.vy=0;s.vy=0;g.walk=0;s.walk=0;
     g.state='IDLE';s.state='IDLE';g.move=null;s.move=null;g.hitstun=0;s.hitstun=0;
     g.storyCinePose='ch3-final-'+a[5];s.storyCinePose='ch3-final-'+a[6];
@@ -694,33 +695,33 @@
 
   const finalFightKeys=[
     [0,-190,190,0,0,'guard','guard',0,.82,''],[.62,-188,187,0,0,'guard','guard',0,.82,''],[.88,-185,172,0,0,'guard','crouch',0,.84,''],
-    [1.08,-180,126,0,4,'brace','lunge',-12,.91,''],[1.3,-174,88,0,0,'infinity','slashWind',-8,1,''],[1.48,-170,82,0,0,'infinity','slash',-5,1.04,'slash_block'],
-    [1.68,-169,88,0,0,'brace','recover',-5,1.01,''],[1.85,-160,100,0,0,'punchWind','guard',0,1.02,''],[2.08,-126,100,0,0,'punch','hitBack',0,1.05,'gojo_punch'],
-    [2.24,-125,93,0,0,'recover','block',0,1.02,''],[2.4,-130,70,0,0,'brace','elbowWind',-5,1.02,''],[2.55,-148,53,0,0,'hitBack','elbow',-8,1.08,'sukuna_elbow'],
-    [2.77,-152,59,0,0,'recoil','recover',-8,1.04,''],[2.9,-137,62,0,0,'kickWind','guard',-8,1.06,''],[3.1,-104,96,0,12,'kick','hitBack',-2,1.08,'gojo_kick'],
-    [3.32,-115,111,0,8,'recover','stagger',0,1.01,''],[3.6,-132,125,0,0,'guard','guard',0,.88,''],[4.05,-130,105,0,0,'lowDodge','slashWind',0,.96,''],
-    [4.2,-138,74,0,0,'lowDodge','slash',-5,1.04,'slash_one'],[4.4,-151,64,0,0,'highDodge','recover',-8,1.06,''],[4.56,-165,54,22,0,'highDodge','slashWind',-12,1.08,''],
-    [4.72,-171,48,28,0,'highDodge','slash',-12,1.09,'slash_two'],[4.92,-158,54,4,0,'landing','recover',-8,1.04,''],[5.08,-125,78,0,0,'punch','hitBack',0,1.07,'gojo_counter'],
-    [5.28,-118,92,0,0,'recover','stagger',0,1.01,''],[5.46,-118,88,0,0,'brace','slashWind',0,1,''],[5.62,-150,56,12,0,'lowDodge','slash',-8,1.08,'slash_three'],
-    [5.82,-161,52,0,0,'landing','recover',-8,1.04,''],[6,-96,76,0,0,'dash','brace',-6,1.02,''],[6.2,-50,99,0,0,'bodyStrike','hitBack',0,1.08,'gojo_body'],
-    [6.42,-38,108,0,0,'bodyStrike','stagger',0,1.08,''],[6.58,-48,116,0,0,'brace','slashWind',0,1.02,''],[6.78,-57,100,0,0,'parry','slash',-4,1.09,'parry_slash'],
-    [6.98,-59,101,0,0,'recover','stagger',-4,1.03,''],[7.2,-60,101,0,0,'blueCharge','brace',0,.99,''],[7.52,-59,78,0,0,'blueRelease','pulled',0,1.02,'blue_pull'],
-    [7.8,-60,48,0,0,'blueRelease','pulled',2,1.06,''],[8.04,-72,50,0,0,'lowDodge','slashWind',-4,1.08,''],[8.2,-84,61,0,0,'lowDodge','slash',-8,1.09,'blue_cut'],
-    [8.42,-97,72,0,0,'landing','recover',-8,1.04,''],[8.63,-101,83,0,0,'redCharge','brace',-4,1.02,''],[8.88,-94,148,0,14,'redRelease','hitBack',0,1,'red_burst'],
-    [9.14,-90,172,0,6,'recover','stagger',0,.91,''],[9.4,-32,159,0,0,'dash','brace',0,.91,''],[9.62,0,120,0,0,'punch','hitBack',5,1,'gojo_rush_punch'],
-    [9.82,-4,120,0,0,'recover','stagger',5,1,''],[10.02,-9,74,0,0,'infinity','slashWind',0,1.02,''],[10.2,-2,65,0,0,'parry','slash',-4,1.08,'close_slash'],
-    [10.42,8,84,0,0,'elbow','hitBack',0,1.08,'gojo_counter_two'],[10.64,6,105,0,0,'recover','stagger',0,1.02,''],[10.9,3,122,0,0,'guard','recover',0,.98,''],
-    [11.12,2,74,0,0,'block','slashWind',0,1.03,''],[11.32,-6,65,0,0,'parry','slash',-5,1.08,'slash_counter'],[11.5,5,79,0,0,'punch','hitBack',0,1.08,'gojo_counter_three'],
-    [11.72,0,97,0,0,'recover','stagger',0,1.03,''],[11.94,-20,76,0,0,'lowDodge','slashWind',-4,1.03,''],[12.12,-15,70,0,0,'lowDodge','slash',-5,1.06,'last_slash'],
-    [12.32,-2,94,0,0,'counterPunch','hitBack',0,1.06,'gojo_counter_four'],[12.52,-25,128,0,0,'guard','recoil',0,.92,''],[12.82,-30,122,0,0,'purpleCharge','crouch',0,.9,''],
-    [13.1,-34,108,0,0,'purpleCharge','lunge',0,.92,''],[13.4,-48,72,0,0,'purpleCharge','dash',0,.95,''],[13.65,-62,36,0,0,'purpleCharge','slashWind',0,.98,''],
-    [13.9,-69,31,0,0,'redBlue','slashWind',0,1,''],[14.16,-73,46,0,0,'purpleCharge','slash',0,1,''],[14.42,-76,70,0,0,'purpleCharge','recover',0,.96,'purple_converge'],
-    [14.68,-78,90,0,0,'purpleCharge','brace',0,.92,''],[14.92,-81,112,0,0,'purpleFire','dash',0,.88,'purple_launch'],[15.16,-84,141,0,0,'purpleFire','slash',0,.84,''],
-    [15.42,-87,169,0,0,'purpleFire','slash',0,.82,'slash_vs_purple'],[15.72,-90,184,0,0,'purpleFire','recoil',0,.8,''],[16,-94,192,0,0,'purpleRecoil','hitBack',0,.78,'purple_collision'],
-    [16.22,-97,202,0,22,'recoil','fly',0,.79,''],[16.48,-100,211,0,34,'recoil','fly',0,.8,''],[16.74,-99,218,0,32,'guard','fly',0,.81,''],
-    [17,-96,222,0,22,'guard','fall',0,.82,''],[17.24,-92,225,0,12,'guard','fall',0,.83,'sukuna_fall'],[17.48,-90,224,0,3,'guard','fall',0,.84,''],
-    [17.7,-88,220,0,0,'guard','fall',0,.84,''],[18,-88,218,0,0,'guard','fallen',0,.85,'ground_slam'],[18.28,-86,218,0,0,'recover','fallen',0,.86,''],
-    [18.65,-84,218,0,0,'guard','fallen',0,.86,''],[19,-84,218,0,0,'finalPose','fallen',0,.86,''],[19.5,-84,218,0,0,'finalPose','fallen',0,.86,''],[20,-84,218,0,0,'finalPose','fallen',0,.86,'']
+    [1.08,-138,100,0,4,'brace','lunge',-12,.91,''],[1.3,-92,46,0,0,'infinity','slashWind',-8,1,''],[1.48,-64,35,0,0,'infinity','slash',-5,1.04,'slash_block'],
+    [1.68,-65,38,0,0,'brace','recover',-5,1.01,''],[1.85,-56,38,0,0,'punchWind','guard',0,1.02,''],[2.08,-18,30,0,0,'punch','hitBack',0,1.05,'gojo_punch'],
+    [2.24,-23,27,0,0,'recover','block',0,1.02,''],[2.4,-38,12,0,0,'brace','elbowWind',-5,1.02,''],[2.55,-58,12,0,0,'hitBack','elbow',-8,1.08,'sukuna_elbow'],
+    [2.77,-66,18,0,0,'recoil','recover',-8,1.04,''],[2.9,-52,20,0,0,'kickWind','guard',-8,1.06,''],[3.1,-22,45,0,12,'kick','hitBack',-2,1.08,'gojo_kick'],
+    [3.32,-30,62,0,8,'recover','stagger',0,1.01,''],[3.6,-56,100,0,0,'guard','guard',0,.88,''],[4.05,-60,72,0,0,'lowDodge','slashWind',0,.96,''],
+    [4.2,-68,30,0,0,'lowDodge','slash',-5,1.04,'slash_one'],[4.4,-82,24,0,0,'highDodge','recover',-8,1.06,''],[4.56,-93,12,22,0,'highDodge','slashWind',-12,1.08,''],
+    [4.72,-101,5,28,0,'highDodge','slash',-12,1.09,'slash_two'],[4.92,-88,12,4,0,'landing','recover',-8,1.04,''],[5.08,-55,24,0,0,'punch','hitBack',0,1.07,'gojo_counter'],
+    [5.28,-46,36,0,0,'recover','stagger',0,1.01,''],[5.46,-45,30,0,0,'brace','slashWind',0,1,''],[5.62,-74,5,12,0,'lowDodge','slash',-8,1.08,'slash_three'],
+    [5.82,-84,2,0,0,'landing','recover',-8,1.04,''],[6,-40,31,0,0,'dash','brace',-6,1.02,''],[6.2,-8,40,0,0,'bodyStrike','hitBack',0,1.08,'gojo_body'],
+    [6.42,-3,48,0,0,'bodyStrike','stagger',0,1.08,''],[6.58,-11,54,0,0,'brace','slashWind',0,1.02,''],[6.78,-21,34,0,0,'parry','slash',-4,1.09,'parry_slash'],
+    [6.98,-22,37,0,0,'recover','stagger',-4,1.03,''],[7.2,-23,39,0,0,'blueCharge','brace',0,.99,''],[7.52,-24,13,0,0,'blueRelease','pulled',0,1.02,'blue_pull'],
+    [7.8,-25,5,0,0,'blueRelease','pulled',2,1.06,''],[8.04,-37,8,0,0,'lowDodge','slashWind',-4,1.08,''],[8.2,-46,15,0,0,'lowDodge','slash',-8,1.09,'blue_cut'],
+    [8.42,-57,29,0,0,'landing','recover',-8,1.04,''],[8.63,-62,39,0,0,'redCharge','brace',-4,1.02,''],[8.88,-53,103,0,14,'redRelease','hitBack',0,1,'red_burst'],
+    [9.14,-49,129,0,6,'recover','stagger',0,.91,''],[9.4,-20,110,0,0,'dash','brace',0,.91,''],[9.62,0,50,0,0,'punch','hitBack',5,1,'gojo_rush_punch'],
+    [9.82,-4,54,0,0,'recover','stagger',5,1,''],[10.02,-14,29,0,0,'infinity','slashWind',0,1.02,''],[10.2,-10,18,0,0,'parry','slash',-4,1.08,'close_slash'],
+    [10.42,-8,32,0,0,'elbow','hitBack',0,1.08,'gojo_counter_two'],[10.64,-12,43,0,0,'recover','stagger',0,1.02,''],[10.9,-12,55,0,0,'guard','recover',0,.98,''],
+    [11.12,-12,24,0,0,'block','slashWind',0,1.03,''],[11.32,-20,13,0,0,'parry','slash',-5,1.08,'slash_counter'],[11.5,-8,25,0,0,'punch','hitBack',0,1.08,'gojo_counter_three'],
+    [11.72,-11,43,0,0,'recover','stagger',0,1.03,''],[11.94,-30,23,0,0,'lowDodge','slashWind',-4,1.03,''],[12.12,-28,18,0,0,'lowDodge','slash',-5,1.06,'last_slash'],
+    [12.32,-11,30,0,0,'counterPunch','hitBack',0,1.06,'gojo_counter_four'],[12.52,-36,70,0,0,'guard','recoil',0,.92,''],[12.82,-40,65,0,0,'purpleCharge','crouch',0,.9,''],
+    [13.1,-43,55,0,0,'purpleCharge','lunge',0,.92,''],[13.4,-55,30,0,0,'purpleCharge','dash',0,.95,''],[13.65,-65,5,0,0,'purpleCharge','slashWind',0,.98,''],
+    [13.9,-70,2,0,0,'redBlue','slashWind',0,1,''],[14.16,-74,12,0,0,'purpleCharge','slash',0,1,''],[14.42,-76,35,0,0,'purpleCharge','recover',0,.96,'purple_converge'],
+    [14.68,-78,46,0,0,'purpleCharge','brace',0,.92,''],[14.92,-81,61,0,0,'purpleFire','dash',0,.88,'purple_launch'],[15.16,-84,85,0,0,'purpleFire','slash',0,.84,''],
+    [15.42,-87,108,0,0,'purpleFire','slash',0,.82,'slash_vs_purple'],[15.72,-90,120,0,0,'purpleFire','recoil',0,.8,''],[16,-94,135,0,0,'purpleRecoil','hitBack',0,.78,'purple_collision'],
+    [16.22,-97,145,0,22,'recoil','fly',0,.79,''],[16.48,-100,158,0,34,'recoil','fly',0,.8,''],[16.74,-99,170,0,32,'guard','fly',0,.81,''],
+    [17,-96,180,0,22,'guard','fall',0,.82,''],[17.24,-92,187,0,12,'guard','fall',0,.83,'sukuna_fall'],[17.48,-90,185,0,3,'guard','fall',0,.84,''],
+    [17.7,-88,182,0,0,'guard','fall',0,.84,''],[18,-88,178,0,0,'guard','fallen',0,.85,'ground_slam'],[18.28,-86,178,0,0,'recover','fallen',0,.86,''],
+    [18.65,-84,178,0,0,'guard','fallen',0,.86,''],[19,-84,178,0,0,'finalPose','fallen',0,.86,''],[19.5,-84,178,0,0,'finalPose','fallen',0,.86,''],[20,-84,178,0,0,'finalPose','fallen',0,.86,'']
   ];
   const mkFinalPose=(hipY,shY,headY,lean,afx,afy,abx,aby,lfx,lfy,lbx,lby,headX=0)=>({hipY,shY,headY,headX,lean,armF:[afx,afy],armB:[abx,aby],legF:[lfx,lfy],legB:[lbx,lby]});
   const FINAL_FIGHT_POSES={
