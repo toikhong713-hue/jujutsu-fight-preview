@@ -164,7 +164,7 @@
     if(f.itachiAwake>0){
       extras+='<g transform="translate('+x+' '+(y-82*s)+') scale('+s+')"><ellipse rx="72" ry="100" fill="none" stroke="#ef765e" stroke-width="2" opacity=".5" stroke-dasharray="8 12"/><path d="M -60 -20 L -78 -40 M 58 4 L 77 28 M -38 60 L -58 80" stroke="#ffa27d" stroke-width="3" fill="none"/></g>';
     }
-    return under+extras+body;
+    return extras+body;
   }
   function render(){
     if(typeof G==='undefined'||G.mode==='menu'){
