@@ -209,7 +209,15 @@
     let people='';
     for(const f of active){
       if(!f||f.id!=='itachi')continue;
-      people+=character(f);
+      // Appearance stays on the original game fighter rig and the existing Itachi identity details.
+      // SVG draws only Outsider-authored effects around the unchanged character.
+      const cp=point(f.x,f.y), cz=cp.s, activeMove=f.moveKey||'', frame=f.moveFrame||0, attacking=f.state==='ATTACK';
+      if(activeMove==='heavy'&&attacking&&frame>5&&frame<34){
+        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.1)+')"><path d="M -45 20 Q -65 -18 -27 -53 L -9 -31 L 0 -49 L 15 -31 L 34 -51 Q 65 -10 42 22" fill="url(#itSusanoo)" stroke="#f17a6e" stroke-width="7" stroke-linecap="round"/><path d="M -25 -27 Q 0 0 25 -27 M -32 -7 Q 0 21 32 -7" fill="none" stroke="#ffb3a0" stroke-width="4"/></g>';
+      }
+      if((activeMove==='s3'&&attacking)||(activeMove==='ult'&&attacking)||(f.itachiAwake||0)>0){
+        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.12)+')"><path d="M -51 53 Q -75 1 -52 -45 L -29 -29 L -14 -61 L 0 -41 L 18 -62 L 31 -28 L 52 -48 Q 75 4 51 53 L 25 31 L 0 59 L -26 32 Z" fill="url(#itSusanoo)" stroke="#eb826d" stroke-width="5"/><path d="M -35 -17 L -20 16 L 0 36 L 20 16 L 35 -17 M -25 -7 L -7 1 L 0 20 L 7 1 L 25 -7" stroke="#ffd1a4" fill="none" stroke-width="3"/><path d="M -13 -8 L -4 -2 M 13 -8 L 4 -2" stroke="#ffedc9" stroke-width="5"/>'+(activeMove==='ult'&&attacking&&frame>14?'<g transform="translate(42 -82) rotate(-18)"><path d="M 0 25 L 2 -82 L 11 -112 L 17 -80 L 13 25 Z" fill="url(#itSteel)" stroke="#ffcf9d" stroke-width="1.5"/><path d="M -4 22 L 18 22 L 17 28 L -4 28 Z" fill="#591425" stroke="#f4b2a0" stroke-width="1.2"/><path d="M 7 28 L 7 48 M 1 30 L 13 42 M 13 30 L 1 42" stroke="#dfb184" stroke-width="3"/></g>':'')+'</g>';
+      }
       if(f.itachiCounterUntil>sys.tick){
         const p=point(f.x,f.y-82);
         people+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><ellipse rx="57" ry="92" fill="none" stroke="#d32b4f" stroke-width="2" stroke-dasharray="7 9"/><path d="M -40 -70 L -20 -80 M 38 -50 L 55 -35" stroke="#ff8da2" stroke-width="3"/></g>';
@@ -221,14 +229,10 @@
     }
     root.innerHTML=defs+back+people;
   }
-  const baseDraw=window.drawFighter;
-  if(typeof baseDraw==='function'){
-    window.drawFighter=function(f){if(f&&f.id==='itachi')return;return baseDraw.apply(this,arguments);};
-  }
   const baseRender=window.render;
   if(typeof baseRender==='function'){
     window.render=function(){baseRender.apply(this,arguments);render();};
   }
-  window.JFF_OUTSIDER_RENDER={ready:true,renderer:'SVG VECTOR',usesCanvas2D:false,quality:'low',setQuality:q=>{sys.quality=q==='high'?'high':'low';}};
-  console.info('[JFF Outsider] Dedicated SVG vector stage ready; legacy Itachi fighter drawing suppressed.');
+  window.JFF_OUTSIDER_RENDER={ready:true,renderer:'SVG EFFECT OVERLAY + ORIGINAL CHARACTER APPEARANCE',usesCanvas2DForCharacter:true,usesCanvas2DForEffects:false,quality:'low',setQuality:q=>{sys.quality=q==='high'?'high':'low';}};
+  console.info('[JFF Outsider] SVG effect overlay ready; original Itachi appearance preserved.');
 })();
