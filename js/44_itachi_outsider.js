@@ -30,6 +30,30 @@
   const baseIdentityPose=window.applyCharacterIdentityPose;
   if(typeof baseIdentityPose==='function'){
     window.applyCharacterIdentityPose=function(P,f){
+      if(f&&f.id==='itachi'&&f.move&&f.state==='ATTACK'){
+        // Re-pose the existing Itachi rig per move; keep the original character model intact.
+        const n=f.moveFrame||0,k=f.moveKey||'',pulse=Math.sin(n*.72),wide=Math.sin(n*.38);
+        P.hipY=-57;P.shY=-95;P.headY=-114;P.lean=2;P.armF=[66,18];P.armB=[112,14];P.legF=[88,5];P.legB=[96,-6];
+        if(k==='light'){
+          if(n<10){P.lean=9+pulse*2;P.armF=[42,-26+pulse*5];P.armB=[128,26];P.legF=[80,13];}
+          else if(n<20){P.lean=12;P.armF=[34,4];P.armB=[135,30];P.legB=[108,-13];}
+          else if(n<35){P.lean=-13;P.hipY=-61;P.armF=[18,-36];P.armB=[146,38];P.legF=[52,-28];P.legB=[120,18];}
+          else if(n<49){P.lean=-7;P.armF=[38,-31];P.armB=[130,35];P.legF=[77,16];}
+          else{P.lean=15;P.hipY=-60;P.armF=[22,-5];P.armB=[145,35];P.legF=[72,15];P.legB=[111,-10];}
+        }else if(k==='heavy'){
+          if(n<15){P.lean=-7;P.armF=[48,-28];P.armB=[125,-27];P.headY=-111;}
+          else if(n<27){P.lean=19;P.hipY=-52;P.armF=[25,48];P.armB=[150,48];P.legF=[80,16];P.legB=[108,-12];}
+          else{P.lean=1;P.armF=[58,28];P.armB=[119,22];}
+        }else if(k==='s1'){
+          if(n<8){P.lean=-6;P.armF=[40,-12];P.armB=[132,-8];}
+          else{P.lean=12;P.armF=[26,-20];P.armB=[143,-18];}
+        }else if(k==='s2'){P.lean=-2+wide;P.armF=[47,-15];P.armB=[121,12];P.headY=-116;}
+        else if(k==='s3'){P.lean=-9;P.armF=[34,-26+pulse*4];P.armB=[142,-20];}
+        else if(k==='s4'){P.lean=-12;P.hipY=-63;P.armF=[40,-25];P.armB=[137,31];P.legF=[64,-13];}
+        else if(k==='s5'){P.lean=-11;P.armF=[46,-25];P.armB=[123,8];P.headY=-116;}
+        else if(k==='ult'){P.lean=n<36?-5:9;P.armF=[28,-35];P.armB=[144,-24];P.legF=[81,12];}
+        return true;
+      }
       if(f&&f.id==='itachi'&&(f.state==='IDLE'||f.state==='WALK')){
         const t=f.animT||0,s=Math.sin(t*.045),s2=Math.sin(t*.095);
         if(f.state==='WALK'){
