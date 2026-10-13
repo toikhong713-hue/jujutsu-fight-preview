@@ -72,6 +72,16 @@
     if(f.type==='magatama'){
       return '<g opacity="'+fade+'" transform="translate('+x+' '+y+') scale('+s+')"><ellipse rx="'+(9+t*.3)+'" ry="'+(18+t*.12)+'" fill="none" stroke="#c84860" stroke-width="2"/><path d="M 0 -19 C 23 -13 17 16 0 19 C -8 11 -7 5 1 1 C 8 -3 7 -12 0 -19 Z" fill="#f8c17e" stroke="#ffddae" stroke-width="1.5"/><circle cy="-3" r="3.2" fill="#6d1430"/><path d="M -25 0 Q 0 -10 26 0" fill="none" stroke="#ee5966" stroke-width="1.7"/></g>';
     }
+    if(f.type==='amaterasu'){
+      const pulse=0.7+Math.sin(t*.58)*.18, r=(20+Math.sin(t*.42)*4)*s;
+      const tongues=Array.from({length:9},(_,i)=>{
+        const a=(i/9)*Math.PI*2+t*.035, rx=Math.cos(a), ry=Math.sin(a);
+        const x1=rx*r*.34, y1=ry*r*.34, x2=rx*r*(1.05+(i%3)*.11), y2=ry*r*(1.05+(i%3)*.11);
+        const cx=rx*r*.75+Math.sin(t*.31+i)*5, cy=ry*r*.78-Math.cos(t*.27+i)*7;
+        return '<path d="M '+x1+' '+y1+' Q '+cx+' '+cy+' '+x2+' '+y2+'" fill="none" stroke="'+(i%3===0?'#ff6380':'#100912')+'" stroke-width="'+(i%3===0?4.2:6.2)+'" stroke-linecap="round"/>';
+      }).join('');
+      return '<g opacity="'+(fade*pulse)+'" transform="translate('+x+' '+y+') scale('+s+')"><circle r="'+(r*1.35)+'" fill="url(#itBlackFlame)" opacity=".82"/><circle r="'+(r*.47)+'" fill="#050408" stroke="#2b0a1b" stroke-width="2"/>'+tongues+'<circle r="'+(r*.72)+'" fill="none" stroke="#fa315c" stroke-width="1.5" stroke-dasharray="2 7" opacity=".72"/></g>';
+    }
     if(f.type==='explosion'){
       const r=16+t*5;
       return '<g opacity="'+fade+'" transform="translate('+x+' '+y+') scale('+s+')"><circle r="'+r+'" fill="url(#itFire)" filter="url(#itGlow)"/><path d="M 0 -'+r+' L 7 -12 L 26 -'+(r*.68)+' L 17 -3 L '+r+' 0 L 14 7 L '+(r*.65)+' 24 L 2 15 L -4 '+r+' L -11 14 L -'+r+' 10 L -17 0 L -'+(r*.72)+' -8 L -7 -15 Z" fill="#ef4b42" opacity=".84"/><circle r="'+(r*.38)+'" fill="#fff0c9"/></g>';
@@ -167,15 +177,13 @@
   }
   function render(){
     if(typeof G==='undefined'||G.mode==='menu'){
-      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.moon=null;sys.genjutsu=null;sys.sealing=null;
+      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.burns=[];sys.moon=null;sys.genjutsu=null;sys.sealing=null;
       const canvas=document.getElementById('cv');if(canvas)canvas.style.filter='';return;
     }
-    sys.tick++;
     const canvas=document.getElementById('cv');if(canvas)canvas.style.filter=sys.moon?'grayscale(1) contrast(1.35) saturate(.45)':'';
     const active=G.fighters||[];
     const outsider=active.filter(f=>f&&f.id==='itachi');
     // Effects tick in a dedicated SVG pass, not through the game's canvas VFX pools.
-    for(let i=sys.fx.length-1;i>=0;i--){const f=sys.fx[i];f.t++;if(f.t>=f.d)sys.fx.splice(i,1);}
     let back='';
     for(const f of sys.fx)back+=drawFx(f);
     for(const q of sys.shots){
@@ -206,6 +214,11 @@
       const p=o?point(o.x,o.y):{x:970,y:155,s:1};
       back+='<g opacity="'+clamp(1-sys.moon.t/sys.moon.d,0,1)+'"><rect width="1280" height="720" fill="#280716" opacity=".15"/><circle cx="'+(p.x+180*p.s)+'" cy="145" r="70" fill="url(#itMoon)" stroke="#ff456a" stroke-width="2.5"/><path d="M 0 0 L 1280 0 L 1280 720 L 0 720 Z" fill="#920e2b" opacity=".10"/><path d="M '+(p.x-70)+' 390 L '+(p.x+70)+' 390 L '+(p.x+35)+' 520 L '+(p.x-40)+' 520 Z" fill="#10060c" opacity=".36"/><g transform="translate('+p.x+' '+(p.y-105)+')" opacity=".58"><path d="M -7 -86 L 7 -86 L 7 62 L -7 62 Z M -48 -30 L 48 -30 L 48 -16 L -48 -16 Z" fill="#12080d" stroke="#6b1428" stroke-width="2"/><path d="M -38 -70 L -15 -60 M 12 -50 L 35 -39 M -38 15 L -15 26 M 12 37 L 34 48" stroke="#a42c43" stroke-width="2"/></g></g>';
     }
+    for(const b of (sys.burns||[])){
+      if(b&&b.kind==='amaterasu'&&b.target&&b.target.hp>0){
+        back+=drawFx({type:'amaterasu',x:b.target.x,y:b.target.y-72,t:(sys.tick%24),d:30,data:{}});
+      }
+    }
     if(sys.sealing&&sys.sealing.target&&sys.sealing.t<sys.sealing.d){
       const o=sys.sealing.target,p=point(o.x,o.y);
       back+='<g opacity="'+clamp(1-sys.sealing.t/sys.sealing.d,0,1)+'">'+drawFx({type:'seal',x:o.x,y:o.y-75,t:sys.sealing.t,d:sys.sealing.d,data:{}}).replace(/<g opacity="[^"]*">/,'<g opacity=".95">')+'</g>';
@@ -216,12 +229,6 @@
       // Appearance stays on the original game fighter rig and the existing Itachi identity details.
       // SVG draws only Outsider-authored effects around the unchanged character.
       const cp=point(f.x,f.y), cz=cp.s, activeMove=f.moveKey||'', frame=f.moveFrame||0, attacking=f.state==='ATTACK';
-      if(activeMove==='heavy'&&attacking&&frame>5&&frame<34){
-        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.1)+')"><path d="M -45 20 Q -65 -18 -27 -53 L -9 -31 L 0 -49 L 15 -31 L 34 -51 Q 65 -10 42 22" fill="url(#itSusanoo)" stroke="#f17a6e" stroke-width="7" stroke-linecap="round"/><path d="M -25 -27 Q 0 0 25 -27 M -32 -7 Q 0 21 32 -7" fill="none" stroke="#ffb3a0" stroke-width="4"/>'+(frame>=13&&frame<=27?'<path d="M 22 -36 Q 51 -13 65 18 L 117 88 L 91 105 L 39 43 Q 14 8 22 -36 Z" fill="url(#itSusanoo)" stroke="#ffb09a" stroke-width="5"/><path d="M 93 99 L 124 106 M 91 104 L 119 118 M 88 109 L 111 129" stroke="#ffdfb2" stroke-width="3"/>':'')+'</g>';
-      }
-      if((activeMove==='s3'&&attacking)||(activeMove==='ult'&&attacking)||(f.itachiAwake||0)>0){
-        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.12)+')"><path d="M -51 53 Q -75 1 -52 -45 L -29 -29 L -14 -61 L 0 -41 L 18 -62 L 31 -28 L 52 -48 Q 75 4 51 53 L 25 31 L 0 59 L -26 32 Z" fill="url(#itSusanoo)" stroke="#eb826d" stroke-width="5"/><path d="M -35 -17 L -20 16 L 0 36 L 20 16 L 35 -17 M -25 -7 L -7 1 L 0 20 L 7 1 L 25 -7" stroke="#ffd1a4" fill="none" stroke-width="3"/><path d="M -13 -8 L -4 -2 M 13 -8 L 4 -2" stroke="#ffedc9" stroke-width="5"/>'+(activeMove==='ult'&&attacking?'<g transform="translate(-53 -24) rotate(-12)"><path d="M 0 -35 Q 28 -28 31 0 Q 28 28 0 35 Q -28 28 -31 0 Q -28 -28 0 -35 Z" fill="#d65a45" stroke="#ffd9ad" stroke-width="4"/><circle r="24" fill="none" stroke="#f7bca1" stroke-width="3"/><path d="M -20 -9 Q 0 -20 20 -9 M -20 0 Q 0 -11 20 0 M -20 9 Q 0 -2 20 9" fill="none" stroke="#7d5dd7" stroke-width="3"/><circle r="7" fill="#fff0c9"/></g>':'')+(activeMove==='ult'&&attacking&&frame>14?'<g transform="translate(42 -82) rotate(-18)"><path d="M 0 25 L 2 -82 L 11 -112 L 17 -80 L 13 25 Z" fill="url(#itSteel)" stroke="#ffcf9d" stroke-width="1.5"/><path d="M -4 22 L 18 22 L 17 28 L -4 28 Z" fill="#591425" stroke="#f4b2a0" stroke-width="1.2"/><path d="M 7 28 L 7 48 M 1 30 L 13 42 M 13 30 L 1 42" stroke="#dfb184" stroke-width="3"/></g>':'')+'</g>';
-      }
       if(f.itachiCounterUntil>sys.tick){
         const p=point(f.x,f.y-82);
         people+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><ellipse rx="57" ry="92" fill="none" stroke="#d32b4f" stroke-width="2" stroke-dasharray="7 9"/><path d="M -40 -70 L -20 -80 M 38 -50 L 55 -35" stroke="#ff8da2" stroke-width="3"/></g>';
