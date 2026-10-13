@@ -157,7 +157,7 @@
   if(typeof baseStartMove==='function'){
     window.startMove=function(f,key,isBF){
       const ok=baseStartMove.apply(this,arguments);
-      if(ok&&f&&f.id==='itachi'&&key==='ult')f.itachiUltSerial=(f.itachiUltSerial||0)+1;
+      if(ok&&f&&f.id==='itachi'){if(key==='ult')f.itachiUltSerial=(f.itachiUltSerial||0)+1;if(key==='s1')f.itachiGenjutsuSerial=(f.itachiGenjutsuSerial||0)+1;if(key==='ult')f.invuln=Math.max(f.invuln||0,52);}
       return ok;
     };
   }
@@ -169,8 +169,8 @@
       const result=baseUpdateMove.apply(this,arguments);
       if(!move)return result;
       const frame=(f.move===move)?f.moveFrame:-1;
-      if(key==='s1'&&frame===move.startup&&f.itachiGenjutsuFrame!==frame){
-        f.itachiGenjutsuFrame=frame;flash(.38,'#d7193f');shake(7);camPunch(.12);
+      if(key==='s1'&&frame===move.startup&&f.itachiGenjutsuEffectSerial!==f.itachiGenjutsuSerial){
+        f.itachiGenjutsuEffectSerial=f.itachiGenjutsuSerial||1;flash(.38,'#d7193f');shake(7);camPunch(.12);
         ring(f.x+f.facing*42,f.y-94,'#ff294c',72,30);ring(f.x+f.facing*42,f.y-94,'#f4dbe4',42,24);
         floatText(f.opp?f.opp.x:f.x,f.y-178,'TSUKUYOMI','#ff526d',18,52);
       }
