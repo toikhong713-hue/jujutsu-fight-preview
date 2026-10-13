@@ -50,6 +50,7 @@
     return {x:W0/2+sx+(wx-cx)*zoom,y:H0/2+sy+(wy-cy)*zoom,scale:zoom};
   }
   function catOf(f){
+    if(f&&(f.outsider||f.id==='itachi'))return '';
     const m=f&&f.move; if(!m)return '';
     const raw=((m.name||'')+' '+(m.kind||'')+' '+(f.moveKey||'')).toLowerCase();
     if(/purple|hollow/.test(raw))return 'purple';
@@ -64,6 +65,7 @@
   }
   function colorFor(f){ return PALETTE[(f&&f.id)] || {a:'#a9e5ff',b:'#ffffff',c:'#7895bb'}; }
   function startHitEvent(f, amount){
+    if(f&&(f.outsider||f.id==='itachi'||(f.opp&&(f.opp.outsider||f.opp.id==='itachi'))))return;
     const opp=f&&f.opp; const c=colorFor(opp||f).a;
     activeFx.push({kind:amount>=24?'heavyHit':'hit',x:f.x,y:f.y-76,color:c,life:amount>=24?18:12,max:amount>=24?18:12,seed:Math.random()*6.28});
     if(activeFx.length>18)activeFx.splice(0,activeFx.length-18);
