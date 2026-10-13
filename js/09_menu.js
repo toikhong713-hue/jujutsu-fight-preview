@@ -10,7 +10,8 @@ const CHARACTER_KEY_MAP={
   Digit3:'sukuna',Numpad3:'sukuna',Digit4:'yuta',Numpad4:'yuta',
   Digit5:'hakari',Numpad5:'hakari',Digit6:'toji',Numpad6:'toji',
   Digit7:'heian_sukuna',Numpad7:'heian_sukuna',
-  Digit8:'the_strongest_today',Numpad8:'the_strongest_today'
+  Digit8:'the_strongest_today',Numpad8:'the_strongest_today',
+  Digit9:'itachi',Numpad9:'itachi'
 };
 function resetCharacterSelect(){
   selectedP1=null;
@@ -19,12 +20,12 @@ function resetCharacterSelect(){
 function updateCharacterSelectPrompt(){
   const title=document.querySelector('#charSelect .title');
   const hint=document.querySelector('#charSelect .hint');
-  if(title)title.textContent=selectedP1?'PLAYER 2 // CHOOSE YOUR SORCERER':'PLAYER 1 // CHOOSE YOUR SORCERER';
+  if(title)title.textContent=selectedP1?'PLAYER 2 // CHOOSE YOUR FIGHTER':'PLAYER 1 // CHOOSE YOUR FIGHTER';
   if(hint){
     if(selectedP1)hint.textContent='P1: '+selectedP1.replace(/_/g,' ').toUpperCase()+'  ·  SELECT P2  ·  ESC TO CHANGE P1';
     else if(pendingMode==='cpu')hint.textContent='SELECT YOUR FIGHTER · CPU OPPONENT IS RANDOM · ESC TO BACK';
     else if(pendingMode==='timeattack')hint.textContent='SELECT YOUR FIGHTER · RANDOM RIVAL · ESC TO BACK';
-    else hint.textContent='SELECT P1 FIRST, THEN P2 · 1–8 / CLICK A CARD · ESC TO BACK';
+    else hint.textContent='SELECT P1 FIRST, THEN P2 · 1–9 / CLICK A CARD · ESC TO BACK';
   }
 }
 function randomOpponent(exclude){
@@ -36,7 +37,7 @@ function beginCharacterSelect(mode,trainingOnly){
 }
 function chooseCharacter(ch){
   if(ch==='megumi')return;
-  if((ch==='heian_sukuna'||ch==='the_strongest_today')&&pendingMode!=='training')return;
+  if(CHARS[ch]?.trainingOnly&&pendingMode!=='training')return;
   SFX.ui();
   if(pendingMode==='cpu'||pendingMode==='timeattack'){
     launch(pendingMode,ch,randomOpponent(ch));return;
@@ -93,6 +94,10 @@ function toggleTrainingCards(show){
   const strongCard=document.querySelector('.card.strongest');
   if(heianCard){if(show)heianCard.classList.remove('hidden');else heianCard.classList.add('hidden');}
   if(strongCard){if(show)strongCard.classList.remove('hidden');else strongCard.classList.add('hidden');}
+  const outsiderSection=document.getElementById('outsiderSection');
+  const itachiCard=document.querySelector('.card.itachi');
+  if(outsiderSection)outsiderSection.classList.toggle('hidden',!show);
+  if(itachiCard)itachiCard.classList.toggle('hidden',!show);
 }
 const tojiMovesetOverlay=document.getElementById('tojiMovesetOverlay');
 let tojiWeaponRow=0,tojiFrame=0;
