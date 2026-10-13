@@ -123,17 +123,59 @@ function tsukuyomi(c){
  if(flash)s+='<rect width="1280" height="720" fill="#fff0f5" opacity="'+flash+'"/>';
  return s+'<rect width="1280" height="42" fill="#030208" opacity=".9"/><text x="34" y="27" fill="#ff8ea8" font-family="monospace" font-size="16" letter-spacing="5">MANGEKYO // TSUKUYOMI</text><rect y="678" width="1280" height="42" fill="#030208" opacity=".92"/><text x="640" y="705" fill="#d65a78" text-anchor="middle" font-family="monospace" font-size="14" letter-spacing="5">A MOMENT OUTSIDE REAL TIME</text>';
 }
-function weapons(n){
- let s='<g transform="translate(84 -48) rotate(17)"><path d="M -18 -29 Q -34 -51 -17 -66 Q 0 -78 17 -66 Q 34 -51 18 -29 L 14 -12 Q 36 8 27 35 Q 18 59 0 62 Q -18 59 -27 35 Q -36 8 -14 -12 Z" fill="url(#it50Gourd)" stroke="#ffd3a0" stroke-width="3"/><path d="M -13 -61 Q 0 -52 13 -61 M -24 1 Q 0 15 24 1 M -26 19 Q 0 32 26 19 M -18 38 Q 0 48 18 38" fill="none" stroke="#6c172f" stroke-width="4"/><rect x="-7" y="-81" width="14" height="12" rx="3" fill="#2b101b" stroke="#ffd9ad" stroke-width="2"/></g>';
- if(n>=48)s+='<g transform="translate(125 -115) rotate(-49)"><path d="M -13 18 L 13 18 L 16 -13 L 6 -28 L -6 -28 L -16 -13 Z" fill="#421524" stroke="#ffdcad" stroke-width="3"/><path d="M -4 -24 L -4 -45 L 4 -45 L 4 -24 M -14 -45 L 14 -45 L 7 -72 L -7 -72 Z" fill="#171018" stroke="#f4c69c" stroke-width="3"/><path d="M -9 -70 L -9 -300 L 0 -338 L 9 -300 L 9 -70 Z" fill="url(#it50Blade)" stroke="#fff3d4" stroke-width="3.2"/><path d="M 0 -330 L 1 -80" stroke="#fff7e3" stroke-width="3"/><path d="M -8 -89 L 8 -89" stroke="#f6d4ab" stroke-width="4"/></g>';
- return s;
-}
 function susanooArt(x,y,scale,frame,alpha){
- const n=frame||0;let s='<g transform="translate('+x+' '+y+') scale('+scale+')" opacity="'+(alpha==null?1:alpha)+'"><ellipse cy="68" rx="188" ry="24" fill="#7b112c" opacity=".3"/>';
- s+='<g stroke="#f6b48d" stroke-width="4" stroke-linejoin="round" fill="url(#it50Armor)"><path d="M -75 -236 L -106 -205 L -122 -150 L -105 -97 L -77 -68 L -62 -18 L -38 49 L -7 42 L 0 -28 L 7 42 L 38 49 L 62 -18 L 77 -68 L 105 -97 L 122 -150 L 106 -205 L 75 -236 L 40 -218 L 0 -202 L -40 -218 Z"/><path d="M -71 -234 Q -96 -264 -81 -295 L -58 -324 L -42 -283 L -24 -342 L 0 -305 L 24 -342 L 42 -283 L 58 -324 L 81 -295 Q 96 -264 71 -234 L 42 -211 L 0 -199 L -42 -211 Z" fill="url(#it50ArmorBright)"/><path d="M -43 -264 L -18 -254 L 0 -267 L 18 -254 L 43 -264 L 28 -235 L 0 -222 L -28 -235 Z" fill="#16050e"/><path d="M -78 -203 L -112 -181 L -143 -127 L -119 -108 L -84 -148 L -45 -164 Z" fill="#53172a"/><path d="M 78 -203 L 112 -181 L 143 -127 L 119 -108 L 84 -148 L 45 -164 Z" fill="#53172a"/><path d="M -48 -200 L 0 -181 L 48 -200 L 61 -145 L 37 -94 L 0 -78 L -37 -94 L -61 -145 Z" fill="#7d263c"/><path d="M -51 -177 Q 0 -148 51 -177 L 38 -139 L 0 -123 L -38 -139 Z" fill="#190812"/><path d="M -48 -111 L -79 -75 L -72 -30 L -42 -10 L -16 -38 L 0 -20 L 16 -38 L 42 -10 L 72 -30 L 79 -75 L 48 -111 Z" fill="url(#it50ArmorBright)"/><path d="M -77 -73 L -111 -38 L -94 -8 L -67 -35 M 77 -73 L 111 -38 L 94 -8 L 67 -35" fill="#5b1b30"/></g>';
- for(let i=0;i<4;i++)s+='<path d="M -42 '+(-101+i*19)+' Q 0 '+(-79+i*19)+' 42 '+(-101+i*19)+'" fill="none" stroke="#f8c49b" stroke-width="3"/>';
- s+='<path d="M -34 -253 L -9 -246 L -20 -237 M 34 -253 L 9 -246 L 20 -237" stroke="#ffdbaf" stroke-width="4"/><path d="M -24 -219 L -11 -203 L 0 -210 L 11 -203 L 24 -219 L 13 -193 L 0 -188 L -13 -193 Z" fill="#0d0810"/><path d="M 104 -158 Q 142 -182 166 -143 L 177 -105 L 131 -88 L 106 -120 Z" fill="#632139" stroke="#fbc09a" stroke-width="4"/>'+weapons(n);
- if(n>=40)s+='<g transform="translate(-156 -124) rotate(-12)"><ellipse rx="78" ry="116" fill="#f4d6b2" opacity=".2"/><ellipse rx="67" ry="105" fill="url(#it50Mirror)" stroke="#fff2d7" stroke-width="6"/><ellipse rx="55" ry="92" fill="#281226" fill-opacity=".32" stroke="#ffd8a6" stroke-width="3"/><ellipse rx="44" ry="78" fill="none" stroke="#fff3d2" stroke-width="4"/><path d="M -47 -63 L 0 -88 L 47 -63 L 31 -3 L 0 58 L -31 -3 Z" fill="#fff1d3" fill-opacity=".28" stroke="#fff6df" stroke-width="3"/><path d="M -57 0 L 57 0 M 0 -93 L 0 94 M -37 -74 L 37 74 M 37 -74 L -37 74" stroke="#e6fbff" stroke-width="2.5"/><circle cy="-2" r="17" fill="#f9e6c3" fill-opacity=".6" stroke="#fff6de" stroke-width="3"/><circle cy="-2" r="7" fill="#9f1d45" stroke="#fff1d4" stroke-width="2"/></g><path d="M -115 -115 L -160 -94 L -176 -37 L -149 -8 L -112 -57" fill="#672039" stroke="#f3b18b" stroke-width="4"/>';
+ const n=frame||0,clamp01=v=>Math.max(0,Math.min(1,v)),mix=(a,b,t)=>a+(b-a)*t;
+ const smooth=t=>{t=clamp01(t);return t*t*(3-2*t);};
+ const manifest=1-smooth(n/34);
+ const shieldRaise=smooth((n-24)/30);
+ const draw=smooth((n-38)/38);
+ const strike=smooth((n-120)/42);
+ const recover=smooth((n-174)/25);
+ const torsoLean=mix(-5,5,smooth((n-35)/160));
+ const shieldArm=mix(25,-36,shieldRaise)+Math.sin(n*.075)*2;
+ const swordArm=n<42?-16:(n<82?mix(-16,-62,draw):n<126?mix(-62,-24,smooth((n-82)/44)):n<164?mix(-24,45,strike):mix(45,14,recover));
+ const swordAngle=n<42?-20:(n<82?mix(-20,-54,draw):n<126?mix(-54,-18,smooth((n-82)/44)):n<164?mix(-18,38,strike):mix(38,12,recover));
+ const sx0=65,sy0=-164,sdx=81,sdy=87,ar=swordArm*Math.PI/180;
+ const swordX=sx0+sdx*Math.cos(ar)-sdy*Math.sin(ar),swordY=sy0+sdx*Math.sin(ar)+sdy*Math.cos(ar);
+ const lx0=-65,ly0=-164,ldx=-65,ldy=83,lr=shieldArm*Math.PI/180;
+ const shieldX=lx0+ldx*Math.cos(lr)-ldy*Math.sin(lr),shieldY=ly0+ldx*Math.sin(lr)+ldy*Math.cos(lr);
+ const shieldTilt=mix(24,-12,shieldRaise)+Math.sin(n*.04)*2;
+ const op=alpha==null?1:alpha;
+ let s='<g transform="translate('+x+' '+y+') scale('+scale+')" opacity="'+op+'">';
+ s+='<ellipse cy="68" rx="190" ry="25" fill="#7b112c" opacity=".30"/><ellipse cy="60" rx="145" ry="13" fill="#ffc08b" opacity=".13"/>';
+ /* A sake gourd stays mounted behind the torso; its neck is where the blade appears from. */
+ s+='<g transform="translate(-83 -117) rotate(17)"><path d="M -17 -27 Q -33 -50 -16 -65 Q 0 -78 16 -65 Q 33 -50 17 -27 L 13 -10 Q 34 8 26 33 Q 17 56 0 59 Q -17 56 -26 33 Q -34 8 -13 -10 Z" fill="url(#it50Gourd)" stroke="#ffd3a0" stroke-width="3"/><path d="M -12 -60 Q 0 -51 12 -60 M -23 1 Q 0 14 23 1 M -25 18 Q 0 30 25 18 M -17 36 Q 0 46 17 36" fill="none" stroke="#6c172f" stroke-width="4"/><path d="M -11 -69 L 11 -69 L 13 -60 L -13 -60 Z" fill="#f7d49b" stroke="#fff0cf" stroke-width="2"/><rect x="-6" y="-79" width="12" height="11" rx="3" fill="#2b101b" stroke="#ffd9ad" stroke-width="2"/></g>';
+ /* Rear arm and hand form a separate jointed group. */
+ s+='<g transform="rotate('+shieldArm+' -65 -164)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
+ s+='<path d="M -62 -177 Q -92 -184 -103 -156 L -133 -109 L -114 -96 L -82 -135 L -47 -146 Z" fill="#632039"/><path d="M -126 -113 Q -137 -104 -134 -90 L -124 -78 L -109 -89 L -114 -108 Z" fill="#b65b60"/>';
+ if(n>=35){
+  s+='<g transform="translate(-131 -82) rotate('+shieldTilt+')"><ellipse rx="53" ry="77" fill="#f4d6b2" opacity=".20"/><ellipse rx="45" ry="69" fill="url(#it50Mirror)" stroke="#fff2d7" stroke-width="5"/><ellipse rx="36" ry="58" fill="#281226" fill-opacity=".26" stroke="#ffd8a6" stroke-width="3"/><ellipse rx="27" ry="46" fill="none" stroke="#fff3d2" stroke-width="3"/><path d="M -31 -42 L 0 -59 L 31 -42 L 20 -2 L 0 39 L -20 -2 Z" fill="#fff1d3" fill-opacity=".28" stroke="#fff6df" stroke-width="2.5"/><path d="M -36 0 L 36 0 M 0 -60 L 0 60 M -24 -48 L 24 48 M 24 -48 L -24 48" stroke="#e6fbff" stroke-width="2.2"/><circle cy="-2" r="10" fill="#f9e6c3" fill-opacity=".6" stroke="#fff6de" stroke-width="2.5"/><circle cy="-2" r="4.5" fill="#9f1d45" stroke="#fff1d4" stroke-width="1.8"/></g>';
+ }
+ s+='</g>';
+ /* Core armor and helmet tilt slightly through the animation, while the limbs keep their own pivots. */
+ s+='<g transform="rotate('+torsoLean+' 0 -143)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
+ s+='<path d="M -74 -226 L -104 -198 L -118 -146 L -101 -96 L -73 -66 L -59 -18 L -35 42 L -7 36 L 0 -24 L 7 36 L 35 42 L 59 -18 L 73 -66 L 101 -96 L 118 -146 L 104 -198 L 74 -226 L 39 -210 L 0 -194 L -39 -210 Z" fill="url(#it50Armor)"/>';
+ s+='<path d="M -62 -70 L -88 -27 L -64 34 L -35 51 L -10 29 L 0 -5 L 10 29 L 35 51 L 64 34 L 88 -27 L 62 -70 Z" fill="url(#it50ArmorBright)"/>';
+ for(let i=0;i<5;i++){const yy=-104+i*18;s+='<path d="M '+(-43+i*3)+' '+yy+' Q 0 '+(yy+18)+' '+(43-i*3)+' '+yy+'" fill="none" stroke="#f8c49b" stroke-width="3"/>';}
+ s+='<path d="M -71 -224 Q -94 -252 -80 -283 L -58 -313 L -41 -275 L -23 -333 L 0 -297 L 23 -333 L 41 -275 L 58 -313 L 80 -283 Q 94 -252 71 -224 L 42 -204 L 0 -191 L -42 -204 Z" fill="url(#it50ArmorBright)"/>';
+ s+='<path d="M -42 -260 L -18 -250 L 0 -263 L 18 -250 L 42 -260 L 27 -232 L 0 -219 L -27 -232 Z" fill="#16050e"/><path d="M -34 -249 L -9 -242 L -19 -233 M 34 -249 L 9 -242 L 19 -233" stroke="#ffdbaf" stroke-width="4"/><path d="M -21 -216 L -10 -201 L 0 -208 L 10 -201 L 21 -216 L 12 -192 L 0 -187 L -12 -192 Z" fill="#0d0810"/>';
+ s+='<path d="M -48 -183 Q 0 -153 48 -183 L 36 -141 L 0 -124 L -36 -141 Z" fill="#190812" stroke="#ffd0a3" stroke-width="3"/>';
+ s+='</g>';
+ /* Sword arm: the shoulder, elbow and wrist articulate; the blade follows the wrist. */
+ s+='<g transform="rotate('+swordArm+' 65 -164)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
+ s+='<path d="M 61 -178 Q 91 -188 106 -161 L 137 -115 L 117 -101 L 86 -137 L 47 -146 Z" fill="#632139"/><path d="M 123 -119 L 139 -108 L 147 -93 L 132 -83 L 117 -97 Z" fill="#b65b60"/><path d="M 130 -91 L 145 -83 L 139 -73 L 124 -79 Z" fill="#f1c09b"/>';
+ s+='</g>';
+ /* Totsuka leaves the real gourd and locks into a held pose. */
+ if(n>=40){
+  const reveal=smooth((n-40)/36),bladeX=mix(-73,swordX,reveal),bladeY=mix(-133,swordY,reveal);
+  s+='<g transform="translate('+bladeX+' '+bladeY+') rotate('+swordAngle+')"><path d="M -12 28 L 12 28 L 14 6 L 5 -9 L -5 -9 L -14 6 Z" fill="#421524" stroke="#ffdcad" stroke-width="3"/><path d="M -4 0 L -4 -23 L 4 -23 L 4 0" fill="#171018" stroke="#d5a07e" stroke-width="2"/><path d="M -13 -22 L 13 -22 L 7 -46 L -7 -46 Z" fill="#8a2a42" stroke="#f4c69c" stroke-width="3"/><path d="M -8 -45 L -8 -244 L 0 -278 L 8 -244 L 8 -45 Z" fill="url(#it50Blade)" stroke="#fff3d4" stroke-width="3.2"/><path d="M 0 -270 L 1 -54" stroke="#fff7e3" stroke-width="3"/><path d="M -8 -63 L 8 -63" stroke="#f6d4ab" stroke-width="4"/><path d="M -5 -213 L 5 -213" stroke="#f5fbff" stroke-width="2" opacity=".9"/>';
+  if(n>=122&&n<=185)s+='<path d="M -22 -236 L 22 -202 M -27 -186 L 27 -151 M -22 -129 L 22 -94" stroke="#fff2db" stroke-width="2.5" opacity="'+(.22+Math.sin(n*.4)*.2)+'"/>';
+  s+='</g>';
+ }
+ /* Grounded stance, knee plates and phase-dependent pressure ripples. */
+ s+='<path d="M -11 43 L -38 70 L -78 67 L -66 37 L -38 24 Z M 11 43 L 38 70 L 78 67 L 66 37 L 38 24 Z" fill="#3a1023" stroke="#f6b48d" stroke-width="3"/><path d="M -38 61 L -75 67 M 38 61 L 75 67" stroke="#ffcba0" stroke-width="3"/>';
+ if(n<42){s+='<path d="M -220 70 Q -120 46 0 68 T 220 70" fill="none" stroke="#e85a61" stroke-width="3" opacity="'+(.15+manifest*.32)+'"/>';}
+ if(n>=148&&n<=190){const q=Math.sin((n-148)/42*Math.PI);s+='<path d="M -220 -120 L 220 14 M -205 -153 L 205 -19" stroke="#fff0cc" stroke-width="'+(2+q*2)+'" opacity="'+(.18+q*.5)+'" fill="none"/>';}
  s+='</g>';return s;
 }
 function render(){
