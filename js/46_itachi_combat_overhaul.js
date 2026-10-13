@@ -5,7 +5,8 @@
   'use strict';
   if(window.__JFF_ITACHI_COMBAT_V1__)return;
   window.__JFF_ITACHI_COMBAT_V1__=true;
-  const sys=window.JFF_OUTSIDER||(window.JFF_OUTSIDER={tick:0,fx:[],shots:[],clone:null,burn:null,moon:null,sealing:null});
+  const sys=window.JFF_OUTSIDER||(window.JFF_OUTSIDER={tick:0,fx:[],shots:[],clone:null,burn:null,burns:[],moon:null,sealing:null});
+  if(!Array.isArray(sys.burns))sys.burns=sys.burn?[sys.burn]:[];
   const moves={
     light:{name:'Crow Flicker Dance',kind:'outsider_light',startup:4,active:62,recovery:8,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
     heavy:{name:'Susanoo Rib-Cage Smash',kind:'outsider_heavy',startup:15,active:12,recovery:15,damage:30,hitstun:32,blockstun:20,kbx:10,kby:-8,hitbox:{x:0,y:-100,w:200,h:120},cost:0,cd:0,meter:10,armorBreak:true},
@@ -188,26 +189,23 @@
     if(hitClone)cloneBurst(c.owner,c);
   }
   function updateBurn(){
-    if(sys.burn){
-      const b=sys.burn,o=b.target;
-      b.t++;
-      if(!o||o.hp<=0||b.t>=b.d){sys.burn=null;}
-      else{
-        if(Math.abs(o.vx||0)>5.8&&(o.state==='DASH'||o.state==='SORU'||o.state==='ROLL'||o.state==='DODGE'||o.state==='WALK'))b.escapeMeter=(b.escapeMeter||0)+1;
-        else b.escapeMeter=0;
-        if(b.escapeMeter>=9||Math.abs(o.x-(b.startX||o.x))>245&&b.t<150){
-          fx('shock',o.x,o.y-88,22);sys.burn=null;
-        }else if(b.t>=b.next){
-          b.next+=30;
-          // Delayed burn damage deliberately does not route through shared Jujutsu hit VFX.
-          const dot=b.kind==='amaterasu'?8:3;
-          o.hp=Math.max(0,o.hp-dot);o.hitFlash=2;
-          if(o.hp<=0){o.state='DEFEAT';o.stateFrame=0;}
-          fx('explosion',o.x,o.y-70,12);
-        }
-        b.lastX=o.x;b.lastY=o.y;
+    // Multiple independent DOTs may coexist without overwriting one another.
+    for(let i=sys.burns.length-1;i>=0;i--){
+      const b=sys.burns[i],o=b.target;b.t++;
+      if(!o||o.hp<=0||b.t>=b.d){sys.burns.splice(i,1);continue;}
+      if(b.kind==='amaterasu'&&((Math.abs(o.vx||0)>5.8&&['DASH','SORU','ROLL','DODGE'].includes(o.state))||Math.abs(o.x-b.startX)>245&&b.t<150)){
+        fx('shock',o.x,o.y-88,22);sys.burns.splice(i,1);continue;
       }
+      if(b.t>=b.next){
+        b.next+=30;
+        const dot=b.kind==='amaterasu'?6:3;
+        o.hp=Math.max(0,o.hp-dot);o.hitFlash=2;
+        if(o.hp<=0){o.state='DEFEAT';o.stateFrame=0;}
+        fx('explosion',o.x,o.y-70,12);
+      }
+      b.lastX=o.x;b.lastY=o.y;
     }
+    sys.burn=sys.burns[0]||null;
     if(sys.genjutsu){
       const g=sys.genjutsu,o=g.target;g.t++;
       if(!o||o.hp<=0||g.t>=g.d){sys.genjutsu=null;}
@@ -263,7 +261,7 @@
         if(n===27&&!marks[3]){
           marks[3]=1;fx('crows',f.x,f.y-85,34);
           if(o&&Math.abs(o.x-f.x)<185&&Math.abs(o.y-f.y)<135){
-            const nx=clamp(o.x-dir*72,WALL,ARENA_W-WALL);
+            const nx=clamp(o.x+dir*72,WALL,ARENA_W-WALL);
             f.x=clamp(nx-dir*44,WALL,ARENA_W-WALL);f.facing=o.x>=f.x?1:-1;
             fx('crows',o.x,o.y-95,28);
             resolveItachiHit(f,o,{damage:11,hitstun:25,blockstun:13,kbx:8,kby:-7,hitstop:7,meter:5},o.x,o.y-82);
@@ -271,14 +269,14 @@
         }
         if(n===42&&!marks[4]){
           marks[4]=1;
-          for(let i=-1;i<=1;i++)createShot(f,'shuriken',f.x+dir*44,f.y-98,dir*(17-Math.abs(i)*1.5),i*2.5,{r:15,damage:6,stun:16,life:66,curve:i*.045,tagged:true});
+          for(let i=-1;i<=1;i++)createShot(f,'shuriken',f.x+dir*44,f.y-98,dir*(17-Math.abs(i)*1.5),i*3.8,{r:15,damage:6,stun:16,life:66,curve:i*.045,tagged:true});
           fx('magatama',f.x+dir*55,f.y-101,24);
         }
         if(n===60&&!marks[5]){
           marks[5]=1;
           if(o&&near(f,o,145)){
             resolveItachiHit(f,o,{damage:14,hitstun:28,blockstun:14,kbx:10,kby:-5,hitstop:9,meter:6,armorBreak:true},o.x,o.y-88);
-            sys.burn={owner:f,target:o,t:0,d:120,next:32,startX:o.x,escapeMeter:0,kind:'fire'};
+            sys.burns.push({owner:f,target:o,t:0,d:120,next:32,startX:o.x,escapeMeter:0,kind:'fire'});sys.burn=sys.burns[0]||null;
           }
           fx('fire',f.x+dir*68,f.y-87,24);
         }
@@ -318,7 +316,7 @@
         if(n===m.startup+1&&!f.itachiHitMarks.ama){
           f.itachiHitMarks.ama=1;
           if(o&&o.hp>0){
-            sys.burn={owner:f,target:o,t:0,d:300,next:25,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'};
+            sys.burns=sys.burns.filter(b=>!(b.target===o&&b.kind==='amaterasu'));sys.burns.push({owner:f,target:o,t:0,d:300,next:25,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'});sys.burn=sys.burns[0]||null;
             fx('moon',o.x,o.y-100,35);fx('shock',o.x,o.y-84,27);
           }
         }
