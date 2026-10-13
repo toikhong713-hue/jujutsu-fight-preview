@@ -95,6 +95,43 @@
   }
   window.startStoryChapter3=startChapter3;
 
+  function startChapter4(){
+    if(!stored('jff_story_ch3_complete')&&!stored('jff_story_unlocked_ch4')&&!stored('jff_story_ch4_started')){
+      if(typeof showStoryArchiveNotice==='function')showStoryArchiveNotice('CHAPTER 4 IS LOCKED. COMPLETE CHAPTER 3 FIRST.\\n\\nPRESS ENTER / SPACE / ESC TO CLOSE.');
+      return false;
+    }
+    clearTransient();
+    G.story={chapter:4,p1:'gojo',act:0,phase:5,cutscene:true,clashStarted:false,clashResolved:true,ending:'chapter4',checkpoint:0,flags:{clean:true,clashWinner:null}};
+    G.storyCutscene=true;
+    startMatch('story','gojo','sukuna','hard');
+    G.mode='story';
+    G.story={chapter:4,p1:'gojo',act:0,phase:5,cutscene:true,clashStarted:false,clashResolved:true,ending:'chapter4',checkpoint:0,flags:{clean:true,clashWinner:null}};
+    G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
+    G.matchOver=false;G.matchOverScreen=false;G.winner=null;G.paused=false;
+    const g=G.fighters&&G.fighters[0],s=G.fighters&&G.fighters[1];
+    if(!g||!s){
+      G.storyCutscene=false;G.story.cutscene=false;G.mode='menu';
+      showScreen('storySelect');return false;
+    }
+    g.ai=null;s.ai=null;
+    resetActor(g,1080,1);resetActor(s,1420,-1);
+    s.hp=Math.max(1,Math.round((s.maxHp||100)*.22));
+    g.storyCinePose='ch3-final-guard';s.storyCinePose='ch3-final-wallLean';
+    const c={active:true,stage:'ending',t:62,phase:'chapter4',gojo:g,sukuna:s,yuta:null,
+      lastLine:'',caption:null,domainsActive:false,shrineVisible:false,shrineFade:0,
+      domainStarted:true,endingStarted:true,completed:false,openingCenter:1200,shrineCenter:null,
+      fromClash:false,finalKeyIndex:fightKeyIndex(62),finalSeenKey:-1,finalFxEvent:'',finalFxAt:-100};
+    G.story3=c;window.__JFF_CH3_ACTIVE__=c;
+    G.storyCutscene=true;G.story.cutscene=true;G.roundState='intro';G.roundTimer=999999;
+    G.matchOver=false;G.matchOverScreen=false;G.paused=false;G.winner=null;
+    camera(1200,GROUND-140,.92);G.flash=.2;G.flashColor='#ecdaeF';G.shake=2.5;
+    safeStore('jff_story_ch4_started','1');
+    try{if(typeof syncStoryArchive==='function')syncStoryArchive();}catch(e){}
+    console.info('[JFF Chapter 4] Post-credit cinematic launched directly from the Story Archive.');
+    return true;
+  }
+  window.startStoryChapter4=startChapter4;
+
   function beginDomainSequence(c,source){
     if(!c||!c.active||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='complete')return false;
     c.stage='domainIntro';c.t=0;c.phase='domainClash';c.lastLine='';c.caption=null;c.fromClash=source==='simultaneous-ult';
