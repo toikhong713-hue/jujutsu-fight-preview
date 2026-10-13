@@ -67,6 +67,7 @@ const css=`
 #jffFightingHud .hud-footer{display:flex;justify-content:space-between;margin-top:5px;color:#536986;font:800 6px/1 Consolas,monospace;letter-spacing:.8px}
 #jffFightingHud .hud-footer b{color:#8ca6c7;font-weight:900}
 #jffFightingHud .hud-deck.p2 .hud-footer{flex-direction:row-reverse}
+#trainingPanel.on{top:158px}
 @media (prefers-reduced-motion:reduce){#jffFightingHud .hud-fill{transition:none}}
 `;
 const style=document.createElement('style');style.textContent=css;document.head.appendChild(style);
