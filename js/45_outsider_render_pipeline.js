@@ -167,7 +167,7 @@
   }
   function render(){
     if(typeof G==='undefined'||G.mode==='menu'){
-      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.moon=null;return;
+      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.moon=null;sys.genjutsu=null;sys.sealing=null;return;
     }
     sys.tick++;
     const active=G.fighters||[];
