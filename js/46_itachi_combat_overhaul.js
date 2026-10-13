@@ -10,7 +10,7 @@
     light:{name:'Crow Flicker Dance',kind:'outsider_light',startup:4,active:40,recovery:12,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
     heavy:{name:'Susanoo Rib-Cage Smash',kind:'outsider_heavy',startup:15,active:8,recovery:23,damage:30,hitstun:32,blockstun:20,kbx:10,kby:-8,hitbox:{x:0,y:-100,w:200,h:120},cost:0,cd:0,meter:10,armorBreak:true},
     air:{name:'Crow Dive',kind:'outsider_air',startup:6,active:12,recovery:14,damage:12,hitstun:22,blockstun:12,kbx:6,kby:-3,hitbox:{x:24,y:-75,w:92,h:52},cost:0,cd:0,meter:5},
-    s1:{name:'Grand Fireball Technique',kind:'outsider_fireball',startup:3,active:2,recovery:16,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:16,cd:220,meter:7},
+    s1:{name:'Grand Fireball Technique',kind:'outsider_fireball',startup:3,active:90,recovery:16,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:16,cd:220,meter:7},
     s2:{name:'Mangekyo Genjutsu: Tsukuyomi',kind:'outsider_counter',startup:3,active:42,recovery:15,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:22,cd:420,meter:10},
     s3:{name:'Susanoo: Yasaka Magatama Barrage',kind:'outsider_magatama',startup:17,active:4,recovery:23,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:26,cd:340,meter:10},
     s4:{name:'Shadow Clone Great Explosion',kind:'outsider_clone',startup:10,active:45,recovery:20,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:22,cd:380,meter:9},
@@ -195,9 +195,11 @@
           fx('shock',o.x,o.y-88,22);sys.burn=null;
         }else if(b.t>=b.next){
           b.next+=30;
-          resolveItachiHit(b.owner,o,{damage:8,hitstun:1,blockstun:0,kbx:0,kby:0,type:'projectile',meter:0},o.x,o.y-84);
-          // DOT is deliberately damage-only if it would otherwise interrupt the target's animation.
-          if(o.hp>0){o.hitstun=Math.max(o.hitstun||0,1);o.hitFlash=2;}
+          // Delayed burn damage deliberately does not route through shared Jujutsu hit VFX.
+          const dot=b.kind==='amaterasu'?8:3;
+          o.hp=Math.max(0,o.hp-dot);o.hitFlash=2;
+          if(o.hp<=0){o.state='DEFEAT';o.stateFrame=0;}
+          fx('explosion',o.x,o.y-70,12);
         }
         b.lastX=o.x;b.lastY=o.y;
       }
