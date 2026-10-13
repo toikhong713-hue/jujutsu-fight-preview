@@ -369,12 +369,14 @@
   }
   if(typeof baseResetFighter==='function'){
     window.resetFighter=function(f){
+      // Unlock both sides before the engine resets one fighter during training/round transitions.
+      if(Q.cinema&&(Q.cinema.owner===f||Q.cinema.target===f))finishCinema();
       const r=baseResetFighter.apply(this,arguments);
       if(f&&f.id==='itachi'){
         f.moves=MOVES;f.itachiPoseKey='';f.itachiCinemaKind='';f.itachiChargeFrames=0;f.itachiFireDone=false;
         f.itachiCounterUntil=0;f.itachiYataUntil=0;f.itachiTauntFrames=0;f.itachiVictoryFrames=0;f.itachiVictoryActive=false;
+        f.itachiInvulnDash=0;
       }
-      if(Q.cinema&&(Q.cinema.owner===f||Q.cinema.target===f))Q.cinema=null;
       if(Q.clone&&Q.clone.owner===f)Q.clone=null;
       Q.shots=Q.shots.filter(s=>s.owner!==f);
       Q.burns=Q.burns.filter(b=>b.target!==f);
@@ -383,10 +385,17 @@
   }
 
   function updateTick(){
-    if(typeof G==='undefined'||G.mode==='menu'||G.paused){
-      if(Q.lastMode!=='menu'){Q.shots.length=0;Q.clone=null;Q.burns.length=0;Q.cinema=null;fxSys.fx.length=0;}
+    if(typeof G==='undefined')return;
+    if(G.mode==='menu'){
+      if(Q.lastMode!=='menu'){
+        Q.shots.length=0;Q.clone=null;Q.burns.length=0;
+        if(Q.cinema)finishCinema();
+        if(Array.isArray(fxSys.fx))fxSys.fx.length=0;
+      }
       Q.lastMode='menu';return;
     }
+    // Pausing must freeze the cinematic, not discard its controller and strand a locked target.
+    if(G.paused)return;
     Q.lastMode=G.mode;Q.tick++;fxSys.tick=Q.tick;
     if(Array.isArray(fxSys.fx)){
       for(let i=fxSys.fx.length-1;i>=0;i--){const a=fxSys.fx[i];a.t=(a.t||0)+1;if(a.t>=(a.d||24))fxSys.fx.splice(i,1);}
