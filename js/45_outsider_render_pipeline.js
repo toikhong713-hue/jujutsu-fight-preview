@@ -167,9 +167,11 @@
   }
   function render(){
     if(typeof G==='undefined'||G.mode==='menu'){
-      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.moon=null;sys.genjutsu=null;sys.sealing=null;return;
+      root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.moon=null;sys.genjutsu=null;sys.sealing=null;
+      const canvas=document.getElementById('cv');if(canvas)canvas.style.filter='';return;
     }
     sys.tick++;
+    const canvas=document.getElementById('cv');if(canvas)canvas.style.filter=sys.moon?'grayscale(1) contrast(1.35) saturate(.45)':'';
     const active=G.fighters||[];
     const outsider=active.filter(f=>f&&f.id==='itachi');
     // Effects tick in a dedicated SVG pass, not through the game's canvas VFX pools.
@@ -182,6 +184,8 @@
         back+='<g transform="translate('+p.x+' '+p.y+') scale('+z+')"><ellipse rx="'+q.r+'" ry="'+(q.r*.79)+'" fill="url(#itFire)" filter="url(#itGlow)"/><ellipse rx="'+(q.r*.42)+'" ry="'+(q.r*.36)+'" fill="#fff0c8"/><path d="M '+(-q.r*1.5)+' 0 Q '+(-q.r*.5)+' -15 '+(-q.r*.9)+' -'+(q.r*.7)+' M '+(-q.r*1.25)+' 8 Q '+(-q.r*.2)+' 22 '+(-q.r*.8)+' '+(q.r*.6)+'" stroke="#ef5437" stroke-width="4" fill="none"/></g>';
       }else if(q.kind==='magatama'){
         back+='<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot||0)+') scale('+z+')"><path d="M 0 -19 C 24 -14 19 16 0 20 C -9 11 -7 4 1 0 C 8 -4 7 -12 0 -19 Z" fill="#ffbd88" stroke="#fff0ce" stroke-width="1.6"/><circle cy="-4" r="3.5" fill="#78162f"/><ellipse rx="16" ry="25" fill="none" stroke="#e84761" stroke-width="1.7"/><path d="M -26 0 Q 0 -12 28 0" stroke="#ff8a78" stroke-width="2" fill="none"/></g>';
+      }else if(q.kind==='shuriken'){
+        back+='<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*90||0)+') scale('+z+')"><path d="M 0 -23 L 5 -6 L 22 0 L 5 5 L 0 23 L -5 5 L -22 0 L -5 -6 Z" fill="url(#itSteel)" stroke="#fff0d5" stroke-width="1.5"/><circle r="4" fill="#561527" stroke="#e9b3a5" stroke-width="1.2"/><path d="M 8 -4 L 21 -9 L 25 -3 L 11 1 Z" fill="#6b1026" stroke="#ff9b7b" stroke-width="1.2"/><path d="M 15 -8 L 21 -7 L 22 -3 L 16 -4 Z" fill="#ffd59b"/><path d="M -28 0 L -42 -7 M -28 0 L -42 7" stroke="#a81d3d" stroke-width="2"/></g>';
       }
     }
     if(sys.clone){
@@ -200,7 +204,7 @@
     if(sys.moon&&sys.moon.t<sys.moon.d){
       const o=sys.moon.target||outsider[0];
       const p=o?point(o.x,o.y):{x:970,y:155,s:1};
-      back+='<g opacity="'+clamp(1-sys.moon.t/sys.moon.d,0,1)+'"><rect width="1280" height="720" fill="#280716" opacity=".15"/><circle cx="'+(p.x+180*p.s)+'" cy="145" r="70" fill="url(#itMoon)" stroke="#ff456a" stroke-width="2.5"/><path d="M 0 0 L 1280 0 L 1280 720 L 0 720 Z" fill="#920e2b" opacity=".10"/><path d="M '+(p.x-70)+' 390 L '+(p.x+70)+' 390 L '+(p.x+35)+' 520 L '+(p.x-40)+' 520 Z" fill="#10060c" opacity=".36"/></g>';
+      back+='<g opacity="'+clamp(1-sys.moon.t/sys.moon.d,0,1)+'"><rect width="1280" height="720" fill="#280716" opacity=".15"/><circle cx="'+(p.x+180*p.s)+'" cy="145" r="70" fill="url(#itMoon)" stroke="#ff456a" stroke-width="2.5"/><path d="M 0 0 L 1280 0 L 1280 720 L 0 720 Z" fill="#920e2b" opacity=".10"/><path d="M '+(p.x-70)+' 390 L '+(p.x+70)+' 390 L '+(p.x+35)+' 520 L '+(p.x-40)+' 520 Z" fill="#10060c" opacity=".36"/><g transform="translate('+p.x+' '+(p.y-105)+')" opacity=".58"><path d="M -7 -86 L 7 -86 L 7 62 L -7 62 Z M -48 -30 L 48 -30 L 48 -16 L -48 -16 Z" fill="#12080d" stroke="#6b1428" stroke-width="2"/><path d="M -38 -70 L -15 -60 M 12 -50 L 35 -39 M -38 15 L -15 26 M 12 37 L 34 48" stroke="#a42c43" stroke-width="2"/></g></g>';
     }
     if(sys.sealing&&sys.sealing.target&&sys.sealing.t<sys.sealing.d){
       const o=sys.sealing.target,p=point(o.x,o.y);
@@ -213,10 +217,10 @@
       // SVG draws only Outsider-authored effects around the unchanged character.
       const cp=point(f.x,f.y), cz=cp.s, activeMove=f.moveKey||'', frame=f.moveFrame||0, attacking=f.state==='ATTACK';
       if(activeMove==='heavy'&&attacking&&frame>5&&frame<34){
-        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.1)+')"><path d="M -45 20 Q -65 -18 -27 -53 L -9 -31 L 0 -49 L 15 -31 L 34 -51 Q 65 -10 42 22" fill="url(#itSusanoo)" stroke="#f17a6e" stroke-width="7" stroke-linecap="round"/><path d="M -25 -27 Q 0 0 25 -27 M -32 -7 Q 0 21 32 -7" fill="none" stroke="#ffb3a0" stroke-width="4"/></g>';
+        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.1)+')"><path d="M -45 20 Q -65 -18 -27 -53 L -9 -31 L 0 -49 L 15 -31 L 34 -51 Q 65 -10 42 22" fill="url(#itSusanoo)" stroke="#f17a6e" stroke-width="7" stroke-linecap="round"/><path d="M -25 -27 Q 0 0 25 -27 M -32 -7 Q 0 21 32 -7" fill="none" stroke="#ffb3a0" stroke-width="4"/>'+(frame>=13&&frame<=27?'<path d="M 22 -36 Q 51 -13 65 18 L 117 88 L 91 105 L 39 43 Q 14 8 22 -36 Z" fill="url(#itSusanoo)" stroke="#ffb09a" stroke-width="5"/><path d="M 93 99 L 124 106 M 91 104 L 119 118 M 88 109 L 111 129" stroke="#ffdfb2" stroke-width="3"/>':'')+'</g>';
       }
       if((activeMove==='s3'&&attacking)||(activeMove==='ult'&&attacking)||(f.itachiAwake||0)>0){
-        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.12)+')"><path d="M -51 53 Q -75 1 -52 -45 L -29 -29 L -14 -61 L 0 -41 L 18 -62 L 31 -28 L 52 -48 Q 75 4 51 53 L 25 31 L 0 59 L -26 32 Z" fill="url(#itSusanoo)" stroke="#eb826d" stroke-width="5"/><path d="M -35 -17 L -20 16 L 0 36 L 20 16 L 35 -17 M -25 -7 L -7 1 L 0 20 L 7 1 L 25 -7" stroke="#ffd1a4" fill="none" stroke-width="3"/><path d="M -13 -8 L -4 -2 M 13 -8 L 4 -2" stroke="#ffedc9" stroke-width="5"/>'+(activeMove==='ult'&&attacking&&frame>14?'<g transform="translate(42 -82) rotate(-18)"><path d="M 0 25 L 2 -82 L 11 -112 L 17 -80 L 13 25 Z" fill="url(#itSteel)" stroke="#ffcf9d" stroke-width="1.5"/><path d="M -4 22 L 18 22 L 17 28 L -4 28 Z" fill="#591425" stroke="#f4b2a0" stroke-width="1.2"/><path d="M 7 28 L 7 48 M 1 30 L 13 42 M 13 30 L 1 42" stroke="#dfb184" stroke-width="3"/></g>':'')+'</g>';
+        people+='<g transform="translate('+cp.x+' '+(cp.y-80*cz)+') scale('+(cz*1.12)+')"><path d="M -51 53 Q -75 1 -52 -45 L -29 -29 L -14 -61 L 0 -41 L 18 -62 L 31 -28 L 52 -48 Q 75 4 51 53 L 25 31 L 0 59 L -26 32 Z" fill="url(#itSusanoo)" stroke="#eb826d" stroke-width="5"/><path d="M -35 -17 L -20 16 L 0 36 L 20 16 L 35 -17 M -25 -7 L -7 1 L 0 20 L 7 1 L 25 -7" stroke="#ffd1a4" fill="none" stroke-width="3"/><path d="M -13 -8 L -4 -2 M 13 -8 L 4 -2" stroke="#ffedc9" stroke-width="5"/>'+(activeMove==='ult'&&attacking?'<g transform="translate(-53 -24) rotate(-12)"><path d="M 0 -35 Q 28 -28 31 0 Q 28 28 0 35 Q -28 28 -31 0 Q -28 -28 0 -35 Z" fill="#d65a45" stroke="#ffd9ad" stroke-width="4"/><circle r="24" fill="none" stroke="#f7bca1" stroke-width="3"/><path d="M -20 -9 Q 0 -20 20 -9 M -20 0 Q 0 -11 20 0 M -20 9 Q 0 -2 20 9" fill="none" stroke="#7d5dd7" stroke-width="3"/><circle r="7" fill="#fff0c9"/></g>':'')+(activeMove==='ult'&&attacking&&frame>14?'<g transform="translate(42 -82) rotate(-18)"><path d="M 0 25 L 2 -82 L 11 -112 L 17 -80 L 13 25 Z" fill="url(#itSteel)" stroke="#ffcf9d" stroke-width="1.5"/><path d="M -4 22 L 18 22 L 17 28 L -4 28 Z" fill="#591425" stroke="#f4b2a0" stroke-width="1.2"/><path d="M 7 28 L 7 48 M 1 30 L 13 42 M 13 30 L 1 42" stroke="#dfb184" stroke-width="3"/></g>':'')+'</g>';
       }
       if(f.itachiCounterUntil>sys.tick){
         const p=point(f.x,f.y-82);
