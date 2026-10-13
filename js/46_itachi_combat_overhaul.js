@@ -8,16 +8,16 @@
   const sys=window.JFF_OUTSIDER||(window.JFF_OUTSIDER={tick:0,fx:[],shots:[],clone:null,burn:null,burns:[],moon:null,sealing:null});
   if(!Array.isArray(sys.burns))sys.burns=sys.burn?[sys.burn]:[];
   const moves={
-    light:{name:'Crow Talon: Three-Beat Kunai',kind:'outsider_light',startup:4,active:26,recovery:10,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
-    heavy:{name:'Susanoo Rib-Cage Smash',kind:'outsider_heavy',startup:15,active:12,recovery:15,damage:30,hitstun:32,blockstun:20,kbx:10,kby:-8,hitbox:{x:0,y:-100,w:200,h:120},cost:0,cd:0,meter:10,armorBreak:true},
-    air:{name:'Crow Dive',kind:'outsider_air',startup:6,active:12,recovery:14,damage:12,hitstun:22,blockstun:12,kbx:6,kby:-3,hitbox:{x:24,y:-75,w:92,h:52},cost:0,cd:0,meter:5},
-    s1:{name:'Grand Fireball Technique',kind:'outsider_fireball',startup:3,active:90,recovery:16,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:16,cd:220,meter:7},
-    s2:{name:'Mangekyo Genjutsu: Tsukuyomi',kind:'outsider_counter',startup:3,active:42,recovery:15,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:22,cd:420,meter:10},
-    s3:{name:'Susanoo: Yasaka Magatama Barrage',kind:'outsider_magatama',startup:17,active:4,recovery:23,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:26,cd:340,meter:10},
-    s4:{name:'Shadow Clone Great Explosion',kind:'outsider_clone',startup:10,active:45,recovery:20,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:22,cd:380,meter:9},
-    s5:{name:'Amaterasu Target Lock',kind:'outsider_amaterasu',startup:19,active:2,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:32,cd:540,meter:12},
-    def:{name:'Yata Mirror Guard',kind:'outsider_yata_guard',startup:5,active:42,recovery:14,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:18,cd:420,meter:0},
-    ult:{name:'Susanoo: Totsuka no Tsurugi & Yata Mirror',kind:'outsider_ult',startup:36,active:3,recovery:261,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:0,cd:0,meter:0,invuln:36}
+    light:{name:'Crow Feint: Three-Beat Combo',kind:'light',startup:4,active:26,recovery:10,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
+    heavy:{name:'Susanoo: Heavy Impact',kind:'heavy',startup:15,active:12,recovery:15,damage:30,hitstun:32,blockstun:20,kbx:10,kby:-8,hitbox:{x:0,y:-100,w:200,h:120},cost:0,cd:0,meter:10,armorBreak:true},
+    air:{name:'Crow Dive',kind:'air',startup:6,active:12,recovery:14,damage:12,hitstun:22,blockstun:12,kbx:6,kby:-3,hitbox:{x:24,y:-75,w:92,h:52},cost:0,cd:0,meter:5},
+    s1:{name:'Fire Style: Great Fireball Technique',kind:'skill1',startup:3,active:90,recovery:16,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:16,cd:220,meter:7},
+    s2:{name:'Mangekyo Sharingan: Tsukuyomi',kind:'skill2',startup:14,active:1,recovery:31,damage:16,hitstun:54,blockstun:18,kbx:1,kby:0,hitbox:null,cost:28,cd:480,meter:12},
+    s3:{name:'Susanoo: Yasaka Magatama',kind:'skill3',startup:18,active:4,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:28,cd:360,meter:10},
+    s4:{name:'Crow Clone: Substitution Feint',kind:'skill4',startup:12,active:8,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:24,cd:400,meter:9},
+    s5:{name:'Mangekyo Sharingan: Amaterasu',kind:'skill5',startup:20,active:1,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:34,cd:540,meter:12},
+    def:{name:'Yata Mirror Guard',kind:'def',startup:5,active:42,recovery:14,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:18,cd:420,meter:0},
+    ult:{name:'Susanoo: Sealing Finale',kind:'ult',startup:48,active:2,recovery:56,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:0,cd:0,meter:0,invuln:18}
   };
   if(window.CHARS&&CHARS.itachi){CHARS.itachi.moves=moves;CHARS.itachi.hp=205;CHARS.itachi.walk=3.65;}
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -51,14 +51,16 @@
     const facing=defender.facing===dirToAtt;
     const blocking=typeof canBlockAgainst==='function'&&canBlockAgainst(defender)&&facing&&!mv.armorBreak;
     if(blocking){
+      G.hitstop=Math.max(G.hitstop||0,Math.min(4,mv.hitstop||2));
       const chip=Math.max(1,Math.round((mv.damage||1)*.10));
       defender.hp=Math.max(1,defender.hp-chip);defender.blockstun=Math.max(defender.blockstun||0,mv.blockstun||10);
       defender.state='BLOCKSTUN';defender.stateFrame=0;defender.vx=-dirToAtt*1.8;
       defender.meter=Math.min(defender.maxMeter||100,(defender.meter||0)+(mv.meter||3)*.5);
       fx('shock',hx,hy,16);return 'block';
     }
-    if(defender.parry>0&&facing){defender.parry=0;defender.state='IDLE';defender.stateFrame=0;attacker.moveFrame=(attacker.moveFrame||0)+7;fx('reflect',hx,hy,24);return 'parry';}
+    if(defender.parry>0&&facing){defender.parry=0;defender.state='IDLE';defender.stateFrame=0;attacker.moveFrame=(attacker.moveFrame||0)+7;G.hitstop=Math.max(G.hitstop||0,5);fx('reflect',hx,hy,24);return 'parry';}
     if(defender.guardArmor>0&&!mv.armorBreak){defender.guardArmor=0;defender.guardCounter=20;fx('reflect',hx,hy,24);return 'armor';}
+    G.hitstop=Math.max(G.hitstop||0,mv.hitstop||4);
     const scale=Math.max(.4,1-.05*(defender.comboCount||0));
     let dmg=Math.max(1,Math.round((mv.damage||1)*scale));
     defender.hp=Math.max(0,defender.hp-dmg);
@@ -92,23 +94,6 @@
           return 'parry';
         }
       }
-      // Tsukuyomi is a true counter: only a real incoming, unblocked hit triggers it.
-      if(defender&&defender.id==='itachi'&&defender.itachiCounterUntil>sys.tick&&attacker&&attacker!==defender){
-        const facing=defender.facing===(sign(attacker.x-defender.x)||1);
-        const isBlocking=typeof canBlockAgainst==='function'&&canBlockAgainst(defender)&&facing;
-        if(!isBlocking&&defender.invuln<=0){
-          defender.itachiCounterUntil=0;
-          fx('moon',attacker.x,attacker.y-110,30);
-          sys.moon={target:attacker,t:0,d:180};
-          sys.genjutsu={target:attacker,t:0,d:180,next:24,owner:defender};
-          attacker.move=null;attacker.moveKey=null;attacker.state='HITSTUN';attacker.stateFrame=0;
-          attacker.hitstun=Math.max(attacker.hitstun||0,180);attacker.vx=0;attacker.vy=0;
-          damageOnly(defender,attacker,18,180);
-          defender.meter=Math.min(defender.maxMeter||100,(defender.meter||0)+10);
-          fx('shock',attacker.x,attacker.y-85,38);
-          return 'itachi_counter';
-        }
-      }
       if(defender&&defender.id==='itachi'&&defender.itachiMirrorUntil>sys.tick&&mv&&mv.type==='projectile'){
         fx('reflect',defender.x+defender.facing*36,defender.y-88,24);
         damageOnly(defender,attacker,Math.max(7,(mv.damage||10)*.7),14);
@@ -122,10 +107,9 @@
     window.startMove=function(f,key,isBF){
       const ok=baseStart.apply(this,arguments);
       if(ok&&f&&f.id==='itachi'){
-        f.itachiHitMarks={};f.itachiCharge=0;f.itachiChargeFired=false;
+        f.itachiHitMarks={};f.itachiCharge=0;f.itachiChargeFired=false;f.itachiPendingFire=false;f.itachiFirePose=0;f.itachiChargeFrames=0;
         f.itachiStartedAt=sys.tick;f.itachiMoveKey=key;
         if(key==='s1'){f.itachiChargeKey=keyFor(f,key);f.itachiChargeStart=sys.tick;}
-        if(key==='s2'){f.itachiCounterUntil=sys.tick+45;fx('shock',f.x,f.y-88,20);}
         if(key==='s4'){f.itachiCloneSerial=(f.itachiCloneSerial||0)+1;}
         if(key==='ult'){
           f.itachiMirrorUntil=sys.tick+145;f.itachiAwake=145;f.invuln=Math.max(f.invuln||0,36);
@@ -154,13 +138,13 @@
     fx('fire',x,y,24,{charge:q});fx('shock',x,y,18);
   }
   function fireMagatama(f){
-    const spread=[-.2,0,.2];
+    const spread=[-.2,0,.2],originX=f.x+f.facing*96,originY=f.y-192;
     for(let i=0;i<spread.length;i++){
       const a=spread[i];
-      createShot(f,'magatama',f.x+f.facing*54,f.y-105,(14+Math.max(0,1-Math.abs(a))*3)*f.facing,a*12,{r:20,damage:7,stun:15,life:92,curve:a*.22});
+      createShot(f,'magatama',originX,originY,(14+Math.max(0,1-Math.abs(a))*3)*f.facing,a*12,{r:20,damage:7,stun:15,life:92,curve:a*.22});
     }
-    fx('emote',f.x+f.facing*42,f.y-103,42);
-    fx('shock',f.x+f.facing*60,f.y-94,25);
+    fx('magatama',originX,originY,26);
+    fx('shock',originX+f.facing*16,originY+8,25);
   }
   function cloneBurst(owner,c){
     if(!c||c.triggered)return;
@@ -208,7 +192,7 @@
       }
       if(b.t>=b.next){
         b.next+=30;
-        const dot=b.kind==='amaterasu'?6:3;
+        const dot=b.kind==='amaterasu'?5:3;
         o.hp=Math.max(0,o.hp-dot);o.hitFlash=2;
         if(o.hp<=0){o.state='DEFEAT';o.stateFrame=0;}
         fx('explosion',o.x,o.y-70,12);
@@ -226,6 +210,7 @@
     for(const f of fighters()){
       if(!f||f.id!=='itachi')continue;
       if(f.itachiEmote>0)f.itachiEmote--;
+      if(f.itachiFirePose>0)f.itachiFirePose--;
       if(f.itachiChakraBuff>0){f.itachiChakraBuff--;f.energy=Math.min(f.maxEnergy||100,(f.energy||0)+.025);}
       if(f.itachiEmoteCooldown>0)f.itachiEmoteCooldown--;
       if(f.itachiAwake>0)f.itachiAwake--;
@@ -238,11 +223,17 @@
       if(f.itachiCounterUntil>0&&f.itachiCounterUntil<=sys.tick)f.itachiCounterUntil=0;
       if(f.itachiMoveKey==='s1'&&f.move&&f.moveKey==='s1'&&!f.itachiChargeFired){
         const code=f.itachiChargeKey||keyFor(f,'s1');
-        f.itachiCharge=clamp((sys.tick-(f.itachiChargeStart||sys.tick))/90,0,1);
-        const canRelease=!(window.KEY&&KEY[code]);
-        if(canRelease||f.itachiCharge>=1){
-          fireball(f,f.itachiCharge);
-          f.itachiChargeFired=true;f.moveFrame=(f.move.startup||3)+(f.move.active||2)+1;
+        const elapsed=Math.max(0,sys.tick-(f.itachiChargeStart||sys.tick));
+        f.itachiChargeFrames=elapsed;
+        f.itachiCharge=clamp(elapsed/90,0,1);
+        if(!(window.KEY&&KEY[code]))f.itachiPendingFire=true;
+        // Even a tap must show a readable hand-seal startup before the fireball appears.
+        if((f.itachiPendingFire&&elapsed>=18)||f.itachiCharge>=1){
+          const shotCharge=Math.max(.18,f.itachiCharge);
+          fireball(f,shotCharge);
+          f.itachiReleasedCharge=shotCharge;
+          f.itachiChargeFired=true;f.itachiPendingFire=false;f.itachiFirePose=12;
+          f.moveFrame=(f.move.startup||3)+(f.move.active||2)+1;
           f.itachiCharge=0;
         }
       }
@@ -292,33 +283,58 @@
           resolveItachiHit(f,o,{damage:13,hitstun:23,blockstun:12,kbx:8,kby:-4,hitstop:7,meter:5},o.x,o.y-80);
         }
       }else if(k==='s1'){
-        // Charge timing and release are polled outside updateMove so short taps fire too.
-        if(n===4)fx('fire',f.x+dir*30,f.y-110,18,{charge:.1});
+        if(n===m.startup&&!f.itachiChargeFired)fx('shock',f.x+dir*34,f.y-110,10);
       }else if(k==='s2'){
-        if(n===3){f.itachiCounterUntil=sys.tick+42;fx('emote',f.x,f.y-92,30);}
-        if(n===m.startup+m.active+1&&f.itachiCounterUntil>0)f.itachiCounterUntil=0;
+        // Tsukuyomi is cast through the visual line to the opponent, not by waiting for a hit.
+        if(n===m.startup&&!f.itachiHitMarks.tsukuyomi){
+          f.itachiHitMarks.tsukuyomi=1;
+          const inSight=!!(o&&o.hp>0&&(o.x-f.x)*dir>0&&Math.abs(o.x-f.x)<410&&Math.abs(o.y-f.y)<125);
+          const targetFacingItachi=!!(inSight&&o.facing===(sign(f.x-o.x)||1));
+          if(inSight&&targetFacingItachi&&(o.invuln||0)<=0){
+            const result=resolveItachiHit(f,o,{damage:16,hitstun:54,blockstun:18,kbx:1,kby:0,hitstop:10,meter:12,type:'genjutsu'},o.x,o.y-110);
+            if(result==='hit'){
+              o.immobilize=Math.max(o.immobilize||0,48);
+              sys.moon={target:o,t:0,d:72};
+              sys.genjutsu={target:o,t:0,d:72,next:18,owner:f};
+              fx('shock',o.x,o.y-104,36);
+              flash(.18,'#6d0d2a');
+            }else{
+              fx(result==='block'?'reflect':'crows',o.x,o.y-90,20);
+            }
+          }else{
+            fx('crows',f.x+dir*42,f.y-100,18);
+          }
+        }
       }else if(k==='s3'){
         if(n===m.startup+1&&!f.itachiHitMarks.mag){f.itachiHitMarks.mag=1;fireMagatama(f);}
       }else if(k==='s4'){
         if(n===m.startup&&!f.itachiHitMarks.clone){
           f.itachiHitMarks.clone=1;
-          const oldX=f.x,oldY=f.y;
-          sys.clone={owner:f,x:oldX,y:oldY,t:0,d:74,face:dir,triggered:false};
-          f.x=clamp(f.x-dir*92,WALL,ARENA_W-WALL);
-          fx('crows',oldX,oldY-85,30);fx('shock',f.x,f.y-75,23);
+          const oldX=f.x,oldY=f.y,target=o;
+          sys.clone={owner:f,x:oldX,y:oldY,t:0,d:64,face:dir,triggered:false};
+          if(target&&target.hp>0&&Math.abs(target.x-oldX)<360&&Math.abs(target.y-oldY)<150){
+            f.x=clamp(target.x+dir*68,WALL,ARENA_W-WALL);
+            f.facing=target.x>oldX?-1:1;
+          }else{
+            f.x=clamp(oldX-dir*70,WALL,ARENA_W-WALL);
+          }
+          f.vx=0;f.invuln=Math.max(f.invuln||0,8);
+          fx('crows',oldX,oldY-85,30);fx('crows',f.x,f.y-86,24);fx('shock',f.x,f.y-75,18);
         }
       }else if(k==='s5'){
-        if(n===m.startup+1&&!f.itachiHitMarks.ama){
+        if(n===m.startup&&!f.itachiHitMarks.ama){
           f.itachiHitMarks.ama=1;
-          const inLockRange=!!(o&&o.hp>0&&Math.abs(o.x-f.x)<360&&Math.abs(o.y-f.y)<160);
+          const inLockRange=!!(o&&o.hp>0&&(o.x-f.x)*dir>0&&Math.abs(o.x-f.x)<360&&Math.abs(o.y-f.y)<145);
           const facingGuard=!!(inLockRange&&typeof canBlockAgainst==='function'&&canBlockAgainst(o)&&o.facing===(sign(f.x-o.x)||1));
           if(inLockRange&&!facingGuard&&(o.invuln||0)<=0){
             sys.burns=sys.burns.filter(b=>!(b.target===o&&b.kind==='amaterasu'));
-            sys.burns.push({owner:f,target:o,t:0,d:300,next:25,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'});
+            sys.burns.push({owner:f,target:o,t:0,d:240,next:24,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'});
             sys.burn=sys.burns[0]||null;
             fx('amaterasu',o.x,o.y-86,32);fx('shock',o.x,o.y-84,27);
+          }else if(facingGuard){
+            fx('reflect',o.x,o.y-82,24);
           }else{
-            fx(facingGuard?'reflect':'crows',facingGuard?o.x:f.x+dir*30,facingGuard?o.y-82:f.y-86,24);
+            fx('crows',f.x+dir*44,f.y-86,22);
           }
         }
       }else if(k==='def'){
@@ -328,27 +344,22 @@
         }
         if(n>=m.startup+(m.active||42))f.itachiYataUntil=0;
       }else if(k==='ult'){
-        if(n===7){f.itachiAwake=300;fx('reflect',f.x+dir*45,f.y-85,28);fx('shock',f.x,f.y-95,28);}
+        if(n===7){f.itachiAwake=150;fx('reflect',f.x+dir*45,f.y-85,24);fx('shock',f.x,f.y-95,28);}
         if(n===m.startup&&!f.itachiHitMarks.ult){
-          f.itachiHitMarks.ult=1;
+          f.itachiHitMarks.ult=1;f.itachiAwake=Math.max(f.itachiAwake||0,150);
           fx('shock',f.x,f.y-85,38);
-          const target=o;
-          if(target&&target.hp>0&&Math.abs(target.x-f.x)<300&&Math.abs(target.y-f.y)<190){
-            const ko=target.hp<=((target.maxHp||target.hp)*.30);
-            fx('slash',target.x,target.y-90,32);
-            const dmg=ko?0:Math.min(32,Math.max(1,target.hp-1));
+          const target=o,front=!!(target&&(target.x-f.x)*dir>0);
+          if(target&&target.hp>0&&front&&Math.abs(target.x-f.x)<300&&Math.abs(target.y-f.y)<165){
+            const ko=target.hp<=((target.maxHp||target.hp)*.22);
+            const dmg=ko?0:Math.min(42,Math.max(1,target.hp-1));
             if(dmg>0)target.hp=Math.max(1,target.hp-dmg);
-            target.itachiSealPendingKO=ko;
-            target.itachiSealSavedState=target.state;
-            target.state='HITSTUN';target.stateFrame=0;target.hitstun=270;
+            target.itachiSealPendingKO=ko;target.itachiSealSavedState=target.state;
+            target.state='HITSTUN';target.stateFrame=0;target.hitstun=84;
             target.vx=0;target.vy=0;target.move=null;target.moveKey=null;
-            target.invuln=Math.max(target.invuln||0,264);
-            sys.sealing={target:target,t:0,d:264,ko:ko,owner:f};
-            fx('seal',target.x,target.y-75,60);
-          }else{
-            // A missed finisher still completes its dramatic recovery without trapping the opponent.
-            fx('crows',f.x+dir*70,f.y-85,30);
-          }
+            target.invuln=Math.max(target.invuln||0,84);
+            sys.sealing={target:target,t:0,d:84,ko:ko,owner:f};
+            fx('seal',target.x,target.y-75,84);
+          }else fx('crows',f.x+dir*70,f.y-85,30);
         }
       }
       if(f.move&&f.moveFrame>=(m.startup||0)+(m.active||0)+(m.recovery||0))endMove(f);
