@@ -641,7 +641,7 @@
     if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
   }
   addEventListener('keydown',function(e){
-    if(typeof G==='undefined'||G.mode==='menu')return;
+    if(typeof G==='undefined'||G.mode==='menu'||G.paused)return;
     const p1=fighters()[0],p2=fighters()[1];
     // Itachi's blueprint reserves R for the iconic two-finger taunt.
     // Suppress the engine's normal R/def input for Itachi only.
