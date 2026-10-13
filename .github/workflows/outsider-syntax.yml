@@ -1,0 +1,37 @@
+name: Outsider JavaScript Syntax
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'js/09_menu.js'
+      - 'js/34_pixijs_vfx_prototype_v37.js'
+      - 'js/44_itachi_outsider.js'
+      - 'js/45_outsider_render_pipeline.js'
+      - 'js/46_itachi_combat_overhaul.js'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'js/09_menu.js'
+      - 'js/34_pixijs_vfx_prototype_v37.js'
+      - 'js/44_itachi_outsider.js'
+      - 'js/45_outsider_render_pipeline.js'
+      - 'js/46_itachi_combat_overhaul.js'
+jobs:
+  syntax:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Parse changed game scripts
+        run: |
+          node --check js/09_menu.js
+          node --check js/34_pixijs_vfx_prototype_v37.js
+          node --check js/44_itachi_outsider.js
+          node --check js/45_outsider_render_pipeline.js
+          node --check js/46_itachi_combat_overhaul.js
