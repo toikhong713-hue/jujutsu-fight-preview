@@ -200,15 +200,6 @@
       const c=sys.clone,p=point(c.x,c.y),alpha=clamp(1-c.t/c.d,0,1);
       back+='<g opacity="'+(.8*alpha)+'" transform="translate('+p.x+' '+p.y+') scale('+(p.s*(c.face||1))+' '+p.s+')"><path d="M -22 -106 Q -38 -101 -43 -65 L -55 -8 L -21 -3 L 0 -18 L 24 -3 L 53 -12 L 35 -75 Q 30 -104 14 -107 Z" fill="#101019" stroke="#a51b39" stroke-width="2" stroke-dasharray="5 4"/><ellipse cy="-126" rx="23" ry="27" fill="#101018" stroke="#d52d4d" stroke-width="2"/><path d="M -24 -130 L -27 -157 L -14 -147 L -5 -165 L 7 -147 L 21 -158 L 22 -129 Z" fill="#05050a"/><path d="M -15 -126 L -5 -122 M 6 -122 L 16 -126" stroke="#ff4d68" stroke-width="2.5"/><path d="M -25 -91 L 25 -35 M 25 -92 L -25 -35" stroke="#84223b" stroke-width="2" opacity=".8"/><g transform="translate(15 -49) scale(.5)"><path d="M -6 0 C -14 -6 -10 -15 -3 -14 C 0 -22 10 -18 9 -11 C 18 -12 20 -2 13 2 C 13 10 3 12 -1 7 C -8 10 -15 4 -6 0 Z" fill="#b92843" stroke="#d9c8ce"/></g></g>';
     }
-    if(sys.burn&&sys.burn.target&&sys.burn.t<sys.burn.d){
-      const o=sys.burn.target,p=point(o.x,o.y),z=p.s;
-      for(let i=0;i<5;i++){
-        const x=p.x+Math.sin((sys.tick+i*3)*.42)*22*z+(i-2)*8*z;
-        const y=p.y-(45+i%3*18)*z-Math.abs(Math.sin((sys.tick+i*7)*.25))*13*z;
-        back+='<g transform="translate('+x+' '+y+') scale('+z+')"><path d="M 0 22 C -17 4 -4 -1 -5 -22 C 12 -11 18 1 0 22 Z" fill="#030307" stroke="#c21c40" stroke-width="1.5"/><path d="M 0 14 Q 7 0 3 -10" fill="none" stroke="#fb526f" stroke-width="1.3"/></g>';
-      }
-      back+='<ellipse cx="'+p.x+'" cy="'+(p.y-88*z)+'" rx="'+(47*z)+'" ry="'+(55*z)+'" fill="url(#itBlackFlame)" opacity=".72"/>';
-    }
     if(sys.moon&&sys.moon.t<sys.moon.d){
       const o=sys.moon.target||outsider[0];
       const p=o?point(o.x,o.y):{x:970,y:155,s:1};
