@@ -8,7 +8,7 @@
   const sys=window.JFF_OUTSIDER||(window.JFF_OUTSIDER={tick:0,fx:[],shots:[],clone:null,burn:null,burns:[],moon:null,sealing:null});
   if(!Array.isArray(sys.burns))sys.burns=sys.burn?[sys.burn]:[];
   const moves={
-    light:{name:'Crow Flicker Dance',kind:'outsider_light',startup:4,active:62,recovery:8,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
+    light:{name:'Crow Talon: Three-Beat Kunai',kind:'outsider_light',startup:4,active:26,recovery:10,damage:8,hitstun:17,blockstun:10,kbx:4,kby:-1,hitbox:{x:18,y:-95,w:90,h:58},cost:0,cd:0,meter:4},
     heavy:{name:'Susanoo Rib-Cage Smash',kind:'outsider_heavy',startup:15,active:12,recovery:15,damage:30,hitstun:32,blockstun:20,kbx:10,kby:-8,hitbox:{x:0,y:-100,w:200,h:120},cost:0,cd:0,meter:10,armorBreak:true},
     air:{name:'Crow Dive',kind:'outsider_air',startup:6,active:12,recovery:14,damage:12,hitstun:22,blockstun:12,kbx:6,kby:-3,hitbox:{x:24,y:-75,w:92,h:52},cost:0,cd:0,meter:5},
     s1:{name:'Grand Fireball Technique',kind:'outsider_fireball',startup:3,active:90,recovery:16,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:16,cd:220,meter:7},
@@ -16,7 +16,7 @@
     s3:{name:'Susanoo: Yasaka Magatama Barrage',kind:'outsider_magatama',startup:17,active:4,recovery:23,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:26,cd:340,meter:10},
     s4:{name:'Shadow Clone Great Explosion',kind:'outsider_clone',startup:10,active:45,recovery:20,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:22,cd:380,meter:9},
     s5:{name:'Amaterasu Target Lock',kind:'outsider_amaterasu',startup:19,active:2,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:32,cd:540,meter:12},
-    def:{name:'Akatsuki Cloak Adjustment',kind:'outsider_emote',startup:1,active:1,recovery:8,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:0,cd:0,meter:0},
+    def:{name:'Yata Mirror Guard',kind:'outsider_yata_guard',startup:5,active:42,recovery:14,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:18,cd:420,meter:0},
     ult:{name:'Susanoo: Totsuka no Tsurugi & Yata Mirror',kind:'outsider_ult',startup:36,active:3,recovery:261,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:0,cd:0,meter:0,invuln:36}
   };
   if(window.CHARS&&CHARS.itachi){CHARS.itachi.moves=moves;CHARS.itachi.hp=205;CHARS.itachi.walk=3.65;}
@@ -79,6 +79,19 @@
   if(typeof baseResolve==='function'){
     window.resolveHit=function(attacker,defender,mv,hx,hy){
       if(attacker&&attacker.id==='itachi')return resolveItachiHit(attacker,defender,mv||{},hx==null?attacker.x:hx,hy==null?attacker.y-80:hy);
+      if(defender&&defender.id==='itachi'&&defender.itachiYataUntil>sys.tick&&attacker&&attacker!==defender&&!(mv&&mv.armorBreak)){
+        const toward=defender.facing===(sign(attacker.x-defender.x)||1);
+        if(toward&&(defender.invuln||0)<=0){
+          defender.itachiYataUntil=0;
+          fx('reflect',defender.x+defender.facing*24,defender.y-84,28);
+          fx('shock',attacker.x,attacker.y-78,20);
+          if(attacker.state!=='DEFEAT'&&attacker.state!=='VICTORY'){
+            attacker.move=null;attacker.moveKey=null;attacker.state='HITSTUN';attacker.stateFrame=0;
+            attacker.hitstun=Math.max(attacker.hitstun||0,18);attacker.vx=defender.facing*5;attacker.vy=-1.2;
+          }
+          return 'parry';
+        }
+      }
       // Tsukuyomi is a true counter: only a real incoming, unblocked hit triggers it.
       if(defender&&defender.id==='itachi'&&defender.itachiCounterUntil>sys.tick&&attacker&&attacker!==defender){
         const facing=defender.facing===(sign(attacker.x-defender.x)||1);
@@ -107,9 +120,6 @@
   const baseStart=window.startMove;
   if(typeof baseStart==='function'){
     window.startMove=function(f,key,isBF){
-      if(f&&f.id==='itachi'&&key==='def'&&!f.move&&(f.state==='IDLE'||f.state==='WALK')){
-        triggerEmote(f,true);return false;
-      }
       const ok=baseStart.apply(this,arguments);
       if(ok&&f&&f.id==='itachi'){
         f.itachiHitMarks={};f.itachiCharge=0;f.itachiChargeFired=false;
@@ -139,7 +149,7 @@
   }
   function fireball(f,charge){
     const q=clamp(charge,0,1),o=f.opp;
-    const x=f.x+f.facing*55,y=f.y-103;
+    const x=f.x+f.facing*48,y=f.y-116;
     createShot(f,'fireball',x,y,(15+q*5)*f.facing,-.25,{r:24+q*48,damage:18+Math.round(q*22),stun:22+Math.round(q*10),life:100});
     fx('fire',x,y,24,{charge:q});fx('shock',x,y,18);
   }
@@ -249,36 +259,21 @@
       const n=f.moveFrame,k=f.moveKey,o=f.opp,dir=f.facing||1;
       if(k==='light'){
         const marks=f.itachiHitMarks||(f.itachiHitMarks={});
-        const phase=n<=9?1:n<=19?2:n<=33?3:n<=48?4:5;
-        if(phase===1||phase===2){
-          const hitAt=phase===1?6:15;
-          if(n===hitAt&&!marks[phase]&&o&&near(f,o,135)){
-            marks[phase]=1;
-            resolveItachiHit(f,o,{damage:7,hitstun:15,blockstun:9,kbx:4,kby:0,hitstop:4,meter:3},f.x+dir*62,f.y-95);
-            fx('slash',f.x+dir*60,f.y-96,16);
+        const phases=[
+          {at:6,key:'m1a',damage:7,stun:15,kbx:4,kby:-1,hitstop:4,x:dir*58,y:-96},
+          {at:14,key:'m1b',damage:8,stun:17,kbx:5,kby:-2,hitstop:5,x:dir*64,y:-91},
+          {at:22,key:'m1c',damage:11,stun:22,kbx:7,kby:-4,hitstop:7,x:dir*72,y:-86}
+        ];
+        for(const p of phases){
+          if(n===p.at&&!marks[p.key]){
+            marks[p.key]=1;
+            if(o&&near(f,o,138)){
+              if(p.key==='m1c')f.x=clamp(f.x+dir*18,WALL,ARENA_W-WALL);
+              resolveItachiHit(f,o,{damage:p.damage,hitstun:p.stun,blockstun:p.key==='m1c'?13:10,kbx:p.kbx,kby:p.kby,hitstop:p.hitstop,meter:p.key==='m1c'?5:3},f.x+dir*62,f.y+p.y);
+            }
+            fx('slash',f.x+dir*62,f.y+p.y,p.key==='m1c'?20:14);
+            if(p.key==='m1c')fx('crows',f.x-dir*16,f.y-86,22);
           }
-        }
-        if(n===27&&!marks[3]){
-          marks[3]=1;fx('crows',f.x,f.y-85,34);
-          if(o&&Math.abs(o.x-f.x)<185&&Math.abs(o.y-f.y)<135){
-            const nx=clamp(o.x+dir*72,WALL,ARENA_W-WALL);
-            f.x=clamp(nx-dir*44,WALL,ARENA_W-WALL);f.facing=o.x>=f.x?1:-1;
-            fx('crows',o.x,o.y-95,28);
-            resolveItachiHit(f,o,{damage:11,hitstun:25,blockstun:13,kbx:8,kby:-7,hitstop:7,meter:5},o.x,o.y-82);
-          }
-        }
-        if(n===42&&!marks[4]){
-          marks[4]=1;
-          for(let i=-1;i<=1;i++)createShot(f,'shuriken',f.x+dir*44,f.y-98,dir*(17-Math.abs(i)*1.5),i*3.8,{r:15,damage:6,stun:16,life:66,curve:i*.045,tagged:true});
-          fx('magatama',f.x+dir*55,f.y-101,24);
-        }
-        if(n===60&&!marks[5]){
-          marks[5]=1;
-          if(o&&near(f,o,145)){
-            resolveItachiHit(f,o,{damage:14,hitstun:28,blockstun:14,kbx:10,kby:-5,hitstop:9,meter:6,armorBreak:true},o.x,o.y-88);
-            sys.burns.push({owner:f,target:o,t:0,d:120,next:32,startX:o.x,escapeMeter:0,kind:'fire'});sys.burn=sys.burns[0]||null;
-          }
-          fx('fire',f.x+dir*68,f.y-87,24);
         }
       }else if(k==='heavy'){
         if(n===5)fx('shock',f.x,f.y-80,22);
@@ -315,11 +310,23 @@
       }else if(k==='s5'){
         if(n===m.startup+1&&!f.itachiHitMarks.ama){
           f.itachiHitMarks.ama=1;
-          if(o&&o.hp>0){
-            sys.burns=sys.burns.filter(b=>!(b.target===o&&b.kind==='amaterasu'));sys.burns.push({owner:f,target:o,t:0,d:300,next:25,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'});sys.burn=sys.burns[0]||null;
-            fx('moon',o.x,o.y-100,35);fx('shock',o.x,o.y-84,27);
+          const inLockRange=!!(o&&o.hp>0&&Math.abs(o.x-f.x)<360&&Math.abs(o.y-f.y)<160);
+          const facingGuard=!!(inLockRange&&typeof canBlockAgainst==='function'&&canBlockAgainst(o)&&o.facing===(sign(f.x-o.x)||1));
+          if(inLockRange&&!facingGuard&&(o.invuln||0)<=0){
+            sys.burns=sys.burns.filter(b=>!(b.target===o&&b.kind==='amaterasu'));
+            sys.burns.push({owner:f,target:o,t:0,d:300,next:25,startX:o.x,lastX:o.x,lastY:o.y,escapeMeter:0,kind:'amaterasu'});
+            sys.burn=sys.burns[0]||null;
+            fx('amaterasu',o.x,o.y-86,32);fx('shock',o.x,o.y-84,27);
+          }else{
+            fx(facingGuard?'reflect':'crows',facingGuard?o.x:f.x+dir*30,facingGuard?o.y-82:f.y-86,24);
           }
         }
+      }else if(k==='def'){
+        if(n===m.startup){
+          f.itachiYataUntil=sys.tick+(m.active||42);
+          fx('reflect',f.x+dir*28,f.y-88,42);fx('shock',f.x+dir*24,f.y-72,22);
+        }
+        if(n>=m.startup+(m.active||42))f.itachiYataUntil=0;
       }else if(k==='ult'){
         if(n===7){f.itachiAwake=300;fx('reflect',f.x+dir*45,f.y-85,28);fx('shock',f.x,f.y-95,28);}
         if(n===m.startup&&!f.itachiHitMarks.ult){
@@ -368,30 +375,44 @@
     }
   }
   addEventListener('keydown',e=>{if(!e.repeat)tryHeavyChord(e);},true);
-  // Update Outsider-owned shots, counter windows, DOT and idle emotes on the render cadence.
+  // Itachi gameplay timers and VFX lifetimes advance with the game's fixed simulation step.
+  function updateItachiFixedStep(){
+    if(typeof G==='undefined'||G.mode==='menu'||G.paused)return;
+    sys.tick++;
+    for(let i=sys.fx.length-1;i>=0;i--){const item=sys.fx[i];item.t++;if(item.t>=item.d)sys.fx.splice(i,1);}
+    updatePlayerStates();
+    if(sys.moon){sys.moon.t=(sys.moon.t||0)+1;if(sys.moon.t>=sys.moon.d)sys.moon=null;}
+    if(sys.sealing){
+      sys.sealing.t=(sys.sealing.t||0)+1;
+      if(sys.sealing.t>=sys.sealing.d){
+        const seal=sys.sealing,target=seal.target;
+        if(target){
+          target.invuln=Math.max(0,(target.invuln||0)-264);
+          target.itachiSealPendingKO=false;
+          if(seal.ko){target.hp=0;target.state='DEFEAT';target.stateFrame=0;}
+          else{target.hp=Math.max(1,target.hp);target.hitstun=0;target.state='IDLE';target.stateFrame=0;}
+        }
+        sys.sealing=null;
+      }
+    }
+  }
+  window.JFF_ITACHI_FIXED_UPDATE=updateItachiFixedStep;
+  const baseStep=window.step;
+  let fixedStepHooked=false;
+  if(typeof baseStep==='function'){
+    window.step=function(){
+      const result=baseStep.apply(this,arguments);
+      updateItachiFixedStep();
+      return result;
+    };
+    fixedStepHooked=true;
+  }
   const baseRender=window.render;
   if(typeof baseRender==='function'){
     window.render=function(){
-      baseRender.apply(this,arguments);
-      if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){
-        // Monotonic simulation-frame clock for charge, counter windows and cinematic timers.
-        sys.tick++;
-        updatePlayerStates();
-        if(sys.moon){sys.moon.t=(sys.moon.t||0)+1;if(sys.moon.t>=sys.moon.d)sys.moon=null;}
-        if(sys.sealing){
-          sys.sealing.t=(sys.sealing.t||0)+1;
-          if(sys.sealing.t>=sys.sealing.d){
-            const seal=sys.sealing,target=seal.target;
-            if(target){
-              target.invuln=Math.max(0,(target.invuln||0)-264);
-              target.itachiSealPendingKO=false;
-              if(seal.ko){target.hp=0;target.state='DEFEAT';target.stateFrame=0;}
-              else{target.hp=Math.max(1,target.hp);target.hitstun=0;target.state='IDLE';target.stateFrame=0;}
-            }
-            sys.sealing=null;
-          }
-        }
-      }
+      const result=baseRender.apply(this,arguments);
+      if(!fixedStepHooked)updateItachiFixedStep();
+      return result;
     };
   }
   console.info('[JFF Outsider] Itachi combat overhaul loaded: Crow Flicker Dance, Susanoo, Tsukuyomi, Yasaka, Clone Trap, Amaterasu and Totsuka/Yata.');
