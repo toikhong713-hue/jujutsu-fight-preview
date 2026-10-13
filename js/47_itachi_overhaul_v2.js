@@ -44,7 +44,7 @@
             {lean:-6,a:[32,-14],b:[146,14],h:-57,head:-116},
             {lean:-12,a:[20,-24],b:[154,26],h:-54,head:-117}
           ];
-          const q=charge*(seals.length-1),i=Math.min(seals.length-2,Math.floor(q)),t=q-i,a=seals[i],b=seals[i+1];
+          const q=clamp((Number(f.itachiChargeFrames)||0)/18,0,1)*(seals.length-1),i=Math.min(seals.length-2,Math.floor(q)),t=q-i,a=seals[i],b=seals[i+1];
           put(lerp(a.lean,b.lean,t),[lerp(a.a[0],b.a[0],t),lerp(a.a[1],b.a[1],t)],[lerp(a.b[0],b.b[0],t),lerp(a.b[1],b.b[1],t)],[[84,3],[100,-3]],lerp(a.h,b.h,t),lerp(a.head,b.head,t));
         }
       }else if(k==='s2'){
