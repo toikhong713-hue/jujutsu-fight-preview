@@ -468,6 +468,7 @@
   window.applyCharacterIdentityPose=pose;
 
   function drawSusanoo(f){
+    if(Q.cinema&&Q.cinema.kind==='ult')return; // Articulated full-form overlay owns ultimate poses.
     if(typeof ctx==='undefined'||!f||f.id!=='itachi'||f.state==='DEFEAT')return;
     const k=f.moveKey||'',n=f.moveFrame||0,cine=Q.cinema&&Q.cinema.owner===f;
     const heavy=f.state==='ATTACK'&&k==='heavy'&&n>=5&&n<=44;
