@@ -72,7 +72,7 @@
   function fireball(f,q){
     q=clamp(q||0,0,1);
     const d=f.facing,x=f.x+d*48,y=f.y-116;
-    spawnShot(f,'fireball',x,y,(14+q*2.8)*d,-.22,{r:27*(1+.5*q),damage:20*(1+.3*q),stun:25+Math.round(q*5),kbx:10+q*3,kby:-5,life:96,armorBreak:false});
+    spawnShot(f,'fireball',x,y,(14+q*2.8)*d,-.22,{r:27*(1+.5*q),damage:Math.round(20*(1+.3*q)),stun:25+Math.round(q*5),kbx:10+q*3,kby:-5,life:96,armorBreak:false});
     effect('fire',x,y,28,{charge:q});effect('shock',x,y,18);screenImpact(.14,'#e8472f');
     if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
   }
@@ -316,7 +316,7 @@
         if(!f.itachiFireDone){
           if(typeof KEY!=='undefined'&&KEY[code]&&n<91)f.itachiChargeFrames=Math.min(90,(f.itachiChargeFrames||0)+1);
           else f.itachiFireReleased=true;
-          if(f.itachiChargeFrames>=90||(f.itachiFireReleased&&n>=18)){
+          if(f.itachiChargeFrames>=90||(f.itachiFireReleased&&n>=25)){
             fireball(f,Math.max(.18,(f.itachiChargeFrames||0)/90));
             f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiChargeFrames=0;
           }
@@ -560,7 +560,10 @@
     if(kind==='tsukuyomi'){
       const phase=n<20?1:(n<86?2:(n<120?3:4));
       const blink=n%13<2?.18:0;
-      s+='<g><rect width="1280" height="720" fill="#080710" opacity=".84"/><rect width="1280" height="720" fill="#7c0c2c" opacity="'+(.10+Math.sin(n*.14)*.035)+'"/>';
+      const zoom=phase===1?1.06+Math.sin(n*.16)*.025:(phase===2?1.10+Math.sin(n*.22)*.008:(phase===3?1.07:1.015));
+      const panX=phase===2?Math.sin(n*.055)*16:(phase===3?28:0),panY=phase===2?Math.cos(n*.045)*10:0;
+      const cameraTransform='translate('+(640-panX)+' '+(360-panY)+') scale('+zoom+') translate(-640 -360)';
+      s+='<g transform="'+cameraTransform+'"><rect width="1280" height="720" fill="#080710" opacity=".84"/><rect width="1280" height="720" fill="#7c0c2c" opacity="'+(.10+Math.sin(n*.14)*.035)+'"/>';
       s+='<circle cx="'+(995+Math.sin(n*.03)*12)+'" cy="155" r="112" fill="url(#itRebootMoon)" stroke="#ff6d82" stroke-width="3"/><circle cx="995" cy="155" r="126" fill="none" stroke="#e84761" stroke-width="1.5" stroke-dasharray="8 13"/>';
       s+='<path d="M 0 515 Q 210 455 405 520 T 820 505 T 1280 490 L 1280 720 L 0 720 Z" fill="#05050b" opacity=".82"/>';
       if(phase===1){
@@ -578,10 +581,13 @@
         s+='<circle cx="640" cy="360" r="'+(90+n*.5)+'" fill="none" stroke="#e93658" stroke-width="3" opacity=".6"/><text x="640" y="370" fill="#fff1f4" font-size="30" font-family="monospace" letter-spacing="8" text-anchor="middle">GENJUTSU RELEASE</text>';
       }
       if(blink)s+='<rect width="1280" height="720" fill="#ffeef2" opacity="'+blink+'"/>';
-      s+='<rect x="0" y="0" width="1280" height="36" fill="#05050a" opacity=".92"/><rect x="0" y="684" width="1280" height="36" fill="#05050a" opacity=".92"/></g>';
+      s+='<rect x="0" y="0" width="1280" height="36" fill="#05050a" opacity=".92"/><rect x="0" y="684" width="1280" height="36" fill="#05050a" opacity=".92"/></g></g>';
     }else{
       const rot=n*1.8,phase=n<46?1:(n<82?2:(n<151?3:4));
-      s+='<g><rect width="1280" height="720" fill="#05040a" opacity=".78"/><rect width="1280" height="720" fill="url(#itRebootUltVignette)" opacity=".64"/>';
+      const zoom=phase===1?1.02+n*.0009:(phase===2?1.09+Math.sin(n*.13)*.012:(phase===3?1.13+Math.sin(n*.31)*.018:1.02));
+      const panX=phase===3?Math.sin(n*.045)*22:Math.sin(n*.025)*6,panY=phase===1?-4:phase===3?Math.cos(n*.04)*12:0;
+      const cameraTransform='translate('+(640-panX)+' '+(360-panY)+') scale('+zoom+') translate(-640 -360)';
+      s+='<g transform="'+cameraTransform+'"><rect width="1280" height="720" fill="#05040a" opacity=".78"/><rect width="1280" height="720" fill="url(#itRebootUltVignette)" opacity=".64"/>';
       s+='<circle cx="640" cy="355" r="'+(140+n*.7)+'" fill="none" stroke="#d34d4d" stroke-width="2" opacity=".42" transform="rotate('+rot+' 640 355)"/><circle cx="640" cy="355" r="'+(180+n*.45)+'" fill="none" stroke="#ffc391" stroke-width="1.5" stroke-dasharray="6 15" transform="rotate('+(-rot)+' 640 355)"/>';
       s+='<g transform="translate(630 386) scale('+(phase===1?.75:(phase===2?1.05:1.18))+')"><path d="M -60 -95 Q -95 -132 -128 -94 L -150 -40 L -111 -18 L -64 -51 M 60 -95 Q 95 -132 128 -94 L 150 -40 L 111 -18 L 64 -51" fill="#5d1b2b" stroke="#ee8b75" stroke-width="5"/><path d="M -45 -118 L -30 -170 L -10 -145 L 0 -205 L 15 -146 L 35 -174 L 48 -118 L 31 -82 L 0 -70 L -31 -82 Z" fill="#a64c4b" stroke="#ffd2a0" stroke-width="4"/><path d="M -65 -50 Q 0 -90 65 -50 L 52 55 L 20 97 L 0 78 L -20 97 L -52 55 Z" fill="#7c2939" stroke="#f6a27d" stroke-width="4"/><path d="M -48 -21 Q 0 9 48 -21 M -41 5 Q 0 35 41 5 M -34 30 Q 0 57 34 30" fill="none" stroke="#ffd0aa" stroke-width="4"/></g>';
       if(phase===2){
@@ -597,7 +603,7 @@
       }
       const title=phase===1?'COMPLETE SUSANOO':(phase===2?'YATA MIRROR // ABSOLUTE GUARD':(phase===3?'TOTSUKA BLADE // SEALING STRIKE':'SEALING COMPLETE'));
       if(phase===4)s+='<g transform="translate(900 398)" opacity=".88"><circle r="83" fill="#13050f" stroke="#e63f5e" stroke-width="4"/><circle r="66" fill="none" stroke="#ffc9a2" stroke-width="2" stroke-dasharray="5 8" transform="rotate('+rot+')"/><path d="M -12 -57 L -22 -19 L -35 45 L -13 38 L 0 5 L 12 39 L 35 45 L 22 -19 L 12 -57 Z" fill="#05040a" stroke="#ba354d" stroke-width="3"/><circle cy="-77" r="16" fill="#08050b" stroke="#ba354d" stroke-width="2"/></g>';
-      s+='<rect x="0" y="0" width="1280" height="68" fill="#030308" opacity=".82"/><rect x="0" y="652" width="1280" height="68" fill="#030308" opacity=".82"/><text x="640" y="44" fill="#ffe0c4" font-size="22" font-family="monospace" letter-spacing="7" text-anchor="middle">'+title+'</text><text x="640" y="690" fill="#ffbd9c" font-size="15" font-family="monospace" letter-spacing="6" text-anchor="middle">UCHIHA // MANGEKYO FINAL ART</text></g>';
+      s+='<rect x="0" y="0" width="1280" height="68" fill="#030308" opacity=".82"/><rect x="0" y="652" width="1280" height="68" fill="#030308" opacity=".82"/><text x="640" y="44" fill="#ffe0c4" font-size="22" font-family="monospace" letter-spacing="7" text-anchor="middle">'+title+'</text><text x="640" y="690" fill="#ffbd9c" font-size="15" font-family="monospace" letter-spacing="6" text-anchor="middle">UCHIHA // MANGEKYO FINAL ART</text></g></g>';
     }
     return s;
   }
