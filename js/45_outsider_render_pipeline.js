@@ -123,7 +123,6 @@
     const cloakPath='M -22 -104 Q -39 -101 -40 -75 L -52 -13 Q -31 0 -8 -5 L 4 -12 L 26 -5 Q 42 -13 50 -20 L 34 -82 Q 31 -102 18 -105 L 13 -86 L -13 -86 Z';
     let body='<g transform="translate('+x.toFixed(2)+' '+y.toFixed(2)+') scale('+(dir*s).toFixed(4)+' '+s.toFixed(4)+')">'+
       '<ellipse cx="0" cy="3" rx="32" ry="7" fill="#000" opacity=".38"/>'+
-      under+
       '<g transform="translate(0 0)">'+
       '<path d="M -17 -47 L -24 -8 L -15 -4 L -5 -39 M 12 -44 L 23 -9 L 14 -5 L 3 -37" fill="#09080f" stroke="#3a2934" stroke-width="2"/>'+
       '<path d="M -20 -47 L -26 -8 L -17 -4 L -8 -39 M 12 -44 L 23 -9 L 14 -5 L 3 -37" fill="none" stroke="#7f293e" stroke-width="1.2"/>'+
@@ -164,7 +163,7 @@
     if(f.itachiAwake>0){
       extras+='<g transform="translate('+x+' '+(y-82*s)+') scale('+s+')"><ellipse rx="72" ry="100" fill="none" stroke="#ef765e" stroke-width="2" opacity=".5" stroke-dasharray="8 12"/><path d="M -60 -20 L -78 -40 M 58 4 L 77 28 M -38 60 L -58 80" stroke="#ffa27d" stroke-width="3" fill="none"/></g>';
     }
-    return extras+body;
+    return under+extras+body;
   }
   function render(){
     if(typeof G==='undefined'||G.mode==='menu'){
