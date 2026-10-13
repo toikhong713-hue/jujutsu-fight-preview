@@ -114,9 +114,11 @@ function syncStoryArchive(){
   const c1=document.getElementById('storyChapter1');
   const c2=document.getElementById('storyChapter2');
   const c3=document.getElementById('storyChapter3');
+  const c4=document.getElementById('storyChapter4');
   const tag1=c1&&c1.querySelector('.tag');
   const tag2=c2&&c2.querySelector('.tag');
   const tag3=c3&&c3.querySelector('.tag');
+  const tag4=c4&&c4.querySelector('.tag');
   if(tag1)tag1.textContent=chapter1Done?'COMPLETED · REPLAY':'UNLOCKED';
   if(c1)c1.dataset.status=chapter1Done?'completed':'unlocked';
   if(c2){
@@ -136,6 +138,17 @@ function syncStoryArchive(){
     const p=c3.querySelector('p');
     if(p)p.textContent=chapter3Done?'CHAPTER COMPLETE · REPLAY AWAKENING':(chapter3Unlocked?'UNLOCKED · GOJO VS SUKUNA · DOMAIN CLASH':'LOCKED · COMPLETE CHAPTER 2');
     if(tag3)tag3.textContent=chapter3Done?'COMPLETED · REPLAY':(chapter3Unlocked?'PLAY CHAPTER 3':'LOCKED');
+  }
+  if(c4){
+    const chapter3Done=storyFlag('jff_story_ch3_complete');
+    const chapter4Done=storyFlag('jff_story_ch4_complete');
+    const chapter4Unlocked=chapter3Done||storyFlag('jff_story_unlocked_ch4')||storyFlag('jff_story_ch4_started');
+    c4.style.opacity=chapter4Unlocked?'0.86':'0.28';
+    c4.style.borderColor=chapter4Unlocked?'#ff7187':'#354057';
+    c4.dataset.status=chapter4Done?'completed':(chapter4Unlocked?'unlocked':'locked');
+    const p=c4.querySelector('p');
+    if(p)p.textContent=chapter4Done?'CHAPTER COMPLETE · REPLAY THE PURSUIT':(chapter4Unlocked?'UNLOCKED · GOJO TRACKS ITACHI & SUKUNA':'LOCKED · COMPLETE CHAPTER 3');
+    if(tag4)tag4.textContent=chapter4Done?'COMPLETED · REPLAY':(chapter4Unlocked?'PLAY CHAPTER 4':'LOCKED');
   }
 }
 function showStoryArchiveNotice(message){
@@ -182,6 +195,10 @@ document.getElementById('storyHubBack').addEventListener('click',()=>{SFX.ui();s
 document.getElementById('storyChapter1').addEventListener('click',()=>{SFX.ui();launch('story','gojo','sukuna');});
 document.getElementById('storyChapter2')?.addEventListener('click',()=>{if(window.startStoryChapter2)window.startStoryChapter2();else showStoryArchiveNotice();});
 document.getElementById('storyChapter3')?.addEventListener('click',()=>{if((storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3'))&&window.startStoryChapter3){SFX.ui();window.startStoryChapter3();}else showStoryArchiveNotice('CHAPTER 3 IS LOCKED. COMPLETE CHAPTER 2 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');});
+document.getElementById('storyChapter4')?.addEventListener('click',()=>{
+  if((storyFlag('jff_story_ch3_complete')||storyFlag('jff_story_unlocked_ch4')||storyFlag('jff_story_ch4_started'))&&window.startStoryChapter4){SFX.ui();window.startStoryChapter4();}
+  else showStoryArchiveNotice('CHAPTER 4 IS LOCKED. COMPLETE CHAPTER 3 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');
+});
 document.querySelectorAll('#charSelect .card').forEach(c=>{
   c.addEventListener('click',()=>chooseCharacter(c.dataset.char));
 });
@@ -338,6 +355,7 @@ function MenuKey(code){
       if(code==='Digit1'||code==='Numpad1'){launch('story','gojo','sukuna');return;}
       if(code==='Digit2'||code==='Numpad2'){launch('story','young_gojo','sukuna');return;}
       if(code==='Digit3'||code==='Numpad3'){if((storyFlag('jff_story_ch2_complete')||storyFlag('jff_story_unlocked_ch3'))&&window.startStoryChapter3){window.startStoryChapter3();}else showStoryArchiveNotice('CHAPTER 3 IS LOCKED. COMPLETE CHAPTER 2 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');return;}
+      if(code==='Digit4'||code==='Numpad4'){if((storyFlag('jff_story_ch3_complete')||storyFlag('jff_story_unlocked_ch4')||storyFlag('jff_story_ch4_started'))&&window.startStoryChapter4){window.startStoryChapter4();}else showStoryArchiveNotice('CHAPTER 4 IS LOCKED. COMPLETE CHAPTER 3 FIRST.\n\nPRESS ENTER / SPACE / ESC TO CLOSE.');return;}
       if(code==='Enter'||code==='Space'){launch('story','gojo','sukuna');return;}
       if(code==='Escape')showScreen('menu');
       return;
