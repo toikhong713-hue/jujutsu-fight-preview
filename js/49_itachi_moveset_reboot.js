@@ -641,9 +641,26 @@
     if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
   }
   addEventListener('keydown',function(e){
-    if(e.repeat||Q.cinema||typeof G==='undefined'||G.mode==='menu')return;
-    if(e.code==='KeyX'){const f=fighters()[0];if(f&&!(f.ai))taunt(f);}
-    if(e.code==='NumpadSubtract'){const f=fighters()[1];if(f&&!(f.ai))taunt(f);}
+    if(typeof G==='undefined'||G.mode==='menu')return;
+    const p1=fighters()[0],p2=fighters()[1];
+    // Itachi's blueprint reserves R for the iconic two-finger taunt.
+    // Suppress the engine's normal R/def input for Itachi only.
+    if(e.code==='KeyR'&&p1&&p1.id==='itachi'&&!p1.ai){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!e.repeat)taunt(p1);
+      return;
+    }
+    // X is Itachi P1's Yata Mirror command. Other fighters retain their X controls.
+    if(e.code==='KeyX'&&p1&&p1.id==='itachi'&&!p1.ai){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!e.repeat&&!Q.cinema&&!p1.move&&['IDLE','WALK'].includes(p1.state)&&typeof window.startMove==='function')window.startMove(p1,'def');
+      return;
+    }
+    if(e.code==='NumpadSubtract'&&p2&&p2.id==='itachi'&&!p2.ai){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!e.repeat)taunt(p2);
+      return;
+    }
   },true);
 
   console.info('[JFF Itachi] Move set reboot active: Crow Flicker, Rib-Cage Smash, Great Fireball, Tsukuyomi Counter, Yasaka, Clone Explosion, Amaterasu, Yata Mirror and Complete Susanoo.');
