@@ -128,7 +128,7 @@
       const b=Q.burns[i],o=b.target;
       if(!o||o.hp<=0||b.t>=b.d){Q.burns.splice(i,1);continue;}
       b.t++;
-      if(b.t%10===0)effect('amaterasu',o.x,o.y-84,14);
+      if(b.t%10===0)effect(b.kind==='amaterasu'?'amaterasu':'fire',o.x,o.y-84,14,{charge:.25});
       if(b.t>=b.next){
         b.next+=30;o.hp=Math.max(0,o.hp-4);o.hitFlash=3;
         if(o.hp<=0){o.hp=0;o.state='DEFEAT';o.stateFrame=0;}
@@ -405,8 +405,10 @@
     if(fxSys.fx&&fxSys.fx.length>90)fxSys.fx.splice(0,fxSys.fx.length-90);
   }
   window.JFF_ITACHI_FIXED_UPDATE=updateTick;
+  let fixedStepHooked=false;
   if(typeof baseStep==='function'){
     window.step=function(){const r=baseStep.apply(this,arguments);updateTick();return r;};
+    fixedStepHooked=true;
   }
 
   function pose(P,f){
@@ -595,7 +597,15 @@
     for(const q of Q.shots)body+=shotSvg(q);
     const c=Q.clone;
     if(c){const p=worldPoint(c.x,c.y),alpha=clamp(1-c.t/c.d,0,1);body+='<g opacity="'+(.72*alpha)+'" transform="translate('+p.x+' '+p.y+') scale('+p.s*(c.face||1)+' '+p.s+')"><path d="M -24 -103 L -37 -60 L -47 -8 L -20 1 L 0 -15 L 24 0 L 49 -12 L 36 -66 L 21 -104 Z" fill="#0b0910" stroke="#a51c3e" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cy="-123" rx="23" ry="27" fill="#08070d" stroke="#d62b4b" stroke-width="2"/><path d="M -21 -127 L -25 -154 L -12 -145 L -5 -161 L 8 -145 L 21 -155 L 22 -127 Z" fill="#030307"/><path d="M -13 -123 L -5 -120 M 6 -120 L 14 -123" stroke="#ff506a" stroke-width="2.5"/></g>';}
-    for(const b of Q.burns){if(b.target&&b.target.hp>0){const p=worldPoint(b.target.x,b.target.y-80);body+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><ellipse rx="42" ry="57" fill="none" stroke="#07070b" stroke-width="12" opacity=".8"/><path d="M -35 25 Q -52 -6 -24 -36 L -13 -18 L -5 -57 L 7 -20 L 20 -42 Q 39 -4 24 23 Q 6 41 -8 23 Q -22 40 -35 25 Z" fill="#08070b" stroke="#a22243" stroke-width="2"/><path d="M -24 28 L -7 4 L 2 25 L 19 -10" fill="none" stroke="#4d1530" stroke-width="3"/></g>';}}
+    for(const b of Q.burns){
+      if(!b.target||b.target.hp<=0)continue;
+      const p=worldPoint(b.target.x,b.target.y-80);
+      if(b.kind==='amaterasu'){
+        body+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><ellipse rx="42" ry="57" fill="none" stroke="#07070b" stroke-width="12" opacity=".8"/><path d="M -35 25 Q -52 -6 -24 -36 L -13 -18 L -5 -57 L 7 -20 L 20 -42 Q 39 -4 24 23 Q 6 41 -8 23 Q -22 40 -35 25 Z" fill="#08070b" stroke="#a22243" stroke-width="2"/><path d="M -24 28 L -7 4 L 2 25 L 19 -10" fill="none" stroke="#4d1530" stroke-width="3"/></g>';
+      }else{
+        body+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><path d="M -19 20 Q -28 -4 -11 -22 L -4 -10 L 3 -36 L 10 -10 L 18 -20 Q 29 4 13 21 Q -2 31 -19 20 Z" fill="#ef542f" stroke="#ffc16b" stroke-width="2"/><circle cy="2" r="8" fill="#fff0bc"/></g>';
+      }
+    }
     if(Q.cinema)body+=cinematicSvg(Q.cinema);
     for(const f of fighters()){
       if(f&&f.id==='itachi'&&f.itachiTauntFrames>0){const p=worldPoint(f.x,f.y-176);body+='<text x="'+p.x+'" y="'+p.y+'" fill="#ffb7c5" font-size="18" font-family="monospace" text-anchor="middle">"YOU ARE TOO WEAK."</text>';}
@@ -603,7 +613,7 @@
     stage.innerHTML=defs+body;
   }
   if(typeof baseRender==='function'){
-    window.render=function(){const r=baseRender.apply(this,arguments);renderStage();return r;};
+    window.render=function(){const r=baseRender.apply(this,arguments);if(!fixedStepHooked)updateTick();renderStage();return r;};
   }
 
   function taunt(f){
