@@ -288,6 +288,246 @@
       c.sukuna.x=center+220;c.sukuna.y=mix(GROUND-460,GROUND,q);c.sukuna.state='IDLE';c.sukuna.storyCinePose='shrine-king';
     }else{stopVoice();releaseDomainControl(c);}
   }
+function drawChapter4ContinuationFX(c,t){
+    const time=clamp01(t/25)*25;
+    const w=W,h=H;
+    ctx.save();
+    ctx.globalCompositeOperation='source-over';
+    const bg=ctx.createLinearGradient(0,0,w,h);
+    if(time<5){
+      bg.addColorStop(0,'#09040d');bg.addColorStop(.48,'#270818');bg.addColorStop(1,'#05060d');
+    }else if(time<15){
+      bg.addColorStop(0,'#050a16');bg.addColorStop(.55,'#10152b');bg.addColorStop(1,'#200c1a');
+    }else{
+      bg.addColorStop(0,'#07111f');bg.addColorStop(.55,'#171027');bg.addColorStop(1,'#090913');
+    }
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+
+    function figureGojo(x,y,sc,ghost){
+      ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.globalAlpha*=ghost||1;
+      ctx.strokeStyle='#111621';ctx.lineWidth=10;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(-8,-50);ctx.lineTo(-16,-25);ctx.lineTo(-19,0);ctx.moveTo(8,-50);ctx.lineTo(15,-25);ctx.lineTo(18,0);ctx.stroke();
+      ctx.fillStyle='#101522';ctx.beginPath();ctx.moveTo(-17,-76);ctx.lineTo(16,-76);ctx.lineTo(24,-45);ctx.lineTo(17,-37);ctx.lineTo(-18,-37);ctx.lineTo(-24,-47);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#dceeff';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(-14,-68);ctx.lineTo(-34,-54);ctx.moveTo(13,-68);ctx.lineTo(31,-58);ctx.stroke();
+      ctx.fillStyle='#d6e7fa';ctx.beginPath();ctx.ellipse(0,-91,15,19,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#f2f6ff';ctx.beginPath();ctx.moveTo(-17,-93);ctx.lineTo(-23,-112);ctx.lineTo(-10,-105);ctx.lineTo(-5,-121);ctx.lineTo(2,-107);ctx.lineTo(12,-118);ctx.lineTo(13,-104);ctx.lineTo(24,-109);ctx.lineTo(15,-88);ctx.lineTo(8,-98);ctx.lineTo(1,-91);ctx.lineTo(-7,-100);ctx.lineTo(-12,-90);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#0a101c';ctx.fillRect(-13,-93,26,5);
+      ctx.restore();
+    }
+    function figureItachi(x,y,sc,eyes){
+      ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);
+      ctx.fillStyle='#0a0a12';ctx.strokeStyle='#3a2336';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(-15,-96);ctx.lineTo(-28,-70);ctx.lineTo(-34,-6);ctx.lineTo(-21,0);ctx.lineTo(24,0);ctx.lineTo(33,-7);ctx.lineTo(24,-75);ctx.lineTo(13,-97);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.fillStyle='#1d1722';ctx.beginPath();ctx.moveTo(-15,-94);ctx.lineTo(-25,-108);ctx.lineTo(-9,-115);ctx.lineTo(9,-114);ctx.lineTo(24,-105);ctx.lineTo(13,-94);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#c4a7a4';ctx.beginPath();ctx.ellipse(0,-109,12,17,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#090911';ctx.beginPath();ctx.moveTo(-16,-115);ctx.lineTo(-23,-135);ctx.lineTo(-10,-127);ctx.lineTo(-7,-143);ctx.lineTo(1,-128);ctx.lineTo(10,-140);ctx.lineTo(13,-126);ctx.lineTo(23,-132);ctx.lineTo(16,-112);ctx.lineTo(8,-105);ctx.lineTo(3,-119);ctx.lineTo(-5,-112);ctx.lineTo(-10,-124);ctx.lineTo(-14,-108);ctx.closePath();ctx.fill();
+      ctx.fillStyle=eyes?'#ff1d4b':'#761832';ctx.beginPath();ctx.ellipse(-4,-109,3.4,1.6,0,0,Math.PI*2);ctx.ellipse(4,-109,3.4,1.6,0,0,Math.PI*2);ctx.fill();
+      ctx.strokeStyle='#14131c';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(-13,-72);ctx.lineTo(-31,-55);ctx.lineTo(-40,-41);ctx.stroke();
+      ctx.fillStyle='#d1b1ad';ctx.beginPath();ctx.ellipse(-40,-41,4,6,-.2,0,Math.PI*2);ctx.fill();
+      if(eyes){ctx.globalAlpha=.4+.3*Math.sin(time*13);ctx.strokeStyle='#ff304f';ctx.lineWidth=1.4;ctx.beginPath();ctx.arc(-4,-109,7,0,Math.PI*2);ctx.arc(4,-109,7,0,Math.PI*2);ctx.stroke();}
+      ctx.restore();
+    }
+    function figureSukuna(x,y,sc){
+      ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.rotate(-.12);
+      ctx.strokeStyle='#161018';ctx.lineWidth=10;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(-5,-44);ctx.lineTo(-17,-20);ctx.lineTo(-22,0);ctx.moveTo(7,-43);ctx.lineTo(20,-20);ctx.lineTo(22,0);ctx.stroke();
+      ctx.fillStyle='#21121c';ctx.beginPath();ctx.moveTo(-18,-72);ctx.lineTo(18,-72);ctx.lineTo(22,-40);ctx.lineTo(-20,-38);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#21121c';ctx.lineWidth=9;ctx.beginPath();ctx.moveTo(-13,-64);ctx.lineTo(-32,-48);ctx.lineTo(-36,-29);ctx.stroke();
+      ctx.beginPath();ctx.moveTo(13,-64);ctx.lineTo(27,-52);ctx.lineTo(31,-39);ctx.stroke();
+      // The injured side ends in a torn sleeve, with no graphic detail.
+      ctx.fillStyle='#32101e';ctx.beginPath();ctx.moveTo(-15,-65);ctx.lineTo(-6,-62);ctx.lineTo(-10,-50);ctx.lineTo(-22,-53);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#c5a29b';ctx.beginPath();ctx.ellipse(0,-87,14,16,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#140c16';ctx.beginPath();ctx.moveTo(-16,-91);ctx.lineTo(-12,-106);ctx.lineTo(-2,-100);ctx.lineTo(10,-105);ctx.lineTo(16,-91);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='#a82b4b';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-9,-92);ctx.lineTo(-3,-85);ctx.moveTo(4,-90);ctx.lineTo(10,-85);ctx.stroke();
+      ctx.restore();
+    }
+    function crow(x,y,phase,sc,color){
+      ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.fillStyle=color||'#05060b';
+      const wing=Math.sin(phase)*7;
+      ctx.beginPath();ctx.moveTo(-13,1);ctx.quadraticCurveTo(-6,-7-wing,-1,0);ctx.quadraticCurveTo(7,-8+wing,15,1);ctx.quadraticCurveTo(6,-1,1,5);ctx.lineTo(-4,4);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(16,-2);ctx.lineTo(10,3);ctx.closePath();ctx.fill();ctx.restore();
+    }
+    function brokenGround(y){
+      ctx.fillStyle='rgba(3,4,9,.9)';ctx.beginPath();ctx.moveTo(0,y+12);ctx.lineTo(w*.12,y+4);ctx.lineTo(w*.25,y+13);ctx.lineTo(w*.39,y+2);ctx.lineTo(w*.52,y+11);ctx.lineTo(w*.69,y+1);ctx.lineTo(w*.82,y+9);ctx.lineTo(w,y+3);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+      ctx.strokeStyle='rgba(97,102,131,.36)';ctx.lineWidth=2;for(let i=0;i<8;i++){const x=i*w/8;ctx.beginPath();ctx.moveTo(x,y+10);ctx.lineTo(x+18,y+33);ctx.lineTo(x+7,y+49);ctx.stroke();}
+    }
+
+    if(time<5){
+      // Gojo is trapped in the last residual layer of the Mangekyo illusion.
+      const p=clamp01(time/5),cx=w*(.51+.035*Math.sin(time*2.8)),cy=h*.48;
+      ctx.globalAlpha=.08+.12*(.5+.5*Math.sin(time*11));ctx.fillStyle='#ff123e';ctx.fillRect(0,0,w,h);
+      figureGojo(w*.5-20, h*.8, 1.12, .28);
+      figureGojo(w*.5+26+Math.sin(time*8)*9,h*.8,1.12,.25);
+      ctx.globalAlpha=.55+.25*Math.sin(time*8);ctx.strokeStyle='#ff204b';ctx.lineWidth=2;
+      for(let i=0;i<7;i++){const r=38+i*53+Math.sin(time*4+i)*6;ctx.beginPath();ctx.ellipse(cx,cy,r,r*.48,time*.12+i*.15,0,Math.PI*2);ctx.stroke();}
+      // Three rotating tomoe-like marks, drawn as an original symbol.
+      ctx.globalAlpha=.8;ctx.strokeStyle='#ff4e68';ctx.lineWidth=3;ctx.beginPath();ctx.arc(w*.72,h*.36,50+8*Math.sin(time*9),0,Math.PI*2);ctx.stroke();
+      for(let i=0;i<3;i++){const a=time*1.7+i*Math.PI*2/3;ctx.fillStyle='#ff3557';ctx.beginPath();ctx.ellipse(w*.72+Math.cos(a)*23,h*.36+Math.sin(a)*23,7,14,a,0,Math.PI*2);ctx.fill();}
+      ctx.globalAlpha=clamp01((time-2.3)/1.9);ctx.strokeStyle='#f7eaff';ctx.lineWidth=3;
+      const cracks=[[.12,.10,.38,.44],[.82,.12,.63,.37],[.2,.9,.42,.56],[.9,.92,.63,.59],[.45,.04,.5,.29],[.03,.54,.33,.49]];
+      for(const a of cracks){ctx.beginPath();ctx.moveTo(a[0]*w,a[1]*h);ctx.lineTo(a[2]*w,a[3]*h);ctx.lineTo((a[2]+.035)*w,(a[3]+.07)*h);ctx.lineTo((a[2]-.015)*w,(a[3]+.11)*h);ctx.stroke();}
+      ctx.globalAlpha=clamp01((time-3.4)/1.1);ctx.fillStyle='#f5e9ff';ctx.fillRect(0,0,w,h);
+      ctx.globalAlpha=1-clamp01((time-4.1)/.9);ctx.fillStyle='#190714';ctx.fillRect(0,0,w,h);
+      ctx.restore();return;
+    }
+
+    if(time<15){
+      // Cutaway: Itachi and Sukuna have reached a ruined shrine, well away from Gojo.
+      const moon=ctx.createRadialGradient(w*.78,h*.2,8,w*.78,h*.2,130);
+      moon.addColorStop(0,'rgba(255,225,237,.95)');moon.addColorStop(.35,'rgba(178,102,139,.38)');moon.addColorStop(1,'rgba(88,24,58,0)');
+      ctx.fillStyle=moon;ctx.fillRect(0,0,w,h);
+      ctx.fillStyle='#d8cbd8';ctx.beginPath();ctx.arc(w*.78,h*.2,37,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='rgba(22,13,28,.6)';for(let i=0;i<9;i++){const x=i*w/8;ctx.beginPath();ctx.moveTo(x,h*.69);ctx.lineTo(x+35,h*(.57+(i%3)*.025));ctx.lineTo(x+62,h*.72);ctx.closePath();ctx.fill();}
+      ctx.fillStyle='#0b0b15';ctx.beginPath();ctx.moveTo(w*.13,h*.72);ctx.lineTo(w*.26,h*.61);ctx.lineTo(w*.35,h*.70);ctx.lineTo(w*.35,h*.87);ctx.lineTo(w*.13,h*.87);ctx.closePath();ctx.fill();
+      // A distant shrine gate and a broken roof establish a different location.
+      ctx.strokeStyle='#43202f';ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(w*.43,h*.48);ctx.lineTo(w*.43,h*.83);ctx.moveTo(w*.59,h*.48);ctx.lineTo(w*.59,h*.83);ctx.moveTo(w*.39,h*.47);ctx.lineTo(w*.63,h*.47);ctx.moveTo(w*.42,h*.43);ctx.lineTo(w*.61,h*.43);ctx.stroke();
+      brokenGround(h*.84);
+      figureItachi(w*.54,h*.84,1.04,true);
+      figureSukuna(w*.75,h*.84,1.02);
+      ctx.globalAlpha=.2+.13*Math.sin(time*4);ctx.strokeStyle='#f42d55';ctx.lineWidth=2;ctx.beginPath();ctx.arc(w*.54,h*.36,80+10*Math.sin(time*5),0,Math.PI*2);ctx.stroke();
+      for(let i=0;i<7;i++)crow(w*(.16+i*.13)+Math.sin(time+i)*9,h*(.28+(i%3)*.08)+Math.cos(time*1.4+i)*6,time*5+i,.45+i%2*.17,'#07070c');
+      ctx.globalAlpha=1;ctx.fillStyle='rgba(0,0,0,.34)';ctx.fillRect(0,h*.87,w,h*.13);
+      ctx.textAlign='left';ctx.font='800 10px Consolas,monospace';ctx.fillStyle='#dd9cb1';ctx.fillText('UNKNOWN SHRINE  /  AFTER THE GENJUTSU',32,h-35);
+      ctx.restore();return;
+    }
+
+    // Chapter 4 title beat. Gojo regains focus while the crows mark the escape route.
+    const arrival=time-15;
+    ctx.fillStyle='rgba(4,7,17,.42)';ctx.fillRect(0,0,w,h);
+    const haze=ctx.createRadialGradient(w*.45,h*.55,18,w*.45,h*.55,w*.7);
+    haze.addColorStop(0,'rgba(70,91,150,.16)');haze.addColorStop(1,'rgba(5,8,18,0)');
+    ctx.fillStyle=haze;ctx.fillRect(0,0,w,h);
+    brokenGround(h*.83);
+    figureGojo(w*.27,h*.83,1.2,1);
+    for(let i=0;i<18;i++){
+      const p=(arrival*.11+i*.09)%1;
+      const x=w*(.48+p*.68);
+      const y=h*(.22+((i*37)%61)/100)+Math.sin(time*4+i)*9;
+      crow(x,y,time*8+i,.45+(i%3)*.14,i%4===0?'#ff365b':'#03050a');
+    }
+    ctx.globalAlpha=.45;ctx.strokeStyle='#ff3456';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(w*.40,h*.67);ctx.bezierCurveTo(w*.55,h*.52,w*.64,h*.77,w*.86,h*.42);ctx.stroke();
+    ctx.globalAlpha=clamp01((arrival-4.1)/1.2);
+    ctx.textAlign='center';ctx.font='900 14px Consolas,monospace';ctx.fillStyle='#ff6b83';
+    ctx.fillText('CHAPTER 4',w*.5,h*.29);
+    ctx.font='900 29px Impact, "Segoe UI", sans-serif';ctx.fillStyle='#f1ecff';
+    ctx.fillText('THE EYES BEYOND INFINITY',w*.5,h*.36);
+    ctx.globalAlpha=clamp01((arrival-6.1)/.8);ctx.font='800 10px Consolas,monospace';ctx.fillStyle='#c0c9e0';
+    ctx.fillText('FOLLOW THE CROWS',w*.5,h*.42);
+    ctx.restore();
+  }
+
+  function beginChapter4Pursuit(c){
+    if(!c||c.stage==='ch4Pursuit')return;
+    const g=c.gojo,s=c.sukuna,center=c.openingCenter||ARENA_W/2;
+    removeYutaProp(c);
+    c.stage='ch4Pursuit';c.t=0;c.ch4Clock=0;c.caption=null;c.lastLine='';
+    c.ch4StartX=center-85;c.ch4GoalX=ARENA_W-WALL-120;c.ch4Arrived=false;c.ch4Inspected=false;c.ch4UpLast=false;c.ch4JumpT=null;
+    resetActor(g,c.ch4StartX,1);g.ai=null;g.storyCinePose=null;
+    resetActor(s,ARENA_W+1400,-1);s.ai=null;s.hp=Math.max(1,s.maxHp||100);s.storyCinePose=null;
+    if(g){g.opp=s;g.state='IDLE';}if(s)s.opp=g;
+    if(G.fighters)G.fighters=G.fighters.filter(f=>f===g||f===s);
+    G.mode='story';G.story.chapter=4;G.story.act=1;G.story.phase=5;G.story.cutscene=false;
+    G.storyCutscene=false;G.matchOver=false;G.matchOverScreen=false;G.roundState='fight';G.roundTimer=0;G.paused=false;
+    G.domain=null;G.clash=null;G.winner=null;G.flash=0;G.shake=0;G.shakeX=0;G.shakeY=0;
+    G.projectiles=[];G.hitEffects=[];G.hits=[];
+    camera(g.x+180,GROUND-145,.9);
+    safeStore('jff_story_ch3_complete','1');safeStore('jff_story_unlocked_ch3','1');safeStore('jff_story_ch4_started','1');
+    try{if(typeof syncStoryArchive==='function')syncStoryArchive();}catch(e){}
+    line(c,'ch4-pursuit-ready','GOJO','Bám theo đàn quạ. Chúng sẽ dẫn ta đến chỗ hắn.','#9fe9ff');
+  }
+
+  function tickChapter4Pursuit(c){
+    if(!c||G.paused||!c.gojo)return;
+    const g=c.gojo;const inp=readInput(KEYMAP.p1);
+    c.ch4Clock=(c.ch4Clock||0)+STEP;
+    const axis=(inp.right||0)-(inp.left||0);
+    const speed=inp.soru?8.1:4.35;
+    if(axis!==0){
+      g.x=clamp(g.x+axis*speed,WALL+90,c.ch4GoalX);
+      g.facing=axis>0?1:-1;g.state='WALK';g.walk=(g.walk||0)+.28;g.stateFrame=(g.stateFrame||0)+1;
+    }else if(inp.down){g.state='CROUCH';g.walk=0;g.stateFrame=(g.stateFrame||0)+1;}
+    else{g.state='IDLE';g.walk=(g.walk||0)*.72;g.stateFrame=(g.stateFrame||0)+1;}
+    const jumpPressed=!!inp.up&&!c.ch4UpLast;c.ch4UpLast=!!inp.up;
+    if(jumpPressed&&c.ch4JumpT==null)c.ch4JumpT=0;
+    if(c.ch4JumpT!=null){
+      c.ch4JumpT+=STEP*2.25;const p=clamp01(c.ch4JumpT);
+      g.y=GROUND-Math.sin(p*Math.PI)*92;
+      if(p>=1){g.y=GROUND;c.ch4JumpT=null;}
+    }else g.y=GROUND;
+    g.vx=0;g.vy=0;g.move=null;g.hitstun=0;g.animT=(g.animT||0)+(axis? .22: .055);
+    g.storyCinePose=null;
+    if(g.x>=c.ch4GoalX-1&&!c.ch4Arrived){
+      c.ch4Arrived=true;
+      line(c,'ch4-arrival','GOJO','Dấu vết này... dẫn vào một ngôi đền?','#9fe9ff');
+    }
+    camera(g.x+180,GROUND-145,.9);
+    if(c.ch4Arrived&&c.ch4Inspected){
+      // Keep the trail exploration playable after the discovery prompt is acknowledged.
+      g.state='IDLE';g.walk=0;
+    }
+  }
+
+  function drawChapter4PursuitFX(c){
+    if(!c||!c.gojo)return;
+    const g=c.gojo,goal=c.ch4GoalX,sc=cam.zoom;
+    const sx=x=>W/2+(x-cam.x)*sc,sy=y=>H/2+(y-cam.y)*sc;
+    ctx.save();
+    // Minimal cinematic HUD instead of combat meters during the pursuit.
+    ctx.fillStyle='rgba(3,6,15,.78)';ctx.fillRect(0,0,W,48);
+    ctx.textAlign='left';ctx.font='800 10px Consolas,monospace';ctx.fillStyle='#b3c5e5';
+    ctx.fillText('CHAPTER 4  /  THE EYES BEYOND INFINITY',24,19);
+    ctx.font='900 12px Consolas,monospace';ctx.fillStyle=c.ch4Arrived?'#ff8ca0':'#e4eaff';
+    ctx.fillText(c.ch4Arrived?'TRAIL ENDS HERE':'OBJECTIVE  /  FOLLOW THE CROWS',24,36);
+    const prog=clamp01((g.x-c.ch4StartX)/(goal-c.ch4StartX));
+    ctx.fillStyle='rgba(160,179,213,.18)';ctx.fillRect(W-314,19,270,7);
+    const bar=ctx.createLinearGradient(W-314,0,W-44,0);bar.addColorStop(0,'#8fdfff');bar.addColorStop(1,'#ff536d');
+    ctx.fillStyle=bar;ctx.fillRect(W-314,19,270*prog,7);
+    ctx.textAlign='right';ctx.font='800 9px Consolas,monospace';ctx.fillStyle='#9baac5';ctx.fillText(Math.round(prog*100)+'%',W-44,38);
+
+    // Flock guides the eye toward the goal, with subtle wing motion and a cursed-energy ribbon.
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.18;
+    ctx.strokeStyle='#a78bfa';ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(sx(g.x+55),sy(GROUND-105));
+    ctx.bezierCurveTo(sx(g.x+210),sy(GROUND-205),sx(goal-260),sy(GROUND-35),sx(goal),sy(GROUND-140));ctx.stroke();
+    ctx.restore();
+    for(let i=0;i<11;i++){
+      const wx=Math.min(goal-36,g.x+170+i*76);
+      const phase=(c.ch4Clock||0)*9+i*1.7;
+      const wy=GROUND-115-Math.sin(phase*.55)*21-(i%3)*22;
+      const x=sx(wx),y=sy(wy);
+      if(x<-30||x>W+30)continue;
+      ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.fillStyle=i%4===0?'#ff526f':'#090b13';
+      const wing=Math.sin(phase)*7;
+      ctx.beginPath();ctx.moveTo(-13,1);ctx.quadraticCurveTo(-7,-8-wing,-1,0);ctx.quadraticCurveTo(6,-9+wing,14,1);ctx.quadraticCurveTo(6,-1,1,4);ctx.lineTo(-4,4);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(8,0);ctx.lineTo(16,-2);ctx.lineTo(10,3);ctx.closePath();ctx.fill();ctx.restore();
+    }
+    const gx=sx(goal+34),gy=sy(GROUND);
+    if(gx>-120&&gx<W+120){
+      ctx.save();ctx.translate(gx,gy);ctx.scale(sc,sc);
+      ctx.strokeStyle='#221c2c';ctx.lineWidth=13;ctx.beginPath();
+      ctx.moveTo(-47,-5);ctx.lineTo(-47,-210);ctx.moveTo(47,-5);ctx.lineTo(47,-210);
+      ctx.moveTo(-82,-210);ctx.lineTo(82,-210);ctx.moveTo(-58,-232);ctx.lineTo(58,-232);ctx.stroke();
+      ctx.strokeStyle='#a12b49';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-41,-202);ctx.lineTo(39,-202);ctx.moveTo(0,-194);ctx.lineTo(0,-148);ctx.stroke();
+      ctx.restore();
+    }
+    if(c.caption){
+      const cue=c.caption,bw=Math.min(830,W-100),bx=(W-bw)/2,by=H-108,bh=67;
+      ctx.fillStyle='rgba(3,6,13,.92)';ctx.fillRect(bx,by,bw,bh);
+      ctx.strokeStyle=cue.color||'#9fe9ff';ctx.lineWidth=2;ctx.strokeRect(bx,by,bw,bh);
+      ctx.textAlign='left';ctx.font='900 11px "Segoe UI",sans-serif';ctx.fillStyle=cue.color||'#9fe9ff';ctx.fillText(cue.speaker,bx+18,by+21);
+      ctx.font='700 16px "Segoe UI",sans-serif';ctx.fillStyle='#f4f7ff';ctx.fillText(cue.text,bx+18,by+47,bw-36);
+    }else if(c.ch4Arrived){
+      ctx.fillStyle='rgba(3,6,13,.84)';ctx.fillRect(W*.22,H-100,W*.56,54);
+      ctx.textAlign='center';ctx.font='900 11px Consolas,monospace';ctx.fillStyle='#ff9bab';ctx.fillText('SEALED SHRINE AHEAD  /  PRESS ENTER TO INSPECT',W*.5,H-68);
+    }else{
+      ctx.fillStyle='rgba(3,6,13,.72)';ctx.fillRect(24,H-48,540,24);
+      ctx.textAlign='left';ctx.font='800 10px Consolas,monospace';ctx.fillStyle='#c6d3e8';
+      ctx.fillText('A / D  MOVE     W  VAULT     SHIFT  SORU DASH',36,H-32);
+    }
+    ctx.restore();
+  }
+
   function tickEnding(c){
     const center=c.openingCenter||ARENA_W/2,g=c.gojo,s=c.sukuna;
     if(c.stage==='defeat'){
@@ -295,7 +535,7 @@
       if(c.t>2.6){c.stage='failedCard';c.t=2.6;G.matchOverScreen=true;G.roundState='over';}
       return;
     }
-    c.t=Math.min(62,c.t+STEP);const t=c.t,phaseT=t<20?t:t-20;
+    c.t=Math.min(87,c.t+STEP);const t=c.t,phaseT=t<20?t:t-20;
     G.flash=Math.max(0,(G.flash||0)-.035);G.shake=Math.max(0,(G.shake||0)-.45);
     if(!g||!s)return;
     const i=fightKeyIndex(t),a=finalFightKeys[i],b=finalFightKeys[Math.min(i+1,finalFightKeys.length-1)];
@@ -324,7 +564,7 @@
       if(t>7.02&&t<7.28)line(c,'ending-blue-old','GOJO','Blue.','#9fe9ff');
       if(t>8.64&&t<8.88)line(c,'ending-red-old','GOJO','Red.','#a9e9ff');
       if(t>13&&t<13.3)line(c,'ending-purple-old','GOJO','Hollow Purple.','#a9e9ff');
-    }else{
+    }else if(t<62){
       if(phaseT>.38&&phaseT<.9)line(c,'ending-blue','GOJO','Blue.','#9fe9ff');
       if(phaseT>2.04&&phaseT<2.48)line(c,'ending-red','GOJO','Red.','#ff9ba8');
       if(phaseT>9.72&&phaseT<10.2)line(c,'ending-purple','GOJO','MURASAKI!','#e7c8ff');
@@ -338,8 +578,15 @@
       if(phaseT>33.2&&phaseT<33.75)line(c,'itachi-escape-line','ITACHI','Chúng ta rời đi, Sukuna.','#ff5268');
       if(phaseT>35.85&&phaseT<36.4)line(c,'sukuna-retreat-line','SUKUNA','Tch... món nợ này chưa xong đâu, Gojo.','#ff8190');
       if(phaseT>38.05&&phaseT<38.7)line(c,'gojo-recovered-line','GOJO','Ảo giác...? Ai vừa cứu hắn?','#9fe9ff');
+    }else{
+      const post=t-62;
+      if(post>.36&&post<.95)line(c,'ch4-afterimage','GOJO','Không gian... vừa bị viết lại?','#9fe9ff');
+      if(post>5.7&&post<6.25)line(c,'ch4-itachi-purpose','ITACHI','Ta không cứu ngươi. Ta cần ngươi còn sống.','#ff5268');
+      if(post>8.1&&post<8.65)line(c,'ch4-sukuna-pride','SUKUNA','Đừng nhầm ta với thuộc hạ của ngươi.','#ff8190');
+      if(post>10.75&&post<11.35)line(c,'ch4-itachi-reply','ITACHI','Ta chưa bao giờ mắc sai lầm đó.','#ff5268');
+      if(post>16.1&&post<16.75)line(c,'ch4-gojo-pursuit','GOJO','Chạy đi. Ta sẽ tìm ra các ngươi.','#9fe9ff');
     }
-    if(t>=62){c.t=62;markComplete(c);}
+    if(t>=87){beginChapter4Pursuit(c);return;}
   }
   function tick(){
     const c=chapter3();if(!c)return;
@@ -707,6 +954,8 @@
   }
 
   function drawEndingCinematicFX(c) {
+    const absoluteTime=c.t||0;
+    if(absoluteTime>=62){drawChapter4ContinuationFX(c,absoluteTime-62);return;}
     const timelineT=c.t||0;
     if(timelineT<20){drawCombatChoreographyFX(c);return;}
     const t=timelineT-20,g=c.gojo,enemy=c.sukuna;
@@ -1017,7 +1266,17 @@
     [55.2,-14,250,0,0,"stagger","wallLean",25,1.02,"crow_escape"],
     [57,-8,980,0,0,"recover","wallLean",60,0.96,""],
     [59,8,980,0,0,"guard","wallLean",22,0.93,"gojo_recovers"],
-    [62,8,980,0,0,"finalPose","wallLean",0,0.9,""]
+    [62,8,980,0,0,"finalPose","wallLean",0,0.9,""],
+    [64,8,980,0,0,"stagger","wallLean",0,0.9,""],
+    [66,8,980,0,0,"recover","wallLean",0,0.9,""],
+    [69,8,980,0,0,"guard","wallLean",0,0.9,""],
+    [72,8,980,0,0,"guard","wallLean",0,0.9,""],
+    [75,8,980,0,0,"guard","wallLean",0,0.9,""],
+    [77,8,980,0,0,"recover","wallLean",0,0.91,""],
+    [79,8,980,0,0,"guard","wallLean",0,0.92,""],
+    [82,8,980,0,0,"guard","wallLean",0,0.92,""],
+    [85,8,980,0,0,"finalPose","wallLean",0,0.92,""],
+    [87,8,980,0,0,"finalPose","wallLean",0,0.92,""]
   ];
   const mkFinalPose=(hipY,shY,headY,lean,afx,afy,abx,aby,lfx,lfy,lbx,lby,headX=0)=>({hipY,shY,headY,headX,lean,armF:[afx,afy],armB:[abx,aby],legF:[lfx,lfy],legB:[lbx,lby]});
   const FINAL_FIGHT_POSES={
@@ -1219,7 +1478,7 @@
     return P;
   };
   if(typeof baseDrawUI==='function')window.drawUI=function(){
-    const c=chapter3();if(c&&(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'||c.stage==='complete'||c.stage==='failedCard'))return;
+    const c=chapter3();if(c&&(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'||c.stage==='complete'||c.stage==='failedCard'||c.stage==='ch4Pursuit'))return;
     return baseDrawUI.apply(this,arguments);
   };
   if(typeof baseRender==='function')window.render=function(){
@@ -1232,7 +1491,8 @@
       if(c.stage==='intro'&&c.t<.18){ctx.save();ctx.fillStyle='rgba(0,0,0,'+(.4*(1-c.t/.18))+')';ctx.fillRect(0,0,W,H);ctx.restore();}
       if(c.stage==='domainIntro'&&c.t>3.85&&c.t<5.2){ctx.save();ctx.globalAlpha=.08+Math.sin(c.t*24)*.04;ctx.fillStyle=(Math.floor(c.t*20)%2)?'#83dcff':'#ff5167';ctx.fillRect(0,0,W,H);ctx.restore();}
       if(c.stage==='defeat')drawEndCard(c,true);
-    }else if(c.stage==='complete')drawEndCard(c,false);
+    }else if(c.stage==='ch4Pursuit')drawChapter4PursuitFX(c);
+    else if(c.stage==='complete')drawEndCard(c,false);
     else if(c.stage==='failedCard')drawEndCard(c,true);
     if(c.domainsActive&&c.stage==='combat')drawDomainClashFX(c);
   };
@@ -1265,6 +1525,7 @@
     const c=chapter3();
     if(c&&G.mode==='story'){
       if(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat'){baseStep.apply(this,arguments);tick();return;}
+      if(c.stage==='ch4Pursuit'){tickChapter4Pursuit(c);return;}
       if(c.stage==='complete'||c.stage==='failedCard')return;
       if(c.stage==='combat'){tick();return;}
     }
@@ -1282,6 +1543,13 @@
         if(code==='KeyR'){restartChapter3();return;}
         if(code==='Enter'||code==='Space'||code==='Escape'){leaveChapter3();return;}
         return;
+      }
+      if(c.stage==='ch4Pursuit'){
+        if(c.ch4Arrived&&(code==='Enter'||code==='Space')){
+          if(!c.ch4Inspected){c.ch4Inspected=true;line(c,'ch4-shrine-inspected','GOJO','Một kết giới che giấu thứ gì đó bên trong...','#9fe9ff');}
+          return;
+        }
+        return baseMenuKey.apply(this,arguments);
       }
       if(c.stage==='intro'||c.stage==='domainIntro'||c.stage==='ending'||c.stage==='defeat')return;
     }
