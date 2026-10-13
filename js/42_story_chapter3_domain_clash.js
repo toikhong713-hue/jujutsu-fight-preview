@@ -802,7 +802,7 @@ function drawChapter4ContinuationFX(c,t){
   function drawCaption(c){
     const t=c.t;ctx.save();
     ctx.fillStyle='rgba(2,4,10,.72)';ctx.fillRect(0,0,W,31);ctx.fillRect(0,H-32,W,32);
-    ctx.fillStyle='#9eb4d7';ctx.font='800 9px Consolas,monospace';ctx.textAlign='left';ctx.fillText('JUJUTSU CHRONICLES  /  CHAPTER 3',25,20);
+    ctx.fillStyle='#9eb4d7';ctx.font='800 9px Consolas,monospace';ctx.textAlign='left';ctx.fillText(c.stage==='ending'&&c.t>=62?'JUJUTSU CHRONICLES  /  CHAPTER 4':'JUJUTSU CHRONICLES  /  CHAPTER 3',25,20);
     ctx.textAlign='right';ctx.fillStyle='#6b819f';ctx.fillText(c.stage==='intro'?'CONTINUING FROM CHAPTER 2':(c.stage==='domainIntro'?'DOMAIN COLLISION':(c.stage==='ending'?(c.t<20?'FINAL EXCHANGE':(c.t<62?'HOLLOW PURPLE / EYES IN THE DARK':'THE EYES BEYOND INFINITY')):(c.stage==='defeat'?'DEFEAT':'AWAKENING'))),W-25,20);
     ctx.globalAlpha=.68;ctx.fillStyle='#000';ctx.fillRect(0,31,W,1);ctx.globalAlpha=1;
     if(c.caption){
