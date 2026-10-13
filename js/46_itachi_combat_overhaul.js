@@ -184,8 +184,8 @@
     const reach=hb?(hb.x||0)+(hb.w||0):82;
     const attackY=hb?o.y+(hb.y||-80)+(hb.h||40)*.5:o.y-80;
     const hitClone=activeAttack&&localX>=Math.max(-22,(hb?hb.x||0:-10))&&localX<=reach+14&&Math.abs(attackY-(c.y-80))<100;
-    const steppedIn=dist<44&&c.t>8&&Math.abs(o.y-c.y)<100;
-    if(hitClone||steppedIn)cloneBurst(c.owner,c);
+    // The clone is a separate hurtbox: merely approaching it does not detonate it.
+    if(hitClone)cloneBurst(c.owner,c);
   }
   function updateBurn(){
     if(sys.burn){
@@ -376,6 +376,8 @@
     window.render=function(){
       baseRender.apply(this,arguments);
       if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){
+        // Monotonic simulation-frame clock for charge, counter windows and cinematic timers.
+        sys.tick++;
         updatePlayerStates();
         if(sys.moon){sys.moon.t=(sys.moon.t||0)+1;if(sys.moon.t>=sys.moon.d)sys.moon=null;}
         if(sys.sealing){
