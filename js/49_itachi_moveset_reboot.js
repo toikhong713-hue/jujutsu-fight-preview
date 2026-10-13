@@ -374,7 +374,7 @@
       const r=baseResetFighter.apply(this,arguments);
       if(f&&f.id==='itachi'){
         f.moves=MOVES;f.itachiPoseKey='';f.itachiCinemaKind='';f.itachiChargeFrames=0;f.itachiFireDone=false;
-        f.itachiCounterUntil=0;f.itachiYataUntil=0;f.itachiTauntFrames=0;f.itachiVictoryFrames=0;f.itachiVictoryActive=false;
+        f.itachiCounterUntil=0;f.itachiYataUntil=0;f.itachiTauntFrames=0;f.itachiTauntCd=0;f.itachiVictoryFrames=0;f.itachiVictoryActive=false;
         f.itachiInvulnDash=0;
       }
       if(Q.clone&&Q.clone.owner===f)Q.clone=null;
@@ -552,7 +552,7 @@
     const p=worldPoint(q.x,q.y),s=p.s;
     if(q.kind==='fireball')return '<g transform="translate('+p.x+' '+p.y+') scale('+s+')"><ellipse rx="'+(q.r*1.3)+'" ry="'+(q.r*.88)+'" fill="url(#itRebootFire)" opacity=".9"/><ellipse rx="'+(q.r*.72)+'" ry="'+(q.r*.58)+'" fill="#ff632f"/><ellipse rx="'+(q.r*.32)+'" ry="'+(q.r*.26)+'" fill="#fff5d8"/><path d="M '+(-q.r*1.5)+' -4 Q '+(-q.r*.5)+' -20 '+(-q.r*.8)+' -'+q.r+' M '+(-q.r*1.4)+' 9 Q '+(-q.r*.2)+' 27 '+(-q.r*.7)+' '+(q.r*.8)+'" stroke="#ff9a4d" stroke-width="4" fill="none"/></g>';
     if(q.kind==='magatama')return '<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*57.3)+') scale('+s+')"><ellipse rx="16" ry="25" fill="none" stroke="#ef655f" stroke-width="2"/><path d="M 0 -19 C 24 -14 19 16 0 20 C -9 11 -7 4 1 0 C 8 -4 7 -12 0 -19 Z" fill="#ffd29c" stroke="#fff0ce" stroke-width="1.7"/><circle cy="-4" r="3.5" fill="#8b1530"/></g>';
-    return '<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*57.3)+') scale('+s+')"><path d="M 0 -22 L 5 -5 L 22 0 L 5 5 L 0 22 L -5 5 L -22 0 L -5 -5 Z" fill="#dce0e8" stroke="#fff4e8" stroke-width="1.8"/><circle r="4" fill="#702038"/><path d="M -26 0 L -40 -7 M -26 0 L -40 7" stroke="#ad263f" stroke-width="2"/></g>';
+    return '<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*57.3)+') scale('+s+')"><path d="M -54 0 Q -35 -12 -18 0" fill="none" stroke="#a96bff" stroke-width="2.8" stroke-dasharray="4 5" opacity=".95"/><path d="M 0 -22 L 5 -5 L 22 0 L 5 5 L 0 22 L -5 5 L -22 0 L -5 -5 Z" fill="#dce0e8" stroke="#fff4e8" stroke-width="1.8"/><circle r="4" fill="#702038"/><path d="M -26 0 L -40 -7 M -26 0 L -40 7 M -13 -15 L -5 -8 L -2 -18 M 13 15 L 5 8 L 2 18" stroke="#a96bff" stroke-width="2"/><g transform="translate(15 -9) rotate(22)"><rect x="-4" y="-6" width="8" height="12" rx="1" fill="#c72c46" stroke="#ffe7ed" stroke-width="1"/><path d="M -2 -3 L 2 3 M 2 -3 L -2 3" stroke="#ffe7ed" stroke-width=".8"/></g><circle cx="-31" cy="10" r="1.8" fill="#d3a3ff"/><circle cx="28" cy="-8" r="1.4" fill="#d3a3ff"/></g>';
   }
   function cinematicSvg(c){
     const n=c.frame,kind=c.kind,o=c.target,owner=c.owner;
