@@ -60,7 +60,7 @@ if(typeof oldStart==='function')window.startMove=function(f,k,isBF){
  if(Q.cinema)return false;const ok=oldStart.apply(this,arguments);
  if(ok&&f&&f.id==='itachi'){
   if(k==='s1'){f.itachiChargeKey=f.isP2?'Numpad3':'Digit3';f.itachiHeldTicks=0;f.itachiFireMode='';f.itachiFireDone=false;f.itachiFireReleased=false;f.itachiChargeFrames=0;Q.flameBreath=null;}
-  if(k==='s2'){const t=targetFor(f,1100);if(t){f.itachiDirectTsukuyomiTarget=t;f.itachiCounterUntil=0;f.facing=t.x>=f.x?1:-1;}else{f.itachiDirectTsukuyomiTarget=null;f.itachiTsukuyomiCounter=true;}}
+  if(k==='s2'){const t=targetFor(f,window.ARENA_W||3200);if(t){f.itachiDirectTsukuyomiTarget=t;f.itachiCounterUntil=0;f.facing=t.x>=f.x?1:-1;}else{f.itachiDirectTsukuyomiTarget=null;f.itachiTsukuyomiCounter=true;}}
   if(k==='s5'){f.itachiAmaterasuFrame=0;Q.amaterasuImpact=null;}
  }
  return ok;
