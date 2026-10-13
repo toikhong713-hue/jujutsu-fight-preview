@@ -158,7 +158,6 @@
     fx('explosion',c.x,c.y-80,30);fx('shock',c.x,c.y-74,32);fx('crows',c.x,c.y-80,35);
     if(o&&Math.abs(o.x-c.x)<175&&Math.abs(o.y-c.y)<140){
       resolveItachiHit(owner,o,{damage:28,hitstun:35,blockstun:20,kbx:10,kby:-8,hitstop:12,armorBreak:true,meter:8},c.x,c.y-80);
-      if(o.hp>0)damageOnly(owner,o,1,20);
     }
     sys.clone=null;
   }
