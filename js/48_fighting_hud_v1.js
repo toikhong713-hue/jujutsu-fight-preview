@@ -135,9 +135,10 @@ function buildSlots(ref,f,i){
   const card=ref.slots[slot],key=moveFor(f,slot);
   if(!key){card.style.display='none';continue}
   card.style.display='flex';const m=f.moves[key];
-  card.querySelector('.hud-slot-key').textContent=keyLabels[i][key]||key.toUpperCase();
+  const shownKey=(f.id==='itachi'&&i===0&&key==='def')?'X':(keyLabels[i][key]||key.toUpperCase());
+  card.querySelector('.hud-slot-key').textContent=shownKey;
   card.querySelector('.hud-slot-name').textContent=shortLabel(f,key,m);
-  card.title=(m.name||key.toUpperCase())+' · '+(keyLabels[i][key]||key.toUpperCase());
+  card.title=(m.name||key.toUpperCase())+' · '+shownKey;
   card.classList.toggle('ultimate',key==='ult');card.classList.toggle('extra',slot==='extra');
  }
  ref.lastChar=f.id;
