@@ -387,7 +387,7 @@ function MenuKey(code){
     if(G.mode==='training'){
       if(code==='KeyT')G.training.boxes=!G.training.boxes;
       if(code==='KeyY')G.training.frames=!G.training.frames;
-      if(code==='KeyR'){resetFighter(G.fighters[0],ARENA_W/2-190,1);resetFighter(G.fighters[1],ARENA_W/2+190,-1);}
+      if(code==='KeyP'){resetFighter(G.fighters[0],ARENA_W/2-190,1);resetFighter(G.fighters[1],ARENA_W/2+190,-1);}
       // Training-only shortcuts use B/N/M so Toji and Young Gojo can keep G/Z/X for gameplay.
       if(code==='KeyB'){startMatch('training',G.fighters[0].id,G.fighters[1].id);}
       if(code==='KeyN')G.training.infHP=!G.training.infHP;
