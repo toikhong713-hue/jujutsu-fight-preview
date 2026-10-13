@@ -33,7 +33,7 @@
         else if(n<31)put(9,[35,22],[139,30],[[77,4],[109,-7]],-56,-113);
         else put(-3,[61,18],[123,18],[[86,0],[98,0]],-57,-114);
       }else if(k==='s1'){
-        if(f.itachiChargeFired||n>=92){
+        if((f.itachiFirePose||0)>0){
           put(20,[28,28],[151,-26],[[72,19],[112,-9]],-53,-119,-91);
         }else{
           const seals=[
@@ -81,7 +81,7 @@
       baseDetails.apply(this,arguments);
       if(!f||f.id!=='itachi'||!f.move||f.state!=='ATTACK')return;
       const k=f.moveKey,n=f.moveFrame||0;
-      if(k==='s1'&&!f.itachiChargeFired&&n<92&&hf&&ef){
+      if(k==='s1'&&(f.itachiFirePose||0)<=0&&!f.itachiChargeFired&&hf&&ef){
         const c=clamp(Number(f.itachiCharge)||0,0,1),mx=(hf.x+ef.x)*.5,my=(hf.y+ef.y)*.5;
         ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
         // Small, readable finger silhouettes make the hand-seal sequence legible on the low-res rig.
@@ -96,7 +96,7 @@
         }
         ctx.restore();
       }
-      if(k==='s1'&&f.itachiChargeFired&&n>=92&&headPt){
+      if(k==='s1'&&(f.itachiFirePose||0)>0&&headPt){
         ctx.save();ctx.fillStyle='#13070b';ctx.strokeStyle='#f4b3b9';ctx.lineWidth=1.0;
         ctx.beginPath();ctx.ellipse(headPt.x+fd*2.5,headPt.y+13,4.2,2.8,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.restore();
       }
@@ -106,71 +106,62 @@
       }
     };
   }
-  if(!wrap)return;
-  const NS='http://www.w3.org/2000/svg';
-  const under=document.createElementNS(NS,'svg');
-  under.setAttribute('id','jffItachiSusanooUnderlay');
-  under.setAttribute('viewBox','0 0 1280 720');
-  under.setAttribute('preserveAspectRatio','none');
-  under.setAttribute('aria-hidden','true');
-  under.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;overflow:hidden';
-  under.innerHTML='<defs><linearGradient id="itV2Armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffd7a4" stop-opacity=".62"/><stop offset=".28" stop-color="#b94e49" stop-opacity=".78"/><stop offset=".68" stop-color="#541729" stop-opacity=".76"/><stop offset="1" stop-color="#190814" stop-opacity=".82"/></linearGradient><linearGradient id="itV2Edge" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff0c8"/><stop offset=".45" stop-color="#ff9d83"/><stop offset="1" stop-color="#a51b39"/></linearGradient><radialGradient id="itV2Core"><stop stop-color="#fff0c6"/><stop offset=".3" stop-color="#ff8d79"/><stop offset="1" stop-color="#c62a4d" stop-opacity="0"/></radialGradient><filter id="itV2Glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.1"/></filter></defs>';
-  const underDefs=under.innerHTML;
-  wrap.appendChild(under);
-  function project(x,y){
-    const z=(typeof cam!=='undefined'&&Number.isFinite(cam.zoom))?cam.zoom:1;
-    const cx=(typeof cam!=='undefined'&&Number.isFinite(cam.x))?cam.x:640;
-    const cy=(typeof cam!=='undefined'&&Number.isFinite(cam.y))?cam.y:360;
-    return {x:640+((typeof G!=='undefined'?G.shakeX:0)||0)+(x-cx)*z,y:360+((typeof G!=='undefined'?G.shakeY:0)||0)+(y-cy)*z,s:z};
-  }
-  function renderSusanoo(){
-    if(typeof G==='undefined'||G.mode==='menu'||!Array.isArray(G.fighters)){under.innerHTML=underDefs;return;}
-    const f=G.fighters.find(q=>q&&q.id==='itachi');
-    if(!f||f.state==='DEFEAT'){under.innerHTML=underDefs;return;}
+  function drawSusanooBehindFighter(f){
+    if(typeof ctx==='undefined'||typeof G==='undefined'||G.mode==='menu'||!f||f.id!=='itachi'||f.state==='DEFEAT')return;
     const k=f.moveKey||'',n=f.moveFrame||0,attack=f.state==='ATTACK'&&!!f.move;
     const heavy=attack&&k==='heavy'&&n>=5&&n<=36;
-    const mag=attack&&k==='s3'&&n>=8&&n<=((f.move.startup||17)+(f.move.active||4)+10);
-    const ult=attack&&k==='ult';
-    const awake=(f.itachiAwake||0)>0;
-    if(!heavy&&!mag&&!ult&&!awake){under.innerHTML=underDefs;return;}
-    const p=project(f.x,f.y),full=mag||ult||awake;
-    const pulse=.82+Math.sin((f.animT||0)*.16)*.05;
-    const sc=p.s*(full?1.02:.88),forward=heavy?clamp((n-10)/12,0,1):0;
-    const dir=f.facing||1;
-    const chest=full
-      ? '<path d="M -57 -99 Q -38 -120 -19 -103 L 0 -113 L 19 -103 Q 43 -120 57 -99 L 49 -42 L 33 11 L 0 25 L -33 11 L -49 -42 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -36 -88 Q 0 -67 36 -88 M -40 -67 Q 0 -45 40 -67 M -35 -46 Q 0 -24 35 -46 M -26 -25 Q 0 -4 26 -25 M -18 -5 Q 0 14 18 -5" fill="none" stroke="#ffd8bd" stroke-width="3.1" opacity=".88"/><path d="M -26 -94 L -10 -66 L 0 -82 L 10 -66 L 26 -94" fill="none" stroke="#fff0d3" stroke-width="2.4"/>'
-      : '<path d="M -47 -83 Q -25 -101 0 -91 Q 25 -101 47 -83 L 36 -40 L 0 -23 L -36 -40 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -29 -76 Q 0 -60 29 -76 M -27 -56 Q 0 -40 27 -56" fill="none" stroke="#ffd8bd" stroke-width="3"/>';
-    const skull=full
-      ? '<path d="M -29 -151 L -17 -177 L -5 -159 L 7 -179 L 18 -157 L 32 -166 L 34 -135 L 24 -115 L 0 -108 L -24 -115 L -35 -136 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -25 -146 L -47 -171 L -27 -169 M 25 -146 L 48 -171 L 28 -168" stroke="#f6b99f" stroke-width="5" fill="none"/><path d="M -23 -136 L -5 -130 L -13 -119 M 23 -136 L 5 -130 L 13 -119" fill="none" stroke="#2a0615" stroke-width="5"/><path d="M -18 -121 L -10 -110 L 0 -120 L 10 -110 L 18 -121" fill="none" stroke="#ffdfbc" stroke-width="2.5"/>'
-      : '<path d="M -25 -135 L -17 -159 L 0 -147 L 17 -159 L 26 -135 L 18 -113 L 0 -107 L -18 -113 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="3"/><path d="M -18 -133 L -5 -129 L -12 -120 M 18 -133 L 5 -129 L 12 -120" stroke="#230616" stroke-width="4" fill="none"/>';
-    const shoulders='<path d="M -42 -96 Q -76 -129 -101 -102 L -112 -73 L -84 -52 L -50 -65 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M 42 -96 Q 76 -129 101 -102 L 112 -73 L 84 -52 L 50 -65 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -95 -101 L -72 -95 L -91 -74 M 95 -101 L 72 -95 L 91 -74" fill="none" stroke="#ffe5c4" stroke-width="3"/>';
-    const leftArm='<path d="M -56 -89 Q -82 -100 -91 -78 L -103 -40 L -86 -29 L -63 -59 L -35 -61 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -101 -41 L -116 -15 L -105 -1 L -87 -20 L -86 -30 Z" fill="url(#itV2Armor)" stroke="#ffbca0" stroke-width="3"/><path d="M -112 -13 L -123 -8 L -118 2 L -104 -2" fill="url(#itV2Armor)" stroke="#ffbca0" stroke-width="2"/>';
-    const rightArm=heavy
-      ? '<path d="M 53 -89 Q 82 -111 98 -79 L '+(106+forward*45)+' '+(-56-forward*4)+' L '+(131+forward*48)+' '+(-31-forward*4)+' L '+(118+forward*42)+' '+(-8-forward*3)+' L '+(84+forward*24)+' '+(-35-forward*5)+' L 38 -57 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="5"/><path d="M '+(118+forward*42)+' '+(-16-forward*3)+' l 20 -7 l 11 13 l -11 15 l -20 -4 Z" fill="url(#itV2Armor)" stroke="#ffe1c0" stroke-width="4"/><path d="M '+(125+forward*42)+' '+(-14-forward*3)+' l 22 -1 M '+(125+forward*42)+' '+(-8-forward*3)+' l 19 4" stroke="#fff0d3" stroke-width="2.5"/>'
-      : '<path d="M 56 -89 Q 82 -101 91 -78 L 102 -41 L 85 -29 L 63 -59 L 35 -61 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M 101 -42 L 116 -16 L 105 -2 L 87 -21 L 86 -31 Z" fill="url(#itV2Armor)" stroke="#ffbca0" stroke-width="3"/><path d="M 112 -14 L 123 -9 L 118 2 L 104 -3" fill="url(#itV2Armor)" stroke="#ffbca0" stroke-width="2"/>';
-    const legs=full?'<path d="M -32 5 L -44 48 L -38 99 L -15 99 L -7 48 L 0 21 Z M 32 5 L 44 48 L 38 99 L 15 99 L 7 48 L 0 21 Z" fill="url(#itV2Armor)" stroke="url(#itV2Edge)" stroke-width="4"/><path d="M -43 49 L -10 59 M 43 49 L 10 59 M -39 82 L -16 83 M 39 82 L 16 83" stroke="#ffd8bd" stroke-width="3"/><path d="M -46 100 L -10 100 L -5 112 L -52 112 Z M 46 100 L 10 100 L 5 112 L 52 112 Z" fill="#4b1429" stroke="#ffb5a1" stroke-width="3"/>':'';
-    const shield=(ult&&n>8)?'<g transform="translate(-100 -55) rotate(-13)"><path d="M 0 -53 Q 51 -30 42 8 Q 29 42 0 58 Q -30 39 -42 7 Q -49 -28 0 -53 Z" fill="url(#itV2Armor)" stroke="#ffe0b9" stroke-width="4"/><path d="M -23 -25 L 23 27 M 24 -24 L -23 27" stroke="#fff2d6" stroke-width="3"/><ellipse rx="22" ry="34" fill="none" stroke="#ffad8f" stroke-width="2.4"/></g>':'';
-    const sword=(ult&&n>20)?'<g transform="translate(104 -80) rotate('+(-27+forward*10)+')"><path d="M -6 13 L -5 -82 L 0 -113 L 8 -82 L 7 13 Z" fill="#f2dfd1" stroke="#fff3d8" stroke-width="2.2"/><path d="M -15 12 L 16 12 L 15 20 L -14 20 Z" fill="#4a1226" stroke="#ffca9c" stroke-width="2.5"/><path d="M 0 20 L 0 42 M -8 23 L 8 37 M 8 23 L -8 37" stroke="#f4b68e" stroke-width="3"/></g>':'';
-    const magatama=(mag&&n>(f.move.startup||17)-2)?Array.from({length:3},(_,i)=>{
-      const a=(i-1)*.6+tFrame(f)*.025;
-      const x=dir*(67+Math.cos(a)*14),y=-98+Math.sin(a)*25;
-      return '<g transform="translate('+x+' '+y+') rotate('+(a*57.3)+')"><path d="M 0 -14 C 17 -9 14 11 0 15 C -7 7 -5 3 1 0 C 6 -3 5 -9 0 -14 Z" fill="#ffc58e" stroke="#fff0cf" stroke-width="2"/><circle cy="-3" r="2.5" fill="#55132a"/></g>';
-    }).join(''):'';
-    const shake=heavy?Math.sin(n*.8)*2:0;
-    under.innerHTML=underDefs+
-      '<g opacity="'+(pulse*(full ? .92 : .75))+'" transform="translate('+p.x+' '+(p.y-158*p.s)+' ) scale('+(sc*dir)+' '+sc+') translate(0 '+shake+')">'+
-      '<ellipse cx="0" cy="122" rx="95" ry="14" fill="#d63851" opacity=".12"/>'+
-      '<path d="M -28 -123 Q -47 -93 -40 -55 L -25 -22 L -31 13 L 31 13 L 25 -22 L 40 -55 Q 47 -93 28 -123 Z" fill="#130810" opacity=".72" stroke="#e56a65" stroke-width="2"/>'+
-      (full?shoulders:'')+skull+shoulders+leftArm+rightArm+chest+legs+shield+sword+magatama+
-      '<path d="M -24 -115 L -8 -100 L 0 -108 L 8 -100 L 24 -115" fill="none" stroke="#fff0d4" stroke-width="2.4" opacity=".8"/>'+
-      '<circle cx="0" cy="-89" r="22" fill="url(#itV2Core)" opacity=".48"/>'+
-      '</g>';
+    const mag=attack&&k==='s3'&&n>=8&&n<=((f.move.startup||18)+(f.move.active||4)+10);
+    const ult=attack&&k==='ult',awake=(f.itachiAwake||0)>0;
+    if(!heavy&&!mag&&!ult&&!awake)return;
+    const full=mag||ult||awake,dir=f.facing||1;
+    const pulse=.86+Math.sin((f.animT||0)*.16)*.05;
+    ctx.save();ctx.translate(f.x,f.y-158);ctx.scale(dir,1);
+    // Game camera/world transforms are already active. Paint this before the original fighter body.
+    ctx.globalAlpha=pulse*(full?.88:.68);ctx.globalCompositeOperation='source-over';
+    const armor=ctx.createLinearGradient(-112,-174,116,116);
+    armor.addColorStop(0,'#ffd5a0');armor.addColorStop(.25,'#c96555');armor.addColorStop(.58,'#7a2738');armor.addColorStop(1,'#2c0b1b');
+    const edge=ctx.createLinearGradient(0,-178,0,105);
+    edge.addColorStop(0,'#fff0cb');edge.addColorStop(.48,'#f08c7b');edge.addColorStop(1,'#8b1b36');
+    ctx.save();ctx.globalAlpha*=.18;ctx.fillStyle='#ef3e5e';ctx.beginPath();ctx.ellipse(0,126,94,13,0,0,Math.PI*2);ctx.fill();ctx.restore();
+    ctx.fillStyle='rgba(20,5,16,.78)';ctx.strokeStyle='#c95e61';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(-28,-127);ctx.quadraticCurveTo(-48,-96,-39,-55);ctx.lineTo(-25,-19);ctx.lineTo(-31,18);ctx.lineTo(31,18);ctx.lineTo(25,-19);ctx.lineTo(39,-55);ctx.quadraticCurveTo(48,-96,28,-127);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle=armor;ctx.strokeStyle=edge;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(-39,-104);ctx.quadraticCurveTo(-72,-133,-101,-106);ctx.lineTo(-116,-74);ctx.lineTo(-84,-50);ctx.lineTo(-49,-66);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.moveTo(39,-104);ctx.quadraticCurveTo(72,-133,101,-106);ctx.lineTo(116,-74);ctx.lineTo(84,-50);ctx.lineTo(49,-66);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.lineWidth=2.2;ctx.beginPath();ctx.moveTo(-96,-103);ctx.lineTo(-73,-96);ctx.lineTo(-89,-76);ctx.moveTo(96,-103);ctx.lineTo(73,-96);ctx.lineTo(89,-76);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(-48,-91);ctx.quadraticCurveTo(-27,-111,0,-101);ctx.quadraticCurveTo(27,-111,48,-91);ctx.lineTo(41,-42);ctx.lineTo(28,9);ctx.lineTo(0,23);ctx.lineTo(-28,9);ctx.lineTo(-41,-42);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='rgba(255,220,191,.9)';ctx.lineWidth=2.5;
+    for(let i=0;i<(full?5:3);i++){const y=-80+i*18;ctx.beginPath();ctx.moveTo(-36+i*2,y);ctx.quadraticCurveTo(0,y+20,36-i*2,y);ctx.stroke();}
+    ctx.fillStyle=armor;ctx.strokeStyle=edge;ctx.lineWidth=3.2;
+    ctx.beginPath();ctx.moveTo(-24,-143);ctx.lineTo(-18,-169);ctx.lineTo(-7,-154);ctx.lineTo(0,-179);ctx.lineTo(8,-154);ctx.lineTo(20,-167);ctx.lineTo(27,-141);ctx.lineTo(20,-117);ctx.lineTo(0,-106);ctx.lineTo(-20,-117);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.strokeStyle='#2a0617';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-18,-137);ctx.lineTo(-4,-132);ctx.lineTo(-11,-121);ctx.moveTo(18,-137);ctx.lineTo(4,-132);ctx.lineTo(11,-121);ctx.stroke();
+    ctx.strokeStyle='#fff0ca';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-15,-116);ctx.lineTo(0,-124);ctx.lineTo(15,-116);ctx.stroke();
+    ctx.fillStyle=armor;ctx.strokeStyle=edge;ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(-48,-84);ctx.quadraticCurveTo(-77,-102,-91,-74);ctx.lineTo(-106,-40);ctx.lineTo(-87,-27);ctx.lineTo(-62,-59);ctx.lineTo(-35,-57);ctx.closePath();ctx.fill();ctx.stroke();
+    const reach=heavy?clamp((n-10)/12,0,1):0;
+    ctx.beginPath();ctx.moveTo(48,-84);ctx.quadraticCurveTo(77,-104,91,-74);ctx.lineTo(105+reach*42,-48-reach*4);ctx.lineTo(130+reach*45,-26-reach*5);ctx.lineTo(116+reach*39,-4-reach*4);ctx.lineTo(82+reach*22,-33-reach*4);ctx.lineTo(35,-57);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#f5b18f';ctx.globalAlpha*=.8;ctx.beginPath();ctx.ellipse(0,-88,23,26,0,0,Math.PI*2);ctx.fill();ctx.globalAlpha/=.8;
+    if(full){
+      ctx.fillStyle=armor;ctx.strokeStyle=edge;ctx.lineWidth=3.5;
+      ctx.beginPath();ctx.moveTo(-28,10);ctx.lineTo(-43,48);ctx.lineTo(-37,99);ctx.lineTo(-14,99);ctx.lineTo(-7,49);ctx.lineTo(0,24);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.beginPath();ctx.moveTo(28,10);ctx.lineTo(43,48);ctx.lineTo(37,99);ctx.lineTo(14,99);ctx.lineTo(7,49);ctx.lineTo(0,24);ctx.closePath();ctx.fill();ctx.stroke();
+      ctx.strokeStyle='#ffd9b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-41,52);ctx.lineTo(-11,60);ctx.moveTo(41,52);ctx.lineTo(11,60);ctx.stroke();
+    }
+    if(mag){
+      for(let i=0;i<3;i++){
+        const bx=dir*(78+i*12),by=-104+Math.sin(i*1.8+n*.18)*7;
+        ctx.save();ctx.translate(dir*bx,by);ctx.rotate(n*.07+i*.6);
+        ctx.fillStyle='#ffd0a0';ctx.strokeStyle='#fff0cf';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(0,-10);ctx.bezierCurveTo(13,-7,12,8,0,11);ctx.bezierCurveTo(-7,6,-5,2,1,0);ctx.bezierCurveTo(6,-3,5,-7,0,-10);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();
+      }
+    }
+    ctx.restore();
   }
-  function tFrame(f){return f.moveFrame||0;}
-  const baseRender=window.render;
-  if(typeof baseRender==='function'){
-    window.render=function(){const result=baseRender.apply(this,arguments);renderSusanoo();return result;};
+  const baseDrawFighter=window.drawFighter;
+  if(typeof baseDrawFighter==='function'){
+    window.drawFighter=function(f){
+      if(f&&f.id==='itachi')drawSusanooBehindFighter(f);
+      return baseDrawFighter.apply(this,arguments);
+    };
   }
-  window.JFF_ITACHI_OVERHAUL_V2_API={ready:true,posePatch:true,susanooUnderlay:true,renderer:'SVG'};
-  console.info('[JFF Itachi v2] Skill-correct poses, hand-seal choreography, Yata guard and full-scale Susanoo loaded.');
 })();
