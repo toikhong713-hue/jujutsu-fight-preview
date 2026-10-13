@@ -3,6 +3,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/outsider-syntax.yml'
       - 'index.html'
       - 'js/09_menu.js'
       - 'js/34_pixijs_vfx_prototype_v37.js'
@@ -12,6 +13,7 @@ on:
   pull_request:
     branches: [main]
     paths:
+      - '.github/workflows/outsider-syntax.yml'
       - 'index.html'
       - 'js/09_menu.js'
       - 'js/34_pixijs_vfx_prototype_v37.js'
