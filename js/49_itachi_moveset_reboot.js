@@ -26,7 +26,7 @@
     def:{name:'Yata Mirror',kind:'def',startup:4,active:44,recovery:12,damage:0,hitstun:0,blockstun:0,hitbox:null,cost:18,cd:420,meter:0,aura:'itachiYata'},
     ult:{name:'Complete Susanoo: Totsuka Sealing Finale',kind:'ult',startup:45,active:195,recovery:0,damage:0,hitstun:0,blockstun:0,hitbox:null,cost:0,cd:0,meter:0,invuln:242,aura:'itachiUltimate'}
   };
-  if(window.CHARS&&CHARS.itachi){
+  if(typeof CHARS!=='undefined'&&CHARS.itachi){
     CHARS.itachi.moves=MOVES;CHARS.itachi.hp=200;CHARS.itachi.walk=3.65;CHARS.itachi.trainingOnly=true;CHARS.itachi.outsider=true;
   }
   if(typeof G!=='undefined'&&Array.isArray(G.fighters))for(const f of G.fighters)if(f&&f.id==='itachi')f.moves=MOVES;
@@ -74,7 +74,7 @@
     const d=f.facing,x=f.x+d*48,y=f.y-116;
     spawnShot(f,'fireball',x,y,(14+q*2.8)*d,-.22,{r:27*(1+.5*q),damage:20*(1+.3*q),stun:25+Math.round(q*5),kbx:10+q*3,kby:-5,life:96,armorBreak:false});
     effect('fire',x,y,28,{charge:q});effect('shock',x,y,18);screenImpact(.14,'#e8472f');
-    if(window.SFX&&SFX.fugaRelease)SFX.fugaRelease();
+    if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
   }
   function yasaka(f){
     const d=f.facing,x=f.x+d*96,y=f.y-194;
@@ -83,7 +83,7 @@
       spawnShot(f,'magatama',x,y,(16+(i===1?2:0))*d,vy,{r:18,damage:8,stun:17,kbx:8,kby:-4,life:100});
     }
     effect('magatama',x,y,32);effect('shock',x,y,28);screenImpact(.22,'#d44a51');
-    if(window.SFX&&SFX.heavy)SFX.heavy();
+    if(typeof SFX!=='undefined'&&SFX.heavy)SFX.heavy();
   }
   function shurikenFan(f){
     const d=f.facing,x=f.x+d*48,y=f.y-108;
@@ -153,10 +153,10 @@
     if(kind==='tsukuyomi'){
       effect('moon',target?target.x:owner.x+owner.facing*100,target?target.y-90:owner.y-90,duration);
       effect('crows',owner.x,owner.y-90,36);
-      if(window.SFX&&SFX.domain)SFX.domain();
+      if(typeof SFX!=='undefined'&&SFX.domain)SFX.domain();
     }else{
       effect('shock',owner.x,owner.y-100,42);effect('reflect',owner.x+owner.facing*48,owner.y-100,34);
-      if(window.SFX&&SFX.awaken)SFX.awaken();
+      if(typeof SFX!=='undefined'&&SFX.awaken)SFX.awaken();
     }
     screenImpact(kind==='ult'?.62:.35,kind==='ult'?'#c94d40':'#7e1231');
     if(typeof camPunch==='function')camPunch(kind==='ult'?.34:.20);
@@ -198,7 +198,7 @@
         else{o.hp=Math.max(1,o.hp-Math.round((o.maxHp||200)*.40));o.hitFlash=8;}
         effect('seal',o.x,o.y-82,90);effect('explosion',o.x,o.y-82,32);
         screenImpact(.7,'#d64d4b');
-        if(window.SFX&&SFX.blackflash)SFX.blackflash();
+        if(typeof SFX!=='undefined'&&SFX.blackflash)SFX.blackflash();
       }
       if(n===180&&o&&o.state!=='DEFEAT')effect('seal',o.x,o.y-82,50);
     }
@@ -222,7 +222,7 @@
       attacker.hitstun=Math.max(attacker.hitstun||0,24);attacker.vx=defender.facing*5;attacker.vy=-1.3;
       effect('reflect',defender.x+defender.facing*34,defender.y-86,28);
       effect('shock',attacker.x,attacker.y-80,22);
-      if(window.SFX&&SFX.parry)SFX.parry();
+      if(typeof SFX!=='undefined'&&SFX.parry)SFX.parry();
       return true;
     }
     return false;
@@ -314,7 +314,7 @@
       }else if(k==='s1'){
         const code=f.itachiChargeKey||(f.isP2?'Numpad3':'Digit3');
         if(!f.itachiFireDone){
-          if(window.KEY&&KEY[code]&&n<91)f.itachiChargeFrames=Math.min(90,(f.itachiChargeFrames||0)+1);
+          if(typeof KEY!=='undefined'&&KEY[code]&&n<91)f.itachiChargeFrames=Math.min(90,(f.itachiChargeFrames||0)+1);
           else f.itachiFireReleased=true;
           if(f.itachiChargeFrames>=90||(f.itachiFireReleased&&n>=18)){
             fireball(f,Math.max(.18,(f.itachiChargeFrames||0)/90));
@@ -348,12 +348,12 @@
             Q.burns=Q.burns.filter(b=>b.target!==o);
             Q.burns.push({target:o,t:0,d:300,next:30,kind:'amaterasu'});
             effect('amaterasu',o.x,o.y-84,42);effect('shock',o.x,o.y-85,30);screenImpact(.28,'#1d0913');
-            if(window.SFX&&SFX.red)SFX.red();impactText(o.x,o.y-156,'AMATERASU','#ff6680');
+            if(typeof SFX!=='undefined'&&SFX.red)SFX.red();impactText(o.x,o.y-156,'AMATERASU','#ff6680');
           }else effect('crows',f.x+d*48,f.y-86,24);
         }
         if(n>=60)endMove(f);
       }else if(k==='def'){
-        if(n===4){f.itachiYataUntil=Q.tick+44;effect('reflect',f.x+d*36,f.y-92,35);effect('shock',f.x+d*32,f.y-78,22);if(window.SFX&&SFX.parry)SFX.parry();}
+        if(n===4){f.itachiYataUntil=Q.tick+44;effect('reflect',f.x+d*36,f.y-92,35);effect('shock',f.x+d*32,f.y-78,22);if(typeof SFX!=='undefined'&&SFX.parry)SFX.parry();}
         if(n>=60){f.itachiYataUntil=0;endMove(f);}
       }else if(k==='ult'){
         if(n===1){
@@ -610,7 +610,7 @@
     if(!f||f.id!=='itachi'||Q.cinema||f.move||!['IDLE','WALK'].includes(f.state)||(f.itachiTauntCd||0)>Q.tick)return;
     f.itachiTauntFrames=58;f.itachiTauntCd=Q.tick+300;
     effect('emote',f.x,f.y-110,42);effect('crows',f.x-f.facing*12,f.y-82,26);
-    if(window.SFX&&SFX.ui)SFX.ui();
+    if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
   }
   addEventListener('keydown',function(e){
     if(e.repeat||Q.cinema||typeof G==='undefined'||G.mode==='menu')return;
