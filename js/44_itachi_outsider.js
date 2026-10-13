@@ -26,34 +26,10 @@
     hp:200,walk:3.65,jump:-14.5,weight:0.98,awakening:'sharingan',trainingOnly:true,outsider:true
   };
 
-  /* Give the shared rig Itachi's reserved stance without replacing the fighter rig. */
+  /* Locomotion identity only. Combat poses are controlled exclusively by js/49_itachi_moveset_reboot.js. */
   const baseIdentityPose=window.applyCharacterIdentityPose;
   if(typeof baseIdentityPose==='function'){
     window.applyCharacterIdentityPose=function(P,f){
-      if(f&&f.id==='itachi'&&f.move&&f.state==='ATTACK'){
-        // Re-pose the existing Itachi rig per move; keep the original character model intact.
-        const n=f.moveFrame||0,k=f.moveKey||'',pulse=Math.sin(n*.72),wide=Math.sin(n*.38);
-        P.hipY=-57;P.shY=-95;P.headY=-114;P.lean=2;P.armF=[66,18];P.armB=[112,14];P.legF=[88,5];P.legB=[96,-6];
-        if(k==='light'){
-          if(n<10){P.lean=9+pulse*2;P.armF=[42,-26+pulse*5];P.armB=[128,26];P.legF=[80,13];}
-          else if(n<20){P.lean=12;P.armF=[34,4];P.armB=[135,30];P.legB=[108,-13];}
-          else if(n<35){P.lean=-13;P.hipY=-61;P.armF=[18,-36];P.armB=[146,38];P.legF=[52,-28];P.legB=[120,18];}
-          else if(n<49){P.lean=-7;P.armF=[38,-31];P.armB=[130,35];P.legF=[77,16];}
-          else{P.lean=15;P.hipY=-60;P.armF=[22,-5];P.armB=[145,35];P.legF=[72,15];P.legB=[111,-10];}
-        }else if(k==='heavy'){
-          if(n<15){P.lean=-7;P.armF=[48,-28];P.armB=[125,-27];P.headY=-111;}
-          else if(n<27){P.lean=19;P.hipY=-52;P.armF=[25,48];P.armB=[150,48];P.legF=[80,16];P.legB=[108,-12];}
-          else{P.lean=1;P.armF=[58,28];P.armB=[119,22];}
-        }else if(k==='s1'){
-          if(n<8){P.lean=-6;P.armF=[40,-12];P.armB=[132,-8];}
-          else{P.lean=12;P.armF=[26,-20];P.armB=[143,-18];}
-        }else if(k==='s2'){P.lean=-2+wide;P.armF=[47,-15];P.armB=[121,12];P.headY=-116;}
-        else if(k==='s3'){P.lean=-9;P.armF=[34,-26+pulse*4];P.armB=[142,-20];}
-        else if(k==='s4'){P.lean=-12;P.hipY=-63;P.armF=[40,-25];P.armB=[137,31];P.legF=[64,-13];}
-        else if(k==='s5'){P.lean=-11;P.armF=[46,-25];P.armB=[123,8];P.headY=-116;}
-        else if(k==='ult'){P.lean=n<36?-5:9;P.armF=[28,-35];P.armB=[144,-24];P.legF=[81,12];}
-        return true;
-      }
       if(f&&f.id==='itachi'&&(f.state==='IDLE'||f.state==='WALK')){
         const t=f.animT||0,s=Math.sin(t*.045),s2=Math.sin(t*.095);
         if(f.state==='WALK'){
@@ -61,8 +37,8 @@
           P.lean=5+s*2.4;P.armF=[62+s2*2,20+s*2];P.armB=[118-s2*2,12-s*2];
           P.legF=[86+s*25,7+Math.max(0,-s)*18];P.legB=[97-s*23,-7+Math.max(0,s)*16];
         }else{
-          P.hipY=-57+s*0.7;P.shY=-95;P.headY=-114+s2*.5;P.lean=2+s*1.1;
-          P.armF=[66+s2*1.5,19+s*1.4];P.armB=[113-s*1.5,14-s2*1.2];
+          P.hipY=-57+s*.7;P.shY=-95;P.headY=-114+s2*.5;P.lean=2+s*1.1;
+          P.armF=[66+s2*1.5,19+s*1.4];P.armB=[113-s2*1.5,14-s2*1.2];
           P.legF=[88+s*1.1,5];P.legB=[96-s*1.1,-6];
         }
         return true;
@@ -106,7 +82,7 @@
     ctx.moveTo(headPt.x-fd*4,headPt.y+1);ctx.lineTo(headPt.x+fd*3,headPt.y-8);ctx.stroke();
 
     /* Mangekyo-red eyes; glow only during a technique or awakening. */
-    const eyeHot=!!(f.awakened||f.moveKey==='s1'||f.moveKey==='ult');
+    const eyeHot=!!(f.awakened||f.moveKey==='s1'||f.moveKey==='s2'||f.moveKey==='s5'||f.moveKey==='ult');
     ctx.fillStyle=eyeHot?'#ff2748':'#9d263b';
     ctx.beginPath();ctx.ellipse(headPt.x-fd*4.7,headPt.y+3,3.1,1.35,0,0,Math.PI*2);ctx.ellipse(headPt.x+fd*4.7,headPt.y+3,3.1,1.35,0,0,Math.PI*2);ctx.fill();
     ctx.fillStyle='#10090e';ctx.beginPath();ctx.arc(headPt.x-fd*4.7,headPt.y+3,1.05,0,Math.PI*2);ctx.arc(headPt.x+fd*4.7,headPt.y+3,1.05,0,Math.PI*2);ctx.fill();
@@ -125,7 +101,7 @@
     drawAkatsukiCloud(shPt.x-fd*12,shPt.y+26,.48);
 
     /* Short kunai in the hand during strikes, aligned to the animated wrist. */
-    if(f.state==='ATTACK'&&f.move&&(f.moveKey==='light'||f.moveKey==='heavy'||f.moveKey==='air')){
+    if(f.state==='ATTACK'&&f.move&&(f.moveKey==='light'||f.moveKey==='air')){
       const ang=((P.armF[0]+P.armF[1])*Math.PI/180),dir=fd;
       ctx.save();ctx.translate(hf.x,hf.y);ctx.rotate(ang);
       ctx.strokeStyle='#a8aab5';ctx.lineWidth=3.2;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(dir*22,0);ctx.stroke();
@@ -143,7 +119,7 @@
     };
   }
 
-  /* Legacy Itachi projectile art is disabled. Outsider attacks are rendered by js/45 and collide in js/46. */
+  /* Legacy Itachi projectile art is disabled. Rendering is handled by js/45; combat is owned by js/49. */
 
   /* Combat/startMove/updateMove hooks are owned only by js/49_itachi_moveset_reboot.js. */
 
