@@ -342,20 +342,37 @@
     };
   }
   // A short input chord lets Shift + M1 use the Susanoo heavy. Ordinary M2 still works.
-  function tryHeavyChord(code){
-    if(code!=='Digit1'&&code!=='Numpad1')return;
-    const left=!!(window.KEY&&KEY.ShiftLeft),right=!!(window.KEY&&KEY.ShiftRight);
-    if(!left&&!right)return;
-    const f=(code==='Digit1')?fighters()[0]:fighters()[1];
-    if(f&&f.id==='itachi'&&!f.move&&f.state!=='HITSTUN'&&f.state!=='BLOCKSTUN'){
-      if(typeof startMove==='function')startMove(f,'heavy');
+  function tryHeavyChord(e){
+    const code=e.code;
+    let m1Code='',f=null,chord=false;
+    if(code==='Digit1'||code==='Numpad1'){
+      const shift=!!(window.KEY&&(KEY.ShiftLeft||KEY.ShiftRight));
+      if(!shift)return;
+      m1Code=code;f=code==='Digit1'?fighters()[0]:fighters()[1];chord=true;
+    }else if(code==='ShiftLeft'||code==='ShiftRight'){
+      if(window.KEY&&KEY.Digit1){m1Code='Digit1';f=fighters()[0];chord=true;}
+      else if(window.KEY&&KEY.Numpad1){m1Code='Numpad1';f=fighters()[1];chord=true;}
+    }
+    if(!chord||!f||f.id!=='itachi'||f.state==='HITSTUN'||f.state==='BLOCKSTUN'||f.state==='DEFEAT')return;
+    if(f.move&&!(f.moveKey==='light'&&(f.moveFrame||0)<=3))return;
+    if(f.move&&typeof endMove==='function')endMove(f);
+    if(typeof startMove==='function'&&startMove(f,'heavy')){
+      if(window.KP)KP[m1Code]=false;
+      if(code===m1Code){e.preventDefault();e.stopImmediatePropagation();}
     }
   }
-  addEventListener('keydown',e=>{if(!e.repeat)tryHeavyChord(e.code);},true);
+  addEventListener('keydown',e=>{if(!e.repeat)tryHeavyChord(e);},true);
   // Update Outsider-owned shots, counter windows, DOT and idle emotes on the render cadence.
   const baseRender=window.render;
   if(typeof baseRender==='function'){
-    window.render=function(){baseRender.apply(this,arguments);if(typeof G!=='undefined'&&G.mode!=='menu')updatePlayerStates();};
+    window.render=function(){
+      baseRender.apply(this,arguments);
+      if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){
+        updatePlayerStates();
+        if(sys.moon){sys.moon.t=(sys.moon.t||0)+1;if(sys.moon.t>=sys.moon.d)sys.moon=null;}
+        if(sys.sealing){sys.sealing.t=(sys.sealing.t||0)+1;if(sys.sealing.t>=sys.sealing.d)sys.sealing=null;}
+      }
+    };
   }
   console.info('[JFF Outsider] Itachi combat overhaul loaded: Crow Flicker Dance, Susanoo, Tsukuyomi, Yasaka, Clone Trap, Amaterasu and Totsuka/Yata.');
 })();
