@@ -220,3 +220,48 @@ h1.title { font-size:74px; letter-spacing:10px; font-weight:900; background:line
 #storyHubBack:hover{border-color:#7fd8ff;color:#e7f5ff}
 #storySelect .title{font-size:42px;max-width:1100px;text-align:center}
 @media(max-width:900px){.storyHubGrid{grid-template-columns:repeat(2,minmax(0,1fr));overflow:auto;max-height:510px;padding:2px}.storyHubCard{min-height:145px}.storyHubBottom{margin-top:10px}.storyHubTopline span:last-child{display:none}}
+
+
+/* ===== ROSTER SECTIONS / OUTSIDER ===== */
+#charSelect.on {
+  overflow-y:auto;
+  justify-content:flex-start;
+  padding:22px 0 28px;
+  gap:13px;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(210,70,95,.48) rgba(5,7,12,.6);
+}
+.rosterSectionTitle {
+  width:min(1100px, calc(100% - 72px));
+  display:flex;
+  align-items:baseline;
+  gap:14px;
+  padding:0 2px 8px;
+  margin-top:2px;
+  border-bottom:1px solid rgba(126,157,205,.25);
+  color:#94aacb;
+  font:900 12px/1.2 "Consolas",monospace;
+  letter-spacing:4px;
+}
+.rosterSectionTitle small {
+  color:#526787;
+  font:700 9px/1.3 "Consolas",monospace;
+  letter-spacing:1.5px;
+}
+.outsiderSection {display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;}
+.outsiderSection.hidden {display:none;}
+.outsiderSectionTitle {color:#ff788f;border-bottom-color:rgba(224,43,75,.38);}
+.outsiderSectionTitle small {color:#936073;}
+.card.itachi {
+  background:linear-gradient(145deg,rgba(24,8,15,.98),rgba(49,12,25,.96) 48%,rgba(8,8,14,.98));
+  border-color:rgba(231,49,77,.62);
+  box-shadow:inset 0 0 24px rgba(210,22,58,.07);
+}
+.card.itachi:hover {border-color:#ff526d;box-shadow:0 12px 38px rgba(222,35,67,.25);}
+.card.itachi h2 {color:#ff7087;text-shadow:0 0 14px rgba(255,48,83,.35);}
+.card.itachi.hidden {display:none;}
+.tag.outsider-tag {
+  background:rgba(197,28,59,.16);
+  color:#ff8da0;
+  border:1px solid rgba(243,65,91,.44);
+}
