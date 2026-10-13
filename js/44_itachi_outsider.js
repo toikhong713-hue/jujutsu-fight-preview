@@ -8,16 +8,16 @@
   window.__JFF_ITACHI_OUTSIDER_V1__=true;
 
   const ITACHI_MOVES={
-    light:{name:'Crow Talon // Three-Beat Kunai',kind:'light',startup:5,active:5,recovery:9,damage:7,hitstun:16,blockstun:9,kbx:2.6,kby:0,hitbox:{x:24,y:-96,w:72,h:42},advance:1.7,hitstop:5,meter:4,cancels:{light:1,heavy:1,skill:1,dash:1},cancelFrom:6,cancelTo:20},
-    heavy:{name:'Uchiha Punishment // Kunai Cross',kind:'heavy',startup:12,active:6,recovery:19,damage:19,hitstun:26,blockstun:15,kbx:9,kby:-6,hitbox:{x:27,y:-102,w:92,h:56},advance:3.1,hitstop:10,meter:9,cancels:{skill:1,dash:1,ult:1},cancelFrom:15,cancelTo:35},
-    air:{name:'Crow Dive',kind:'air',startup:6,active:6,recovery:12,damage:10,hitstun:18,blockstun:10,kbx:4.5,kby:1.5,hitbox:{x:18,y:-70,w:78,h:54},advance:1.5,hitstop:6,meter:5,cancels:{dash:1},cancelFrom:7,cancelTo:22},
-    s1:{name:'Sharingan // Tsukuyomi',kind:'skill1',startup:20,active:1,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,immobilize:{duration:108},cost:24,cd:520,meter:10,aura:'itachiGenjutsu'},
-    s2:{name:'Fire Style // Phoenix Flower',kind:'skill2',startup:22,active:1,recovery:22,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,projectile:{type:'fuga',damage:22,hitstun:25,blockstun:15,kbx:8,kby:-4,speed:15,w:58,h:48,life:96,hitstop:8},cost:20,cd:300,meter:8,aura:'flame'},
-    s3:{name:'Mangekyo // Amaterasu',kind:'skill3',startup:29,active:1,recovery:28,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,projectile:{type:'itachi_amaterasu',damage:31,hitstun:31,blockstun:20,kbx:11,kby:-7,speed:12,w:66,h:58,life:112,hitstop:12,armorBreak:true},cost:32,cd:560,meter:12,aura:'itachiAmaterasu'},
-    s4:{name:'Crow Clone // Substitution Strike',kind:'skill4',startup:12,active:12,recovery:22,damage:8,hitstun:17,blockstun:10,kbx:5,kby:-3,hitbox:{x:24,y:-116,w:150,h:88},advance:5.3,hitstop:6,multiHit:true,hitInterval:6,cost:22,cd:390,meter:10,aura:'itachiCrows'},
-    s5:{name:'Shuriken Shadow Volley',kind:'skill5',startup:18,active:1,recovery:24,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,projectile:{type:'itachi_shuriken',damage:25,hitstun:28,blockstun:15,kbx:9,kby:-5,speed:19,w:52,h:52,life:98,hitstop:10},cost:25,cd:420,meter:10,aura:'itachiCrows'},
-    def:{name:'Sharingan Guard',kind:'def',startup:4,active:44,recovery:14,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:18,cd:440,meter:0,aura:'itachiGuard'},
-    ult:{name:'Mangekyo Genjutsu // Tsukuyomi: 72 Hours',kind:'ult',startup:54,active:1,recovery:42,damage:0,hitstun:0,blockstun:0,kbx:0,kby:0,hitbox:null,cost:0,cd:0,meter:0,ultType:'itachi',invuln:52,aura:'itachiGenjutsu'}
+    light:{name:'Crow Flicker Dance',kind:'light',startup:8,active:82,recovery:0,damage:8,hitstun:16,blockstun:10,kbx:4,kby:-1,hitbox:{x:20,y:-95,w:96,h:60},hitstop:5,meter:5},
+    heavy:{name:'Susanoo Rib-Cage Smash',kind:'heavy',startup:15,active:50,recovery:0,damage:28,hitstun:42,blockstun:28,kbx:12,kby:-8,hitbox:{x:10,y:-120,w:220,h:140},armorBreak:true,hitstop:13,meter:10},
+    air:{name:'Crow Dive',kind:'air',startup:6,active:12,recovery:10,damage:13,hitstun:22,blockstun:12,kbx:7,kby:-4,hitbox:{x:18,y:-80,w:96,h:60},hitstop:7,meter:6},
+    s1:{name:'Katon: Gōkakyū no Jutsu',kind:'skill1',startup:25,active:45,recovery:25,damage:0,hitbox:null,cost:18,cd:300,meter:8,aura:'itachiFireball'},
+    s2:{name:'Mangekyō: Tsukuyomi Counter',kind:'skill2',startup:20,active:1,recovery:22,damage:24,hitbox:null,cost:30,cd:540,meter:12,aura:'itachiTsukuyomi'},
+    s3:{name:'Susanoo: Yasaka Magatama',kind:'skill3',startup:40,active:20,recovery:30,damage:0,hitbox:null,cost:30,cd:420,meter:12,aura:'itachiMagatama'},
+    s4:{name:'Bunshin Daibakuha',kind:'skill4',startup:20,active:20,recovery:10,damage:0,hitbox:null,cost:26,cd:460,meter:10,aura:'itachiClone'},
+    s5:{name:'Amaterasu: Black Flame',kind:'skill5',startup:26,active:34,recovery:0,damage:0,hitbox:null,cost:36,cd:600,meter:12,aura:'itachiAmaterasu'},
+    def:{name:'Yata Mirror',kind:'def',startup:4,active:44,recovery:12,damage:0,hitbox:null,cost:18,cd:420,meter:0,aura:'itachiYata'},
+    ult:{name:'Complete Susanoo: Totsuka Sealing Finale',kind:'ult',startup:45,active:195,recovery:0,damage:0,hitbox:null,cost:0,cd:0,meter:0,invuln:242,aura:'itachiUltimate'}
   };
 
   CHARS.itachi={
@@ -145,49 +145,7 @@
 
   /* Legacy Itachi projectile art is disabled. Outsider attacks are rendered by js/45 and collide in js/46. */
 
-  /* Keep the ultimate inside updateMove's ordinary timing and recovery path. */
-  const baseStartMove=window.startMove;
-  if(typeof baseStartMove==='function'){
-    window.startMove=function(f,key,isBF){
-      const ok=baseStartMove.apply(this,arguments);
-      if(ok&&f&&f.id==='itachi'){if(key==='ult')f.itachiUltSerial=(f.itachiUltSerial||0)+1;if(key==='s1')f.itachiGenjutsuSerial=(f.itachiGenjutsuSerial||0)+1;if(key==='ult')f.invuln=Math.max(f.invuln||0,52);}
-      return ok;
-    };
-  }
-  const baseUpdateMove=window.updateMove;
-  if(typeof baseUpdateMove==='function'){
-    window.updateMove=function(f){
-      if(!f||f.id!=='itachi')return baseUpdateMove.apply(this,arguments);
-      const move=f.move,key=f.moveKey;
-      const result=baseUpdateMove.apply(this,arguments);
-      if(!move)return result;
-      const frame=(f.move===move)?f.moveFrame:-1;
-      if(key==='s1'&&frame===move.startup&&f.itachiGenjutsuEffectSerial!==f.itachiGenjutsuSerial){
-        f.itachiGenjutsuEffectSerial=f.itachiGenjutsuSerial||1;flash(.38,'#d7193f');shake(7);camPunch(.12);
-        ring(f.x+f.facing*42,f.y-94,'#ff294c',72,30);ring(f.x+f.facing*42,f.y-94,'#f4dbe4',42,24);
-        floatText(f.opp?f.opp.x:f.x,f.y-178,'TSUKUYOMI','#ff526d',18,52);
-      }
-      if(key==='s4'&&frame===move.startup){
-        SFX.dash();flash(.22,'#e32949');shake(7);
-        for(let i=0;i<4;i++)pushAfterimage(f,computePose(f));
-        burst(f.x-f.facing*18,f.y-78,12,'#17131e',3,8,22);
-        burst(f.x-f.facing*18,f.y-78,7,'#c62542',3,7,18);
-      }
-      if(key==='ult'&&frame===move.startup&&f.itachiUltImpactSerial!==f.itachiUltSerial){
-        f.itachiUltImpactSerial=f.itachiUltSerial||1;
-        const o=f.opp,cx=o?o.x:f.x+f.facing*180,cy=o?o.y-72:f.y-72;
-        flash(.72,'#a90b2c');shake(22);camPunch(.30);G.slowmoTarget=Math.max(G.slowmoTarget||0,20);
-        SFX.domain();ring(cx,cy,'#ff2448',150,42);ring(cx,cy,'#f4e7ed',88,36);
-        burst(cx,cy,36,'#e21c42',8,13,34);burst(cx,cy,18,'#fff1f4',5,9,24);
-        floatText(cx,cy-102,'MANGEKYO // TSUKUYOMI','#ff526d',21,76);
-        if(o&&o.state!=='DEFEAT'&&o.state!=='VICTORY'&&o.state!=='TRAPPED'&&!(o.state==='ATTACK'&&o.move&&o.move.kind==='ult')){
-          resolveHit(f,o,{damage:56,hitstun:58,blockstun:26,kbx:14,kby:-10,hitstop:20,armorBreak:true,kind:'ult',type:'special',meter:0},cx,cy);
-          o.immobilize=Math.max(o.immobilize||0,44);
-        }
-      }
-      return result;
-    };
-  }
+  /* Combat/startMove/updateMove hooks are owned only by js/49_itachi_moveset_reboot.js. */
 
   console.info('[JFF Outsider] Itachi Uchiha registered as a Training-only Outsider.');
 })();
