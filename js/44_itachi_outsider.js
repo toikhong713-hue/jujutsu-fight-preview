@@ -119,38 +119,7 @@
     };
   }
 
-  /* The projectile uses the engine's normal collision/lifetime path. Only its art is custom. */
-  const baseDrawProjectiles=window.drawProjectiles;
-  if(typeof baseDrawProjectiles==='function'){
-    window.drawProjectiles=function(){
-      baseDrawProjectiles.apply(this,arguments);
-      if(!G.projectiles)return;
-      for(const p of G.projectiles){
-        if(!p.owner||p.owner.id!=='itachi'||(p.type!=='itachi_amaterasu'&&p.type!=='itachi_shuriken'))continue;
-        const t=p.t||0,dir=Math.sign(p.vx)||1;
-        ctx.save();ctx.translate(p.x,p.y);ctx.globalCompositeOperation='lighter';
-        if(p.type==='itachi_amaterasu'){
-          const pulse=1+Math.sin(t*.42)*.10;
-          const halo=ctx.createRadialGradient(0,0,2,0,0,48*pulse);
-          halo.addColorStop(0,'rgba(255,45,68,.92)');halo.addColorStop(.3,'rgba(90,0,18,.86)');halo.addColorStop(.72,'rgba(8,5,12,.72)');halo.addColorStop(1,'rgba(30,0,8,0)');
-          ctx.fillStyle=halo;ctx.beginPath();ctx.ellipse(0,0,45*pulse,34*pulse,0,0,Math.PI*2);ctx.fill();
-          ctx.globalCompositeOperation='source-over';ctx.fillStyle='#09070d';
-          for(let i=0;i<5;i++){
-            const x=-dir*(8+i*7),y=Math.sin(t*.35+i*1.9)*8;
-            ctx.beginPath();ctx.moveTo(x-8,y+14);ctx.quadraticCurveTo(x-14,y-3,x-5,y-13-Math.sin(t*.3+i)*4);ctx.quadraticCurveTo(x+1,y-4,x+3,y+9);ctx.closePath();ctx.fill();
-          }
-          ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,43,68,.9)';ctx.lineWidth=2;
-          ctx.beginPath();ctx.moveTo(-dir*72,-8);ctx.quadraticCurveTo(-dir*38,Math.sin(t*.2)*8,-dir*8,0);ctx.stroke();
-        }else{
-          ctx.rotate(t*.32);
-          for(let k=0;k<4;k++){ctx.rotate(Math.PI/2);ctx.fillStyle='#c4c8d2';ctx.strokeStyle='#34313c';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(0,-23);ctx.lineTo(5,-4);ctx.lineTo(0,0);ctx.lineTo(-5,-4);ctx.closePath();ctx.fill();ctx.stroke();}
-          ctx.fillStyle='#17131d';ctx.beginPath();ctx.arc(0,0,4.5,0,Math.PI*2);ctx.fill();
-          ctx.strokeStyle='rgba(245,245,255,.8)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(0,0,8,0,Math.PI*2);ctx.stroke();
-        }
-        ctx.restore();
-      }
-    };
-  }
+  /* Legacy Itachi projectile art is disabled. Outsider attacks are rendered by js/45 and collide in js/46. */
 
   /* Keep the ultimate inside updateMove's ordinary timing and recovery path. */
   const baseStartMove=window.startMove;
