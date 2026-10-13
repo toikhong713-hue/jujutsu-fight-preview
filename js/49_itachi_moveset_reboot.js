@@ -581,7 +581,7 @@
         s+='<circle cx="640" cy="360" r="'+(90+n*.5)+'" fill="none" stroke="#e93658" stroke-width="3" opacity=".6"/><text x="640" y="370" fill="#fff1f4" font-size="30" font-family="monospace" letter-spacing="8" text-anchor="middle">GENJUTSU RELEASE</text>';
       }
       if(blink)s+='<rect width="1280" height="720" fill="#ffeef2" opacity="'+blink+'"/>';
-      s+='<rect x="0" y="0" width="1280" height="36" fill="#05050a" opacity=".92"/><rect x="0" y="684" width="1280" height="36" fill="#05050a" opacity=".92"/></g></g>';
+      s+='<rect x="0" y="0" width="1280" height="36" fill="#05050a" opacity=".92"/><rect x="0" y="684" width="1280" height="36" fill="#05050a" opacity=".92"/></g>';
     }else{
       const rot=n*1.8,phase=n<46?1:(n<82?2:(n<151?3:4));
       const zoom=phase===1?1.02+n*.0009:(phase===2?1.09+Math.sin(n*.13)*.012:(phase===3?1.13+Math.sin(n*.31)*.018:1.02));
@@ -603,7 +603,7 @@
       }
       const title=phase===1?'COMPLETE SUSANOO':(phase===2?'YATA MIRROR // ABSOLUTE GUARD':(phase===3?'TOTSUKA BLADE // SEALING STRIKE':'SEALING COMPLETE'));
       if(phase===4)s+='<g transform="translate(900 398)" opacity=".88"><circle r="83" fill="#13050f" stroke="#e63f5e" stroke-width="4"/><circle r="66" fill="none" stroke="#ffc9a2" stroke-width="2" stroke-dasharray="5 8" transform="rotate('+rot+')"/><path d="M -12 -57 L -22 -19 L -35 45 L -13 38 L 0 5 L 12 39 L 35 45 L 22 -19 L 12 -57 Z" fill="#05040a" stroke="#ba354d" stroke-width="3"/><circle cy="-77" r="16" fill="#08050b" stroke="#ba354d" stroke-width="2"/></g>';
-      s+='<rect x="0" y="0" width="1280" height="68" fill="#030308" opacity=".82"/><rect x="0" y="652" width="1280" height="68" fill="#030308" opacity=".82"/><text x="640" y="44" fill="#ffe0c4" font-size="22" font-family="monospace" letter-spacing="7" text-anchor="middle">'+title+'</text><text x="640" y="690" fill="#ffbd9c" font-size="15" font-family="monospace" letter-spacing="6" text-anchor="middle">UCHIHA // MANGEKYO FINAL ART</text></g></g>';
+      s+='<rect x="0" y="0" width="1280" height="68" fill="#030308" opacity=".82"/><rect x="0" y="652" width="1280" height="68" fill="#030308" opacity=".82"/><text x="640" y="44" fill="#ffe0c4" font-size="22" font-family="monospace" letter-spacing="7" text-anchor="middle">'+title+'</text><text x="640" y="690" fill="#ffbd9c" font-size="15" font-family="monospace" letter-spacing="6" text-anchor="middle">UCHIHA // MANGEKYO FINAL ART</text></g>';
     }
     return s;
   }
