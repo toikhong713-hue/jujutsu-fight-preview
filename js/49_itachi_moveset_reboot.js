@@ -72,7 +72,7 @@
   function fireball(f,q){
     q=clamp(q||0,0,1);
     const d=f.facing,x=f.x+d*48,y=f.y-116;
-    spawnShot(f,'fireball',x,y,(14+q*2.8)*d,-.22,{r:27*(1+.5*q),damage:Math.round(20*(1+.3*q)),stun:25+Math.round(q*5),kbx:10+q*3,kby:-5,life:96,armorBreak:false});
+    spawnShot(f,'fireball',x,y,(14+q*2.8)*d,-.22,{r:36*(1+.5*q),damage:Math.round(20*(1+.3*q)),stun:25+Math.round(q*5),kbx:10+q*3,kby:-5,life:96,armorBreak:false});
     effect('fire',x,y,28,{charge:q});effect('shock',x,y,18);screenImpact(.14,'#e8472f');
     if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
   }
