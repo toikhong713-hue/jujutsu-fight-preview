@@ -208,7 +208,7 @@
     const now=Q.tick;
     const tsukuReady=defender.moveKey==='s2'&&defender.itachiCounterUntil>now&&defender.state==='ATTACK';
     if(tsukuReady&&attacker.hp>0&&attacker.state!=='DEFEAT'&&attacker.state!=='VICTORY'){
-      beginCinema('tsukuyomi',defender,attacker,140);
+      beginCinema('tsukuyomi',defender,attacker,840);
       attacker.move=null;attacker.moveKey=null;attacker.vx=0;attacker.vy=0;
       effect('crows',defender.x,defender.y-86,28);effect('shock',attacker.x,attacker.y-86,28);
       return true;
