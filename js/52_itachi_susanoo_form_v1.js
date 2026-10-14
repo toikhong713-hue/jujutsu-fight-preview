@@ -21,6 +21,7 @@ const alive=f=>!!(f&&f.hp>0&&f.state!=='DEFEAT'&&f.state!=='VICTORY');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 const easeOut=t=>1-Math.pow(1-clamp(t,0,1),3);
+const arenaWidth=()=>typeof ARENA_W!=='undefined'?ARENA_W:(arenaWidth());
 const tick=()=>Number((Q&&Q.tick)||(typeof G!=='undefined'&&G.frame)||0);
 const fx=(type,x,y,d,data)=>{if(typeof window.JFF_OUTSIDER_FX==='function')window.JFF_OUTSIDER_FX(type,x,y,d||20,data||{});};
 function hideStages(hide){
@@ -33,9 +34,9 @@ function hideStages(hide){
 function validItachi(f){return !!(f&&f.id==='itachi'&&alive(f));}
 function currentOwnerForCode(code){
   const fs=fighters();
-  if(code==='Digit1'||code==='KeyZ'||code==='KeyX')return fs[0]&&fs[0].id==='itachi'&&fs[0].itachiSusanooActive?fs[0]:null;
-  if(code==='Numpad1'||code==='NumpadDivide')return fs[1]&&fs[1].id==='itachi'&&fs[1].itachiSusanooActive?fs[1]:null;
-  if(code==='NumpadSubtract')return fs[1]&&fs[1].id==='itachi'&&fs[1].itachiSusanooActive?fs[1]:null;
+  if(code==='Digit1'||code==='KeyZ'||code==='KeyX')return fs[0]&&fs[0].id==='itachi'&&!fs[0].ai&&fs[0].itachiSusanooActive?fs[0]:null;
+  if(code==='Numpad1'||code==='NumpadDivide')return fs[1]&&fs[1].id==='itachi'&&!fs[1].ai&&fs[1].itachiSusanooActive?fs[1]:null;
+  if(code==='NumpadSubtract')return fs[1]&&fs[1].id==='itachi'&&!fs[1].ai&&fs[1].itachiSusanooActive?fs[1]:null;
   return null;
 }
 function beginAttack(f,key){
@@ -335,8 +336,9 @@ if(typeof previousRender==='function')window.render=function(){
 // M1 / Z / X are consumed only while Itachi's persistent Susanoo form is active.
 // Old Itachi listeners are patched separately for X and P2's numpad-minus Z binding.
 addEventListener('keydown',function(e){
-  if(typeof G==='undefined'||G.mode==='menu'||G.paused||e.repeat)return;
+  if(typeof G==='undefined'||G.mode==='menu'||G.paused)return;
   const f=currentOwnerForCode(e.code);if(!f)return;
+  if(e.repeat){e.preventDefault();e.stopImmediatePropagation();return;}
   let key=null;
   if(e.code==='Digit1'||e.code==='Numpad1')key='m1';
   else if(e.code==='KeyZ'||e.code==='NumpadSubtract')key='z';
