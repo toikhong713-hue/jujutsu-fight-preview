@@ -11,7 +11,8 @@ const CHARACTER_KEY_MAP={
   Digit5:'hakari',Numpad5:'hakari',Digit6:'toji',Numpad6:'toji',
   Digit7:'heian_sukuna',Numpad7:'heian_sukuna',
   Digit8:'the_strongest_today',Numpad8:'the_strongest_today',
-  Digit9:'itachi',Numpad9:'itachi'
+  Digit9:'itachi',Numpad9:'itachi',
+  Digit0:'edo_itachi',Numpad0:'edo_itachi'
 };
 function resetCharacterSelect(){
   selectedP1=null;
@@ -97,7 +98,7 @@ function toggleTrainingCards(show){
   const outsiderSection=document.getElementById('outsiderSection');
   const itachiCard=document.querySelector('.card.itachi');
   if(outsiderSection)outsiderSection.classList.toggle('hidden',!show);
-  if(itachiCard)itachiCard.classList.toggle('hidden',!show);
+  document.querySelectorAll('.outsiderCards .card').forEach(card=>card.classList.toggle('hidden',!show));
 }
 const tojiMovesetOverlay=document.getElementById('tojiMovesetOverlay');
 let tojiWeaponRow=0,tojiFrame=0;
