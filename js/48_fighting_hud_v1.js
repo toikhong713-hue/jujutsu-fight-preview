@@ -124,7 +124,7 @@ function stateFor(f){
 }
 function extraKey(f){if(f.moves&&f.moves.wcs)return 'wcs';if(f.moves&&f.moves.x)return 'x';if(f.moves&&f.moves.z)return 'z';return ''}
 function shortLabel(f,k,m){
- let dict=labels[f.id]||{};if(f.id==='sukuna'&&f.form===1)dict=labels.yuji||dict;
+ let dict=labels[f.id]||{};if(f.itachiEdo)dict={s1:'FIRE',s2:'KOTO',s3:'YASA',s4:'CROW',s5:'AMA',def:'YATA',wcs:'WCS',x:'TOTSUKA',z:'KOTO',ult:'EDO SUS'};if(f.id==='sukuna'&&f.form===1)dict=labels.yuji||dict;
  if(dict[k])return dict[k];
  const name=(m&&m.name)||k.toUpperCase();
  return name.replace(/^(domain expansion:|maximum |reverse cursed technique:|fire style:|mangekyo sharingan:|susanoo:)/i,'').trim().split(/[\s/:—-]+/).filter(Boolean).slice(0,2).map(x=>x.slice(0,4).toUpperCase()).join(' ').slice(0,9);
