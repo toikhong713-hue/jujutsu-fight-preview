@@ -228,6 +228,18 @@
         const p=point(f.x+f.facing*45,f.y-88);
         people+=drawFx({type:'reflect',x:f.x+f.facing*45,y:f.y-88,t:sys.tick%28,d:28,data:{}});
       }
+      // Edo Tensei identity marks use the same lightweight SVG overlay as other Itachi VFX.
+      if(f.itachiEdo){
+        const ep=point(f.x,f.y),es=ep.s||1,face=f.facing||1;
+        const now=(window.JFF_ITACHI_REBOOT&&window.JFF_ITACHI_REBOOT.tick)||sys.tick||0;
+        people+='<g transform="translate('+ep.x+' '+ep.y+') scale('+(es*face)+' '+es+')">'+
+          '<path d="M -16 -127 L -10 -121 L -13 -116 L -7 -109 M 14 -130 L 9 -124 L 13 -118 L 7 -111 M -4 -117 L 0 -112 L -3 -106" fill="none" stroke="#596477" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".95"/>'+
+          '<path d="M -17 -126 L -11 -120 L -14 -115 M 15 -129 L 10 -123 L 14 -117" fill="none" stroke="#e4eaf3" stroke-width=".8" stroke-linecap="round" opacity=".92"/>'+
+          '<path d="M -23 -83 L -14 -77 L -17 -70 L -8 -64 M 22 -82 L 14 -76 L 17 -69 L 8 -63 M -3 -76 L 2 -70 L -1 -64" fill="none" stroke="#687488" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/>'+
+          '<path d="M -23 -83 L -14 -77 M 22 -82 L 14 -76" fill="none" stroke="#e0e7f1" stroke-width=".8" opacity=".9"/>'+
+          ((f.itachiEdoPulse||0)>now?'<ellipse cx="0" cy="-93" rx="43" ry="78" fill="none" stroke="#dbe5f6" stroke-width="2" opacity=".33" stroke-dasharray="5 8"/><ellipse cx="0" cy="-92" rx="34" ry="65" fill="#bdcbe2" opacity=".055"/>':'')+
+          '</g>';
+      }
     }
     root.innerHTML=defs+back+people;
   }
