@@ -183,11 +183,8 @@
     c.frame++;
     const n=c.frame,o=c.target,owner=c.owner;
     if(c.kind==='tsukuyomi'){
-      if(n===72&&o&&!c.hitDone){
-        c.hitDone=true;o.hp=Math.max(0,o.hp-24);o.hitFlash=7;
-        if(o.hp<=0){o.hp=0;o.state='DEFEAT';o.stateFrame=0;}
-        effect('slash',o.x,o.y-95,24);effect('shock',o.x,o.y-84,26);
-      }
+      // Tsukuyomi damage is synchronized with the visible katana-thrust keyframes
+      // in js/50 + js/51, rather than applying an invisible hit before the attack.
     }else{
       if(n===46&&owner){effect('shock',owner.x,owner.y-100,40);effect('magatama',owner.x+owner.facing*80,owner.y-178,36);}
       if(n===82&&owner){effect('reflect',owner.x+owner.facing*85,owner.y-160,48);screenImpact(.24,'#ffd5a0');}
