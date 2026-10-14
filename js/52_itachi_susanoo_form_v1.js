@@ -21,7 +21,7 @@ const alive=f=>!!(f&&f.hp>0&&f.state!=='DEFEAT'&&f.state!=='VICTORY');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 const easeOut=t=>1-Math.pow(1-clamp(t,0,1),3);
-const arenaWidth=()=>typeof ARENA_W!=='undefined'?ARENA_W:(arenaWidth());
+const arenaWidth=()=>typeof ARENA_W!=='undefined'?ARENA_W:(window.ARENA_W||3200);
 const tick=()=>Number((Q&&Q.tick)||(typeof G!=='undefined'&&G.frame)||0);
 const fx=(type,x,y,d,data)=>{if(typeof window.JFF_OUTSIDER_FX==='function')window.JFF_OUTSIDER_FX(type,x,y,d||20,data||{});};
 function hideStages(hide){
@@ -87,8 +87,8 @@ function updateSusanooMove(f){
     if(n===15){
       if(alive(o)){
         const dist=Math.abs(o.x-f.x),travel=Math.min(46,Math.max(0,dist-92));
-        f.x=clamp(f.x+d*travel,36,(window.ARENA_W||3200)-36);
-      }else f.x=clamp(f.x+d*34,36,(window.ARENA_W||3200)-36);
+        f.x=clamp(f.x+d*travel,36,arenaWidth()-36);
+      }else f.x=clamp(f.x+d*34,36,arenaWidth()-36);
       fx('magatama',f.x+d*86,f.y-168,26);
     }
     if(n===26)hit(f,n,26,260,{hitstun:39,kbx:d*14,kby:-4,hitstop:13,armorBreak:true,seal:true,shake:12});
