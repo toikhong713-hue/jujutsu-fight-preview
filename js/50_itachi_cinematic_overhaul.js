@@ -101,87 +101,11 @@ function blackFire(b){
  for(let i=0;i<8;i++){const x=Math.sin((t+i*13)*.16)*(25+i*2),y=-25-((t*1.8+i*31)%92);s+='<circle cx="'+x+'" cy="'+y+'" r="'+(1.4+i%3)+'" fill="'+(i%2?'#ff315d':'#a64fff')+'"/>';}
  return s+'<path d="M -40 2 Q -18 -22 -8 6 T 23 -4 T 42 19" fill="none" stroke="#6b245f" stroke-width="5"/></g>';
 }
-function bound(x,y,scale){return '<g transform="translate('+x+' '+y+') scale('+scale+')"><path d="M -12 -80 Q -28 -75 -25 -54 L -28 -9 L -18 21 L -8 17 L -6 -12 L 6 -12 L 8 17 L 18 21 L 28 -9 L 25 -54 Q 28 -75 12 -80 Z" fill="#09070d" stroke="#8c1d3c" stroke-width="2"/><circle cy="-96" r="15" fill="#08060d" stroke="#a52c47" stroke-width="2"/><path d="M -13 -101 Q 0 -114 13 -101" fill="none" stroke="#ff526e" stroke-width="3"/><path d="M -18 -60 L -45 -47 L -72 -35 M 18 -60 L 45 -47 L 72 -35" stroke="#08060d" stroke-width="10" stroke-linecap="round"/><path d="M -18 -60 L -45 -47 L -72 -35 M 18 -60 L 45 -47 L 72 -35" stroke="#a72d50" stroke-width="2.5" fill="none"/><path d="M -7 -12 L -27 22 L -25 46 M 7 -12 L 27 22 L 25 46" stroke="#08060d" stroke-width="10" stroke-linecap="round"/><path d="M -76 -39 L 76 -39 M 0 -137 L 0 53" stroke="#3e1524" stroke-width="10"/><path d="M -76 -39 L 76 -39 M 0 -137 L 0 53" stroke="#8a2b43" stroke-width="2" stroke-dasharray="6 6"/></g>';}
-function itachiShadow(x,y,scale,n){const swing=Math.sin(n*.26)*18;return '<g transform="translate('+x+' '+y+') scale('+scale+')"><path d="M -32 -115 Q -50 -91 -44 -55 L -39 0 L -15 10 L 0 -7 L 16 10 L 39 0 L 44 -55 Q 50 -91 32 -115 L 22 -150 L 9 -130 L 0 -157 L -10 -130 L -24 -150 Z" fill="#07060d" stroke="#631a36" stroke-width="3"/><path d="M -27 -113 Q -48 -90 -58 -39 L -37 -24 L -14 -76 M 27 -113 Q 48 -90 58 -39 L 37 -24 L 14 -76" fill="#07060d" stroke="#651b38" stroke-width="3"/><path d="M 18 -57 L '+(38+swing)+' -2 L '+(96+swing)+' -176" stroke="#0a080f" stroke-width="10" stroke-linecap="round" fill="none"/><path d="M '+(96+swing)+' -176 L '+(102+swing)+' -193 L '+(108+swing)+' -171 Z" fill="#ffe5df"/><path d="M '+(30+swing)+' -12 L '+(92+swing)+' -170" stroke="#ff4568" stroke-width="2.5"/></g>';}
-function tsukuyomi(c){
- const n=c.frame||0,flash=n%18<3?.3:0;
- let s='<defs><radialGradient id="it50Moon"><stop stop-color="#ffb3bf"/><stop offset=".38" stop-color="#c42046"/><stop offset="1" stop-color="#25050e"/></radialGradient></defs><rect width="1280" height="720" fill="#020207"/><rect width="1280" height="720" fill="#5c071e" opacity=".1"/><circle cx="1020" cy="137" r="111" fill="url(#it50Moon)" stroke="#fa5571" stroke-width="3"/><circle cx="1020" cy="137" r="128" fill="none" stroke="#9d163a" stroke-width="2" stroke-dasharray="4 14"/>';
- for(let i=0;i<14;i++){const x=(i*197-n*.7+1280)%1280,y=(i*89+n*.26)%720;s+='<circle cx="'+x+'" cy="'+y+'" r="'+(i%3+1)+'" fill="'+(i%2?'#ff5575':'#9b1b46')+'" opacity=".6"/>';}
- if(n<36){s+='<g transform="translate(640 335)"><circle r="150" fill="#10030a" stroke="#a51f47" stroke-width="4"/><circle r="119" fill="none" stroke="#f9476c" stroke-width="3" stroke-dasharray="15 9"/><circle r="83" fill="#15040c" stroke="#fb6c86" stroke-width="4"/><circle r="36" fill="#ef315c"/><circle r="18" fill="#06040a"/><path d="M -130 -52 L -43 -19 L -59 -108 L 0 -49 L 59 -108 L 43 -19 L 130 -52 L 59 17 L 96 90 L 0 55 L -96 90 L -59 17 Z" fill="none" stroke="#ff8fa4" stroke-width="4"/></g><text x="640" y="588" fill="#ffb2c2" text-anchor="middle" font-size="28" letter-spacing="8" font-family="monospace">TSUKUYOMI // EYE CONTACT</text>';}
- else{
-  s+='<path d="M 0 526 Q 240 463 470 522 T 920 515 T 1280 491 L 1280 720 L 0 720 Z" fill="#05040a"/><g transform="translate(650 416)"><path d="M -12 -190 L -12 110 L 12 110 L 12 -190 Z M -174 -93 L 174 -93 L 174 -65 L -174 -65 Z" fill="#100911" stroke="#8c2445" stroke-width="3"/></g>'+bound(650,435,1.35)+'<ellipse cx="650" cy="570" rx="180" ry="22" fill="#620c2b" opacity=".3"/>';
-  if(n<106){s+=itachiShadow(340,440,1.1,n)+'<path d="M 397 255 L 411 246 L 670 395 L 659 405 Z" fill="#ffe8e8" opacity=".8"/>';}
-  else if(n<372){
-   const pov=Math.floor((n-106)/42)%3;
-   if(pov===0)s+='<g transform="translate(640 360)"><circle r="145" fill="#12040d" stroke="#8e1638" stroke-width="3"/><circle r="105" fill="none" stroke="#df2852" stroke-width="3" stroke-dasharray="3 12"/><path d="M -28 -36 L 0 -16 L 28 -36 L 18 5 L 0 28 L -18 5 Z" fill="#a51f43" stroke="#ffb3c0" stroke-width="2"/></g><text x="640" y="618" text-anchor="middle" fill="#ff9fb5" font-size="22" letter-spacing="7">POV 01 // THE PRISON</text>';
-   else if(pov===1)s+=itachiShadow(455,448,1.35,n)+'<path d="M 512 262 L 522 252 L 720 420 L 709 429 Z" fill="#fff3eb" opacity="'+(.62+flash)+'"/><path d="M 525 245 L 733 427" stroke="#ff2f61" stroke-width="4"/><text x="640" y="618" text-anchor="middle" fill="#ff9fb5" font-size="22" letter-spacing="7">POV 02 // SHADOW OF THE BLADE</text>';
-   else s+='<g transform="translate(640 370)"><rect x="-240" y="-170" width="480" height="310" rx="8" fill="#08060d" stroke="#51152f" stroke-width="3"/><path d="M -175 105 L 177 -122 M -175 -122 L 177 105" stroke="#fff0f2" stroke-width="5" opacity="'+(.35+flash)+'"/><path d="M -195 77 L 197 -96 M -195 -96 L 197 77" stroke="#e72b55" stroke-width="8" opacity=".67"/></g><text x="640" y="618" text-anchor="middle" fill="#ff9fb5" font-size="22" letter-spacing="7">POV 03 // TIME HAS NO MERCY</text>';
-   for(let i=0;i<4;i++){const x=180+i*300+Math.sin(n*.2+i)*17;s+='<path d="M '+x+' 130 L '+(x+190)+' 590" stroke="#f42f5c" stroke-width="'+(i%2?2:4)+'" opacity="'+(.12+flash*.4)+'"/>';}
-  }else if(n<432)s+='<circle cx="640" cy="355" r="'+(80+(n-372)*2.2)+'" fill="none" stroke="#da2855" stroke-width="4" opacity=".75"/><text x="640" y="345" fill="#fff1f5" text-anchor="middle" font-size="78" letter-spacing="7" font-family="monospace">72 HOURS</text><text x="640" y="393" fill="#ff7895" text-anchor="middle" font-size="22" letter-spacing="7">INSIDE THE GENJUTSU</text>'+itachiShadow(325,470,.8,n);
-  else s+='<circle cx="640" cy="355" r="'+(300-(n-432)*7)+'" fill="none" stroke="#e52b58" stroke-width="4" opacity=".72"/><path d="M 0 0 L 1280 720 M 1280 0 L 0 720" stroke="#ff315f" stroke-width="2" opacity=".25"/><text x="640" y="366" text-anchor="middle" fill="#fff0f4" font-size="35" letter-spacing="8">GENJUTSU RELEASE</text>';
- }
- if(flash)s+='<rect width="1280" height="720" fill="#fff0f5" opacity="'+flash+'"/>';
- return s+'<rect width="1280" height="42" fill="#030208" opacity=".9"/><text x="34" y="27" fill="#ff8ea8" font-family="monospace" font-size="16" letter-spacing="5">MANGEKYO // TSUKUYOMI</text><rect y="678" width="1280" height="42" fill="#030208" opacity=".92"/><text x="640" y="705" fill="#d65a78" text-anchor="middle" font-family="monospace" font-size="14" letter-spacing="5">A MOMENT OUTSIDE REAL TIME</text>';
-}
-function susanooArt(x,y,scale,frame,alpha){
- const n=frame||0,clamp01=v=>Math.max(0,Math.min(1,v)),mix=(a,b,t)=>a+(b-a)*t;
- const smooth=t=>{t=clamp01(t);return t*t*(3-2*t);};
- const manifest=1-smooth(n/34);
- const shieldRaise=smooth((n-24)/30);
- const draw=smooth((n-38)/38);
- const strike=smooth((n-120)/42);
- const recover=smooth((n-174)/25);
- const torsoLean=mix(-5,5,smooth((n-35)/160));
- const shieldArm=mix(25,-36,shieldRaise)+Math.sin(n*.075)*2;
- const swordArm=n<42?-16:(n<82?mix(-16,-62,draw):n<126?mix(-62,-24,smooth((n-82)/44)):n<164?mix(-24,45,strike):mix(45,14,recover));
- const swordAngle=n<42?-20:(n<82?mix(-20,-54,draw):n<126?mix(-54,-18,smooth((n-82)/44)):n<164?mix(-18,38,strike):mix(38,12,recover));
- const sx0=65,sy0=-164,sdx=81,sdy=87,ar=swordArm*Math.PI/180;
- const swordX=sx0+sdx*Math.cos(ar)-sdy*Math.sin(ar),swordY=sy0+sdx*Math.sin(ar)+sdy*Math.cos(ar);
- const lx0=-65,ly0=-164,ldx=-65,ldy=83,lr=shieldArm*Math.PI/180;
- const shieldX=lx0+ldx*Math.cos(lr)-ldy*Math.sin(lr),shieldY=ly0+ldx*Math.sin(lr)+ldy*Math.cos(lr);
- const shieldTilt=mix(24,-12,shieldRaise)+Math.sin(n*.04)*2;
- const op=alpha==null?1:alpha;
- let s='<g transform="translate('+x+' '+y+') scale('+scale+')" opacity="'+op+'">';
- s+='<ellipse cy="68" rx="190" ry="25" fill="#7b112c" opacity=".30"/><ellipse cy="60" rx="145" ry="13" fill="#ffc08b" opacity=".13"/>';
- /* A sake gourd stays mounted behind the torso; its neck is where the blade appears from. */
- s+='<g transform="translate(-83 -117) rotate(17)"><path d="M -17 -27 Q -33 -50 -16 -65 Q 0 -78 16 -65 Q 33 -50 17 -27 L 13 -10 Q 34 8 26 33 Q 17 56 0 59 Q -17 56 -26 33 Q -34 8 -13 -10 Z" fill="url(#it50Gourd)" stroke="#ffd3a0" stroke-width="3"/><path d="M -12 -60 Q 0 -51 12 -60 M -23 1 Q 0 14 23 1 M -25 18 Q 0 30 25 18 M -17 36 Q 0 46 17 36" fill="none" stroke="#6c172f" stroke-width="4"/><path d="M -11 -69 L 11 -69 L 13 -60 L -13 -60 Z" fill="#f7d49b" stroke="#fff0cf" stroke-width="2"/><rect x="-6" y="-79" width="12" height="11" rx="3" fill="#2b101b" stroke="#ffd9ad" stroke-width="2"/></g>';
- /* Rear arm and hand form a separate jointed group. */
- s+='<g transform="rotate('+shieldArm+' -65 -164)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
- s+='<path d="M -62 -177 Q -92 -184 -103 -156 L -133 -109 L -114 -96 L -82 -135 L -47 -146 Z" fill="#632039"/><path d="M -126 -113 Q -137 -104 -134 -90 L -124 -78 L -109 -89 L -114 -108 Z" fill="#b65b60"/>';
- if(n>=35){
-  s+='<g transform="translate(-131 -82) rotate('+shieldTilt+')"><ellipse rx="53" ry="77" fill="#f4d6b2" opacity=".20"/><ellipse rx="45" ry="69" fill="url(#it50Mirror)" stroke="#fff2d7" stroke-width="5"/><ellipse rx="36" ry="58" fill="#281226" fill-opacity=".26" stroke="#ffd8a6" stroke-width="3"/><ellipse rx="27" ry="46" fill="none" stroke="#fff3d2" stroke-width="3"/><path d="M -31 -42 L 0 -59 L 31 -42 L 20 -2 L 0 39 L -20 -2 Z" fill="#fff1d3" fill-opacity=".28" stroke="#fff6df" stroke-width="2.5"/><path d="M -36 0 L 36 0 M 0 -60 L 0 60 M -24 -48 L 24 48 M 24 -48 L -24 48" stroke="#e6fbff" stroke-width="2.2"/><circle cy="-2" r="10" fill="#f9e6c3" fill-opacity=".6" stroke="#fff6de" stroke-width="2.5"/><circle cy="-2" r="4.5" fill="#9f1d45" stroke="#fff1d4" stroke-width="1.8"/></g>';
- }
- s+='</g>';
- /* Core armor and helmet tilt slightly through the animation, while the limbs keep their own pivots. */
- s+='<g transform="rotate('+torsoLean+' 0 -143)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
- s+='<path d="M -74 -226 L -104 -198 L -118 -146 L -101 -96 L -73 -66 L -59 -18 L -35 42 L -7 36 L 0 -24 L 7 36 L 35 42 L 59 -18 L 73 -66 L 101 -96 L 118 -146 L 104 -198 L 74 -226 L 39 -210 L 0 -194 L -39 -210 Z" fill="url(#it50Armor)"/>';
- s+='<path d="M -62 -70 L -88 -27 L -64 34 L -35 51 L -10 29 L 0 -5 L 10 29 L 35 51 L 64 34 L 88 -27 L 62 -70 Z" fill="url(#it50ArmorBright)"/>';
- for(let i=0;i<5;i++){const yy=-104+i*18;s+='<path d="M '+(-43+i*3)+' '+yy+' Q 0 '+(yy+18)+' '+(43-i*3)+' '+yy+'" fill="none" stroke="#f8c49b" stroke-width="3"/>';}
- s+='<path d="M -71 -224 Q -94 -252 -80 -283 L -58 -313 L -41 -275 L -23 -333 L 0 -297 L 23 -333 L 41 -275 L 58 -313 L 80 -283 Q 94 -252 71 -224 L 42 -204 L 0 -191 L -42 -204 Z" fill="url(#it50ArmorBright)"/>';
- s+='<path d="M -42 -260 L -18 -250 L 0 -263 L 18 -250 L 42 -260 L 27 -232 L 0 -219 L -27 -232 Z" fill="#16050e"/><path d="M -34 -249 L -9 -242 L -19 -233 M 34 -249 L 9 -242 L 19 -233" stroke="#ffdbaf" stroke-width="4"/><path d="M -21 -216 L -10 -201 L 0 -208 L 10 -201 L 21 -216 L 12 -192 L 0 -187 L -12 -192 Z" fill="#0d0810"/>';
- s+='<path d="M -48 -183 Q 0 -153 48 -183 L 36 -141 L 0 -124 L -36 -141 Z" fill="#190812" stroke="#ffd0a3" stroke-width="3"/>';
- s+='</g>';
- /* Sword arm: the shoulder, elbow and wrist articulate; the blade follows the wrist. */
- s+='<g transform="rotate('+swordArm+' 65 -164)" stroke="#f6b48d" stroke-width="4" stroke-linejoin="round">';
- s+='<path d="M 61 -178 Q 91 -188 106 -161 L 137 -115 L 117 -101 L 86 -137 L 47 -146 Z" fill="#632139"/><path d="M 123 -119 L 139 -108 L 147 -93 L 132 -83 L 117 -97 Z" fill="#b65b60"/><path d="M 130 -91 L 145 -83 L 139 -73 L 124 -79 Z" fill="#f1c09b"/>';
- s+='</g>';
- /* Totsuka leaves the real gourd and locks into a held pose. */
- if(n>=40){
-  const reveal=smooth((n-40)/36),bladeX=mix(-73,swordX,reveal),bladeY=mix(-133,swordY,reveal);
-  s+='<g transform="translate('+bladeX+' '+bladeY+') rotate('+swordAngle+')"><path d="M -12 28 L 12 28 L 14 6 L 5 -9 L -5 -9 L -14 6 Z" fill="#421524" stroke="#ffdcad" stroke-width="3"/><path d="M -4 0 L -4 -23 L 4 -23 L 4 0" fill="#171018" stroke="#d5a07e" stroke-width="2"/><path d="M -13 -22 L 13 -22 L 7 -46 L -7 -46 Z" fill="#8a2a42" stroke="#f4c69c" stroke-width="3"/><path d="M -8 -45 L -8 -244 L 0 -278 L 8 -244 L 8 -45 Z" fill="url(#it50Blade)" stroke="#fff3d4" stroke-width="3.2"/><path d="M 0 -270 L 1 -54" stroke="#fff7e3" stroke-width="3"/><path d="M -8 -63 L 8 -63" stroke="#f6d4ab" stroke-width="4"/><path d="M -5 -213 L 5 -213" stroke="#f5fbff" stroke-width="2" opacity=".9"/>';
-  if(n>=122&&n<=185)s+='<path d="M -22 -236 L 22 -202 M -27 -186 L 27 -151 M -22 -129 L 22 -94" stroke="#fff2db" stroke-width="2.5" opacity="'+(.22+Math.sin(n*.4)*.2)+'"/>';
-  s+='</g>';
- }
- /* Grounded stance, knee plates and phase-dependent pressure ripples. */
- s+='<path d="M -11 43 L -38 70 L -78 67 L -66 37 L -38 24 Z M 11 43 L 38 70 L 78 67 L 66 37 L 38 24 Z" fill="#3a1023" stroke="#f6b48d" stroke-width="3"/><path d="M -38 61 L -75 67 M 38 61 L 75 67" stroke="#ffcba0" stroke-width="3"/>';
- if(n<42){s+='<path d="M -220 70 Q -120 46 0 68 T 220 70" fill="none" stroke="#e85a61" stroke-width="3" opacity="'+(.15+manifest*.32)+'"/>';}
- if(n>=148&&n<=190){const q=Math.sin((n-148)/42*Math.PI);s+='<path d="M -220 -120 L 220 14 M -205 -153 L 205 -19" stroke="#fff0cc" stroke-width="'+(2+q*2)+'" opacity="'+(.18+q*.5)+'" fill="none"/>';}
- s+='</g>';return s;
-}
+// Tsukuyomi is rendered only by js/51_itachi_rig_cinematics_v2.js using live game fighters.
 function render(){
- if(!stage)return;const cinematic=Q.cinema&&(Q.cinema.kind==='tsukuyomi'||Q.cinema.kind==='ult');stage.style.zIndex=cinematic?'9':'6';if(typeof G!=='undefined'&&G.mode==='menu'){stage.innerHTML='';return;}
+ if(!stage)return;const cinematic=Q.cinema&&Q.cinema.kind==='ult';stage.style.zIndex=cinematic?'9':'6';if(typeof G!=='undefined'&&G.mode==='menu'){stage.innerHTML='';return;}
  let s='<defs><radialGradient id="it50Gourd"><stop stop-color="#f7cf88"/><stop offset=".28" stop-color="#b85135"/><stop offset=".68" stop-color="#71203c"/><stop offset="1" stop-color="#2b0b20"/></radialGradient><linearGradient id="it50Blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9b9cab"/><stop offset=".22" stop-color="#fff4d2"/><stop offset=".45" stop-color="#8b93a8"/><stop offset=".65" stop-color="#f9f4e5"/><stop offset="1" stop-color="#44445c"/></linearGradient><linearGradient id="it50Armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8b188"/><stop offset=".23" stop-color="#ad4350"/><stop offset=".62" stop-color="#4a132d"/><stop offset="1" stop-color="#110711"/></linearGradient><linearGradient id="it50ArmorBright" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc698"/><stop offset=".35" stop-color="#c65b65"/><stop offset=".75" stop-color="#6b203b"/><stop offset="1" stop-color="#230a1e"/></linearGradient><linearGradient id="it50Mirror" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4cf"/><stop offset=".18" stop-color="#9af4ff"/><stop offset=".36" stop-color="#b59cff"/><stop offset=".54" stop-color="#ffb0cf"/><stop offset=".72" stop-color="#f6f1d0"/><stop offset="1" stop-color="#8ad7fb"/></linearGradient></defs>';
- const c=Q.cinema;if(c&&c.kind==='tsukuyomi'){stage.innerHTML=s+tsukuyomi(c);return;}
+ const c=Q.cinema;
  if(Q.flameBreath&&Q.flameBreath.owner&&alive(Q.flameBreath.owner.opp)){
   const b=Q.flameBreath,o=point(b.owner.x,b.owner.y-86),d=b.owner.facing||1,p=clamp(b.t/20,0,1);
   s+='<rect width="1280" height="720" fill="#14050b" opacity="'+(.14+p*.1)+'"/><path d="M 0 580 Q 180 510 330 574 T 650 550 T 980 567 T 1280 520 L 1280 720 L 0 720 Z" fill="#4a0a16" opacity=".55"/>';
