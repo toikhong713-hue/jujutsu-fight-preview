@@ -4,7 +4,7 @@
 if(window.__JFF_ITACHI_CINEMATIC_V1__)return;
 const Q=window.JFF_ITACHI_REBOOT;if(!Q)return;
 window.__JFF_ITACHI_CINEMATIC_V1__=true;
-const oldStart=window.startMove,oldUpdate=window.updateMove,oldHit=window.resolveHit,oldReset=window.resetFighter,oldRender=window.render,oldPose=window.applyCharacterIdentityPose;
+const oldStart=window.startMove,oldUpdate=window.updateMove,oldHit=window.resolveHit,oldReset=window.resetFighter,oldRender=window.render,oldPose=window.applyCharacterIdentityPose,oldStep=window.step;
 const fighters=()=>typeof G!=='undefined'&&Array.isArray(G.fighters)?G.fighters:[];
 const alive=o=>!!(o&&o.hp>0&&o.state!=='DEFEAT'&&o.state!=='VICTORY');
 const down=code=>{const k=typeof KEY!=='undefined'?KEY:(window.KEY||{});return !!k[code];};
@@ -121,5 +121,29 @@ function render(){
  stage.innerHTML=s;
 }
 if(typeof oldRender==='function')window.render=function(){const out=oldRender.apply(this,arguments);render();if(Q.amaterasuImpact)Q.amaterasuImpact.t=Math.min(42,Q.amaterasuImpact.t+1);return out;};
+// Apply real HP damage exactly when the live-fighter katana thrust reaches the target.
+const tsukuyomiHitFrames=[132,196,260,324],tsukuyomiHitDamage=[10,12,14,18];
+if(typeof oldStep==='function')window.step=function(){
+ const result=oldStep.apply(this,arguments);
+ const c=Q.cinema;
+ if(c&&c.kind==='tsukuyomi'&&c.target){
+  const n=c.frame||0,i=tsukuyomiHitFrames.indexOf(n),target=c.target;
+  if(i>=0&&target.hp>0){
+   if(!c.tsukuyomiStabHits)c.tsukuyomiStabHits=Object.create(null);
+   if(!c.tsukuyomiStabHits[i]){
+    c.tsukuyomiStabHits[i]=true;c.hitDone=true;
+    const damage=tsukuyomiHitDamage[i];
+    target.hp=Math.max(0,target.hp-damage);target.hitFlash=10;
+    if(target.hp<=0){target.hp=0;target.state='DEFEAT';target.stateFrame=0;}
+    fx('shock',target.x,target.y-82,26,{cinematic:'tsukuyomi',stab:i+1});
+    fx('reflect',target.x,target.y-82,18,{cinematic:'tsukuyomi',stab:i+1});
+    if(typeof floatText==='function')floatText(target.x,target.y-150,'-'+damage,'#ff7a96',18,40);
+    if(typeof shake==='function')shake(5+i*2);
+    if(typeof flash==='function')flash(.12,'#d91f4a');
+   }
+  }
+ }
+ return result;
+};
 console.info('[JFF Itachi] Katon hand-seals/tap-volley/hold-flamethrower, long-range Amaterasu, 8s Tsukuyomi, and larger Susanoo VFX ready.');
 })();
