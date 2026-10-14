@@ -10,6 +10,7 @@ window.__JFF_ITACHI_SUSANOO_FORM_V1__=true;
 const previousStart=window.startMove;
 const previousUpdate=window.updateMove;
 const previousReset=window.resetFighter;
+const previousResolveHit=window.resolveHit;
 const previousStep=window.step;
 const previousRender=window.render;
 const previousDrawFighter=window.drawFighter;
@@ -47,7 +48,7 @@ function beginAttack(f,key){
   f.moveKey=key;f.moveFrame=0;f.state='ATTACK';f.stateFrame=0;
   f.move={name:key==='sus_m1'?'Totsuka Blade: Susanoo Combo':(key==='sus_z'?'Yata Mirror Counter':'Totsuka Sealing Thrust'),kind:'melee',startup:5,active:24,recovery:20,damage:0,hitbox:null,cost:0,cd:0};
   f.vx*=.15;
-  if(key==='sus_z')f.itachiYataUntil=tick()+38;
+  if(key==='sus_z'){f.itachiYataUntil=tick()+22;f.itachiYataCounterUsed=false;}
   if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
   return true;
 }
@@ -73,16 +74,16 @@ function updateSusanooMove(f){
   f.moveFrame=n;f.itachiPoseKey=k;f.itachiSusanooAction=k;
   if(k==='sus_m1'){
     // Four readable sword beats: raise, diagonal cut, return slash, heavy finisher.
-    if(n===8)hit(f,n,8,178,{hitstun:15,kbx:d*4,hitstop:5,shake:3});
-    if(n===18)hit(f,n,9,190,{hitstun:17,kbx:d*5,hitstop:6,shake:4});
-    if(n===29)hit(f,n,9,192,{hitstun:18,kbx:d*5,hitstop:6,shake:4});
-    if(n===42)hit(f,n,14,215,{hitstun:27,kbx:d*11,kby:-3,hitstop:10,armorBreak:true,shake:9});
-    if(n>=57)finishAttack(f);
+    if(n===8)hit(f,n,5,205,{hitstun:13,kbx:d*3,hitstop:4,shake:2});
+    if(n===18)hit(f,n,6,218,{hitstun:14,kbx:d*4,hitstop:5,shake:3});
+    if(n===29)hit(f,n,6,220,{hitstun:15,kbx:d*4,hitstop:5,shake:3});
+    if(n===42)hit(f,n,8,238,{hitstun:20,kbx:d*7,kby:-2,hitstop:7,armorBreak:true,shake:5});
+    if(n>=60)finishAttack(f);
   }else if(k==='sus_z'){
-    if(n===2){f.itachiYataUntil=tick()+38;fx('reflect',f.x+d*82,f.y-165,42);fx('shock',f.x+d*72,f.y-108,22);}
-    // The guard window uses Itachi's existing reflect hook; the bash has its own hitbox.
-    if(n===25)hit(f,n,15,178,{hitstun:25,kbx:d*9,kby:-2,hitstop:9,armorBreak:true,shake:7});
-    if(n>=45){f.itachiYataUntil=0;finishAttack(f);}
+    if(n===2){f.itachiYataUntil=tick()+20;f.itachiYataCounterUsed=false;fx('reflect',f.x+d*100,f.y-170,34);fx('shock',f.x+d*82,f.y-108,18);}
+    // Front-facing guard is active briefly; a successful reflect cancels the attack and counter-hits the source.
+    if(n===25)hit(f,n,8,186,{hitstun:18,kbx:d*5,kby:-1,hitstop:6,shake:4});
+    if(n>=48){f.itachiYataUntil=0;finishAttack(f);}
   }else if(k==='sus_x'){
     if(n===15){
       if(alive(o)){
@@ -91,10 +92,32 @@ function updateSusanooMove(f){
       }else f.x=clamp(f.x+d*34,36,arenaWidth()-36);
       fx('magatama',f.x+d*86,f.y-168,26);
     }
-    if(n===26)hit(f,n,26,260,{hitstun:39,kbx:d*14,kby:-4,hitstop:13,armorBreak:true,seal:true,shake:12});
-    if(n>=53)finishAttack(f);
+    if(n===26)hit(f,n,17,276,{hitstun:25,kbx:d*8,kby:-2,hitstop:8,armorBreak:true,seal:true,shake:7});
+    if(n>=58)finishAttack(f);
   }else{if(typeof previousUpdate==='function')previousUpdate.apply(this,arguments);}
 }
+if(typeof previousResolveHit==='function')window.resolveHit=function(attacker,defender,mv,hx,hy){
+  // Yata Mirror is a real front-facing counter: negate the incoming hit, punish its source, and return before normal damage.
+  if(defender&&defender.id==='itachi'&&defender.itachiSusanooActive&&defender.moveKey==='sus_z'&&
+     defender.itachiYataUntil>tick()&&!defender.itachiYataCounterUsed&&alive(attacker)&&attacker!==defender){
+    const dx=attacker.x-defender.x,comingFromFront=defender.facing===(Math.sign(dx)||1);
+    if(comingFromFront){
+      defender.itachiYataUntil=0;defender.itachiYataCounterUsed=true;
+      attacker.hp=Math.max(0,attacker.hp-12);attacker.hitFlash=12;
+      attacker.vx=(Math.sign(dx)||defender.facing)*7.2;attacker.vy=-2.2;
+      attacker.move=null;attacker.moveKey=null;attacker.moveFrame=0;attacker.hitstun=Math.max(attacker.hitstun||0,25);
+      attacker.immobilize=Math.max(attacker.immobilize||0,12);attacker.state=attacker.hp>0?'HITSTUN':'DEFEAT';attacker.stateFrame=0;
+      defender.meter=Math.min(defender.maxMeter||100,(defender.meter||0)+9);
+      fx('reflect',defender.x+defender.facing*96,defender.y-164,36);
+      fx('shock',attacker.x,attacker.y-90,24);
+      if(typeof SFX!=='undefined'&&SFX.parry)SFX.parry();
+      if(typeof shake==='function')shake(7);if(typeof camPunch==='function')camPunch(.13);
+      if(typeof flash==='function')flash(.24,'#ffe0a7');
+      return 'parry';
+    }
+  }
+  return previousResolveHit.apply(this,arguments);
+};
 if(typeof previousStart==='function')window.startMove=function(f,key,isBF){
   if(f&&f.id==='itachi'&&f.itachiSusanooActive&&key==='ult')return false;
   const ok=previousStart.apply(this,arguments);
@@ -143,6 +166,18 @@ function drawShield(x,y,scale,glow){
   ctx.fillStyle='#f8e6b0';for(let i=0;i<3;i++){ctx.beginPath();ctx.arc(Math.cos(i*2.094)*9,Math.sin(i*2.094)*13,3.1,0,Math.PI*2);ctx.fill();}
   ctx.restore();
 }
+function drawSakeGourd(x,y,scale,phase){
+  ctx.save();ctx.translate(x,y);ctx.rotate(-.22+Math.sin((phase||0)*.035)*.025);ctx.scale(scale,scale);
+  const g=ctx.createLinearGradient(-28,-30,30,35);g.addColorStop(0,'#ffcc86');g.addColorStop(.19,'#c65a3f');g.addColorStop(.46,'#85293a');g.addColorStop(.76,'#4b1429');g.addColorStop(1,'#240b19');
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,130,78,.19)';ctx.beginPath();ctx.ellipse(0,7,34,42,0,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.fillStyle='#210a15';ctx.beginPath();ctx.ellipse(0,8,26,34,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=g;ctx.strokeStyle='#f2a56b';ctx.lineWidth=2.6;ctx.beginPath();ctx.moveTo(-6,-19);ctx.quadraticCurveTo(-31,-15,-28,9);ctx.quadraticCurveTo(-24,32,-6,37);ctx.quadraticCurveTo(4,42,15,31);ctx.quadraticCurveTo(29,17,25,3);ctx.quadraticCurveTo(22,-14,7,-19);ctx.lineTo(6,-31);ctx.lineTo(-6,-31);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#451326';ctx.fillRect(-8,-38,16,12);ctx.fillStyle='#eab078';ctx.fillRect(-10,-41,20,5);ctx.fillRect(-25,2,50,4);ctx.fillRect(-20,18,40,3);
+  ctx.strokeStyle='rgba(255,224,169,.75)';ctx.lineWidth=1.3;ctx.beginPath();ctx.moveTo(-14,-9);ctx.quadraticCurveTo(-23,7,-11,23);ctx.moveTo(8,-9);ctx.quadraticCurveTo(18,8,9,23);ctx.stroke();
+  // A hilt and guard peeking out of the gourd neck show that Totsuka is stored inside.
+  ctx.strokeStyle='#1a1018';ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(0,-37);ctx.lineTo(0,-52);ctx.stroke();ctx.strokeStyle='#f0c17d';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-9,-45);ctx.lineTo(9,-45);ctx.stroke();
+  ctx.restore();
+}
 function drawTotsuka(x,y,angle,scale,power){
   ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.scale(scale,scale);
   ctx.lineCap='round';ctx.lineJoin='round';
@@ -150,8 +185,8 @@ function drawTotsuka(x,y,angle,scale,power){
   ctx.strokeStyle='#f1c078';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(0,1);ctx.lineTo(0,23);ctx.stroke();
   ctx.strokeStyle='#4b1026';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-7,18);ctx.lineTo(7,10);ctx.moveTo(-7,12);ctx.lineTo(7,4);ctx.stroke();
   const blade=ctx.createLinearGradient(-7,-5,7,-108);blade.addColorStop(0,'#b94c42');blade.addColorStop(.24,'#ffbc77');blade.addColorStop(.52,'#fff3cf');blade.addColorStop(.78,'#e86a52');blade.addColorStop(1,'#ffddb0');
-  polygon([[-6,0],[-8,-65],[-3,-91],[0,-111],[5,-91],[9,-65],[6,0]],blade,'#6b202b',2.2);
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5+power*.35;ctx.strokeStyle='#fff0c6';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,-100);ctx.stroke();ctx.restore();
+  polygon([[-7,0],[-10,-87],[-5,-126],[0,-158],[6,-126],[11,-87],[7,0]],blade,'#6b202b',2.5);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.48+power*.38;ctx.strokeStyle='#fff0c6';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,-146);ctx.stroke();ctx.restore();
   ctx.restore();
 }
 function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
@@ -167,6 +202,8 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,126,89,.18)';ctx.lineWidth=2.2;
   for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-112,72+i*16,31+i*9,0,Math.PI*(.1+i*.13)+t*.002,Math.PI*(1.05+i*.17)+t*.002);ctx.stroke();}
   ctx.restore();
+  // Totsuka's sake gourd is mounted behind the right shoulder. The blade stays sheathed between attacks.
+  drawSakeGourd(72+breath*.25,-192,1.2,t);
   // Legs and split greaves. The silhouette shares the fighter's feet so it never floats.
   const legLift=(f&&f.state==='WALK')?Math.sin(t*.24)*7:0;
   armorLimb([-25,-91],[-31+legLift*.35,-42],15,'#ff9a65');
@@ -213,15 +250,21 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   polygon([[armR2[0]-8,armR2[1]-14],[armR2[0]+13,armR2[1]-10],[armR2[0]+9,armR2[1]+15],[armR2[0]-12,armR2[1]+9]],'#57172a','#ffb07c',2);
   // Forearm shield is held out toward the opponent during Yata Mirror.
   if(guard){
-    drawShield(armR2[0]+8,armR2[1]-9,1.02,1);
+    drawShield(armR2[0]+12,armR2[1]-11,1.32,1);
   }else{
-    // Yata Mirror remains visibly carried at the off-hand; Z moves it to the front.
-    drawShield(armL2[0]-2,armL2[1]-7,.51,.25);
+    // Large Yata Mirror rests at the off-hand. Z sweeps it into the foreground.
+    drawShield(armL2[0]-5,armL2[1]-10,.88,.28);
   }
-  // Totsuka Blade pivots from the right hand and visibly follows each strike.
-  const swordX=thrust?armR2[0]+7:(heavy?armR2[0]+8:armR2[0]+7);
-  const swordY=thrust?armR2[1]+2:armR2[1]+1;
-  drawTotsuka(swordX,swordY,swordAngle,thrust?1.15:(heavy?1.08:.8),heavy||thrust?1:.36);
+  // The sword is not permanently in the hand: it is drawn out of the sake gourd for M1/X, then returns.
+  if(heavy||thrust){
+    const pulling=heavy?n<8: n<15;
+    if(pulling){
+      const q=heavy?clamp(n/8,0,1):clamp(n/15,0,1);
+      const gx=72,gy=-224;
+      const hx=armR2[0]+7,hy=armR2[1]+1;
+      drawTotsuka(gx+(hx-gx)*q,gy+(hy-gy)*q,heavy?lerp(-.48,swordAngle,q):lerp(-.3,swordAngle,q),heavy?lerp(.7,1.38,q):lerp(.75,1.42,q),1);
+    }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,1.42,1);
+  }
   // Helmet and horned crown.
   polygon([[-39,-249],[-57,-267],[-45,-264],[-48,-292],[-28,-270],[-13,-301],[0,-278],[17,-301],[27,-271],[49,-289],[46,-260],[36,-244],[31,-226],[0,-218],[-31,-226]],'#461326','#1a0710',4);
   polygon([[-35,-255],[-23,-270],[0,-261],[23,-270],[35,-255],[29,-235],[13,-225],[-13,-225],[-29,-235]],'#a43843','#ffb07a',2.4);
@@ -264,7 +307,7 @@ function drawAwakening(){
     try{target.x=tx;target.y=610;target.facing=-1;window.drawFighter(target);}finally{target.x=save.x;target.y=save.y;target.facing=save.facing;}
   }
   const appear=n<28?smooth(n/28)*.08:(n<68?.08+smooth((n-28)/40)*.35:(n<132?.43+smooth((n-68)/64)*.48:1));
-  const rigScale=(n<35?.2+easeOut(n/35)*.28:(n<105?.48+easeOut((n-35)/70)*.54:(n<150?1.02+easeOut((n-105)/45)*.22:1.24)));
+  const rigScale=(n<35?.16+easeOut(n/35)*.36:(n<105?.52+easeOut((n-35)/70)*.76:(n<150?1.28+easeOut((n-105)/45)*.30:1.58)));
   drawSusanooRig(owner,ox-16,610,rigScale,n,appear,'awakening');
   const save={x:owner.x,y:owner.y,facing:owner.facing,pose:owner.itachiPoseKey};
   try{owner.x=ox;owner.y=610;owner.facing=target&&target.x<owner.x?-1:1;owner.itachiPoseKey='ult';window.drawFighter(owner);}finally{owner.x=save.x;owner.y=save.y;owner.facing=save.facing;owner.itachiPoseKey=save.pose;}
@@ -293,15 +336,15 @@ function drawFormHint(){
   ctx.fillStyle='rgba(10,5,12,.82)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='rgba(255,154,112,.65)';ctx.lineWidth=1.3;ctx.strokeRect(x,y,w,h);
   ctx.fillStyle='#ffd0a9';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText('SUSANOO · AWAKENED',x+12,y+18);
   ctx.fillStyle='#fff0dd';ctx.font='11px sans-serif';ctx.fillText((f.isP2?'NUM 1':'1')+' M1  TOTSUKA  ·  '+(f.isP2?'NUM −':'Z')+' YATA  ·  '+(f.isP2?'NUM /':'X')+' SEAL',x+12,y+37);
-  ctx.fillStyle='rgba(255,200,157,.75)';ctx.font='10px sans-serif';ctx.fillText('FORM PERSISTS UNTIL KNOCKOUT OR ROUND RESET',x+12,y+52);ctx.restore();
+  const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
-  if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult'))drawSusanooRig(f,f.x-(f.facing||1)*8,f.y+3,1.08,tick(),1,'battle');
+  if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult'))drawSusanooRig(f,f.x-(f.facing||1)*9,f.y+3,1.58,tick(),1,'battle');
   return previousDrawFighter.apply(this,arguments);
 };
 if(typeof previousReset==='function')window.resetFighter=function(f){
   if(f&&f.id==='itachi'){
-    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;
+    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiYataCounterUsed=false;
   }
   return previousReset.apply(this,arguments);
 };
@@ -310,16 +353,25 @@ if(typeof previousStep==='function')window.step=function(){
   for(const f of fighters()){
     if(!f||f.id!=='itachi')continue;
     if(f.itachiSusanooPending&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
-      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';
+      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
       f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.move=null;f.moveKey=null;f.moveFrame=0;f.vx=0;f.vy=0;
       f.invuln=Math.min(f.invuln||0,36);f.itachiPoseKey='';
       fx('shock',f.x,f.y-90,44);fx('magatama',f.x+f.facing*52,f.y-185,48);
       if(typeof flash==='function')flash(.26,'#ff8a62');if(typeof shake==='function')shake(10);if(typeof camPunch==='function')camPunch(.18);
-      f.itachiSusanooGlow=160;
+      f.itachiSusanooGlow=160;f.itachiSusanooActivatedThisStep=true;
     }
     if(!alive(f)||G.matchOver||G.mode==='menu'){
-      f.itachiSusanooActive=false;f.itachiSusanooAction='';
+      f.itachiSusanooActive=false;f.itachiSusanooAction='';f.itachiSusanooFrames=0;
+    }else if(f.itachiSusanooActive&&!f.itachiSusanooActivatedThisStep&&!G.paused&&G.roundState!=='ko'&&!Q.cinema&&f.itachiSusanooFrames>0){
+      f.itachiSusanooFrames--;
+      if(f.itachiSusanooFrames<=0){
+        f.itachiSusanooActive=false;f.itachiSusanooAction='';f.itachiYataUntil=0;f.itachiSusanooFrames=0;
+        if(/^sus_(m1|z|x)$/.test(f.moveKey||'')){f.move=null;f.moveKey=null;f.moveFrame=0;f.state='IDLE';f.stateFrame=0;}
+        f.itachiPoseKey='';fx('shock',f.x,f.y-70,28);fx('crows',f.x,f.y-90,26);
+        if(typeof flash==='function')flash(.14,'#bd5960');
+      }
     }
+    f.itachiSusanooActivatedThisStep=false;
     if(f.itachiSusanooGlow>0)f.itachiSusanooGlow--;
   }
   return r;
