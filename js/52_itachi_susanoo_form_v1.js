@@ -20,6 +20,7 @@ const savedDisplay=new Map();
 const fighters=()=>typeof G!=='undefined'&&Array.isArray(G.fighters)?G.fighters:[];
 const alive=f=>!!(f&&f.hp>0&&f.state!=='DEFEAT'&&f.state!=='VICTORY');
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
 const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 const easeOut=t=>1-Math.pow(1-clamp(t,0,1),3);
 const arenaWidth=()=>typeof ARENA_W!=='undefined'?ARENA_W:(window.ARENA_W||3200);
