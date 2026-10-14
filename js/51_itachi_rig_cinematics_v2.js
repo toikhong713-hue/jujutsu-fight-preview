@@ -47,15 +47,26 @@ function applyPose(P,f){
   P.lean=0;P.hipY=-50;P.shY=-96;P.headY=-113;P.headX=0;
   P.armF=[0,0];P.armB=[180,0];P.legF=[72,25];P.legB=[108,-17];
  }else if(key==='tsukuyomi-owner'){
-  const frame=Q.cinema?Q.cinema.frame:0,beat=frame>=108?(frame-108)%64:0;
+  const frame=Number.isFinite(f.itachiTsukuyomiPoseFrame)?f.itachiTsukuyomiPoseFrame:(Q.cinema?Q.cinema.frame:0);
+  const beat=frame>=144?(frame-144)%72:-1,mode=f.itachiTsukuyomiPoseMode||'active';
   P.hipY=-57;P.shY=-96;P.headY=-114;
-  if(frame<36){P.lean=-6;P.armF=[35,-36];P.armB=[140,-36];P.legF=[82,8];P.legB=[100,-8];}
-  else if(frame<108){P.lean=15;P.armF=[35,-24];P.armB=[138,-24];P.legF=[72,18];P.legB=[112,-10];}
-  else if(beat<13){P.lean=-5;P.armF=[47,12];P.armB=[132,18];P.legF=[82,8];P.legB=[100,-8];}
-  else if(beat<23){const q=smooth((beat-13)/10);P.lean=lerp(-5,22,q);P.armF=[lerp(47,-4,q),lerp(12,0,q)];P.armB=[lerp(132,12,q),lerp(18,0,q)];P.legF=[lerp(82,60,q),lerp(8,20,q)];P.legB=[lerp(100,124,q),lerp(-8,-18,q)];}
-  else if(beat<30){P.lean=22;P.armF=[-4,0];P.armB=[12,0];P.legF=[60,20];P.legB=[124,-18];}
-  else if(beat<39){const q=smooth((beat-30)/9);P.lean=lerp(22,-5,q);P.armF=[lerp(-4,47,q),lerp(0,12,q)];P.armB=[lerp(12,132,q),lerp(0,18,q)];P.legF=[lerp(60,82,q),lerp(20,8,q)];P.legB=[lerp(124,100,q),lerp(-18,-8,q)];}
-  else{P.lean=-5;P.armF=[47,12];P.armB=[132,18];P.legF=[82,8];P.legB=[100,-8];}
+  if(mode==='ready'){
+   P.lean=0;P.armF=[34,-26];P.armB=[132,18];P.legF=[88,5];P.legB=[94,-5];
+  }else if(frame<36){
+   P.lean=-6;P.armF=[35,-36];P.armB=[140,-36];P.legF=[82,8];P.legB=[100,-8];
+  }else if(frame<144){
+   const q=smooth((frame-36)/108);P.lean=lerp(-6,12,q);P.armF=[lerp(35,34,q),lerp(-36,-26,q)];P.armB=[132,18];P.legF=[lerp(82,78,q),lerp(8,14,q)];P.legB=[lerp(100,108,q),lerp(-8,-12,q)];
+  }else if(beat<12){
+   P.lean=-4;P.armF=[34,-26];P.armB=[132,18];P.legF=[84,6];P.legB=[98,-6];
+  }else if(beat<30){
+   const q=smooth((beat-12)/18);P.lean=lerp(-4,23,q);P.armF=[lerp(34,8,q),lerp(-26,0,q)];P.armB=[lerp(132,118,q),lerp(18,24,q)];P.legF=[lerp(84,57,q),lerp(6,21,q)];P.legB=[lerp(98,127,q),lerp(-6,-19,q)];
+  }else if(beat<42){
+   P.lean=23;P.armF=[8,0];P.armB=[118,24];P.legF=[57,21];P.legB=[127,-19];
+  }else if(beat<55){
+   const q=smooth((beat-42)/13);P.lean=lerp(23,0,q);P.armF=[lerp(8,34,q),lerp(0,-26,q)];P.armB=[lerp(118,132,q),lerp(24,18,q)];P.legF=[lerp(57,88,q),lerp(21,5,q)];P.legB=[lerp(127,94,q),lerp(-19,-5,q)];
+  }else{
+   P.lean=0;P.armF=[34,-26];P.armB=[132,18];P.legF=[88,5];P.legB=[94,-5];
+  }
  }
 }
 if(typeof previousPose==='function')window.applyCharacterIdentityPose=function(P,f){
@@ -114,39 +125,40 @@ function drawRestraints(x,y,n){
  ctx.strokeStyle='#ad2849';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x-36,y-68);ctx.lineTo(x+36,y-68);ctx.stroke();
  ctx.restore();
 }
-function drawKatanaThrust(ox,oy,tx,ty,n,beat,attackIndex){
- if(beat<13||beat>37||n<108||n>=368)return;
- let progress=beat<23?smooth((beat-13)/10):(beat<30?1:1-smooth((beat-30)/7));
- progress=clamp(progress,0,1);
- const y=ty-82+Math.sin(n*.43)*1.2;
- const gripX=ox+17,guardX=ox+39,bladeBase=guardX+5;
- const tipX=lerp(ox+52,tx+12,progress);
- ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
- // Fast thrust trail, aimed through the centre of the target's torso, not a diagonal slash.
- ctx.globalCompositeOperation='lighter';
- ctx.globalAlpha=.18+.28*progress;ctx.strokeStyle='#ff315b';ctx.lineWidth=12;
- ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX+7,y);ctx.stroke();
- ctx.globalAlpha=1;
- // Katana handle + wrapping
- ctx.strokeStyle='#09070d';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(gripX,y);ctx.lineTo(guardX-1,y);ctx.stroke();
- ctx.strokeStyle='#8b2441';ctx.lineWidth=2;for(let j=0;j<4;j++){ctx.beginPath();ctx.moveTo(gripX+j*5,y-3);ctx.lineTo(gripX+j*5+4,y+3);ctx.stroke();}
- // Tsuba guard
- ctx.strokeStyle='#171019';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(guardX,y-10);ctx.lineTo(guardX,y+10);ctx.stroke();
- ctx.strokeStyle='#e1a5b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(guardX-2,y-8);ctx.lineTo(guardX-2,y+8);ctx.stroke();
- // Blade silhouette, polished core and pointed kissaki
- ctx.strokeStyle='#11101a';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX-10,y);ctx.lineTo(tipX+7,y);ctx.stroke();
- const steel=ctx.createLinearGradient(0,y-4,0,y+4);steel.addColorStop(0,'#697487');steel.addColorStop(.42,'#f5f0ee');steel.addColorStop(.72,'#abb7c7');steel.addColorStop(1,'#475266');
- ctx.strokeStyle=steel;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX-10,y);ctx.lineTo(tipX+7,y);ctx.stroke();
- ctx.strokeStyle='#ffffff';ctx.lineWidth=1.15;ctx.beginPath();ctx.moveTo(bladeBase+4,y-1);ctx.lineTo(tipX-8,y-1);ctx.stroke();
- // Small impact ring only while the blade is fully extended.
- if(beat>=22&&beat<=29){
-  const k=1-Math.abs(25.5-beat)/4.5,ix=tx+7;
-  ctx.globalCompositeOperation='screen';ctx.globalAlpha=.65*k;
-  ctx.strokeStyle='#fff1f5';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ix,y,7+attackIndex*1.3,0,Math.PI*2);ctx.stroke();
-  for(let j=0;j<4;j++){const a=j*Math.PI/2+n*.07;ctx.beginPath();ctx.moveTo(ix+Math.cos(a)*4,y+Math.sin(a)*4);ctx.lineTo(ix+Math.cos(a)*(13+attackIndex),y+Math.sin(a)*(13+attackIndex));ctx.stroke();}
+function drawHeldKatana(f,targetX,active,beat,cloneAlpha,copyIndex){
+ const P=computePose(f),fd=f.facing||1;
+ const shoulder={x:f.x+P.lean*.28*fd,y:f.y+P.shY};
+ const elbow=joint(shoulder,P.armF[0],20);
+ const hand=joint(elbow,P.armF[0]+P.armF[1],20);
+ // The blade is attached to the actual rig's hand, and all copies point toward the enemy.
+ // Its fixed shallow downward angle targets the middle of the torso; there are no slash arcs.
+ const angle=.17,ux=Math.cos(angle),uy=Math.sin(angle),perpX=-uy,perpY=ux;
+ let length=active?86:76;
+ if(active&&beat>=16&&beat<=35)length=lerp(78,86,smooth((beat-16)/19));
+ const pommel={x:hand.x-ux*12,y:hand.y-uy*12};
+ const guard={x:hand.x+ux*10,y:hand.y+uy*10};
+ const base={x:guard.x+ux*6,y:guard.y+uy*6};
+ const tip={x:base.x+ux*length,y:base.y+uy*length};
+ const shoulderBlade={x:tip.x-ux*8,y:tip.y-uy*8};
+ ctx.save();ctx.globalAlpha=cloneAlpha;ctx.lineCap='round';ctx.lineJoin='round';
+ ctx.strokeStyle='#08070d';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(pommel.x,pommel.y);ctx.lineTo(guard.x,guard.y);ctx.stroke();
+ ctx.strokeStyle='#85233e';ctx.lineWidth=2;
+ for(let j=1;j<=4;j++){const q=j/5,xx=pommel.x+(guard.x-pommel.x)*q,yy=pommel.y+(guard.y-pommel.y)*q;ctx.beginPath();ctx.moveTo(xx-perpX*3,yy-perpY*3);ctx.lineTo(xx+perpX*3,yy+perpY*3);ctx.stroke();}
+ ctx.fillStyle='#0d0a13';ctx.strokeStyle='#b84968';ctx.lineWidth=1.5;ctx.beginPath();ctx.ellipse(pommel.x,pommel.y,4,3,angle,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#120d17';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(guard.x-perpX*9,guard.y-perpY*9);ctx.lineTo(guard.x+perpX*9,guard.y+perpY*9);ctx.stroke();
+ ctx.strokeStyle='#d8a4b6';ctx.lineWidth=1.7;ctx.beginPath();ctx.moveTo(guard.x-perpX*8,guard.y-perpY*8);ctx.lineTo(guard.x+perpX*8,guard.y+perpY*8);ctx.stroke();
+ ctx.beginPath();ctx.moveTo(base.x+perpX*3.8,base.y+perpY*3.8);ctx.lineTo(shoulderBlade.x+perpX*2.45,shoulderBlade.y+perpY*2.45);ctx.lineTo(tip.x,tip.y);ctx.lineTo(shoulderBlade.x-perpX*1.4,shoulderBlade.y-perpY*1.4);ctx.lineTo(base.x-perpX*3.8,base.y-perpY*3.8);ctx.closePath();
+ ctx.fillStyle='#aeb9c9';ctx.fill();ctx.strokeStyle='#141522';ctx.lineWidth=1.7;ctx.stroke();
+ ctx.strokeStyle='#fff7ed';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(base.x+perpX*1.4,base.y+perpY*1.4);ctx.lineTo(tip.x-ux*9+perpX*.5,tip.y-uy*9+perpY*.5);ctx.stroke();
+ if(active&&beat>=31&&beat<=38){
+  const k=1-Math.abs(34.5-beat)/4.5,impact={x:targetX+3,y:f.y-73};
+  ctx.globalCompositeOperation='screen';ctx.globalAlpha=cloneAlpha*.7*k;ctx.strokeStyle='#fff0f4';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(impact.x,impact.y,5+copyIndex%3*2,0,Math.PI*2);ctx.stroke();
+  for(let j=0;j<4;j++){const a=j*Math.PI/2;ctx.beginPath();ctx.moveTo(impact.x+Math.cos(a)*4,impact.y+Math.sin(a)*4);ctx.lineTo(impact.x+Math.cos(a)*12,impact.y+Math.sin(a)*12);ctx.stroke();}
  }
  ctx.restore();
 }
+
 function drawClockTitle(n){
  if(n>=372&&n<432){
   const a=smooth((n-372)/14)*(1-smooth((n-420)/12));
@@ -164,59 +176,71 @@ function drawTsukuyomi(){
  const c=Q.cinema;if(!c||c.kind!=='tsukuyomi'||!c.owner||!c.target)return false;
  const n=c.frame||0,owner=c.owner,target=c.target;
  hideEffectLayers(true);drawBackground(n);
- const tx=835,ty=510,cycleStart=108,cycleLength=64;
- const attackPhase=n>=cycleStart&&n<368?(n-cycleStart)%cycleLength:-1;
- let ox;
- if(n<36)ox=lerp(385,500,smooth(n/36));
- else if(n<108)ox=lerp(500,tx-144,smooth((n-36)/72));
- else if(n<368){
-  const beat=attackPhase;
-  if(beat<13)ox=tx-144;
-  else if(beat<23)ox=lerp(tx-144,tx-94,smooth((beat-13)/10));
-  else if(beat<30)ox=tx-94;
-  else if(beat<39)ox=lerp(tx-94,tx-140,smooth((beat-30)/9));
-  else ox=tx-140;
- }else ox=tx-138;
- const oy=510;
- const zoom=n<36?1.24:(n<108?1.05:1);
- const focusX=n<36?ox:(n<108?530:640),focusY=n<36?407:405;
+ const tx=835,ty=558,cycleStart=144,cycleLength=72,totalAttacks=8;
+ const attackActive=n>=cycleStart&&n<cycleStart+cycleLength*totalAttacks;
+ const attackIndex=attackActive?Math.min(totalAttacks-1,Math.floor((n-cycleStart)/cycleLength)):-1;
+ const beat=attackActive?(n-cycleStart)%cycleLength:-1;
+ let leadDistance;
+ if(n<36)leadDistance=lerp(450,365,smooth(n/36));
+ else if(n<80)leadDistance=lerp(365,285,smooth((n-36)/44));
+ else if(n<cycleStart)leadDistance=255;
+ else if(attackActive&&beat<12)leadDistance=255;
+ else if(attackActive&&beat<30)leadDistance=lerp(255,74,smooth((beat-12)/18));
+ else if(attackActive&&beat<42)leadDistance=74;
+ else if(attackActive&&beat<55)leadDistance=lerp(74,220,smooth((beat-42)/13));
+ else if(attackActive)leadDistance=235;
+ else leadDistance=lerp(170,310,smooth((n-(cycleStart+cycleLength*totalAttacks))/105));
+ const cloneCount=n<56?1:(n<78?2:(n<100?3:(n<120?4:5)));
+ const activeSlot=attackIndex>=0?attackIndex%cloneCount:0;
+ const copies=[];
+ for(let slot=0;slot<cloneCount;slot++){
+  let distance,rank=0;
+  if(slot===activeSlot)distance=leadDistance;
+  else{rank=slot<activeSlot?slot:slot-1;distance=leadDistance+82*(rank+1);}
+  const alpha=slot===activeSlot?1:Math.max(.30,.62-rank*.075);
+  copies.push({slot,x:tx-distance,distance,alpha,active:slot===activeSlot,rank});
+ }
+ copies.sort((a,b)=>b.distance-a.distance);
+ const transition=smooth((n-108)/36),zoom=n<36?1.24:(n<108?1.05:(1.05-.05*transition));
+ const focusX=n<36?tx-leadDistance:(n<108?530:640);
+ const focusY=n<108?407:(405+(360-405)*transition);
  ctx.save();ctx.translate(W/2,H/2);ctx.scale(zoom,zoom);ctx.translate(-focusX,-focusY);
  drawCross(tx,ty,n);
- const ownerSave={x:owner.x,y:owner.y,facing:owner.facing,pose:owner.itachiCinemaPose,poseKey:owner.itachiPoseKey,animT:owner.animT};
+ const ownerSave={x:owner.x,y:owner.y,facing:owner.facing,pose:owner.itachiCinemaPose,poseKey:owner.itachiPoseKey,animT:owner.animT,poseFrame:owner.itachiTsukuyomiPoseFrame,poseMode:owner.itachiTsukuyomiPoseMode};
  const targetSave={x:target.x,y:target.y,facing:target.facing,pose:target.itachiCinemaPose,poseKey:target.itachiPoseKey,animT:target.animT};
  try{
   target.x=tx;target.y=ty;target.facing=-1;target.itachiCinemaPose='bound';target.itachiPoseKey='s2';target.animT=(targetSave.animT||0)+n*.08;
-  if(typeof window.drawFighter==='function'){
-   // Later stabs carry a faint live-rig afterimage to sell the sequential clone rush.
-   if(attackPhase>=18&&attackPhase<=30&&Math.floor((n-cycleStart)/cycleLength)>0){
-    owner.x=ox-30;owner.y=oy;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.animT=(ownerSave.animT||0)+n*.4;
-    ctx.save();ctx.globalAlpha=.20;window.drawFighter(owner);ctx.restore();
-   }
-   owner.x=ox;owner.y=oy;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.animT=(ownerSave.animT||0)+n*.4;
-   window.drawFighter(owner);
-   window.drawFighter(target);
+  for(const copy of copies){
+   if(copy.active)continue;
+   owner.x=copy.x;owner.y=ty;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.itachiTsukuyomiPoseFrame=n;owner.itachiTsukuyomiPoseMode='ready';owner.animT=(ownerSave.animT||0)+n*.14+copy.slot*4;
+   ctx.save();ctx.globalAlpha=copy.alpha;
+   window.drawFighter(owner);drawHeldKatana(owner,tx,false,beat,copy.alpha,copy.slot);
+   ctx.restore();
   }
+  window.drawFighter(target);
   drawRestraints(tx,ty,n);
-  if(attackPhase>=0)drawKatanaThrust(ox,oy,tx,ty,n,attackPhase,Math.floor((n-cycleStart)/cycleLength));
+  owner.x=tx-leadDistance;owner.y=ty;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.itachiTsukuyomiPoseFrame=n;owner.itachiTsukuyomiPoseMode='active';owner.animT=(ownerSave.animT||0)+n*.14+activeSlot*4;
+  window.drawFighter(owner);drawHeldKatana(owner,tx,true,beat,1,activeSlot);
  }finally{
-  owner.x=ownerSave.x;owner.y=ownerSave.y;owner.facing=ownerSave.facing;owner.itachiCinemaPose=ownerSave.pose;owner.itachiPoseKey=ownerSave.poseKey;owner.animT=ownerSave.animT;
+  owner.x=ownerSave.x;owner.y=ownerSave.y;owner.facing=ownerSave.facing;owner.itachiCinemaPose=ownerSave.pose;owner.itachiPoseKey=ownerSave.poseKey;owner.animT=ownerSave.animT;owner.itachiTsukuyomiPoseFrame=ownerSave.poseFrame;owner.itachiTsukuyomiPoseMode=ownerSave.poseMode;
   target.x=targetSave.x;target.y=targetSave.y;target.facing=targetSave.facing;target.itachiCinemaPose=targetSave.pose;target.itachiPoseKey=targetSave.poseKey;target.animT=targetSave.animT;
   ctx.restore();
  }
- // Camera beats stay abstract and bloodless, while the attack itself is a straight thrust.
  if(n<36){
   const a=.16+Math.sin(n*.25)*.08;ctx.fillStyle='rgba(235,24,67,'+a+')';ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(255,92,124,.45)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(410,334,106+n*.45,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#ff9db2';ctx.font='bold 18px Consolas,monospace';ctx.textAlign='center';ctx.fillText('EYE CONTACT',W/2,595);
- }else if(n>=36&&n<106){
+ }else if(n>=36&&n<cycleStart){
   ctx.fillStyle='rgba(90,2,24,.10)';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#ff8da7';ctx.font='bold 17px Consolas,monospace';ctx.textAlign='center';ctx.fillText('CLOSING IN',W/2,610);
- }else if(n>=106&&n<372){
-  if(attackPhase>=22&&attackPhase<=29){ctx.fillStyle='rgba(255,222,232,.15)';ctx.fillRect(0,0,W,H);}
-  ctx.fillStyle='#ff9fb3';ctx.font='bold 16px Consolas,monospace';ctx.textAlign='center';ctx.fillText('POV '+(Math.floor((n-cycleStart)/cycleLength)+1)+' // KATANA THRUST',W/2,610);
+  ctx.fillStyle='#ff8da7';ctx.font='bold 17px Consolas,monospace';ctx.textAlign='center';ctx.fillText('THE CLONES CLOSE IN',W/2,628);
+ }else if(attackActive){
+  if(beat>=31&&beat<=38){ctx.fillStyle='rgba(255,222,232,.12)';ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='#ff9fb3';ctx.font='bold 16px Consolas,monospace';ctx.textAlign='center';ctx.fillText('TSUKUYOMI // THRUST '+(attackIndex+1)+' / '+totalAttacks,W/2,628);
+ }else{
+  ctx.fillStyle='rgba(8,1,9,'+smooth((n-720)/60)*.40+')';ctx.fillRect(0,32,W,H-64);
  }
  drawClockTitle(n);
- if(n>420){ctx.save();ctx.globalAlpha=smooth((n-420)/40)*.45;ctx.strokeStyle='#f32e5b';ctx.lineWidth=3;for(let i=0;i<6;i++){const x=(i*227+n*1.7)%W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-70,Math.min(H,240+i*57));ctx.lineTo(x-20,Math.min(H,360+i*49));ctx.stroke();}ctx.restore();}
+ if(n>760){ctx.save();ctx.globalAlpha=smooth((n-760)/40)*.45;ctx.strokeStyle='#f32e5b';ctx.lineWidth=3;for(let i=0;i<6;i++){const x=(i*227+n*1.7)%W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-70,Math.min(H,240+i*57));ctx.lineTo(x-20,Math.min(H,360+i*49));ctx.stroke();}ctx.restore();}
  if(typeof window.JFF_FIGHTING_HUD!=='undefined'&&window.JFF_FIGHTING_HUD.update)window.JFF_FIGHTING_HUD.update();
  return true;
 }
