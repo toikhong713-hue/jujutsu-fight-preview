@@ -13,12 +13,12 @@ const stopMove=f=>{if(typeof window.endMove==='function')window.endMove(f);else{
 function targetFor(f,range){const o=f&&f.opp;return alive(o)&&Math.abs(o.x-f.x)<=range&&Math.abs(o.y-f.y)<245?o:null;}
 function startTsukuyomi(a,b,source){
  if(Q.cinema||!alive(a)||!alive(b))return false;
- a.facing=b.x>=a.x?1:-1;a.itachiCounterUntil=0;a.itachiCinemaKind='tsukuyomi';a.itachiPoseKey='s2';a.vx=0;a.invuln=Math.max(a.invuln||0,484);
- if(!a.move){a.move=a.moves&&a.moves.s2||{name:'Tsukuyomi',active:480};a.moveKey='s2';a.moveFrame=0;a.state='ATTACK';}
- b.itachiCinemaStun=483;b.move=null;b.moveKey=null;b.moveFrame=0;b.vx=0;b.vy=0;b.hitstun=Math.max(b.hitstun||0,483);b.immobilize=Math.max(b.immobilize||0,483);b.state='HITSTUN';b.stateFrame=0;
+ a.facing=b.x>=a.x?1:-1;a.itachiCounterUntil=0;a.itachiCinemaKind='tsukuyomi';a.itachiPoseKey='s2';a.vx=0;a.invuln=Math.max(a.invuln||0,844);
+ if(!a.move){a.move=a.moves&&a.moves.s2||{name:'Tsukuyomi',active:840};a.moveKey='s2';a.moveFrame=0;a.state='ATTACK';}
+ b.itachiCinemaStun=843;b.move=null;b.moveKey=null;b.moveFrame=0;b.vx=0;b.vy=0;b.hitstun=Math.max(b.hitstun||0,843);b.immobilize=Math.max(b.immobilize||0,843);b.state='HITSTUN';b.stateFrame=0;
  Q.shots.length=0;Q.clone=null;
- Q.cinema={kind:'tsukuyomi',owner:a,target:b,frame:0,duration:480,hitDone:false,createdAt:Q.tick,targetStartHp:b.hp,source:source||'direct'};
- fx('moon',b.x,b.y-90,480);fx('crows',a.x,a.y-90,48);
+ Q.cinema={kind:'tsukuyomi',owner:a,target:b,frame:0,duration:840,hitDone:false,createdAt:Q.tick,targetStartHp:b.hp,source:source||'direct'};
+ fx('moon',b.x,b.y-90,840);fx('crows',a.x,a.y-90,48);
  if(typeof flash==='function')flash(.4,'#870e2f');if(typeof shake==='function')shake(8);if(typeof camPunch==='function')camPunch(.22);
  if(typeof SFX!=='undefined'&&SFX.domain)SFX.domain();return true;
 }
@@ -122,7 +122,7 @@ function render(){
 }
 if(typeof oldRender==='function')window.render=function(){const out=oldRender.apply(this,arguments);render();if(Q.amaterasuImpact)Q.amaterasuImpact.t=Math.min(42,Q.amaterasuImpact.t+1);return out;};
 // Apply real HP damage exactly when the live-fighter katana thrust reaches the target.
-const tsukuyomiHitFrames=[132,196,260,324],tsukuyomiHitDamage=[10,12,14,18];
+const tsukuyomiHitFrames=[178,250,322,394,466,538,610,682],tsukuyomiHitDamage=[5,5,6,6,7,8,10,13];
 if(typeof oldStep==='function')window.step=function(){
  const result=oldStep.apply(this,arguments);
  const c=Q.cinema;
@@ -145,5 +145,5 @@ if(typeof oldStep==='function')window.step=function(){
  }
  return result;
 };
-console.info('[JFF Itachi] Katon hand-seals/tap-volley/hold-flamethrower, long-range Amaterasu, 8s Tsukuyomi, and larger Susanoo VFX ready.');
+console.info('[JFF Itachi] Katon hand-seals/tap-volley/hold-flamethrower, long-range Amaterasu, 14s Tsukuyomi, and larger Susanoo VFX ready.');
 })();
