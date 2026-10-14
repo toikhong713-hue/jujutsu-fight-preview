@@ -183,8 +183,13 @@
     c.frame++;
     const n=c.frame,o=c.target,owner=c.owner;
     if(c.kind==='tsukuyomi'){
-      // Tsukuyomi damage is synchronized with the visible katana-thrust keyframes
-      // in js/50 + js/51, rather than applying an invisible hit before the attack.
+      // Damage is synced to the eight visible sword-thrusts by js/50.
+    }else if(c.kind==='ult'){
+      // Susanoo Awakening is a transformation, not a finisher. No hidden HP cut or KO.
+      if(n===30&&owner){effect('shock',owner.x,owner.y-80,32);screenImpact(.16,'#a72d42');}
+      if(n===78&&owner){effect('reflect',owner.x,owner.y-156,42);screenImpact(.24,'#ff9a6c');}
+      if(n===142&&owner){effect('magatama',owner.x+owner.facing*72,owner.y-190,46);screenImpact(.34,'#d54b4c');}
+      if(n===202&&owner){effect('shock',owner.x,owner.y-70,48);effect('reflect',owner.x+owner.facing*104,owner.y-176,34);screenImpact(.45,'#ffb17c');}
     }else{
       if(n===46&&owner){effect('shock',owner.x,owner.y-100,40);effect('magatama',owner.x+owner.facing*80,owner.y-178,36);}
       if(n===82&&owner){effect('reflect',owner.x+owner.facing*85,owner.y-160,48);screenImpact(.24,'#ffd5a0');}
@@ -465,7 +470,8 @@
   window.applyCharacterIdentityPose=pose;
 
   function drawSusanoo(f){
-    if(Q.cinema&&Q.cinema.kind==='ult')return; // Articulated full-form overlay owns ultimate poses.
+    if(f&&f.itachiSusanooActive)return; // Persistent rebuilt rig replaces every legacy Susanoo overlay.
+    if(Q.cinema&&Q.cinema.kind==='ult')return; // The custom awakening renderer owns the whole frame.
     if(typeof ctx==='undefined'||!f||f.id!=='itachi'||f.state==='DEFEAT')return;
     const k=f.moveKey||'',n=f.moveFrame||0,cine=Q.cinema&&Q.cinema.owner===f;
     const heavy=f.state==='ATTACK'&&k==='heavy'&&n>=5&&n<=44;
@@ -651,12 +657,18 @@
     // X is Itachi P1's Yata Mirror command. Other fighters retain their X controls.
     if(e.code==='KeyX'&&p1&&p1.id==='itachi'&&!p1.ai){
       e.preventDefault();e.stopImmediatePropagation();
-      if(!e.repeat&&!Q.cinema&&!p1.move&&['IDLE','WALK'].includes(p1.state)&&typeof window.startMove==='function')window.startMove(p1,'def');
+      if(!e.repeat&&!Q.cinema&&!p1.move&&['IDLE','WALK'].includes(p1.state)){
+        if(p1.itachiSusanooActive&&window.JFF_ITACHI_SUSANOO_FORM)window.JFF_ITACHI_SUSANOO_FORM.activate(p1,'x');
+        else if(typeof window.startMove==='function')window.startMove(p1,'def');
+      }
       return;
     }
     if(e.code==='NumpadSubtract'&&p2&&p2.id==='itachi'&&!p2.ai){
       e.preventDefault();e.stopImmediatePropagation();
-      if(!e.repeat)taunt(p2);
+      if(!e.repeat){
+        if(p2.itachiSusanooActive&&window.JFF_ITACHI_SUSANOO_FORM)window.JFF_ITACHI_SUSANOO_FORM.activate(p2,'z');
+        else taunt(p2);
+      }
       return;
     }
   },true);
