@@ -47,13 +47,15 @@ function applyPose(P,f){
   P.lean=0;P.hipY=-50;P.shY=-96;P.headY=-113;P.headX=0;
   P.armF=[0,0];P.armB=[180,0];P.legF=[72,25];P.legB=[108,-17];
  }else if(key==='tsukuyomi-owner'){
-  const frame=Q.cinema?Q.cinema.frame:0,phase=Math.floor(Math.max(0,frame-96)/42)%3;
+  const frame=Q.cinema?Q.cinema.frame:0,beat=frame>=108?(frame-108)%64:0;
   P.hipY=-57;P.shY=-96;P.headY=-114;
-  if(frame<36){P.lean=-6;P.armF=[35,-36];P.armB=[140,-36];}
-  else if(phase===0){P.lean=-10;P.armF=[32,-72];P.armB=[140,-26];}
-  else if(phase===1){P.lean=12;P.armF=[20,50];P.armB=[150,28];}
-  else{P.lean=-4;P.armF=[12,-56];P.armB=[160,-36];}
-  P.legF=[82,8];P.legB=[100,-8];
+  if(frame<36){P.lean=-6;P.armF=[35,-36];P.armB=[140,-36];P.legF=[82,8];P.legB=[100,-8];}
+  else if(frame<108){P.lean=15;P.armF=[35,-24];P.armB=[138,-24];P.legF=[72,18];P.legB=[112,-10];}
+  else if(beat<13){P.lean=-5;P.armF=[47,12];P.armB=[132,18];P.legF=[82,8];P.legB=[100,-8];}
+  else if(beat<23){const q=smooth((beat-13)/10);P.lean=lerp(-5,22,q);P.armF=[lerp(47,-4,q),lerp(12,0,q)];P.armB=[lerp(132,12,q),lerp(18,0,q)];P.legF=[lerp(82,60,q),lerp(8,20,q)];P.legB=[lerp(100,124,q),lerp(-8,-18,q)];}
+  else if(beat<30){P.lean=22;P.armF=[-4,0];P.armB=[12,0];P.legF=[60,20];P.legB=[124,-18];}
+  else if(beat<39){const q=smooth((beat-30)/9);P.lean=lerp(22,-5,q);P.armF=[lerp(-4,47,q),lerp(0,12,q)];P.armB=[lerp(12,132,q),lerp(0,18,q)];P.legF=[lerp(60,82,q),lerp(20,8,q)];P.legB=[lerp(124,100,q),lerp(-18,-8,q)];}
+  else{P.lean=-5;P.armF=[47,12];P.armB=[132,18];P.legF=[82,8];P.legB=[100,-8];}
  }
 }
 if(typeof previousPose==='function')window.applyCharacterIdentityPose=function(P,f){
@@ -112,16 +114,36 @@ function drawRestraints(x,y,n){
  ctx.strokeStyle='#ad2849';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(x-36,y-68);ctx.lineTo(x+36,y-68);ctx.stroke();
  ctx.restore();
 }
-function drawSwordFlashes(x,y,n){
- if(n<100||n>=378)return;
- const q=(n-100)%42,amount=q<7?(1-q/7):0;
- ctx.save();ctx.globalCompositeOperation='screen';ctx.lineCap='round';
- if(amount>0){
-  const cx=x-25,cy=y-112;
-  for(let i=0;i<3;i++){
-   ctx.globalAlpha=amount*(i===0?.88:.28);ctx.strokeStyle=i===0?'#fff0f2':'#f02f5b';ctx.lineWidth=i===0?2.4:7-i*2;
-   ctx.beginPath();ctx.moveTo(cx-92+i*12,cy-62+i*8);ctx.lineTo(cx+90-i*8,cy+50-i*6);ctx.stroke();
-  }
+function drawKatanaThrust(ox,oy,tx,ty,n,beat,attackIndex){
+ if(beat<13||beat>37||n<108||n>=368)return;
+ let progress=beat<23?smooth((beat-13)/10):(beat<30?1:1-smooth((beat-30)/7));
+ progress=clamp(progress,0,1);
+ const y=ty-82+Math.sin(n*.43)*1.2;
+ const gripX=ox+17,guardX=ox+39,bladeBase=guardX+5;
+ const tipX=lerp(ox+52,tx+12,progress);
+ ctx.save();ctx.lineCap='round';ctx.lineJoin='round';
+ // Fast thrust trail, aimed through the centre of the target's torso, not a diagonal slash.
+ ctx.globalCompositeOperation='lighter';
+ ctx.globalAlpha=.18+.28*progress;ctx.strokeStyle='#ff315b';ctx.lineWidth=12;
+ ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX+7,y);ctx.stroke();
+ ctx.globalAlpha=1;
+ // Katana handle + wrapping
+ ctx.strokeStyle='#09070d';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(gripX,y);ctx.lineTo(guardX-1,y);ctx.stroke();
+ ctx.strokeStyle='#8b2441';ctx.lineWidth=2;for(let j=0;j<4;j++){ctx.beginPath();ctx.moveTo(gripX+j*5,y-3);ctx.lineTo(gripX+j*5+4,y+3);ctx.stroke();}
+ // Tsuba guard
+ ctx.strokeStyle='#171019';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(guardX,y-10);ctx.lineTo(guardX,y+10);ctx.stroke();
+ ctx.strokeStyle='#e1a5b8';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(guardX-2,y-8);ctx.lineTo(guardX-2,y+8);ctx.stroke();
+ // Blade silhouette, polished core and pointed kissaki
+ ctx.strokeStyle='#11101a';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX-10,y);ctx.lineTo(tipX+7,y);ctx.stroke();
+ const steel=ctx.createLinearGradient(0,y-4,0,y+4);steel.addColorStop(0,'#697487');steel.addColorStop(.42,'#f5f0ee');steel.addColorStop(.72,'#abb7c7');steel.addColorStop(1,'#475266');
+ ctx.strokeStyle=steel;ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(bladeBase,y);ctx.lineTo(tipX-10,y);ctx.lineTo(tipX+7,y);ctx.stroke();
+ ctx.strokeStyle='#ffffff';ctx.lineWidth=1.15;ctx.beginPath();ctx.moveTo(bladeBase+4,y-1);ctx.lineTo(tipX-8,y-1);ctx.stroke();
+ // Small impact ring only while the blade is fully extended.
+ if(beat>=22&&beat<=29){
+  const k=1-Math.abs(25.5-beat)/4.5,ix=tx+7;
+  ctx.globalCompositeOperation='screen';ctx.globalAlpha=.65*k;
+  ctx.strokeStyle='#fff1f5';ctx.lineWidth=2;ctx.beginPath();ctx.arc(ix,y,7+attackIndex*1.3,0,Math.PI*2);ctx.stroke();
+  for(let j=0;j<4;j++){const a=j*Math.PI/2+n*.07;ctx.beginPath();ctx.moveTo(ix+Math.cos(a)*4,y+Math.sin(a)*4);ctx.lineTo(ix+Math.cos(a)*(13+attackIndex),y+Math.sin(a)*(13+attackIndex));ctx.stroke();}
  }
  ctx.restore();
 }
@@ -142,39 +164,58 @@ function drawTsukuyomi(){
  const c=Q.cinema;if(!c||c.kind!=='tsukuyomi'||!c.owner||!c.target)return false;
  const n=c.frame||0,owner=c.owner,target=c.target;
  hideEffectLayers(true);drawBackground(n);
- const ox=n<106?lerp(385,520,smooth(n/106)):(n<372?548+Math.sin(n*.11)*5:430);
- const oy=510,tx=835,ty=510;
- // Actor and prop layers use the same temporary camera transform, while the arena remains fixed.
- const zoom=n<36?1.24:(n<106?1.05:1);
- const focusX=n<36?ox:(n<106?530:640),focusY=n<36?407:405;
+ const tx=835,ty=510,cycleStart=108,cycleLength=64;
+ const attackPhase=n>=cycleStart&&n<368?(n-cycleStart)%cycleLength:-1;
+ let ox;
+ if(n<36)ox=lerp(385,500,smooth(n/36));
+ else if(n<108)ox=lerp(500,tx-144,smooth((n-36)/72));
+ else if(n<368){
+  const beat=attackPhase;
+  if(beat<13)ox=tx-144;
+  else if(beat<23)ox=lerp(tx-144,tx-94,smooth((beat-13)/10));
+  else if(beat<30)ox=tx-94;
+  else if(beat<39)ox=lerp(tx-94,tx-140,smooth((beat-30)/9));
+  else ox=tx-140;
+ }else ox=tx-138;
+ const oy=510;
+ const zoom=n<36?1.24:(n<108?1.05:1);
+ const focusX=n<36?ox:(n<108?530:640),focusY=n<36?407:405;
  ctx.save();ctx.translate(W/2,H/2);ctx.scale(zoom,zoom);ctx.translate(-focusX,-focusY);
  drawCross(tx,ty,n);
  const ownerSave={x:owner.x,y:owner.y,facing:owner.facing,pose:owner.itachiCinemaPose,poseKey:owner.itachiPoseKey,animT:owner.animT};
- const targetSave={x:target.x,y:target.y,facing:target.facing,pose:target.itachiCinemaPose,animT:target.animT};
- owner.x=ox;owner.y=oy;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.animT=(owner.animT||0)+.4;
- target.x=tx;target.y=ty;target.facing=-1;target.itachiCinemaPose='bound';target.animT=(target.animT||0)+.08;
- // Live fighters are drawn from the game's native character rig, not a replacement silhouette.
- if(typeof window.drawFighter==='function'){window.drawFighter(owner);window.drawFighter(target);}
- drawRestraints(tx,ty,n);
- drawSwordFlashes(ox,oy,n);
- // Restore simulation coordinates immediately after rendering the shot.
- owner.x=ownerSave.x;owner.y=ownerSave.y;owner.facing=ownerSave.facing;owner.itachiCinemaPose=ownerSave.pose;owner.itachiPoseKey=ownerSave.poseKey;owner.animT=ownerSave.animT;
- target.x=targetSave.x;target.y=targetSave.y;target.facing=targetSave.facing;target.itachiCinemaPose=targetSave.pose;target.animT=targetSave.animT;
- ctx.restore();
- // POV framing and low-cost image distortion give the illusion of editing without replacing either fighter.
+ const targetSave={x:target.x,y:target.y,facing:target.facing,pose:target.itachiCinemaPose,poseKey:target.itachiPoseKey,animT:target.animT};
+ try{
+  target.x=tx;target.y=ty;target.facing=-1;target.itachiCinemaPose='bound';target.itachiPoseKey='s2';target.animT=(targetSave.animT||0)+n*.08;
+  if(typeof window.drawFighter==='function'){
+   // Later stabs carry a faint live-rig afterimage to sell the sequential clone rush.
+   if(attackPhase>=18&&attackPhase<=30&&Math.floor((n-cycleStart)/cycleLength)>0){
+    owner.x=ox-30;owner.y=oy;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.animT=(ownerSave.animT||0)+n*.4;
+    ctx.save();ctx.globalAlpha=.20;window.drawFighter(owner);ctx.restore();
+   }
+   owner.x=ox;owner.y=oy;owner.facing=1;owner.itachiCinemaPose='tsukuyomi-owner';owner.itachiPoseKey='s2';owner.animT=(ownerSave.animT||0)+n*.4;
+   window.drawFighter(owner);
+   window.drawFighter(target);
+  }
+  drawRestraints(tx,ty,n);
+  if(attackPhase>=0)drawKatanaThrust(ox,oy,tx,ty,n,attackPhase,Math.floor((n-cycleStart)/cycleLength));
+ }finally{
+  owner.x=ownerSave.x;owner.y=ownerSave.y;owner.facing=ownerSave.facing;owner.itachiCinemaPose=ownerSave.pose;owner.itachiPoseKey=ownerSave.poseKey;owner.animT=ownerSave.animT;
+  target.x=targetSave.x;target.y=targetSave.y;target.facing=targetSave.facing;target.itachiCinemaPose=targetSave.pose;target.itachiPoseKey=targetSave.poseKey;target.animT=targetSave.animT;
+  ctx.restore();
+ }
+ // Camera beats stay abstract and bloodless, while the attack itself is a straight thrust.
  if(n<36){
   const a=.16+Math.sin(n*.25)*.08;ctx.fillStyle='rgba(235,24,67,'+a+')';ctx.fillRect(0,0,W,H);
   ctx.strokeStyle='rgba(255,92,124,.45)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(410,334,106+n*.45,0,Math.PI*2);ctx.stroke();
   ctx.fillStyle='#ff9db2';ctx.font='bold 18px Consolas,monospace';ctx.textAlign='center';ctx.fillText('EYE CONTACT',W/2,595);
  }else if(n>=36&&n<106){
   ctx.fillStyle='rgba(90,2,24,.10)';ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#ff8da7';ctx.font='bold 17px Consolas,monospace';ctx.textAlign='center';ctx.fillText('THE WORLD IS MINE',W/2,610);
+  ctx.fillStyle='#ff8da7';ctx.font='bold 17px Consolas,monospace';ctx.textAlign='center';ctx.fillText('CLOSING IN',W/2,610);
  }else if(n>=106&&n<372){
-  if(n%42<7){ctx.fillStyle='rgba(255,222,232,'+(0.10+(n%42)*.035)+')';ctx.fillRect(0,0,W,H);}
-  ctx.fillStyle='#ff9fb3';ctx.font='bold 16px Consolas,monospace';ctx.textAlign='center';ctx.fillText('POV '+(Math.floor((n-106)/42)%3+1)+' // TSUKUYOMI',W/2,610);
+  if(attackPhase>=22&&attackPhase<=29){ctx.fillStyle='rgba(255,222,232,.15)';ctx.fillRect(0,0,W,H);}
+  ctx.fillStyle='#ff9fb3';ctx.font='bold 16px Consolas,monospace';ctx.textAlign='center';ctx.fillText('POV '+(Math.floor((n-cycleStart)/cycleLength)+1)+' // KATANA THRUST',W/2,610);
  }
  drawClockTitle(n);
- // Edge tears become more visible near the end of the illusion.
  if(n>420){ctx.save();ctx.globalAlpha=smooth((n-420)/40)*.45;ctx.strokeStyle='#f32e5b';ctx.lineWidth=3;for(let i=0;i<6;i++){const x=(i*227+n*1.7)%W;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-70,Math.min(H,240+i*57));ctx.lineTo(x-20,Math.min(H,360+i*49));ctx.stroke();}ctx.restore();}
  if(typeof window.JFF_FIGHTING_HUD!=='undefined'&&window.JFF_FIGHTING_HUD.update)window.JFF_FIGHTING_HUD.update();
  return true;
