@@ -132,9 +132,9 @@ function drawHeldKatana(f,targetX,active,beat,cloneAlpha,copyIndex){
  const hand=joint(elbow,P.armF[0]+P.armF[1],20);
  // The blade is attached to the actual rig's hand, and all copies point toward the enemy.
  // Its fixed shallow downward angle targets the middle of the torso; there are no slash arcs.
- const angle=.17,ux=Math.cos(angle),uy=Math.sin(angle),perpX=-uy,perpY=ux;
- let length=active?86:76;
- if(active&&beat>=16&&beat<=35)length=lerp(78,86,smooth((beat-16)/19));
+ const angle=.20,ux=Math.cos(angle),uy=Math.sin(angle),perpX=-uy,perpY=ux;
+ let length=active?64:68;
+ if(active&&beat>=16&&beat<=35)length=lerp(62,68,smooth((beat-16)/19));
  const pommel={x:hand.x-ux*12,y:hand.y-uy*12};
  const guard={x:hand.x+ux*10,y:hand.y+uy*10};
  const base={x:guard.x+ux*6,y:guard.y+uy*6};
