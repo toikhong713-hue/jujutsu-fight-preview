@@ -158,7 +158,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(typeof ctx==='undefined')return;
   const t=phase||0,k=sceneMode==='awakening'?'ult':(f&&f.moveKey||''),n=f&&f.moveFrame||0;
   const prog=alpha===undefined?1:clamp(alpha,0,1);
-  ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale(scale,scale);
+  ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale((f&&(f.facing||1)<0?-1:1)*scale,scale);
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
   const heavy=k==='sus_m1',guard=k==='sus_z',thrust=k==='sus_x',awakening=sceneMode==='awakening';
   // Shadow and chakra silhouette behind the fighter.
