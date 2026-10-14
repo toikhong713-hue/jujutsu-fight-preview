@@ -203,8 +203,6 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,126,89,.18)';ctx.lineWidth=2.2;
   for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-112,72+i*16,31+i*9,0,Math.PI*(.1+i*.13)+t*.002,Math.PI*(1.05+i*.17)+t*.002);ctx.stroke();}
   ctx.restore();
-  // Totsuka's sake gourd is mounted behind the right shoulder. The blade stays sheathed between attacks.
-  drawSakeGourd(72+breath*.25,-192,1.2,t);
   // Legs and split greaves. The silhouette shares the fighter's feet so it never floats.
   const legLift=(f&&f.state==='WALK')?Math.sin(t*.24)*7:0;
   armorLimb([-25,-91],[-31+legLift*.35,-42],15,'#ff9a65');
@@ -233,6 +231,11 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   polygon([[82,-227],[112,-217],[119,-193],[98,-177],[69,-189],[55,-213]],'#8d293a','#210711',4);
   polygon([[-108,-214],[-82,-235],[-55,-222],[-72,-198],[-99,-193]],'#c7534d','#ffbb8a',2.4);
   polygon([[108,-214],[82,-235],[55,-222],[72,-198],[99,-193]],'#d7604c','#ffc28f',2.4);
+  // Susanoo's secondary right arm carries the sake gourd that houses Totsuka.
+  // Keep this separate from the primary sword arm so both relics read clearly.
+  armorLimb([49,-210],[91,-200],13,'#d65b4b');
+  armorLimb([91,-200],[119,-183],11,'#ff9c70');
+  drawSakeGourd(142+breath*.2,-169,1.03,t);
   // Motion keys shift the actual shoulder/elbow/wrist joints during attacks.
   let armL1=[-91,-187],armL2=[-112,-145],armR1=[91,-185],armR2=[110,-143],swordAngle=.16;
   if(heavy){const q=clamp(n/57,0,1);if(n<8){armR1=[70,-228];armR2=[40,-246];swordAngle=-.48;}else if(n<18){armR1=[97,-184];armR2=[143,-170];swordAngle=1.15;}else if(n<31){armR1=[75,-183];armR2=[120,-224];swordAngle=.55;}else{armR1=[108,-174];armR2=[151,-163];swordAngle=1.35;}armL1=[-84,-183];armL2=[-107,-142];}
@@ -261,9 +264,9 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     const pulling=heavy?n<8: n<15;
     if(pulling){
       const q=heavy?clamp(n/8,0,1):clamp(n/15,0,1);
-      const gx=72,gy=-224;
+      const gx=142,gy=-216;
       const hx=armR2[0]+7,hy=armR2[1]+1;
-      drawTotsuka(gx+(hx-gx)*q,gy+(hy-gy)*q,heavy?lerp(-.48,swordAngle,q):lerp(-.3,swordAngle,q),heavy?lerp(.7,1.38,q):lerp(.75,1.42,q),1);
+      drawTotsuka(gx+(hx-gx)*q,gy+(hy-gy)*q,heavy?lerp(-.48,swordAngle,q):lerp(-.3,swordAngle,q),heavy?lerp(.55,1.42,q):lerp(.62,1.42,q),1);
     }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,1.42,1);
   }
   // Helmet and horned crown.
