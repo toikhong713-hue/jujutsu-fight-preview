@@ -46,7 +46,8 @@
       const p=screenPoint(victim.x,victim.y-108),age=Math.max(0,now-(victim.itachiKotoStart||now));
       const pulse=.12+Math.sin(now*.2)*.025;
       svg+='<g><rect width="1280" height="720" fill="#260418" opacity=".075"/><path d="M 0 0 L 1280 0 L 1280 100 Q 960 154 640 92 T 0 110 Z" fill="#c31464" opacity=".065"/><path d="M 0 620 Q 300 555 640 632 T 1280 605 L 1280 720 L 0 720 Z" fill="#a61158" opacity=".075"/>';
-      svg+='<g transform="translate('+p.x+' '+p.y+')"><ellipse rx="'+(73+Math.sin(now*.18)*6)+'" ry="96" fill="none" stroke="#ff4f9e" stroke-width="2.4" stroke-dasharray="7 11" opacity=".8"/><ellipse rx="53" ry="70" fill="none" stroke="#d29cff" stroke-width="1.7" opacity=".7"/>'+eyeGlyph(0,0,31,now*2.3,.78)+'<path d="M -92 -35 L -63 -43 L -79 -18 M 93 32 L 65 26 L 82 10 M -42 90 L -25 70 M 32 -90 L 18 -70" stroke="#fff0fb" stroke-width="2" fill="none" opacity=".75"/></g>';
+      svg+=eyeGlyph(640,360,118,now*1.25,.12);
+      svg+='<g transform="translate('+p.x+' '+p.y+')"><ellipse rx="'+(73+Math.sin(now*.18)*6)+'" ry="96" fill="none" stroke="#ff4f9e" stroke-width="2.4" stroke-dasharray="7 11" opacity=".8"/><ellipse rx="53" ry="70" fill="none" stroke="#d29cff" stroke-width="1.7" opacity=".7"/>'+eyeGlyph(0,0,56,now*2.3,.78)+'<path d="M -92 -35 L -63 -43 L -79 -18 M 93 32 L 65 26 L 82 10 M -42 90 L -25 70 M 32 -90 L 18 -70" stroke="#fff0fb" stroke-width="2" fill="none" opacity=".75"/></g>';
       for(let i=0;i<4;i++){
         const a=now*.04+i*Math.PI/2,off=56+Math.sin(now*.15+i)*8;
         const ep=screenPoint(victim.x+Math.cos(a)*off,victim.y-68+Math.sin(a)*off*.5);
@@ -87,7 +88,7 @@
         fx('kotoEcho',t.x+dir*(24+step*7),t.y-80,30,{face:dir,phase:step});fx('crows',t.x+dir*22,t.y-82,22);
       }
       if(n===72||n===88)fx('kotoWave',f.x+d*72,f.y-118,32,{phase:'recovery'});
-      if(n>=120){f.itachiEdoCounterUntil=0;f.itachiKotoCastUntil=0;f.itachiKotoTarget=null;if(typeof window.endMove==='function')window.endMove(f);else{f.move=null;f.moveKey=null;f.moveFrame=0;f.state=f.onGround?'IDLE':'FALL';f.stateFrame=0;}}
+      if(n>=88){f.itachiEdoCounterUntil=0;f.itachiKotoTarget=null;if(typeof window.endMove==='function')window.endMove(f);else{f.move=null;f.moveKey=null;f.moveFrame=0;f.state=f.onGround?'IDLE':'FALL';f.stateFrame=0;}}
       return;
     }
     return previousUpdateMove.apply(this,arguments);
@@ -136,8 +137,13 @@
     victim.state='IDLE';victim.stateFrame=0;victim.vx=0;victim.vy=0;
     if(owner)victim.facing=Math.sign(victim.x-owner.x)||(owner.facing?-owner.facing:1);
     const candidates=victim.id==='itachi'?['s5','s3','s1','heavy','s4','light']:['s5','s3','s1','heavy','s4','s2','light'];
+    const nonOffensive=/heal|reverse cursed|\\brct\\b|copy|guard|block|counter|defen|restore|buff|roll|restless|jackpot|domain|shrine|void|infinity|presence|teleport|spatial shift/i;
     let picked='';
-    for(const key of candidates){const m=victim.moves&&victim.moves[key];if(!m||(victim.cd&&victim.cd[key]>0)||(victim.energy||0)<(m.cost||0))continue;picked=key;break;}
+    for(const key of candidates){
+      const m=victim.moves&&victim.moves[key],name=String(m&&m.name||'');
+      if(!m||(victim.cd&&victim.cd[key]>0)||(victim.energy||0)<(m.cost||0)||m.domain||nonOffensive.test(name))continue;
+      picked=key;break;
+    }
     const ok=!!(picked&&typeof window.startMove==='function'&&window.startMove(victim,picked,false));
     victim.itachiKotoForcedMove=true;victim.itachiKotoForcedKey=ok?picked:'';victim.itachiKotoLockApplied=false;victim.hasHit=false;
     if(!ok){victim.move=null;victim.moveKey=null;victim.state='IDLE';}
