@@ -27,21 +27,48 @@ function addFireball(f,i){
  if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
 }
 function startBreath(f){Q.flameBreath={owner:f,t:0,d:102,nextHit:18};f.itachiFireMode='breath';f.itachiFireDone=true;fx('fire',f.x+(f.facing||1)*80,f.y-100,70,{charge:1});fx('shock',f.x+(f.facing||1)*72,f.y-90,30);if(typeof flash==='function')flash(.24,'#e34b29');if(typeof shake==='function')shake(7);if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();}
+function launchGreatFireball(f,q){
+ q=clamp(q||.18,.18,1);
+ const d=f.facing||1,x=f.x+d*48,y=f.y-116;
+ Q.shots.push({owner:f,kind:'fireball',x,y,vx:d*(13+q*3.2),vy:-.2,r:24+q*14,damage:Math.round(15+q*13),stun:22+Math.round(q*8),kbx:9+q*4,kby:-5,life:108,rot:0,hit:false,armorBreak:q>=.82});
+ if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
+ fx('fire',x,y,30,{charge:q});fx('shock',x,y,18);screenImpact(.2+q*.12,'#e8472f');
+ if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
+}
 function updateFire(f,n){
- const held=down(f.itachiChargeKey||(f.isP2?'Numpad3':'Digit3'));f.itachiPoseKey='s1';f.itachiChargeFrames=n;
- if(n<180){if(held)f.itachiHeldTicks=(f.itachiHeldTicks||0)+1;else if(n>1)f.itachiFireReleased=true;return;}
- if(!f.itachiFireMode){if(held||(f.itachiHeldTicks||0)>=175)startBreath(f);else{f.itachiFireMode='volley';f.itachiVolleyStart=n;if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();if(typeof flash==='function')flash(.15,'#ff6530');}}
- if(f.itachiFireMode==='volley'){
-  const t=n-f.itachiVolleyStart;if(t>=0&&t<=36&&t%6===0){addFireball(f,Math.min(6,Math.floor(t/6)));fx('fire',f.x+(f.facing||1)*55,f.y-114,14,{charge:.35});}
-  if(n>=f.itachiVolleyStart+56)stopMove(f);return;
- }
- if(f.itachiFireMode==='breath'&&Q.flameBreath&&Q.flameBreath.owner===f){
-  const b=Q.flameBreath;b.t++;f.itachiPoseKey='s1fire';
-  if(b.t>=b.nextHit&&b.t%18===0){b.nextHit=b.t+18;if(alive(f.opp)&&typeof window.resolveHit==='function')window.resolveHit(f,f.opp,{damage:5,hitstun:16,blockstun:12,kbx:5,kby:-2,hitstop:5,meter:3,kind:'projectile',type:'special'},f.opp.x,f.opp.y-82);}
+ const koto=window.JFF_KOTOAMATSUKAMI;
+ const mappedHeld=koto&&typeof koto.isSkillHeld==='function'?koto.isSkillHeld(f,'s1'):null;
+ const held=typeof mappedHeld==='boolean'?mappedHeld:down(f.itachiChargeKey||(f.isP2?'Numpad3':'Digit3'));
+ f.itachiChargeFrames=n;
+ if(f.itachiFireMode==='breath'){
+  f.itachiPoseKey='s1fire';
+  const b=Q.flameBreath;
+  if(!b||b.owner!==f){stopMove(f);return;}
+  b.t++;
+  if(b.t>=b.nextHit&&b.t%18===0){
+   b.nextHit=b.t+18;
+   if(alive(f.opp)&&typeof window.resolveHit==='function')window.resolveHit(f,f.opp,{damage:5,hitstun:16,blockstun:12,kbx:5,kby:-2,hitstop:5,meter:3,kind:'projectile',type:'special'},f.opp.x,f.opp.y-82);
+  }
   if(b.t%18===0)fx('fire',f.x+(f.facing||1)*165,f.y-104,18,{charge:1});
   if(b.t>=b.d){Q.flameBreath=null;stopMove(f);}
- }else if(f.itachiFireMode==='breath')stopMove(f);
-}
+  return;
+ }
+ if(f.itachiFireMode==='fireball'){
+  f.itachiPoseKey='s1release';
+  if(n>=(f.itachiFireFrame||n)+22)stopMove(f);
+  return;
+ }
+ f.itachiPoseKey='s1';
+ if(held)f.itachiHeldTicks=(f.itachiHeldTicks||0)+1;
+ else if(n>1)f.itachiFireReleased=true;
+ if(held&&(f.itachiHeldTicks||0)>=54){
+  startBreath(f);f.itachiPoseKey='s1fire';return;
+ }
+ if(f.itachiFireReleased&&n>=28){
+  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/54,.18,1));
+  f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
+  return;
+ }}
 function updateAmaterasu(f,n){
  f.itachiPoseKey='s5';f.itachiAmaterasuFrame=n;
  if(n===52){
