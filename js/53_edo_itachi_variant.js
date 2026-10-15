@@ -17,8 +17,8 @@
   EDO_MOVES.heavy.name='Reanimated Rib-Cage Breaker';
   EDO_MOVES.s1.name='Fire Style: Great Fireball';
   EDO_MOVES.s2=Object.assign({},EDO_MOVES.s2,{
-    name:'Kotoamatsukami: Release Counter',startup:7,active:25,recovery:16,
-    damage:14,cost:34,cd:600,meter:14,aura:'itachiKotoamatsukami'
+    name:'Kotoamatsukami: Release Counter',startup:7,active:108,recovery:16,
+    damage:16,cost:34,cd:600,meter:14,aura:'itachiKotoamatsukami'
   });
   EDO_MOVES.s3.name='Susanoo: Yasaka Magatama';
   EDO_MOVES.s4=Object.assign({},EDO_MOVES.s4,{
@@ -49,12 +49,12 @@
     if(resetLife){
       f.hp=EDO.hp;f.prevHp=EDO.hp;f.itachiEdoLastHp=EDO.hp;
       f.itachiEdoRegenClock=0;f.itachiEdoRegenUsed=0;f.itachiEdoPulse=0;
-      f.itachiEdoCounterUntil=0;f.itachiEdoCounterUsed=false;
     }else{
       f.itachiEdoLastHp=Number.isFinite(f.hp)?f.hp:EDO.hp;
       f.itachiEdoRegenClock=0;f.itachiEdoRegenUsed=0;f.itachiEdoPulse=0;
-      f.itachiEdoCounterUntil=0;f.itachiEdoCounterUsed=false;
     }
+    f.itachiEdoCounterUntil=0;f.itachiEdoCounterUsed=false;
+    f.itachiEdoCounterLastAt=-999;f.itachiEdoCounterLastTarget=null;
     return f;
   }
   const previousCreate=window.createFighter;
@@ -101,16 +101,20 @@
         const n=f.moveFrame,d=f.facing||1;
         if(n===1){
           f.itachiEdoCounterUntil=0;f.itachiEdoCounterUsed=false;
-          fx('crows',f.x-d*14,f.y-90,20);
-          fx('reflect',f.x+d*35,f.y-108,18);
+          f.itachiEdoCounterLastAt=-999;f.itachiEdoCounterLastTarget=null;
+          f.vx=0;
+          fx('crows',f.x-d*14,f.y-90,22);
+          fx('reflect',f.x+d*35,f.y-108,22);
         }
         if(n===7){
-          f.itachiEdoCounterUntil=(Q.tick||0)+25;
-          fx('seal',f.x+d*34,f.y-104,28);
-          if(typeof window.floatText==='function')window.floatText(f.x,f.y-166,'KOTOAMATSUKAMI','#dbe5f7',16,40);
+          // Long, time-based window stays open through multi-hit strings.
+          f.itachiEdoCounterUntil=(Q.tick||0)+108;
+          fx('seal',f.x+d*34,f.y-104,34);
+          fx('reflect',f.x+d*52,f.y-110,74);
+          if(typeof window.floatText==='function')window.floatText(f.x,f.y-166,'KOTOAMATSUKAMI · COUNTER ACTIVE','#dbe5f7',16,52);
         }
-        if(n>=32)f.itachiEdoCounterUntil=0;
-        if(n>=48){
+        if(n>=116)f.itachiEdoCounterUntil=0;
+        if(n>=132){
           f.itachiEdoCounterUntil=0;
           if(typeof window.endMove==='function')window.endMove(f);
           else{f.move=null;f.moveKey=null;f.state=f.onGround?'IDLE':'FALL';f.stateFrame=0;}
@@ -124,21 +128,30 @@
   if(typeof previousResolve==='function'){
     window.resolveHit=function(attacker,defender,mv,hx,hy){
       if(defender&&defender.itachiEdo&&defender.moveKey==='s2'&&
-         defender.itachiEdoCounterUntil>(Q.tick||0)&&!defender.itachiEdoCounterUsed&&
+         defender.itachiEdoCounterUntil>(Q.tick||0)&&
          attacker&&attacker!==defender&&attacker.hp>0){
         const dx=attacker.x-defender.x;
         const fromFront=defender.facing===(Math.sign(dx)||1);
         if(fromFront){
-          defender.itachiEdoCounterUsed=true;
-          defender.itachiEdoCounterUntil=0;
-          const reflected={damage:14,hitstun:25,blockstun:0,kbx:9,kby:-3,hitstop:9,meter:7,armorBreak:true,kind:'special',type:'special'};
-          previousResolve.call(this,defender,attacker,reflected,
-            defender.x+(defender.facing||1)*86,defender.y-92);
-          fx('reflect',defender.x+(defender.facing||1)*76,defender.y-112,32);
-          fx('crows',attacker.x,attacker.y-82,24);
-          if(typeof window.floatText==='function')window.floatText(defender.x,defender.y-178,'KOTO COUNTER','#e0e8f7',16,40);
-          if(typeof window.shake==='function')window.shake(4);
-          if(typeof SFX!=='undefined'&&SFX.parry)SFX.parry();
+          // Front-facing contacts are negated throughout the window; counter damage is paced.
+          const lastAt=defender.itachiEdoCounterLastAt||-999;
+          const freshTarget=defender.itachiEdoCounterLastTarget!==attacker;
+          const canPunish=freshTarget||(Q.tick||0)-lastAt>=22;
+          if(canPunish){
+            defender.itachiEdoCounterUsed=true;
+            defender.itachiEdoCounterLastAt=Q.tick||0;
+            defender.itachiEdoCounterLastTarget=attacker;
+            const reflected={damage:16,hitstun:27,blockstun:0,kbx:10,kby:-3.5,hitstop:10,meter:7,armorBreak:true,kind:'special',type:'special'};
+            previousResolve.call(this,defender,attacker,reflected,
+              defender.x+(defender.facing||1)*86,defender.y-92);
+            fx('reflect',defender.x+(defender.facing||1)*76,defender.y-112,34);
+            fx('crows',attacker.x,attacker.y-82,26);
+            if(typeof window.floatText==='function')window.floatText(defender.x,defender.y-178,'KOTO COUNTER!','#e0e8f7',16,40);
+            if(typeof window.shake==='function')window.shake(4);
+            if(typeof SFX!=='undefined'&&SFX.parry)SFX.parry();
+          }else{
+            fx('reflect',defender.x+(defender.facing||1)*68,defender.y-106,10);
+          }
           return 'parry';
         }
       }
@@ -191,6 +204,6 @@
       }
     };
   }
-  window.JFF_EDO_ITACHI={ready:true,moves:EDO_MOVES,passive:'up to 16 HP restored in 2 HP pulses every 180 frames',counter:'front-facing Kotoamatsukami counter'};
+  window.JFF_EDO_ITACHI={ready:true,moves:EDO_MOVES,passive:'up to 16 HP restored in 2 HP pulses every 180 frames',counter:'front-facing multi-hit Kotoamatsukami counter, active for 108 frames (~1.8 seconds)'};
   console.info('[Edo Itachi] Training-only variant ready: reanimation look, capped healing and Kotoamatsukami counter.');
 })();
