@@ -45,23 +45,37 @@ function applyPose(P,f){
  if(!P||!f)return;
  const n=f.moveFrame||0,key=f.itachiCinemaPose;
  if(f.id==='itachi'&&f.moveKey==='s1'&&!Q.cinema){
+  const mode=f.itachiFireMode||'charge',sealStart=f.itachiSealStart||n;
   P.hipY=-57;P.shY=-96;P.headY=-114;
-  if(f.itachiPoseKey==='s1fire'||f.itachiFireMode==='breath'){
-   P.lean=18;P.armF=[18,-46];P.armB=[142,-28];P.legF=[79,11];P.legB=[101,-8];
+  if(mode==='breath'||f.itachiPoseKey==='s1fire'){
+   const pulse=Math.sin(n*.24);
+   P.lean=19+pulse*1.6;P.armF=[17,-51+pulse*2];P.armB=[151,-45+pulse*2];
+   P.legF=[76,17];P.legB=[108,-12];P.hipY=-51;P.headY=-119;P.shY=-91;
    return;
   }
-  if(f.itachiPoseKey==='s1release'||f.itachiFireMode==='fireball'){
-   P.lean=15;P.armF=[13,-54];P.armB=[145,-39];P.legF=[75,14];P.legB=[104,-10];
+  if(mode==='fireball'||f.itachiPoseKey==='s1release'){
+   const recovery=clamp((n-(f.itachiFireFrame||n))/18,0,1);
+   P.lean=lerp(23,2,smooth(recovery));P.armF=[14,-61+recovery*18];P.armB=[153,-49+recovery*23];
+   P.legF=[69,22];P.legB=[113,-16];P.hipY=-50;P.headY=-119;P.shY=-91;
    return;
   }
-  const cycleFrames=30;
-  const u=((Math.max(1,n)-1)%cycleFrames)/cycleFrames*sealKeys.length;
-  const i=Math.floor(u),t=smooth(u-i),a=sealKeys[i],b=sealKeys[(i+1)%sealKeys.length];
-  P.lean=lerp(a[0],b[0],t);
-  P.armF=[lerp(a[1],b[1],t),lerp(a[2],b[2],t)];
-  P.armB=[lerp(a[3],b[3],t),lerp(a[4],b[4],t)];
-  P.hipY=lerp(a[5],b[5],t);P.headY=lerp(a[6],b[6],t);P.shY=lerp(a[7],b[7],t);
-  const sway=Math.sin(n*.13)*.8;P.legF=[88+sway,5];P.legB=[94-sway,-5];
+  if(mode==='fireball-seals'||f.itachiPoseKey==='s1fireball-seals'){
+   const elapsed=clamp(n-sealStart,0,41),step=6,idx=Math.min(fireballSealKeys.length-1,Math.floor(elapsed/step));
+   const a=fireballSealKeys[idx],b=fireballSealKeys[Math.min(idx+1,fireballSealKeys.length-1)],t=idx===fireballSealKeys.length-1?0:smooth((elapsed%step)/step);
+   P.lean=lerp(a[0],b[0],t);P.armF=[lerp(a[1],b[1],t),lerp(a[2],b[2],t)];P.armB=[lerp(a[3],b[3],t),lerp(a[4],b[4],t)];
+   P.hipY=lerp(a[5],b[5],t);P.headY=lerp(a[6],b[6],t);P.shY=lerp(a[7],b[7],t);
+   P.legF=[83+Math.sin(elapsed*.24)*3,9];P.legB=[104-Math.sin(elapsed*.24)*2,-9];
+   return;
+  }
+  if(mode==='breath-seals'||f.itachiPoseKey==='s1breath-seals'){
+   const elapsed=clamp(n-sealStart,0,23),step=4,idx=Math.min(breathSealKeys.length-1,Math.floor(elapsed/step));
+   const a=breathSealKeys[idx],b=breathSealKeys[Math.min(idx+1,breathSealKeys.length-1)],t=idx===breathSealKeys.length-1?0:smooth((elapsed%step)/step);
+   P.lean=lerp(a[0],b[0],t);P.armF=[lerp(a[1],b[1],t),lerp(a[2],b[2],t)];P.armB=[lerp(a[3],b[3],t),lerp(a[4],b[4],t)];
+   P.hipY=lerp(a[5],b[5],t);P.headY=lerp(a[6],b[6],t);P.shY=lerp(a[7],b[7],t);
+   P.lean+=Math.sin(elapsed*.45)*1.8;P.legF=[78+Math.sin(elapsed*.47)*6,15];P.legB=[110-Math.sin(elapsed*.47)*4,-13];
+   return;
+  }
+  P.lean=-7;P.armF=[31,-38];P.armB=[133,-35];P.legF=[82,7];P.legB=[101,-8];P.hipY=-56;P.headY=-116;P.shY=-95;
   return;
  }
  if(key==='bound'){
@@ -270,6 +284,6 @@ if(typeof previousRender==='function')window.render=function(){
  hideEffectLayers(false);
  return previousRender.apply(this,arguments);
 };
-window.JFF_ITACHI_RIG_CINEMATICS={ready:true,renderer:'live Canvas 2D fighter rig',tsukuyomi:'live fighters',handSealKeyframes:sealKeys.length};
+window.JFF_ITACHI_RIG_CINEMATICS={ready:true,renderer:'live Canvas 2D fighter rig',tsukuyomi:'live fighters',handSealKeyframes:{fireball:fireballSealKeys.length,breath:breathSealKeys.length}};
 console.info('[Itachi Rig] Live-fighter Tsukuyomi and eight Katon hand-seal poses ready.');
 })();
