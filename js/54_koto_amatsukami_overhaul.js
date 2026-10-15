@@ -123,6 +123,16 @@
     map.skillKeys.forEach((source,index)=>{out[map.skillTargets[index]]=original[source]||0;});
     return out;
   }
+  function isSkillHeld(f,slot){
+    const map=f&&f.itachiKotoInputMap;
+    if(!map)return null;
+    const index=map.skillTargets.indexOf(slot);
+    if(index<0)return false;
+    const sourceSlot=map.skillKeys[index];
+    const bindings=typeof KEYMAP!=='undefined'?KEYMAP[f.isP2?'p2':'p1']:null;
+    const code=bindings&&bindings[sourceSlot];
+    return !!(code&&typeof KEY!=='undefined'&&KEY[code]);
+  }
   function clearVictim(f){
     if(!f)return;
     f.itachiKotoUntil=0;f.itachiKotoStart=0;f.itachiKotoOwner=null;f.itachiKotoInputMap=null;
@@ -227,7 +237,7 @@
   if(typeof previousRender==='function')window.render=function(){const r=previousRender.apply(this,arguments);overlay();return r;};
   const previousStep=window.step;
   if(typeof previousStep==='function')window.step=function(){const r=previousStep.apply(this,arguments);if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){for(const f of (G.fighters||[])){if(!f)continue;if(f.itachiKotoUntil&&G.frame>=f.itachiKotoUntil)clearVictim(f);}}return r;};
-  window.JFF_KOTOAMATSUKAMI={ready:true,startup:18,freeze:8,durationVersus:180,durationTraining:300,cooldown:2700,mechanic:'randomized directions + assigned S1-S5 slots; no immobilization'};
+  window.JFF_KOTOAMATSUKAMI={ready:true,startup:18,freeze:8,durationVersus:180,durationTraining:300,cooldown:2700,mechanic:'randomized directions + assigned S1-S5 slots; no immobilization',isSkillHeld:isSkillHeld};
   if(window.JFF_EDO_ITACHI)window.JFF_EDO_ITACHI.koto=window.JFF_KOTOAMATSUKAMI;
   console.info('[Koto] Absolute Brainwash loaded: randomized direction/assigned-skill inputs, no immobilization.');
 })();
