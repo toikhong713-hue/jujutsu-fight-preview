@@ -410,7 +410,10 @@ function drawFormHint(){
   const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
-  if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult'))drawSusanooRig(f,f.x-(f.facing||1)*9,f.y+3,1.58,tick(),1,'battle');
+  if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
+    const size=f.itachiEdo?1.88:1.64;
+    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
+  }
   return previousDrawFighter.apply(this,arguments);
 };
 if(typeof previousReset==='function')window.resetFighter=function(f){
