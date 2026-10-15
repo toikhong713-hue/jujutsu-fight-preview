@@ -87,8 +87,8 @@ function updateFire(f,n){
  if(held&&(f.itachiHeldTicks||0)>=30){
   startBreath(f);f.itachiPoseKey='s1fire';return;
  }
- // Releasing before full charge commits exclusively to a fireball and fires promptly.
- if(f.itachiFireReleased&&n>=12){
+ // Releasing early selects fireball, but it still finishes the full hand-seal sequence first.
+ if(f.itachiFireReleased&&n>=30){
   f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
   launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/30,.18,.95));
   return;
