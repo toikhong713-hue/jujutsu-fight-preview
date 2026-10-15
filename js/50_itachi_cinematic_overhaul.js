@@ -164,12 +164,36 @@ function render(){
  if(!stage)return;const cinematic=Q.cinema&&Q.cinema.kind==='ult';stage.style.zIndex=cinematic?'9':'6';if(typeof G!=='undefined'&&G.mode==='menu'){stage.innerHTML='';return;}
  let s='<defs><radialGradient id="it50Gourd"><stop stop-color="#f7cf88"/><stop offset=".28" stop-color="#b85135"/><stop offset=".68" stop-color="#71203c"/><stop offset="1" stop-color="#2b0b20"/></radialGradient><linearGradient id="it50Blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9b9cab"/><stop offset=".22" stop-color="#fff4d2"/><stop offset=".45" stop-color="#8b93a8"/><stop offset=".65" stop-color="#f9f4e5"/><stop offset="1" stop-color="#44445c"/></linearGradient><linearGradient id="it50Armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8b188"/><stop offset=".23" stop-color="#ad4350"/><stop offset=".62" stop-color="#4a132d"/><stop offset="1" stop-color="#110711"/></linearGradient><linearGradient id="it50ArmorBright" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc698"/><stop offset=".35" stop-color="#c65b65"/><stop offset=".75" stop-color="#6b203b"/><stop offset="1" stop-color="#230a1e"/></linearGradient><linearGradient id="it50Mirror" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4cf"/><stop offset=".18" stop-color="#9af4ff"/><stop offset=".36" stop-color="#b59cff"/><stop offset=".54" stop-color="#ffb0cf"/><stop offset=".72" stop-color="#f6f1d0"/><stop offset="1" stop-color="#8ad7fb"/></linearGradient></defs>';
  const c=Q.cinema;
- if(Q.flameBreath&&Q.flameBreath.owner&&alive(Q.flameBreath.owner.opp)){
-  const b=Q.flameBreath,o=point(b.owner.x,b.owner.y-86),d=b.owner.facing||1,p=clamp(b.t/20,0,1);
-  s+='<rect width="1280" height="720" fill="#14050b" opacity="'+(.14+p*.1)+'"/><path d="M 0 580 Q 180 510 330 574 T 650 550 T 980 567 T 1280 520 L 1280 720 L 0 720 Z" fill="#4a0a16" opacity=".55"/>';
-  for(let i=0;i<15;i++){const xx=(d>0?o.x-18:o.x+18)+(d>0?1:-1)*(i/14)*1180,h=180+(i%5)*31+Math.sin((b.t+i*8)*.13)*22,w=43+(i%4)*10;s+='<path d="M '+(xx-w)+' 620 Q '+(xx-w*1.35)+' '+(500-h*.2)+' '+(xx-w*.38)+' '+(470-h*.45)+' Q '+(xx+w*.1)+' '+(390-h)+' '+(xx+w*.22)+' '+(430-h*.8)+' Q '+(xx+w*1.2)+' '+(460-h*.3)+' '+(xx+w)+' 620 Z" fill="'+(i%3===0?'#ffad40':(i%3===1?'#f04426':'#941425'))+'" opacity=".72"/><path d="M '+(xx-w*.27)+' 620 Q '+(xx-w*.1)+' '+(510-h*.25)+' '+(xx+w*.04)+' '+(445-h*.75)+' Q '+(xx+w*.35)+' '+(500-h*.18)+' '+(xx+w*.33)+' 620 Z" fill="#ffe5a7" opacity=".7"/>';}
-  for(let i=0;i<12;i++){const xx=(i*103+b.t*7)%1280,yy=640-((i*57+b.t*4)%390);s+='<circle cx="'+xx+'" cy="'+yy+'" r="'+(1.5+i%3)+'" fill="'+(i%2?'#ffcb72':'#ff5b38')+'"/>';}
-  s+='<path d="M '+o.x+' '+(o.y-4)+' L '+(d>0?1280:0)+' '+(245+Math.sin(b.t*.13)*30)+'" stroke="#ff8b48" stroke-width="5" opacity=".44"/>';
+ if(Q.flameBreath&&Q.flameBreath.owner){
+  const b=Q.flameBreath,owner=b.owner,d=owner.facing||1;
+  const origin=point(owner.x+d*38,owner.y-112);
+  const foe=owner.opp,canTrack=alive(foe)&&(foe.x-owner.x)*d>0&&Math.abs(foe.x-owner.x)<=580&&Math.abs(foe.y-owner.y)<=230;
+  const target=canTrack?point(foe.x-d*18,foe.y-100):point(owner.x+d*560,owner.y-142+Math.sin(b.t*.16)*12);
+  const ex=target.x,ey=target.y,ox=origin.x,oy=origin.y;
+  const sway=Math.sin(b.t*.31)*10,midX=(ox+ex)*.5,midY=(oy+ey)*.5+sway;
+  const streamPath='M '+ox+' '+oy+' Q '+(midX-20*d)+' '+(midY-14)+' '+ex+' '+ey;
+  const lowerPath='M '+ox+' '+(oy+13)+' Q '+(midX-8*d)+' '+(midY+23)+' '+ex+' '+(ey+9);
+  s+='<defs><linearGradient id="it50DragonFlame" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7c1"/><stop offset=".22" stop-color="#ffe16a"/><stop offset=".53" stop-color="#ff7d26"/><stop offset="1" stop-color="#a91820"/></linearGradient></defs>';
+  s+='<rect width="1280" height="720" fill="#170307" opacity=".045"/>';
+  s+='<path d="'+streamPath+'" fill="none" stroke="#4c090f" stroke-width="88" stroke-linecap="round" opacity=".62"/>';
+  s+='<path d="'+streamPath+'" fill="none" stroke="#c51e1e" stroke-width="72" stroke-linecap="round" opacity=".87"/>';
+  s+='<path d="'+streamPath+'" fill="none" stroke="#ff4b20" stroke-width="56" stroke-linecap="round" opacity=".94"/>';
+  s+='<path d="'+streamPath+'" fill="none" stroke="#ffad38" stroke-width="36" stroke-linecap="round"/>';
+  s+='<path d="'+streamPath+'" fill="none" stroke="#fff0a7" stroke-width="19" stroke-linecap="round" opacity=".96"/>';
+  s+='<path d="'+lowerPath+'" fill="none" stroke="#ff5a20" stroke-width="27" stroke-linecap="round" opacity=".62"/>';
+  for(let i=0;i<12;i++){
+   const u=.07+((i*17+b.t*2)%84)/100,v=1-u;
+   const px=v*v*ox+2*v*u*midX+u*u*ex,py=v*v*oy+2*v*u*midY+u*u*ey;
+   const dx=Math.sin((b.t+i*11)*.23)*(8+i%4*3),dy=Math.cos((b.t+i*7)*.19)*(8+i%3*4);
+   s+='<path d="M '+(px-dx)+' '+(py-dy)+' Q '+(px+dx*1.2)+' '+(py-18-dy)+' '+(px+dx*1.6)+' '+(py-25-dy)+'" fill="none" stroke="'+(i%3?'#ff8d35':'#fff0a0')+'" stroke-width="'+(1.5+i%3)+'" stroke-linecap="round" opacity="'+(.28+(i%5)*.12)+'"/>';
+  }
+  // The leading flame takes a dragon-head silhouette and tracks the opponent's height.
+  s+='<g transform="translate('+(ex-7*d)+' '+ey+') scale('+d+' 1)"><path d="M -49 -17 L -34 -37 L -16 -27 L -3 -32 L 15 -21 L 38 -12 L 53 -3 L 36 4 L 52 13 L 28 20 L 7 13 L -7 29 L -18 9 L -42 4 L -34 -5 Z" fill="#e53a24" stroke="#701016" stroke-width="3"/><path d="M -20 -23 L -25 -42 L -8 -30 M 1 -23 L 11 -39 L 17 -22 M -8 10 L 4 23 L 20 13" fill="none" stroke="#ffb13e" stroke-width="5" stroke-linejoin="round"/><path d="M 4 -14 Q 23 -18 40 -8 L 24 -2 L 42 7 Q 22 10 7 1 Z" fill="#ffc54b"/><ellipse cx="12" cy="-12" rx="4.5" ry="3.4" fill="#fff7bf"/><ellipse cx="13" cy="-12" rx="1.8" ry="3" fill="#301012"/><path d="M 27 9 L 39 13 L 22 16" fill="none" stroke="#fff0a2" stroke-width="2.2"/></g>';
+  s+='<path d="M 0 80 Q 18 120 7 165 T 9 260 T 0 350 L 0 0 Z M 1280 0 L 1280 360 Q 1260 310 1272 258 T 1268 130 L 1260 0 Z" fill="#ef3c20" opacity=".24"/>';
+  s+='<path d="M 0 590 Q 19 550 5 510 T 11 430 L 0 392 L 0 720 L 55 720 Q 31 672 44 634 T 20 603 Z M 1280 720 L 1222 720 Q 1247 673 1235 630 T 1261 580 L 1280 553 Z" fill="#bd1f22" opacity=".23"/>';
+  s+='<rect x="7" y="7" width="1266" height="706" rx="12" fill="none" stroke="#ff5527" stroke-width="'+(2.5+Math.sin(b.t*.35)*1.8)+'" opacity=".45"/>';
+  for(let i=0;i<18;i++){const x=(i*113+b.t*5)%1280,y=(i*47+b.t*3)%720;s+='<circle cx="'+x+'" cy="'+y+'" r="'+(1.2+i%3*.6)+'" fill="'+(i%2?'#ffb74e':'#ff4e27')+'" opacity="'+(.3+(i%4)*.12)+'"/>';}
+  s+='<path d="M '+ox+' '+(oy+75)+' Q '+midX+' '+(midY+115)+' '+ex+' '+(ey+90)+'" fill="none" stroke="#511018" stroke-width="28" opacity=".24"/>';
  }
  if(Q.amaterasuImpact&&Q.amaterasuImpact.t<42){const q=Q.amaterasuImpact,p=point(q.target.x,q.target.y-84),t=q.t;s+='<g opacity="'+(1-t/44)+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(28+t*4)+'" fill="none" stroke="#ff3b69" stroke-width="3"/><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(19+t*2.8)+'" fill="none" stroke="#8d3cff" stroke-width="2"/><path d="M '+(p.x-360)+' '+(p.y-180)+' L '+p.x+' '+p.y+' L '+(p.x+240)+' '+(p.y+60)+'" fill="none" stroke="#ed2c58" stroke-width="2"/><text x="'+p.x+'" y="'+(p.y-90-t)+'" fill="#ff8ca8" font-size="22" font-family="monospace" text-anchor="middle" letter-spacing="6">MANGEKYO LOCK</text></g>';}
  for(const b of Q.burns||[])if(b&&b.kind==='amaterasu'&&alive(b.target))s+=blackFire(b);
