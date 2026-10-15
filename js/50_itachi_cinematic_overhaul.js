@@ -166,34 +166,84 @@ function render(){
  const c=Q.cinema;
  if(Q.flameBreath&&Q.flameBreath.owner){
   const b=Q.flameBreath,owner=b.owner,d=owner.facing||1;
-  const origin=point(owner.x+d*38,owner.y-112);
-  const foe=owner.opp,canTrack=alive(foe)&&(foe.x-owner.x)*d>0&&Math.abs(foe.x-owner.x)<=580&&Math.abs(foe.y-owner.y)<=230;
-  const target=canTrack?point(foe.x-d*18,foe.y-100):point(owner.x+d*560,owner.y-142+Math.sin(b.t*.16)*12);
-  const ex=target.x,ey=target.y,ox=origin.x,oy=origin.y;
-  const sway=Math.sin(b.t*.31)*10,midX=(ox+ex)*.5,midY=(oy+ey)*.5+sway;
-  const streamPath='M '+ox+' '+oy+' Q '+(midX-20*d)+' '+(midY-14)+' '+ex+' '+ey;
-  const lowerPath='M '+ox+' '+(oy+13)+' Q '+(midX-8*d)+' '+(midY+23)+' '+ex+' '+(ey+9);
-  s+='<defs><linearGradient id="it50DragonFlame" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff7c1"/><stop offset=".22" stop-color="#ffe16a"/><stop offset=".53" stop-color="#ff7d26"/><stop offset="1" stop-color="#a91820"/></linearGradient></defs>';
-  s+='<rect width="1280" height="720" fill="#170307" opacity=".045"/>';
-  s+='<path d="'+streamPath+'" fill="none" stroke="#4c090f" stroke-width="88" stroke-linecap="round" opacity=".62"/>';
-  s+='<path d="'+streamPath+'" fill="none" stroke="#c51e1e" stroke-width="72" stroke-linecap="round" opacity=".87"/>';
-  s+='<path d="'+streamPath+'" fill="none" stroke="#ff4b20" stroke-width="56" stroke-linecap="round" opacity=".94"/>';
-  s+='<path d="'+streamPath+'" fill="none" stroke="#ffad38" stroke-width="36" stroke-linecap="round"/>';
-  s+='<path d="'+streamPath+'" fill="none" stroke="#fff0a7" stroke-width="19" stroke-linecap="round" opacity=".96"/>';
-  s+='<path d="'+lowerPath+'" fill="none" stroke="#ff5a20" stroke-width="27" stroke-linecap="round" opacity=".62"/>';
-  for(let i=0;i<12;i++){
-   const u=.07+((i*17+b.t*2)%84)/100,v=1-u;
-   const px=v*v*ox+2*v*u*midX+u*u*ex,py=v*v*oy+2*v*u*midY+u*u*ey;
-   const dx=Math.sin((b.t+i*11)*.23)*(8+i%4*3),dy=Math.cos((b.t+i*7)*.19)*(8+i%3*4);
-   s+='<path d="M '+(px-dx)+' '+(py-dy)+' Q '+(px+dx*1.2)+' '+(py-18-dy)+' '+(px+dx*1.6)+' '+(py-25-dy)+'" fill="none" stroke="'+(i%3?'#ff8d35':'#fff0a0')+'" stroke-width="'+(1.5+i%3)+'" stroke-linecap="round" opacity="'+(.28+(i%5)*.12)+'"/>';
+  const origin=point(owner.x+d*38,owner.y-111);
+  const foe=owner.opp,canTrack=alive(foe)&&(foe.x-owner.x)*d>0&&Math.abs(foe.x-owner.x)<=650&&Math.abs(foe.y-owner.y)<=240;
+  const foePoint=canTrack?point(foe.x,foe.y-100):point(owner.x+d*760,owner.y-135+Math.sin(b.t*.16)*18);
+  const ox=origin.x,oy=origin.y,fx=foePoint.x,fy=foePoint.y;
+  const sway=Math.sin(b.t*.26)*15,dx=fx-ox;
+  // The dragon head sits ahead of Itachi; its open mouth is the source of the forward flame jet.
+  const hx=ox+dx*.59,hy=oy+(fy-oy)*.59+sway;
+  const headSize=1.12*origin.s,headFront=hx+d*63*headSize;
+  const endX=fx+d*155*origin.s,endY=fy+Math.sin(b.t*.19)*13;
+  const midHeadX=(ox+hx-d*42*headSize)*.5;
+  const midHeadY=(oy+hy+Math.sin(b.t*.33)*20)*.5;
+  const neckPath='M '+ox+' '+(oy+2)+' C '+(ox+dx*.18)+' '+(oy-30+sway*.2)+' '+(hx-d*70*headSize)+' '+(hy+34)+' '+(hx-d*35*headSize)+' '+(hy+4);
+  const neckLower='M '+ox+' '+(oy+17)+' C '+(ox+dx*.22)+' '+(oy+28)+' '+(hx-d*64*headSize)+' '+(hy+53)+' '+(hx-d*33*headSize)+' '+(hy+15);
+  const jetDx=endX-headFront,jetMidX=(headFront+endX)*.5,jetMidY=(hy-1+endY)*.5+Math.sin(b.t*.32)*17;
+  const spread=(36+Math.min(65,Math.abs(jetDx)*.14)+Math.sin(b.t*.27)*7)*origin.s;
+  const jetOuter='M '+headFront+' '+(hy-8*headSize)+' C '+(headFront+jetDx*.24)+' '+(hy-33*origin.s)+' '+(endX-d*70*origin.s)+' '+(endY-spread*.82)+' '+endX+' '+(endY-spread)+' C '+(endX-d*26*origin.s)+' '+(endY-spread*.18)+' '+(endX-d*26*origin.s)+' '+(endY+spread*.18)+' '+endX+' '+(endY+spread)+' C '+(endX-d*75*origin.s)+' '+(endY+spread*.82)+' '+(headFront+jetDx*.22)+' '+(hy+25*origin.s)+' '+headFront+' '+(hy+8*headSize)+' Z';
+  const jetMid='M '+headFront+' '+(hy-5*headSize)+' C '+(headFront+jetDx*.3)+' '+(hy-20*origin.s)+' '+(endX-d*70*origin.s)+' '+(endY-spread*.48)+' '+endX+' '+(endY-spread*.6)+' C '+(endX-d*22*origin.s)+' '+(endY-spread*.08)+' '+(endX-d*22*origin.s)+' '+(endY+spread*.08)+' '+endX+' '+(endY+spread*.6)+' C '+(endX-d*70*origin.s)+' '+(endY+spread*.48)+' '+(headFront+jetDx*.3)+' '+(hy+18*origin.s)+' '+headFront+' '+(hy+5*headSize)+' Z';
+  s+='<defs><linearGradient id="it50DragonJet" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff6b1"/><stop offset=".28" stop-color="#ffd54b"/><stop offset=".62" stop-color="#ff6726"/><stop offset="1" stop-color="#bd1721"/></linearGradient><linearGradient id="it50DragonNeck" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#a71a21"/><stop offset=".5" stop-color="#ff6527"/><stop offset=".8" stop-color="#ffc04b"/><stop offset="1" stop-color="#e93420"/></linearGradient></defs>';
+  s+='<rect width="1280" height="720" fill="#190308" opacity=".035"/>';
+  // Burning neck/body, curved and uneven instead of a ruler-straight laser.
+  s+='<path d="'+neckPath+'" fill="none" stroke="#39090f" stroke-width="'+(83*origin.s)+'" stroke-linecap="round" opacity=".82"/>';
+  s+='<path d="'+neckPath+'" fill="none" stroke="url(#it50DragonNeck)" stroke-width="'+(66*origin.s)+'" stroke-linecap="round" opacity=".98"/>';
+  s+='<path d="'+neckPath+'" fill="none" stroke="#ff9a32" stroke-width="'+(43*origin.s)+'" stroke-linecap="round" opacity=".95"/>';
+  s+='<path d="'+neckLower+'" fill="none" stroke="#ff4a23" stroke-width="'+(38*origin.s)+'" stroke-linecap="round" opacity=".74"/>';
+  s+='<path d="'+neckPath+'" fill="none" stroke="#fff0a4" stroke-width="'+(15*origin.s)+'" stroke-linecap="round" opacity=".76"/>';
+  // The dragon's open maw erupts into a broad, expanding flamethrower cone.
+  s+='<path d="'+jetOuter+'" fill="#780d18" opacity=".85"/>';
+  s+='<path d="'+jetOuter+'" fill="#f52f1e" opacity=".91"/>';
+  s+='<path d="'+jetMid+'" fill="url(#it50DragonJet)" opacity=".98"/>';
+  s+='<path d="M '+headFront+' '+hy+' C '+(headFront+jetDx*.3)+' '+(hy-7*origin.s)+' '+(endX-d*80*origin.s)+' '+(endY-13*origin.s)+' '+endX+' '+(endY-8*origin.s)+' C '+(endX-d*48*origin.s)+' '+(endY+7*origin.s)+' '+(headFront+jetDx*.28)+' '+(hy+10*origin.s)+' '+headFront+' '+(hy+2*origin.s)+' Z" fill="#fff4b0" opacity=".94"/>';
+  // Ragged flame tongues fan away from the centre of the jet.
+  for(let k=0;k<13;k++){
+   const u=.1+((k*19+b.t*1.7)%76)/100,v=1-u;
+   const cx=v*v*headFront+2*v*u*jetMidX+u*u*endX;
+   const cy=v*v*hy+2*v*u*jetMidY+u*u*endY;
+   const side=k%2?-1:1,reach=(11+(k%4)*6+Math.sin(b.t*.24+k)*5)*origin.s*(.5+u);
+   const swayX=Math.sin((b.t+k*8)*.22)*(9+u*13)*origin.s;
+   s+='<path d="M '+(cx-d*reach*.15)+' '+cy+' Q '+(cx+swayX)+' '+(cy+side*reach*.36)+' '+(cx+swayX+d*reach*.62)+' '+(cy+side*reach)+' Q '+(cx+swayX-d*reach*.12)+' '+(cy+side*reach*.46)+' '+(cx-d*reach*.15)+' '+cy+' Z" fill="'+(k%3===0?'#fff2a2':(k%3===1?'#ffb52e':'#ff4c22'))+'" opacity="'+(.5+(k%4)*.1)+'"/>';
   }
-  // The leading flame takes a dragon-head silhouette and tracks the opponent's height.
-  s+='<g transform="translate('+(ex-7*d)+' '+ey+') scale('+d+' 1)"><path d="M -49 -17 L -34 -37 L -16 -27 L -3 -32 L 15 -21 L 38 -12 L 53 -3 L 36 4 L 52 13 L 28 20 L 7 13 L -7 29 L -18 9 L -42 4 L -34 -5 Z" fill="#e53a24" stroke="#701016" stroke-width="3"/><path d="M -20 -23 L -25 -42 L -8 -30 M 1 -23 L 11 -39 L 17 -22 M -8 10 L 4 23 L 20 13" fill="none" stroke="#ffb13e" stroke-width="5" stroke-linejoin="round"/><path d="M 4 -14 Q 23 -18 40 -8 L 24 -2 L 42 7 Q 22 10 7 1 Z" fill="#ffc54b"/><ellipse cx="12" cy="-12" rx="4.5" ry="3.4" fill="#fff7bf"/><ellipse cx="13" cy="-12" rx="1.8" ry="3" fill="#301012"/><path d="M 27 9 L 39 13 L 22 16" fill="none" stroke="#fff0a2" stroke-width="2.2"/></g>';
-  s+='<path d="M 0 80 Q 18 120 7 165 T 9 260 T 0 350 L 0 0 Z M 1280 0 L 1280 360 Q 1260 310 1272 258 T 1268 130 L 1260 0 Z" fill="#ef3c20" opacity=".24"/>';
-  s+='<path d="M 0 590 Q 19 550 5 510 T 11 430 L 0 392 L 0 720 L 55 720 Q 31 672 44 634 T 20 603 Z M 1280 720 L 1222 720 Q 1247 673 1235 630 T 1261 580 L 1280 553 Z" fill="#bd1f22" opacity=".23"/>';
-  s+='<rect x="7" y="7" width="1266" height="706" rx="12" fill="none" stroke="#ff5527" stroke-width="'+(2.5+Math.sin(b.t*.35)*1.8)+'" opacity=".45"/>';
-  for(let i=0;i<18;i++){const x=(i*113+b.t*5)%1280,y=(i*47+b.t*3)%720;s+='<circle cx="'+x+'" cy="'+y+'" r="'+(1.2+i%3*.6)+'" fill="'+(i%2?'#ffb74e':'#ff4e27')+'" opacity="'+(.3+(i%4)*.12)+'"/>';}
-  s+='<path d="M '+ox+' '+(oy+75)+' Q '+midX+' '+(midY+115)+' '+ex+' '+(ey+90)+'" fill="none" stroke="#511018" stroke-width="28" opacity=".24"/>';
+  // Dragon head profile with horns, bright eye, open jaw and visible teeth.
+  s+='<g transform="translate('+hx+' '+hy+') scale('+(d*headSize)+' '+headSize+')">';
+  s+='<path d="M -71 -9 L -58 -32 L -39 -29 L -30 -51 L -15 -34 L 3 -36 L 18 -25 L 42 -20 L 61 -12 L 77 -3 L 61 3 L 43 5 L 62 17 L 43 31 L 20 25 L 5 42 L -13 18 L -42 12 L -62 4 Z" fill="#6d1018" stroke="#f14b28" stroke-width="3"/>';
+  s+='<path d="M -39 -29 L -54 -50 L -31 -43 L -20 -63 L -7 -36 M -5 -34 L 7 -53 L 22 -34" fill="#df3a22" stroke="#ffb23f" stroke-width="4" stroke-linejoin="round"/>';
+  s+='<path d="M -39 -18 Q -20 -30 -3 -24 L 15 -17 L 35 -13 L 62 -5 L 35 -2 L 13 1 L -5 -5 Z" fill="#ff7d29"/>';
+  s+='<path d="M 7 -7 Q 30 -15 61 -5 L 44 1 L 64 8 Q 42 14 24 8 L 9 3 Z" fill="#29070e" stroke="#ffb348" stroke-width="2.5"/>';
+  s+='<path d="M 18 0 L 23 7 L 28 0 L 34 9 L 39 1 L 45 7 L 49 1" fill="#fff3be" stroke="#fff3be" stroke-width="1.5"/>';
+  s+='<path d="M 22 12 L 35 18 L 51 14" fill="none" stroke="#ff8c2b" stroke-width="3"/>';
+  s+='<ellipse cx="34" cy="-14" rx="5.5" ry="4" fill="#fffbd7"/><ellipse cx="36" cy="-14" rx="2" ry="3.4" fill="#12101a"/><path d="M 28 -16 L 39 -18" stroke="#fff7c4" stroke-width="1.6"/>';
+  s+='<path d="M -57 -7 L -69 -12 L -62 2 M -19 16 L -8 29 L 3 19" fill="none" stroke="#ffad43" stroke-width="3.2"/>';
+  s+='</g>';
+  // Electric arcs race around the hot plume, with branching forks and a cyan core.
+  for(let arc=0;arc<6;arc++){
+   const from=.05+arc*.115,to=Math.min(.98,from+.24+(arc%3)*.08),pts=[];
+   for(let q=0;q<=7;q++){
+    const u=from+(to-from)*q/7;
+    const baseX=headFront+jetDx*u;
+    const baseY=hy+(endY-hy)*u+Math.sin((b.t+arc*9+q*2)*.2)*11*origin.s;
+    const width=(10+u*spread*.72)*origin.s;
+    const off=q===0||q===7?0:Math.sin((b.t*1.35+arc*13+q*4)*.37)*width;
+    pts.push([baseX,baseY+off]);
+   }
+   let bolt='M '+pts[0][0]+' '+pts[0][1];
+   for(let q=1;q<pts.length;q++)bolt+=' L '+pts[q][0]+' '+pts[q][1];
+   const exb=pts[3][0]+d*(7+arc%3*5)*origin.s,eyb=pts[3][1]+(arc%2?-1:1)*(15+arc%3*7)*origin.s;
+   bolt+=' M '+pts[3][0]+' '+pts[3][1]+' L '+exb+' '+eyb+' L '+(exb+d*10*origin.s)+' '+(eyb+(arc%2?-9:9)*origin.s);
+   s+='<path d="'+bolt+'" fill="none" stroke="#237bff" stroke-width="'+(5*origin.s)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".78"/><path d="'+bolt+'" fill="none" stroke="#b8f9ff" stroke-width="'+(2.1*origin.s)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".98"/>';
+  }
+  // Tiny hot particles and a subtle scorched smear under the moving breath.
+  for(let i=0;i<22;i++){
+   const u=((i*17+b.t*2.2)%96)/100,xx=headFront+jetDx*u;
+   const yy=hy+(endY-hy)*u+Math.sin((b.t+i*7)*.28)*(8+u*spread*.55)*origin.s;
+   s+='<circle cx="'+(xx+Math.sin(i*5+b.t*.2)*12*origin.s)+'" cy="'+yy+'" r="'+(1.2+i%3*.7)*origin.s+'" fill="'+(i%4===0?'#bdf9ff':(i%2?'#ffd76b':'#ff5828'))+'" opacity="'+(.35+(i%5)*.12)+'"/>';
+  }
+  s+='<path d="M '+ox+' '+(oy+75*origin.s)+' C '+(ox+dx*.28)+' '+(oy+125*origin.s)+' '+(hx-d*60*headSize)+' '+(hy+124*headSize)+' '+(hx+d*26*headSize)+' '+(hy+118*headSize)+'" fill="none" stroke="#511018" stroke-width="'+(31*origin.s)+'" opacity=".24"/>';
+  // Fire-burn vignette pulses at the screen edge while the dragon breath is active.
+  s+='<path d="M 0 72 Q 20 122 8 176 T 9 271 T 0 360 L 0 0 Z M 1280 0 L 1280 360 Q 1261 311 1272 254 T 1266 122 L 1260 0 Z" fill="#ef3c20" opacity=".22"/>';
+  s+='<path d="M 0 594 Q 19 548 5 510 T 11 430 L 0 392 L 0 720 L 54 720 Q 31 672 44 634 T 20 603 Z M 1280 720 L 1221 720 Q 1247 673 1235 630 T 1261 580 L 1280 553 Z" fill="#bd1f22" opacity=".22"/>';
+  s+='<rect x="7" y="7" width="1266" height="706" rx="12" fill="none" stroke="#ff5527" stroke-width="'+(2.5+Math.sin(b.t*.35)*1.8)+'" opacity=".4"/>';
  }
  if(Q.amaterasuImpact&&Q.amaterasuImpact.t<42){const q=Q.amaterasuImpact,p=point(q.target.x,q.target.y-84),t=q.t;s+='<g opacity="'+(1-t/44)+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(28+t*4)+'" fill="none" stroke="#ff3b69" stroke-width="3"/><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(19+t*2.8)+'" fill="none" stroke="#8d3cff" stroke-width="2"/><path d="M '+(p.x-360)+' '+(p.y-180)+' L '+p.x+' '+p.y+' L '+(p.x+240)+' '+(p.y+60)+'" fill="none" stroke="#ed2c58" stroke-width="2"/><text x="'+p.x+'" y="'+(p.y-90-t)+'" fill="#ff8ca8" font-size="22" font-family="monospace" text-anchor="middle" letter-spacing="6">MANGEKYO LOCK</text></g>';}
  for(const b of Q.burns||[])if(b&&b.kind==='amaterasu'&&alive(b.target))s+=blackFire(b);
