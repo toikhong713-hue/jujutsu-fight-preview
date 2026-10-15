@@ -107,8 +107,9 @@ function updateTotsuka(f,n){
   Q.edoTotsuka.hit=true;
   if(valid){
    f.facing=target.x>=f.x?1:-1;const max=target.maxHp||200;
-   if(target.hp/max<=.30){target.hp=0;target.state='DEFEAT';target.stateFrame=0;Q.edoTotsuka.sealed=true;}
-   else{target.hp=Math.max(1,target.hp-Math.round(max*.42));target.hitFlash=14;target.hitstun=Math.max(target.hitstun||0,42);target.vx=(f.facing||1)*10;target.vy=-4;if(target.state!=='DEFEAT')target.state='HITSTUN';}
+   const damage=Math.round(max*.42);
+   if(target.hp<=damage||target.hp/max<=.30){target.hp=0;target.state='DEFEAT';target.stateFrame=0;Q.edoTotsuka.sealed=true;}
+   else{target.hp=Math.max(1,target.hp-damage);target.hitFlash=14;target.hitstun=Math.max(target.hitstun||0,42);target.vx=(f.facing||1)*10;target.vy=-4;if(target.state!=='DEFEAT')target.state='HITSTUN';}
    fx('seal',target.x,target.y-86,80);fx('explosion',target.x,target.y-83,34);fx('shock',target.x,target.y-82,35);impact(.58,'#e6d9b0');
    if(typeof window.floatText==='function')window.floatText(target.x,target.y-161,Q.edoTotsuka.sealed?'TOTSUKA · SEALED':'TOTSUKA STRIKE','#f1e7c4',18,48);
    if(typeof SFX!=='undefined'&&SFX.blackflash)SFX.blackflash();
