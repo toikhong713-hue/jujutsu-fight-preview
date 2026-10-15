@@ -137,7 +137,7 @@
     victim.state='IDLE';victim.stateFrame=0;victim.vx=0;victim.vy=0;
     if(owner)victim.facing=Math.sign(victim.x-owner.x)||(owner.facing?-owner.facing:1);
     const candidates=victim.id==='itachi'?['s5','s3','s1','heavy','s4','light']:['s5','s3','s1','heavy','s4','s2','light'];
-    const nonOffensive=/heal|reverse cursed|\\brct\\b|copy|guard|block|counter|defen|restore|buff|roll|restless|jackpot|domain|shrine|void|infinity|presence|teleport|spatial shift/i;
+    const nonOffensive=/heal|reverse cursed|\brct\b|copy|guard|block|counter|defen|restore|buff|roll|restless|jackpot|domain|shrine|void|infinity|presence|teleport|spatial shift/i;
     let picked='';
     for(const key of candidates){
       const m=victim.moves&&victim.moves[key],name=String(m&&m.name||'');
