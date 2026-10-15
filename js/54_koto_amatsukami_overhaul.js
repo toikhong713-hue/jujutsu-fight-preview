@@ -143,7 +143,7 @@
     const ok=!!(picked&&typeof window.startMove==='function'&&window.startMove(victim,picked,false));
     victim.itachiKotoForcedMove=true;victim.itachiKotoForcedKey=ok?picked:'';victim.itachiKotoLockApplied=false;victim.hasHit=false;
     if(!ok){victim.move=null;victim.moveKey=null;victim.state='IDLE';}
-    fx('kotoWave',victim.x,victim.y-106,32,{phase:'override'});fx('kotoEcho',victim.x+(victim.facing||1)*22,victim.y-76,34,{face:victim.facing||1,phase:8});
+    fx('kotoWave',victim.x,victim.y-106,32,{phase:'override'});fx('crows',victim.x+(victim.facing||1)*22,victim.y-48,26);
     if(typeof window.floatText==='function')window.floatText(victim.x,victim.y-170,ok?'BRAINWASH · ACTION OVERRIDE':'BRAINWASH · LOCKED','#dfe6ff',14,48);
   }
   const previousUpdateFighter=window.updateFighter;
@@ -196,11 +196,16 @@
     const right=typeof ARENA_W!=='undefined'?ARENA_W-left:3070;
     // Three full character actors drawn with the game's live Canvas fighter renderer.
     // Render-only decoys: no third-player state, collisions or input ownership.
+    const cloneX=(i,t)=>{
+      const phase=t*.105+i*(Math.PI*2/3),wave=Math.sin(phase);
+      if(i===0)return target.x-(58+Math.abs(wave)*58);
+      if(i===1)return target.x+(58+Math.abs(wave)*58);
+      return target.x+(wave>=0?1:-1)*(44+Math.abs(Math.cos(phase))*28);
+    };
     for(let i=0;i<3;i++){
-      const phase=now*.105+i*(Math.PI*2/3);
-      const x=clamp(target.x+Math.sin(phase)*58+(i-1)*44,left,right);
+      const x=clamp(cloneX(i,now),left,right),prevX=clamp(cloneX(i,now-1),left,right);
       const clone=Object.assign({},owner,{
-        x:x,y:floor,facing:Math.cos(phase)>=0?1:-1,
+        x:x,y:floor,facing:x>=prevX?1:-1,
         state:'WALK',stateFrame:(now+i*7)%24,animT:now+i*13,walk:now*.22+i*2.4,
         move:null,moveKey:null,moveFrame:0,hasHit:false,hitstun:0,blockstun:0,immobilize:0,
         vx:0,vy:0,onGround:true,invuln:0,invulnDash:0,hitFlash:0,hitstop:0,blocking:false,
@@ -217,14 +222,14 @@
     }
   }
   if(typeof drawFighterBase==='function')window.drawFighter=function(f){
-    const result=drawFighterBase.apply(this,arguments);
-    if(drawingKotoClones||!f||typeof G==='undefined')return result;
-    const activeVictim=(G.fighters||[]).find(x=>x&&x.itachiKotoUntil>(Number(G.frame)||0)&&x.itachiKotoOwner);
-    if(activeVictim===f){
-      drawingKotoClones=true;
-      try{drawGroundKotoClones(activeVictim);}finally{drawingKotoClones=false;}
+    if(!drawingKotoClones&&f&&typeof G!=='undefined'){
+      const activeVictim=(G.fighters||[]).find(x=>x&&x.itachiKotoUntil>(Number(G.frame)||0)&&x.itachiKotoOwner);
+      if(activeVictim===f){
+        drawingKotoClones=true;
+        try{drawGroundKotoClones(activeVictim);}finally{drawingKotoClones=false;}
+      }
     }
-    return result;
+    return drawFighterBase.apply(this,arguments);
   };
   const previousRender=window.render;
   if(typeof previousRender==='function')window.render=function(){const r=previousRender.apply(this,arguments);overlay();return r;};
