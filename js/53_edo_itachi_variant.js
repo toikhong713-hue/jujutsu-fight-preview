@@ -110,7 +110,7 @@
           // Long, time-based window stays open through multi-hit strings.
           f.itachiEdoCounterUntil=(Q.tick||0)+108;
           fx('seal',f.x+d*34,f.y-104,34);
-          fx('reflect',f.x+d*52,f.y-110,74);
+          fx('reflect',f.x+d*52,f.y-110,108);
           if(typeof window.floatText==='function')window.floatText(f.x,f.y-166,'KOTOAMATSUKAMI · COUNTER ACTIVE','#dbe5f7',16,52);
         }
         if(n>=116)f.itachiEdoCounterUntil=0;
