@@ -26,7 +26,16 @@ function addFireball(f,i){
  const d=f.facing||1;Q.shots.push({owner:f,kind:'fireball',x:f.x+d*45,y:f.y-114+(i-3)*2.8,vx:d*(13.1-Math.abs(i-3)*.18),vy:(i-3)*.48-.15,r:i===3?29:23,damage:i===3?10:7,stun:19,kbx:7,kby:-3,life:110,rot:0,hit:false,armorBreak:false});
  if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
 }
-function startBreath(f){Q.flameBreath={owner:f,t:0,d:102,nextHit:18};f.itachiFireMode='breath';f.itachiFireDone=true;fx('fire',f.x+(f.facing||1)*80,f.y-100,70,{charge:1});fx('shock',f.x+(f.facing||1)*72,f.y-90,30);if(typeof flash==='function')flash(.24,'#e34b29');if(typeof shake==='function')shake(7);if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();}
+function startBreath(f){
+ // Lock this cast into breath mode. It can never also create a fireball.
+ f.itachiFireMode='breath';f.itachiFireDone=true;
+ Q.flameBreath={owner:f,t:0,d:78,nextHit:18};
+ fx('fire',f.x+(f.facing||1)*80,f.y-100,32,{charge:1});
+ fx('shock',f.x+(f.facing||1)*72,f.y-90,22);
+ if(typeof flash==='function')flash(.18,'#e34b29');
+ if(typeof shake==='function')shake(4);
+ if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
+}
 function launchGreatFireball(f,q){
  q=clamp(q||.18,.18,1);
  const d=f.facing||1,x=f.x+d*48,y=f.y-116;
@@ -40,35 +49,44 @@ function updateFire(f,n){
  const mappedHeld=koto&&typeof koto.isSkillHeld==='function'?koto.isSkillHeld(f,'s1'):null;
  const held=typeof mappedHeld==='boolean'?mappedHeld:down(f.itachiChargeKey||(f.isP2?'Numpad3':'Digit3'));
  f.itachiChargeFrames=n;
+ // Branch A: the cast is committed to breath. No fireball is spawned in this branch.
  if(f.itachiFireMode==='breath'){
   f.itachiPoseKey='s1fire';
   const b=Q.flameBreath;
   if(!b||b.owner!==f){stopMove(f);return;}
   b.t++;
-  if(b.t>=b.nextHit&&b.t%18===0){
+  if(b.t>=b.nextHit){
    b.nextHit=b.t+18;
-   if(alive(f.opp)&&typeof window.resolveHit==='function')window.resolveHit(f,f.opp,{damage:5,hitstun:16,blockstun:12,kbx:5,kby:-2,hitstop:5,meter:3,kind:'projectile',type:'special'},f.opp.x,f.opp.y-82);
+   // Real forward range check: this cannot hit or lock a target anywhere on the map.
+   if(frontTarget(f,250,145)&&typeof window.resolveHit==='function'){
+    window.resolveHit(f,f.opp,{damage:3,hitstun:8,blockstun:7,kbx:3,kby:-1,hitstop:3,meter:1,kind:'projectile',type:'projectile'},f.x+(f.facing||1)*190,f.y-96);
+   }
   }
-  if(b.t%18===0)fx('fire',f.x+(f.facing||1)*165,f.y-104,18,{charge:1});
+  if(b.t%12===0)fx('fire',f.x+(f.facing||1)*(72+Math.min(120,b.t*1.4)),f.y-104,12,{charge:.8});
   if(b.t>=b.d){Q.flameBreath=null;stopMove(f);}
   return;
  }
+ // Branch B: a previously released fireball is in its short recovery. No breath starts here.
  if(f.itachiFireMode==='fireball'){
   f.itachiPoseKey='s1release';
-  if(n>=(f.itachiFireFrame||n)+22)stopMove(f);
+  if(n>=(f.itachiFireFrame||n)+16)stopMove(f);
   return;
  }
+ // Otherwise this cast remains in charge/hand-seal state until release or full charge.
  f.itachiPoseKey='s1';
  if(held)f.itachiHeldTicks=(f.itachiHeldTicks||0)+1;
  else if(n>1)f.itachiFireReleased=true;
+ // Full charge commits exclusively to breath.
  if(held&&(f.itachiHeldTicks||0)>=54){
   startBreath(f);f.itachiPoseKey='s1fire';return;
  }
- if(f.itachiFireReleased&&n>=28){
-  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/54,.18,1));
+ // Releasing before full charge commits exclusively to a fireball and fires promptly.
+ if(f.itachiFireReleased&&n>=12){
   f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
+  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/54,.18,.95));
   return;
- }}
+ }
+}
 function updateAmaterasu(f,n){
  f.itachiPoseKey='s5';f.itachiAmaterasuFrame=n;
  if(n===52){
@@ -86,7 +104,7 @@ function updateAmaterasu(f,n){
 if(typeof oldStart==='function')window.startMove=function(f,k,isBF){
  if(Q.cinema)return false;const ok=oldStart.apply(this,arguments);
  if(ok&&f&&f.id==='itachi'){
-  if(k==='s1'){f.itachiChargeKey=f.isP2?'Numpad3':'Digit3';f.itachiHeldTicks=0;f.itachiFireMode='';f.itachiFireDone=false;f.itachiFireReleased=false;f.itachiChargeFrames=0;Q.flameBreath=null;}
+  if(k==='s1'){f.itachiChargeKey=f.isP2?'Numpad3':'Digit3';f.itachiHeldTicks=0;f.itachiFireMode='charge';f.itachiFireDone=false;f.itachiFireReleased=false;f.itachiChargeFrames=0;if(Q.flameBreath&&Q.flameBreath.owner===f)Q.flameBreath=null;}
   if(k==='s2'){const t=targetFor(f,window.ARENA_W||3200);if(t){f.itachiDirectTsukuyomiTarget=t;f.itachiCounterUntil=0;f.facing=t.x>=f.x?1:-1;}else{f.itachiDirectTsukuyomiTarget=null;f.itachiTsukuyomiCounter=true;}}
   if(k==='s5'){f.itachiAmaterasuFrame=0;Q.amaterasuImpact=null;}
  }
