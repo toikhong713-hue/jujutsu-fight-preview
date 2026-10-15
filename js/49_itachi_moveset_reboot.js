@@ -95,9 +95,17 @@
     for(let i=Q.shots.length-1;i>=0;i--){
       const q=Q.shots[i],o=q.owner&&q.owner.opp;
       q.x+=q.vx;q.y+=q.vy;q.rot+=.22;q.life--;
+      if(q.gokakyu){
+        if(!Array.isArray(q.trail))q.trail=[];
+        q.trail.push({x:q.x,y:q.y});
+        if(q.trail.length>15)q.trail.shift();
+      }
       if(!q.hit&&o&&o.hp>0&&Math.abs(q.x-o.x)<q.r+29&&Math.abs(q.y-(o.y-84))<q.r+54){
         const res=resolveItachiHit(q.owner,o,{damage:q.damage,hitstun:q.stun,blockstun:12,kbx:q.kbx,kby:q.kby,hitstop:6,meter:3,armorBreak:q.armorBreak,kind:'projectile',type:'projectile'},q.x,q.y);
-        if(res!=='whiff'){q.hit=true;q.life=0;effect(q.kind==='fireball'?'explosion':'magatama',q.x,q.y,20);effect('shock',q.x,q.y,15);}
+        if(res!=='whiff'){
+          q.hit=true;q.life=0;effect(q.kind==='fireball'?'explosion':'magatama',q.x,q.y,28);effect('shock',q.x,q.y,25);
+          if(q.gokakyu){Q.gokakyuImpact={x:o.x,y:o.y,t:0};screenImpact(.34,'#ff602c');}
+        }
       }
       if(q.life<=0||q.x< -100||q.x>(window.ARENA_W||3200)+100)Q.shots.splice(i,1);
     }
@@ -399,6 +407,7 @@
     // Pausing must freeze the cinematic, not discard its controller and strand a locked target.
     if(G.paused)return;
     Q.lastMode=G.mode;Q.tick++;fxSys.tick=Q.tick;
+    if(Q.gokakyuImpact){Q.gokakyuImpact.t=(Q.gokakyuImpact.t||0)+1;if(Q.gokakyuImpact.t>=54)Q.gokakyuImpact=null;}
     if(Array.isArray(fxSys.fx)){
       for(let i=fxSys.fx.length-1;i>=0;i--){const a=fxSys.fx[i];a.t=(a.t||0)+1;if(a.t>=(a.d||24))fxSys.fx.splice(i,1);}
     }
@@ -554,6 +563,18 @@
   const wrap=document.getElementById('wrap');if(wrap)wrap.appendChild(stage);
   function shotSvg(q){
     const p=worldPoint(q.x,q.y),s=p.s;
+    if(q.kind==='fireball'&&q.gokakyu){
+      const trail=(q.trail||[]).map(v=>worldPoint(v.x,v.y));
+      const path=trail.map((v,i)=>(i?'L ':'M ')+v.x.toFixed(1)+' '+v.y.toFixed(1)).join(' ');
+      let sparks='';
+      for(let i=0;i<trail.length;i+=3){const v=trail[i],k=i%2?1:-1;sparks+='<circle cx="'+(v.x+k*4)+'" cy="'+(v.y-5-k*3)+'" r="'+(1.8+(i%3)*.6)+'" fill="'+(i%2?'#fff0ab':'#ff6b31')+'" opacity="'+(.45+i/trail.length*.5)+'"/>';}
+      const d=q.vx<0?-1:1;
+      return (path?'<g><path d="'+path+'" fill="none" stroke="#5b0c13" stroke-width="'+(q.r*1.05)+'" stroke-linecap="round" opacity=".3"/><path d="'+path+'" fill="none" stroke="#ef381d" stroke-width="'+(q.r*.68)+'" stroke-linecap="round" opacity=".56"/><path d="'+path+'" fill="none" stroke="#ff9b3d" stroke-width="'+(q.r*.32)+'" stroke-linecap="round" opacity=".75"/>'+sparks+'</g>':'')+
+      '<g transform="translate('+p.x+' '+p.y+') scale('+(s*d)+' '+s+')"><ellipse rx="'+(q.r*1.72)+'" ry="'+(q.r*1.24)+'" fill="#641018" opacity=".42"/><ellipse rx="'+(q.r*1.48)+'" ry="'+(q.r*1.02)+'" fill="#ff3d1f" opacity=".94"/><ellipse rx="'+(q.r*1.2)+'" ry="'+(q.r*.86)+'" fill="url(#itRebootFire)" opacity=".98"/><ellipse rx="'+(q.r*.7)+'" ry="'+(q.r*.57)+'" fill="#ff9b3d"/><ellipse rx="'+(q.r*.42)+'" ry="'+(q.r*.36)+'" fill="#fff1b8"/><ellipse rx="'+(q.r*.22)+'" ry="'+(q.r*.2)+'" fill="#fffde9"/>'+
+      '<path d="M '+(-q.r*.85)+' -'+(q.r*.68)+' Q '+(-q.r*1.48)+' -'+(q.r*1.12)+' '+(-q.r*1.82)+' -'+(q.r*.48)+' Q '+(-q.r*1.25)+' -'+(q.r*.25)+' '+(-q.r*.95)+' 0 Q '+(-q.r*1.5)+' '+(q.r*.5)+' '+(-q.r*1.73)+' '+(q.r*.76)+' Q '+(-q.r*1.08)+' '+(q.r*.7)+' '+(-q.r*.82)+' '+(q.r*.48)+' Z" fill="#ff7134" opacity=".92"/>'+
+      '<path d="M '+(-q.r*.6)+' -'+(q.r*.2)+' Q '+(-q.r*1.1)+' -'+(q.r*.85)+' '+(-q.r*1.3)+' -'+(q.r*.49)+' M '+(-q.r*.65)+' '+(q.r*.18)+' Q '+(-q.r*1.15)+' '+(q.r*.8)+' '+(-q.r*1.38)+' '+(q.r*.46)+'" stroke="#ffe08a" stroke-width="'+Math.max(2,q.r*.075)+'" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="'+(-q.r*.2+Math.sin(q.rot)*q.r*.12)+'" cy="'+(-q.r*.16)+'" r="'+(q.r*.16)+'" fill="#fffde4" opacity=".96"/></g>';
+    }
     if(q.kind==='fireball')return '<g transform="translate('+p.x+' '+p.y+') scale('+s+')"><ellipse rx="'+(q.r*1.3)+'" ry="'+(q.r*.88)+'" fill="url(#itRebootFire)" opacity=".9"/><ellipse rx="'+(q.r*.72)+'" ry="'+(q.r*.58)+'" fill="#ff632f"/><ellipse rx="'+(q.r*.32)+'" ry="'+(q.r*.26)+'" fill="#fff5d8"/><path d="M '+(-q.r*1.5)+' -4 Q '+(-q.r*.5)+' -20 '+(-q.r*.8)+' -'+q.r+' M '+(-q.r*1.4)+' 9 Q '+(-q.r*.2)+' 27 '+(-q.r*.7)+' '+(q.r*.8)+'" stroke="#ff9a4d" stroke-width="4" fill="none"/></g>';
     if(q.kind==='magatama')return '<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*57.3)+') scale('+s+')"><ellipse rx="16" ry="25" fill="none" stroke="#ef655f" stroke-width="2"/><path d="M 0 -19 C 24 -14 19 16 0 20 C -9 11 -7 4 1 0 C 8 -4 7 -12 0 -19 Z" fill="#ffd29c" stroke="#fff0ce" stroke-width="1.7"/><circle cy="-4" r="3.5" fill="#8b1530"/></g>';
     return '<g transform="translate('+p.x+' '+p.y+') rotate('+(q.rot*57.3)+') scale('+s+')"><path d="M -54 0 Q -35 -12 -18 0" fill="none" stroke="#a96bff" stroke-width="2.8" stroke-dasharray="4 5" opacity=".95"/><path d="M 0 -22 L 5 -5 L 22 0 L 5 5 L 0 22 L -5 5 L -22 0 L -5 -5 Z" fill="#dce0e8" stroke="#fff4e8" stroke-width="1.8"/><circle r="4" fill="#702038"/><path d="M -26 0 L -40 -7 M -26 0 L -40 7 M -13 -15 L -5 -8 L -2 -18 M 13 15 L 5 8 L 2 18" stroke="#a96bff" stroke-width="2"/><g transform="translate(15 -9) rotate(22)"><rect x="-4" y="-6" width="8" height="12" rx="1" fill="#c72c46" stroke="#ffe7ed" stroke-width="1"/><path d="M -2 -3 L 2 3 M 2 -3 L -2 3" stroke="#ffe7ed" stroke-width=".8"/></g><circle cx="-31" cy="10" r="1.8" fill="#d3a3ff"/><circle cx="28" cy="-8" r="1.4" fill="#d3a3ff"/></g>';
@@ -616,6 +637,13 @@
     if(typeof G==='undefined'||G.mode==='menu'){stage.innerHTML='';return;}
     const defs='<defs><radialGradient id="itRebootMoon"><stop stop-color="#ff9cac"/><stop offset=".42" stop-color="#ba173d"/><stop offset="1" stop-color="#320916"/></radialGradient><radialGradient id="itRebootFire"><stop stop-color="#fff9d9"/><stop offset=".23" stop-color="#ffc16b"/><stop offset=".55" stop-color="#ef4931"/><stop offset=".84" stop-color="#5b101e"/><stop offset="1" stop-color="#17050c" stop-opacity="0"/></radialGradient><linearGradient id="itRebootPrism" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2d4ff"/><stop offset=".18" stop-color="#8de7ff"/><stop offset=".38" stop-color="#f8efba"/><stop offset=".57" stop-color="#f7a4c7"/><stop offset=".78" stop-color="#b4f4d0"/><stop offset="1" stop-color="#a1aaff"/></linearGradient><radialGradient id="itRebootUltVignette"><stop stop-color="#bd493c" stop-opacity=".06"/><stop offset=".72" stop-color="#250711" stop-opacity=".22"/><stop offset="1" stop-color="#030208" stop-opacity=".92"/></radialGradient></defs>';
     let body='';
+    if(Q.gokakyuImpact){
+      const h=Q.gokakyuImpact,p=worldPoint(h.x,h.y),t=h.t||0,fade=Math.max(0,1-t/54),r=26+t*2.2;
+      body+='<g opacity="'+fade+'" transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><ellipse cy="3" rx="'+(34+t*.92)+'" ry="'+(8+t*.16)+'" fill="#080609" opacity=".82"/><ellipse cy="1" rx="'+(23+t*.78)+'" ry="'+(5+t*.11)+'" fill="#50120d" opacity=".92"/><ellipse cy="-2" rx="'+r+'" ry="'+(r*.72)+'" fill="none" stroke="#ff9c45" stroke-width="3" opacity="'+(1-t/56)+'"/><ellipse cy="-2" rx="'+(r*.72)+'" ry="'+(r*.46)+'" fill="none" stroke="#ffe7a0" stroke-width="1.8" opacity="'+(1-t/52)+'"/>';
+      for(let i=0;i<9;i++){const a=i*Math.PI*2/9+t*.045,x=Math.cos(a)*(25+t*1.55),y=Math.sin(a)*(7+t*.22);body+='<path d="M '+(x*.48)+' '+(y*.5)+' L '+x+' '+y+' L '+(x+Math.cos(a+.32)*(9+t*.24))+' '+(y+Math.sin(a+.32)*(5+t*.14))+'" fill="none" stroke="'+(i%3?'#301017':'#ff8a38')+'" stroke-width="'+(i%3?3:2)+'"/>';}
+      for(let i=0;i<7;i++){const x=Math.sin(i*2.2+t*.14)*(22+t*.62),y=-12-((i*17+t*3)%65);body+='<circle cx="'+x+'" cy="'+y+'" r="'+(1.4+i%3)+'" fill="'+(i%2?'#ffbe67':'#ff542d')+'" opacity="'+fade+'"/>';}
+      body+='</g>';
+    }
     for(const q of Q.shots)body+=shotSvg(q);
     const c=Q.clone;
     if(c){const p=worldPoint(c.x,c.y),alpha=clamp(1-c.t/c.d,0,1);body+='<g opacity="'+(.72*alpha)+'" transform="translate('+p.x+' '+p.y+') scale('+p.s*(c.face||1)+' '+p.s+')"><path d="M -24 -103 L -37 -60 L -47 -8 L -20 1 L 0 -15 L 24 0 L 49 -12 L 36 -66 L 21 -104 Z" fill="#0b0910" stroke="#a51c3e" stroke-width="2.5" stroke-dasharray="5 4"/><ellipse cy="-123" rx="23" ry="27" fill="#08070d" stroke="#d62b4b" stroke-width="2"/><path d="M -21 -127 L -25 -154 L -12 -145 L -5 -161 L 8 -145 L 21 -155 L 22 -127 Z" fill="#030307"/><path d="M -13 -123 L -5 -120 M 6 -120 L 14 -123" stroke="#ff506a" stroke-width="2.5"/></g>';}
