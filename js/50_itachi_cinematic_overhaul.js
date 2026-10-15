@@ -78,7 +78,7 @@ function updateFire(f,n){
  }
  if(f.itachiFireMode==='fireball-seals'){
   f.itachiPoseKey='s1fireball-seals';
-  if(n-(f.itachiSealStart||n)>=41){
+  if(n-(f.itachiSealStart||n)>=42){
    f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
    launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/16,.18,.95));
   }
@@ -86,7 +86,7 @@ function updateFire(f,n){
  }
  if(f.itachiFireMode==='breath-seals'){
   f.itachiPoseKey='s1breath-seals';
-  if(n-(f.itachiSealStart||n)>=23){startBreath(f);}
+  if(n-(f.itachiSealStart||n)>=24){startBreath(f);}
   return;
  }
  f.itachiPoseKey='s1';
