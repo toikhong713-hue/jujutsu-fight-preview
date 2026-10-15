@@ -46,7 +46,7 @@ function applyPose(P,f){
    P.lean=15;P.armF=[13,-54];P.armB=[145,-39];P.legF=[75,14];P.legB=[104,-10];
    return;
   }
-  const cycleFrames=36;
+  const cycleFrames=30;
   const u=((Math.max(1,n)-1)%cycleFrames)/cycleFrames*sealKeys.length;
   const i=Math.floor(u),t=smooth(u-i),a=sealKeys[i],b=sealKeys[(i+1)%sealKeys.length];
   P.lean=lerp(a[0],b[0],t);
