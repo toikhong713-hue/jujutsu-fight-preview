@@ -41,7 +41,11 @@ function launchGreatFireball(f,q){
  const d=f.facing||1,x=f.x+d*48,y=f.y-116;
  Q.shots.push({owner:f,kind:'fireball',x,y,vx:d*(13+q*3.2),vy:-.2,r:24+q*14,damage:Math.round(15+q*13),stun:22+Math.round(q*8),kbx:9+q*4,kby:-5,life:108,rot:0,hit:false,armorBreak:q>=.82});
  if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
- fx('fire',x,y,30,{charge:q});fx('shock',x,y,18);screenImpact(.2+q*.12,'#e8472f');
+ fx('fire',x,y,30,{charge:q});fx('shock',x,y,18);
+ const impact=.2+q*.12;
+ if(typeof flash==='function')flash(impact,'#e8472f');
+ if(typeof shake==='function')shake(Math.max(2,Math.round(impact*24)));
+ if(typeof camPunch==='function')camPunch(impact*.24);
  if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
 }
 function updateFire(f,n){
@@ -58,8 +62,11 @@ function updateFire(f,n){
   if(b.t>=b.nextHit){
    b.nextHit=b.t+18;
    // Real forward range check: this cannot hit or lock a target anywhere on the map.
-   if(frontTarget(f,250,145)&&typeof window.resolveHit==='function'){
-    window.resolveHit(f,f.opp,{damage:3,hitstun:8,blockstun:7,kbx:3,kby:-1,hitstop:3,meter:1,kind:'projectile',type:'projectile'},f.x+(f.facing||1)*190,f.y-96);
+   const target=f.opp,dir=f.facing||1;
+   const inBreathRange=!!(target&&target.hp>0&&target.state!=='DEFEAT'&&target.state!=='VICTORY'&&
+    (target.x-f.x)*dir>-18&&Math.abs(target.x-f.x)<=250&&Math.abs(target.y-f.y)<=145);
+   if(inBreathRange&&typeof window.resolveHit==='function'){
+    window.resolveHit(f,target,{damage:3,hitstun:8,blockstun:7,kbx:3,kby:-1,hitstop:3,meter:1,kind:'projectile',type:'projectile'},f.x+dir*190,f.y-96);
    }
   }
   if(b.t%12===0)fx('fire',f.x+(f.facing||1)*(72+Math.min(120,b.t*1.4)),f.y-104,12,{charge:.8});
