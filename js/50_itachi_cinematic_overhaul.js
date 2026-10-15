@@ -84,13 +84,13 @@ function updateFire(f,n){
  if(held)f.itachiHeldTicks=(f.itachiHeldTicks||0)+1;
  else if(n>1)f.itachiFireReleased=true;
  // Full charge commits exclusively to breath.
- if(held&&(f.itachiHeldTicks||0)>=54){
+ if(held&&(f.itachiHeldTicks||0)>=30){
   startBreath(f);f.itachiPoseKey='s1fire';return;
  }
  // Releasing before full charge commits exclusively to a fireball and fires promptly.
  if(f.itachiFireReleased&&n>=12){
   f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
-  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/54,.18,.95));
+  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/30,.18,.95));
   return;
  }
 }
