@@ -48,11 +48,6 @@
       svg+='<g><rect width="1280" height="720" fill="#260418" opacity=".075"/><path d="M 0 0 L 1280 0 L 1280 100 Q 960 154 640 92 T 0 110 Z" fill="#c31464" opacity=".065"/><path d="M 0 620 Q 300 555 640 632 T 1280 605 L 1280 720 L 0 720 Z" fill="#a61158" opacity=".075"/>';
       svg+=eyeGlyph(640,360,118,now*1.25,.12);
       svg+='<g transform="translate('+p.x+' '+p.y+')"><ellipse rx="'+(73+Math.sin(now*.18)*6)+'" ry="96" fill="none" stroke="#ff4f9e" stroke-width="2.4" stroke-dasharray="7 11" opacity=".8"/><ellipse rx="53" ry="70" fill="none" stroke="#d29cff" stroke-width="1.7" opacity=".7"/>'+eyeGlyph(0,0,56,now*2.3,.78)+'<path d="M -92 -35 L -63 -43 L -79 -18 M 93 32 L 65 26 L 82 10 M -42 90 L -25 70 M 32 -90 L 18 -70" stroke="#fff0fb" stroke-width="2" fill="none" opacity=".75"/></g>';
-      for(let i=0;i<4;i++){
-        const a=now*.04+i*Math.PI/2,off=56+Math.sin(now*.15+i)*8;
-        const ep=screenPoint(victim.x+Math.cos(a)*off,victim.y-68+Math.sin(a)*off*.5);
-        svg+=echoGlyph(ep,Math.cos(a)>=0?1:-1,.24+Math.sin(now*.3+i)*.08,(i%2?5:-5));
-      }
       // Lightweight crow silhouettes, not hundreds of DOM particles.
       for(let i=0;i<8;i++){
         const a=now*.09+i*2.399,rr=28+(i%3)*16,px=p.x+Math.cos(a)*rr,py=p.y-5+Math.sin(a)*rr*.64;
@@ -84,8 +79,8 @@
       if(n===6||n===12){fx('kotoEye',f.x+d*20,f.y-126,26,{spin:n*19,scale:n===12?1.3:1});fx('crows',f.x-d*18,f.y-86,18);}
       if(n===18){f.itachiKotoCastSuccess=launchKoto(f);f.itachiKotoCastStart=G.frame||0;}
       if([24,32,40,48,58].includes(n)&&f.itachiKotoTarget){
-        const t=f.itachiKotoTarget,step=(n/8)|0,dir=(step%2?1:-1);
-        fx('kotoEcho',t.x+dir*(24+step*7),t.y-80,30,{face:dir,phase:step});fx('crows',t.x+dir*22,t.y-82,22);
+        const t=f.itachiKotoTarget;
+        fx('crows',t.x+((n%16)?-22:22),t.y-54,22);
       }
       if(n===72||n===88)fx('kotoWave',f.x+d*72,f.y-118,32,{phase:'recovery'});
       if(n>=88){f.itachiEdoCounterUntil=0;f.itachiKotoTarget=null;if(typeof window.endMove==='function')window.endMove(f);else{f.move=null;f.moveKey=null;f.moveFrame=0;f.state=f.onGround?'IDLE':'FALL';f.stateFrame=0;}}
@@ -136,12 +131,13 @@
     victim.move=null;victim.moveKey=null;victim.moveFrame=0;victim.hasHit=false;victim.hitstun=0;victim.blockstun=0;victim.immobilize=0;victim.blocking=false;
     victim.state='IDLE';victim.stateFrame=0;victim.vx=0;victim.vy=0;
     if(owner)victim.facing=Math.sign(victim.x-owner.x)||(owner.facing?-owner.facing:1);
-    const candidates=victim.id==='itachi'?['s5','s3','s1','heavy','s4','light']:['s5','s3','s1','heavy','s4','s2','light'];
-    const nonOffensive=/heal|reverse cursed|\brct\b|copy|guard|block|counter|defen|restore|buff|roll|restless|jackpot|domain|shrine|void|infinity|presence|teleport|spatial shift/i;
+    // Only directional melee attacks are safe to force-whiff. Target-seeking
+    // techniques such as Amaterasu can automatically seek victim.opp (the Koto caster).
+    const candidates=['heavy','light'];
     let picked='';
     for(const key of candidates){
-      const m=victim.moves&&victim.moves[key],name=String(m&&m.name||'');
-      if(!m||(victim.cd&&victim.cd[key]>0)||(victim.energy||0)<(m.cost||0)||m.domain||nonOffensive.test(name))continue;
+      const m=victim.moves&&victim.moves[key];
+      if(!m||(victim.cd&&victim.cd[key]>0)||(victim.energy||0)<(m.cost||0)||m.domain)continue;
       picked=key;break;
     }
     const ok=!!(picked&&typeof window.startMove==='function'&&window.startMove(victim,picked,false));
@@ -188,6 +184,47 @@
     }else if(f.itachiKotoUntil>(Number(G.frame)||0)){
       P.lean=-12;P.headY=-120;P.armF=[12,30];P.armB=[-12,26];P.legF=[90,8];P.legB=[95,-5];
     }
+  };
+  const drawFighterBase=window.drawFighter;
+  let drawingKotoClones=false;
+  function drawGroundKotoClones(target){
+    if(!drawFighterBase||!target||!target.itachiKotoOwner||target.hp<=0)return;
+    const owner=target.itachiKotoOwner,now=Number(G.frame)||0;
+    if(owner.hp<=0||owner.state==='DEFEAT')return;
+    const floor=typeof GROUND!=='undefined'?GROUND:target.y;
+    const left=typeof WALL!=='undefined'?WALL:130;
+    const right=typeof ARENA_W!=='undefined'?ARENA_W-left:3070;
+    // Three full character actors drawn with the game's live Canvas fighter renderer.
+    // Render-only decoys: no third-player state, collisions or input ownership.
+    for(let i=0;i<3;i++){
+      const phase=now*.105+i*(Math.PI*2/3);
+      const x=clamp(target.x+Math.sin(phase)*58+(i-1)*44,left,right);
+      const clone=Object.assign({},owner,{
+        x:x,y:floor,facing:Math.cos(phase)>=0?1:-1,
+        state:'WALK',stateFrame:(now+i*7)%24,animT:now+i*13,walk:now*.22+i*2.4,
+        move:null,moveKey:null,moveFrame:0,hasHit:false,hitstun:0,blockstun:0,immobilize:0,
+        vx:0,vy:0,onGround:true,invuln:0,invulnDash:0,hitFlash:0,hitstop:0,blocking:false,
+        grabTarget:null,grabber:null,opp:null,isP2:false,
+        hp:1,maxHp:1,energy:0,meter:0,cd:{},
+        awakened:false,awakenGlow:0,infinity:0,youngInfinity:0,jackpot:0,overdriveActive:false,
+        itachiEdo:false,itachiSusanooActive:false,itachiSusanooPending:false,itachiSusanooAction:'',
+        itachiKotoUntil:0,itachiKotoStart:0,itachiKotoOwner:null,itachiKotoTarget:null,itachiKotoCastUntil:0,
+        itachiPoseKey:'',itachiCinemaPose:'',itachiCinemaKind:'',itachiTsukuyomiPoseFrame:0,
+        tojiHunt:0,tojiSeqHits:null,tojiWeaponPhase:null,tojiMotion:'idle',youngSixEyes:0,youngInfinity:0,
+        itachiKotoClone:true
+      });
+      drawFighterBase.call(this,clone);
+    }
+  }
+  if(typeof drawFighterBase==='function')window.drawFighter=function(f){
+    const result=drawFighterBase.apply(this,arguments);
+    if(drawingKotoClones||!f||typeof G==='undefined')return result;
+    const activeVictim=(G.fighters||[]).find(x=>x&&x.itachiKotoUntil>(Number(G.frame)||0)&&x.itachiKotoOwner);
+    if(activeVictim===f){
+      drawingKotoClones=true;
+      try{drawGroundKotoClones(activeVictim);}finally{drawingKotoClones=false;}
+    }
+    return result;
   };
   const previousRender=window.render;
   if(typeof previousRender==='function')window.render=function(){const r=previousRender.apply(this,arguments);overlay();return r;};
