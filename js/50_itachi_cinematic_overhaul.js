@@ -27,25 +27,27 @@ function addFireball(f,i){
  if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
 }
 function startBreath(f){
- // Lock this cast into breath mode. It can never also create a fireball.
- f.itachiFireMode='breath';f.itachiFireDone=true;
- Q.flameBreath={owner:f,t:0,d:78,nextHit:18};
- fx('fire',f.x+(f.facing||1)*80,f.y-100,32,{charge:1});
- fx('shock',f.x+(f.facing||1)*72,f.y-90,22);
- if(typeof flash==='function')flash(.18,'#e34b29');
- if(typeof shake==='function')shake(4);
+ // The fast Tiger/Serpent/Ram/Rat/Dog/Tiger sequence has completed. Lock to stream only.
+ f.itachiFireMode='breath';f.itachiFireDone=true;f.itachiPoseKey='s1fire';
+ Q.flameBreath={owner:f,t:0,d:84,nextHit:12};
+ fx('fire',f.x+(f.facing||1)*72,f.y-105,42,{charge:1,streamStart:true});
+ fx('shock',f.x+(f.facing||1)*72,f.y-92,28);
+ if(typeof flash==='function')flash(.22,'#e34b29');
+ if(typeof shake==='function')shake(5);
+ if(typeof camPunch==='function')camPunch(.06);
  if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
 }
 function launchGreatFireball(f,q){
  q=clamp(q||.18,.18,1);
- const d=f.facing||1,x=f.x+d*48,y=f.y-116;
- Q.shots.push({owner:f,kind:'fireball',x,y,vx:d*(13+q*3.2),vy:-.2,r:24+q*14,damage:Math.round(15+q*13),stun:22+Math.round(q*8),kbx:9+q*4,kby:-5,life:108,rot:0,hit:false,armorBreak:q>=.82});
+ const d=f.facing||1,x=f.x+d*50,y=f.y-117;
+ const radius=52+q*24;
+ Q.shots.push({owner:f,kind:'fireball',gokakyu:true,trail:[{x:x-d*12,y:y+2},{x,y}],x,y,vx:d*(10.4+q*1.1),vy:-.16,r:radius,damage:Math.round(24+q*10),stun:28+Math.round(q*8),kbx:12+q*4,kby:-6,life:132,rot:0,hit:false,armorBreak:q>=.78});
  if(Q.shots.length>(Q.maxShots||24))Q.shots.splice(0,Q.shots.length-(Q.maxShots||24));
- fx('fire',x,y,30,{charge:q});fx('shock',x,y,18);
- const impact=.2+q*.12;
+ fx('fire',x,y,42,{charge:q,gokakyu:true});fx('shock',x,y,26);
+ const impact=.25+q*.12;
  if(typeof flash==='function')flash(impact,'#e8472f');
- if(typeof shake==='function')shake(Math.max(2,Math.round(impact*24)));
- if(typeof camPunch==='function')camPunch(impact*.24);
+ if(typeof shake==='function')shake(Math.max(4,Math.round(impact*26)));
+ if(typeof camPunch==='function')camPunch(impact*.33);
  if(typeof SFX!=='undefined'&&SFX.fugaRelease)SFX.fugaRelease();
 }
 function updateFire(f,n){
@@ -53,45 +55,49 @@ function updateFire(f,n){
  const mappedHeld=koto&&typeof koto.isSkillHeld==='function'?koto.isSkillHeld(f,'s1'):null;
  const held=typeof mappedHeld==='boolean'?mappedHeld:down(f.itachiChargeKey||(f.isP2?'Numpad3':'Digit3'));
  f.itachiChargeFrames=n;
- // Branch A: the cast is committed to breath. No fireball is spawned in this branch.
  if(f.itachiFireMode==='breath'){
   f.itachiPoseKey='s1fire';
-  const b=Q.flameBreath;
-  if(!b||b.owner!==f){stopMove(f);return;}
+  const b=Q.flameBreath;if(!b||b.owner!==f){stopMove(f);return;}
   b.t++;
   if(b.t>=b.nextHit){
-   b.nextHit=b.t+18;
-   // Real forward range check: this cannot hit or lock a target anywhere on the map.
+   b.nextHit+=12;
    const target=f.opp,dir=f.facing||1;
    const inBreathRange=!!(target&&target.hp>0&&target.state!=='DEFEAT'&&target.state!=='VICTORY'&&
-    (target.x-f.x)*dir>-18&&Math.abs(target.x-f.x)<=250&&Math.abs(target.y-f.y)<=145);
+    (target.x-f.x)*dir>-24&&Math.abs(target.x-f.x)<=520&&Math.abs(target.y-f.y)<=185);
    if(inBreathRange&&typeof window.resolveHit==='function'){
-    window.resolveHit(f,target,{damage:3,hitstun:8,blockstun:7,kbx:3,kby:-1,hitstop:3,meter:1,kind:'projectile',type:'projectile'},f.x+dir*190,f.y-96);
+    window.resolveHit(f,target,{damage:4,hitstun:10,blockstun:8,kbx:4,kby:-1,hitstop:3,meter:1,kind:'projectile',type:'projectile'},f.x+dir*300,f.y-105);
    }
   }
-  if(b.t%12===0)fx('fire',f.x+(f.facing||1)*(72+Math.min(120,b.t*1.4)),f.y-104,12,{charge:.8});
   if(b.t>=b.d){Q.flameBreath=null;stopMove(f);}
   return;
  }
- // Branch B: a previously released fireball is in its short recovery. No breath starts here.
  if(f.itachiFireMode==='fireball'){
   f.itachiPoseKey='s1release';
-  if(n>=(f.itachiFireFrame||n)+16)stopMove(f);
+  if(n>=(f.itachiFireFrame||n)+18)stopMove(f);
   return;
  }
- // Otherwise this cast remains in charge/hand-seal state until release or full charge.
+ if(f.itachiFireMode==='fireball-seals'){
+  f.itachiPoseKey='s1fireball-seals';
+  if(n-(f.itachiSealStart||n)>=41){
+   f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
+   launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/16,.18,.95));
+  }
+  return;
+ }
+ if(f.itachiFireMode==='breath-seals'){
+  f.itachiPoseKey='s1breath-seals';
+  if(n-(f.itachiSealStart||n)>=23){startBreath(f);}
+  return;
+ }
  f.itachiPoseKey='s1';
  if(held)f.itachiHeldTicks=(f.itachiHeldTicks||0)+1;
- else if(n>1)f.itachiFireReleased=true;
- // Full charge commits exclusively to breath.
- if(held&&(f.itachiHeldTicks||0)>=30){
-  startBreath(f);f.itachiPoseKey='s1fire';return;
+ // A deliberate hold (16 frames) commits to the quick, separate dragon-breath seal chain.
+ if(held&&(f.itachiHeldTicks||0)>=16){
+  f.itachiFireMode='breath-seals';f.itachiSealStart=n;f.itachiPoseKey='s1breath-seals';return;
  }
- // Releasing early selects fireball, but it still finishes the full hand-seal sequence first.
- if(f.itachiFireReleased&&n>=30){
-  f.itachiFireMode='fireball';f.itachiFireDone=true;f.itachiFireFrame=n;f.itachiPoseKey='s1release';
-  launchGreatFireball(f,clamp((f.itachiHeldTicks||0)/30,.18,.95));
-  return;
+ // Releasing before the hold threshold commits to the seven-sign Great Fireball chain.
+ if(!held){
+  f.itachiFireMode='fireball-seals';f.itachiFireReleased=true;f.itachiSealStart=n;f.itachiPoseKey='s1fireball-seals';return;
  }
 }
 function updateAmaterasu(f,n){
@@ -111,7 +117,7 @@ function updateAmaterasu(f,n){
 if(typeof oldStart==='function')window.startMove=function(f,k,isBF){
  if(Q.cinema)return false;const ok=oldStart.apply(this,arguments);
  if(ok&&f&&f.id==='itachi'){
-  if(k==='s1'){f.itachiChargeKey=f.isP2?'Numpad3':'Digit3';f.itachiHeldTicks=0;f.itachiFireMode='charge';f.itachiFireDone=false;f.itachiFireReleased=false;f.itachiChargeFrames=0;if(Q.flameBreath&&Q.flameBreath.owner===f)Q.flameBreath=null;}
+  if(k==='s1'){f.itachiChargeKey=f.isP2?'Numpad3':'Digit3';f.itachiHeldTicks=0;f.itachiFireMode='charge';f.itachiSealMode='charge';f.itachiSealStart=0;f.itachiFireDone=false;f.itachiFireReleased=false;f.itachiChargeFrames=0;if(Q.flameBreath&&Q.flameBreath.owner===f)Q.flameBreath=null;}
   if(k==='s2'){const t=targetFor(f,window.ARENA_W||3200);if(t){f.itachiDirectTsukuyomiTarget=t;f.itachiCounterUntil=0;f.facing=t.x>=f.x?1:-1;}else{f.itachiDirectTsukuyomiTarget=null;f.itachiTsukuyomiCounter=true;}}
   if(k==='s5'){f.itachiAmaterasuFrame=0;Q.amaterasuImpact=null;}
  }
@@ -142,7 +148,7 @@ if(typeof oldPose==='function')window.applyCharacterIdentityPose=function(P,f){
  else if(k==='s5'&&n<52){const a=[[31,-29,118,-23],[38,-38,127,-12],[24,-18,135,-37],[34,-42,120,-29]][Math.floor(n/13)%4];set(-9,[a[0],a[1]],[a[2],a[3]]);}
  else if(k==='s5')set(-5,[18,-49],[147,-37]);
 };
-if(typeof oldReset==='function')window.resetFighter=function(f){const r=oldReset.apply(this,arguments);if(f&&f.id==='itachi'){f.itachiFireMode='';f.itachiHeldTicks=0;f.itachiDirectTsukuyomiTarget=null;f.itachiAmaterasuFrame=0;}if(Q.flameBreath&&Q.flameBreath.owner===f)Q.flameBreath=null;if(Q.amaterasuImpact&&(Q.amaterasuImpact.owner===f||Q.amaterasuImpact.target===f))Q.amaterasuImpact=null;return r;};
+if(typeof oldReset==='function')window.resetFighter=function(f){const r=oldReset.apply(this,arguments);if(f&&f.id==='itachi'){f.itachiFireMode='';f.itachiSealMode='';f.itachiSealStart=0;f.itachiHeldTicks=0;f.itachiDirectTsukuyomiTarget=null;f.itachiAmaterasuFrame=0;}if(Q.flameBreath&&Q.flameBreath.owner===f)Q.flameBreath=null;if(Q.amaterasuImpact&&(Q.amaterasuImpact.owner===f||Q.amaterasuImpact.target===f))Q.amaterasuImpact=null;return r;};
 
 function point(x,y){const z=typeof cam!=='undefined'&&Number.isFinite(cam.zoom)?cam.zoom:1,cx=typeof cam!=='undefined'&&Number.isFinite(cam.x)?cam.x:640,cy=typeof cam!=='undefined'&&Number.isFinite(cam.y)?cam.y:360;return{x:640+((G&&G.shakeX)||0)+(x-cx)*z,y:360+((G&&G.shakeY)||0)+(y-cy)*z,s:z};}
 const stage=document.createElementNS('http://www.w3.org/2000/svg','svg');stage.setAttribute('id','jffItachiCinematicStage');stage.setAttribute('viewBox','0 0 1280 720');stage.setAttribute('preserveAspectRatio','none');stage.setAttribute('aria-hidden','true');stage.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:8;pointer-events:none;overflow:hidden;display:block';
