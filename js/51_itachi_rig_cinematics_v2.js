@@ -25,20 +25,33 @@ function hideEffectLayers(hide){
 }
 const sealKeys=[
  [-5,43,-37,134,-104,-58,-112,-96],
- [-9,27,-53,153,-128,-56,-110,-94],
- [-1,59,-78,123,-84,-58,-114,-98],
- [4,37,17,145,-88,-57,-112,-95],
- [-8,21,-34,161,-140,-56,-110,-97],
- [2,64,-105,115,-65,-58,-115,-99],
- [-5,34,-15,148,-112,-57,-111,-95],
- [-10,24,-72,155,-82,-55,-109,-94]
+ [-8,29,-49,150,-93,-57,-111,-95],
+ [-2,51,-63,129,-78,-58,-113,-97],
+ [2,36,-28,145,-42,-57,-112,-96],
+ [-7,25,-48,154,-116,-56,-110,-94],
+ [1,57,-75,126,-84,-57,-114,-98],
+ [-5,34,-16,148,-58,-57,-111,-95],
+ [-9,24,-52,153,-96,-55,-109,-94]
 ];
 function applyPose(P,f){
  if(!P||!f)return;
  const n=f.moveFrame||0,key=f.itachiCinemaPose;
- if(f.id==='itachi'&&(f.moveKey==='s1'||f.itachiPoseKey==='s1')&&n<180&&!Q.cinema){
-  const u=clamp(n/180*sealKeys.length,0,sealKeys.length-.0001),i=Math.floor(u),t=smooth(u-i),a=sealKeys[i],b=sealKeys[Math.min(i+1,sealKeys.length-1)];
-  P.lean=lerp(a[0],b[0],t);P.armF=[lerp(a[1],b[1],t),lerp(a[2],b[2],t)];P.armB=[lerp(a[3],b[3],t),lerp(a[4],b[4],t)];
+ if(f.id==='itachi'&&f.moveKey==='s1'&&!Q.cinema){
+  P.hipY=-57;P.shY=-96;P.headY=-114;
+  if(f.itachiPoseKey==='s1fire'||f.itachiFireMode==='breath'){
+   P.lean=18;P.armF=[18,-46];P.armB=[142,-28];P.legF=[79,11];P.legB=[101,-8];
+   return;
+  }
+  if(f.itachiPoseKey==='s1release'||f.itachiFireMode==='fireball'){
+   P.lean=15;P.armF=[13,-54];P.armB=[145,-39];P.legF=[75,14];P.legB=[104,-10];
+   return;
+  }
+  const cycleFrames=36;
+  const u=((Math.max(1,n)-1)%cycleFrames)/cycleFrames*sealKeys.length;
+  const i=Math.floor(u),t=smooth(u-i),a=sealKeys[i],b=sealKeys[(i+1)%sealKeys.length];
+  P.lean=lerp(a[0],b[0],t);
+  P.armF=[lerp(a[1],b[1],t),lerp(a[2],b[2],t)];
+  P.armB=[lerp(a[3],b[3],t),lerp(a[4],b[4],t)];
   P.hipY=lerp(a[5],b[5],t);P.headY=lerp(a[6],b[6],t);P.shY=lerp(a[7],b[7],t);
   const sway=Math.sin(n*.13)*.8;P.legF=[88+sway,5];P.legB=[94-sway,-5];
   return;
