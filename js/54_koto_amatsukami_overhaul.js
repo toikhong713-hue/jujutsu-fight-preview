@@ -1,6 +1,6 @@
-/* KOTOAMATSUKAMI OVERHAUL v1
-   Edo Itachi's S2 becomes a full genjutsu cast: brief startup, time-freeze, control inversion,
-   forced whiff, long action lock, restrained screen distortion and a local HUD blackout.
+/* KOTOAMATSUKAMI OVERHAUL v2
+   Koto creates a randomized input map for movement directions and only the fighter's assigned
+   S1-S5 skills. The mapping remains stable for the effect duration; movement is never immobilized.
    SVG-only effects are intentionally capped for low-end hardware. */
 (function(){
   'use strict';
@@ -55,7 +55,7 @@
       }
       const remain=Math.max(0,victim.itachiKotoUntil-now);
       svg+='<text x="640" y="82" text-anchor="middle" fill="#ffe9f7" font-family="monospace" font-size="14" letter-spacing="5" opacity="'+(.45+Math.sin(now*.35)*.12)+'">KOTOAMATSUKAMI · ABSOLUTE BRAINWASH</text>';
-      svg+='<text x="640" y="103" text-anchor="middle" fill="#f7cce8" font-family="monospace" font-size="10" letter-spacing="3" opacity=".65">'+(victim.itachiKotoForcedMove&&!victim.itachiKotoLockApplied?'ACTION OVERRIDE':'CONTROL SEALED')+' · '+(remain/60).toFixed(1)+'s</text></g>';
+      svg+='<text x="640" y="103" text-anchor="middle" fill="#f7cce8" font-family="monospace" font-size="10" letter-spacing="3" opacity=".65">'+'DIRECTION + SKILL SHUFFLE · '+(remain/60).toFixed(1)+'s</text></g>';
     }
     if(caster){
       const p=screenPoint(caster.x+(caster.facing||1)*32,caster.y-132);
@@ -88,20 +88,44 @@
     }
     return previousUpdateMove.apply(this,arguments);
   };
-  function blankInput(inp){
-    const o=Object.assign({left:0,right:0,up:0,down:0,light:0,heavy:0,s1:0,s2:0,s3:0,s4:0,s5:0,block:0,blockPress:0,guardCancel:0,ult:0,ultHeld:0,def:0,wcs:0,awaken:0,form:0,copy:0,special1:0,special2:0,soru:0},inp||{});
-    for(const k of Object.keys(o))o[k]=0;return o;
+  const DIRECTION_KEYS=['left','right','up','down'];
+  const SKILL_KEYS=['s1','s2','s3','s4','s5'];
+  function shuffledKeys(keys){
+    const out=keys.slice();
+    for(let i=out.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [out[i],out[j]]=[out[j],out[i]];
+    }
+    if(out.length>1&&out.every((key,i)=>key===keys[i])){
+      const last=out.length-1;[out[0],out[last]]=[out[last],out[0]];
+    }
+    return out;
   }
-  function reverseInput(inp){
-    const i=Object.assign({left:0,right:0,up:0,down:0,light:0,heavy:0,s1:0,s2:0,s3:0,s4:0,s5:0,special1:0,special2:0},inp||{}),o=blankInput(i);
-    o.left=i.right;o.right=i.left;o.up=i.down;o.down=i.up;
-    o.light=i.heavy;o.heavy=i.s1;o.s1=i.s2;o.s2=i.s3;o.s3=i.s4;o.s4=i.s5;o.s5=i.light;
-    o.special1=i.special2;o.special2=i.special1;return o;
+  function makeKotoInputMap(f){
+    // A skill slot participates only when this fighter actually has a move assigned to it.
+    const skills=SKILL_KEYS.filter(key=>!!(f&&f.moves&&f.moves[key]&&typeof f.moves[key]==='object'));
+    return {
+      directionSources:DIRECTION_KEYS.slice(),
+      directionTargets:shuffledKeys(DIRECTION_KEYS),
+      skillKeys:skills,
+      skillTargets:shuffledKeys(skills)
+    };
+  }
+  function scrambleKotoInput(f,inp){
+    const map=f&&f.itachiKotoInputMap;
+    if(!inp||!map)return inp;
+    const original=Object.assign({},inp),out=Object.assign({},inp);
+    // Remap logical directions. This layer works with both normal-keyboard and numpad KEYMAPs.
+    for(const key of DIRECTION_KEYS)out[key]=0;
+    map.directionSources.forEach((source,index)=>{out[map.directionTargets[index]]=original[source]||0;});
+    // Clear all skill slots first so unassigned slots can never become secret extra skill keys.
+    for(const key of SKILL_KEYS)out[key]=0;
+    map.skillKeys.forEach((source,index)=>{out[map.skillTargets[index]]=original[source]||0;});
+    return out;
   }
   function clearVictim(f){
-    if(!f)return;const was=!!f.itachiKotoUntil;
-    f.itachiKotoUntil=0;f.itachiKotoStart=0;f.itachiKotoOwner=null;f.itachiKotoForcedMove=false;f.itachiKotoForcedKey='';f.itachiKotoLockApplied=false;
-    if(was&&f.state==='IMMOBILIZED'){f.immobilize=0;f.hitstun=0;f.blockstun=0;f.state=f.onGround?'IDLE':'FALL';f.stateFrame=0;f.vx=0;}
+    if(!f)return;
+    f.itachiKotoUntil=0;f.itachiKotoStart=0;f.itachiKotoOwner=null;f.itachiKotoInputMap=null;
   }
   function launchKoto(f){
     const target=f.opp,now=G.frame||0;
@@ -111,13 +135,13 @@
     fx('kotoEye',f.x+(f.facing||1)*24,f.y-129,48,{spin:0,scale:1.45});fx('kotoWave',f.x,f.y-112,60,{phase:'release'});
     if(typeof SFX!=='undefined'&&SFX.copy)SFX.copy();
     if(typeof cam!=='undefined'){cam.cine=Math.max(cam.cine||0,.78);cam.cineX=f.x;cam.cineY=f.y-105;cam.cineZoom=1.42;}
-    G.hitstop=Math.max(G.hitstop||0,30);G.flash=Math.max(G.flash||0,.62);G.flashColor='#f6eaff';G.camPunch=Math.max(G.camPunch||0,.23);G.zoomPunch=Math.max(G.zoomPunch||0,.06);
+    G.hitstop=Math.max(G.hitstop||0,8);G.flash=Math.max(G.flash||0,.62);G.flashColor='#f6eaff';G.camPunch=Math.max(G.camPunch||0,.23);G.zoomPunch=Math.max(G.zoomPunch||0,.06);
     if(typeof window.shake==='function')window.shake(12);
     const inRange=target&&Math.abs(target.x-f.x)<=1450&&Math.abs(target.y-f.y)<=280;
     if(!inRange||target.hp<=0){if(typeof window.floatText==='function')window.floatText(f.x,f.y-200,'KOTOAMATSUKAMI · NO TARGET','#b9c7ef',17,48);return false;}
     const duration=G.mode==='versus'?180:300;
-    target.itachiKotoStart=now+30;target.itachiKotoUntil=now+duration+30;target.itachiKotoOwner=f;
-    target.itachiKotoForcedMove=false;target.itachiKotoForcedKey='';target.itachiKotoLockApplied=false;
+    target.itachiKotoStart=now+8;target.itachiKotoUntil=now+duration+8;target.itachiKotoOwner=f;
+    target.itachiKotoInputMap=makeKotoInputMap(target);
     target.move=null;target.moveKey=null;target.moveFrame=0;target.hasHit=false;target.hitstun=0;target.blockstun=0;target.immobilize=0;target.blocking=false;
     target.grabTarget=null;target.grabber=null;target.vx=0;target.vy=0;target.state='IDLE';target.stateFrame=0;
     target.facing=Math.sign(target.x-f.x)||(f.facing?-f.facing:1);f.itachiKotoTarget=target;f.itachiKotoCastSuccess=true;
@@ -126,42 +150,12 @@
     if(typeof window.floatText==='function')window.floatText(target.x,target.y-205,'KOTOAMATSUKAMI','#e4e9ff',23,72);
     return true;
   }
-  function forceWhiff(victim){
-    const owner=victim.itachiKotoOwner;
-    victim.move=null;victim.moveKey=null;victim.moveFrame=0;victim.hasHit=false;victim.hitstun=0;victim.blockstun=0;victim.immobilize=0;victim.blocking=false;
-    victim.state='IDLE';victim.stateFrame=0;victim.vx=0;victim.vy=0;
-    if(owner)victim.facing=Math.sign(victim.x-owner.x)||(owner.facing?-owner.facing:1);
-    // Only directional melee attacks are safe to force-whiff. Target-seeking
-    // techniques such as Amaterasu can automatically seek victim.opp (the Koto caster).
-    const candidates=['heavy','light'];
-    let picked='';
-    for(const key of candidates){
-      const m=victim.moves&&victim.moves[key];
-      if(!m||(victim.cd&&victim.cd[key]>0)||(victim.energy||0)<(m.cost||0)||m.domain)continue;
-      picked=key;break;
-    }
-    const ok=!!(picked&&typeof window.startMove==='function'&&window.startMove(victim,picked,false));
-    victim.itachiKotoForcedMove=true;victim.itachiKotoForcedKey=ok?picked:'';victim.itachiKotoLockApplied=false;victim.hasHit=false;
-    if(!ok){victim.move=null;victim.moveKey=null;victim.state='IDLE';}
-    fx('kotoWave',victim.x,victim.y-106,32,{phase:'override'});fx('crows',victim.x+(victim.facing||1)*22,victim.y-48,26);
-    if(typeof window.floatText==='function')window.floatText(victim.x,victim.y-170,ok?'BRAINWASH · ACTION OVERRIDE':'BRAINWASH · LOCKED','#dfe6ff',14,48);
-  }
   const previousUpdateFighter=window.updateFighter;
   if(typeof previousUpdateFighter==='function')window.updateFighter=function(f,inp){
     if(f&&f.itachiKotoUntil>0){
       const now=G.frame||0;
       if(now>=f.itachiKotoUntil)clearVictim(f);
-      else{
-        const age=now-(f.itachiKotoStart||now);
-        if(age<18)inp=reverseInput(inp);
-        else{
-          if(!f.itachiKotoForcedMove)forceWhiff(f);
-          if(f.itachiKotoForcedMove&&f.move){f.hasHit=false;inp=blankInput(inp);}
-          else if(f.itachiKotoForcedMove&&!f.itachiKotoLockApplied){
-            f.itachiKotoLockApplied=true;f.immobilize=Math.max(1,f.itachiKotoUntil-now);f.state='IMMOBILIZED';f.stateFrame=0;f.vx=0;f.vy=0;f.blocking=false;inp=blankInput(inp);
-          }else inp=blankInput(inp);
-        }
-      }
+      else if(now>=(f.itachiKotoStart||0))inp=scrambleKotoInput(f,inp);
     }
     const beforeX=f&&Number.isFinite(f.x)?f.x:0,r=previousUpdateFighter.apply(this,[f,inp]);
     if(f&&f.itachiKotoGhostUntil>(G.frame||0)&&f.itachiEdo&&f.state==='WALK'){
@@ -181,8 +175,6 @@
       else if(n<56){P.lean=-9;P.armF=[-72,-44];P.armB=[-36,-30];P.headY=-120;}
       else if(n<88){P.lean=5;P.armF=[-28,-65];P.armB=[36,-28];P.headY=-115;}
       else{P.lean=0;P.armF=[-15,-28];P.armB=[24,-12];P.headY=-114;}
-    }else if(f.itachiKotoUntil>(Number(G.frame)||0)){
-      P.lean=-12;P.headY=-120;P.armF=[12,30];P.armB=[-12,26];P.legF=[90,8];P.legB=[95,-5];
     }
   };
   const drawFighterBase=window.drawFighter;
@@ -235,7 +227,7 @@
   if(typeof previousRender==='function')window.render=function(){const r=previousRender.apply(this,arguments);overlay();return r;};
   const previousStep=window.step;
   if(typeof previousStep==='function')window.step=function(){const r=previousStep.apply(this,arguments);if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){for(const f of (G.fighters||[])){if(!f)continue;if(f.itachiKotoUntil&&G.frame>=f.itachiKotoUntil)clearVictim(f);}}return r;};
-  window.JFF_KOTOAMATSUKAMI={ready:true,startup:18,freeze:30,durationVersus:180,durationTraining:300,cooldown:2700,mechanic:'invert controls → forced whiff → action lock'};
+  window.JFF_KOTOAMATSUKAMI={ready:true,startup:18,freeze:8,durationVersus:180,durationTraining:300,cooldown:2700,mechanic:'randomized directions + assigned S1-S5 slots; no immobilization'};
   if(window.JFF_EDO_ITACHI)window.JFF_EDO_ITACHI.koto=window.JFF_KOTOAMATSUKAMI;
-  console.info('[Koto] Absolute Brainwash loaded: cast, forced whiff, temporary lock, Mangekyo distortion.');
+  console.info('[Koto] Absolute Brainwash loaded: randomized direction/assigned-skill inputs, no immobilization.');
 })();
