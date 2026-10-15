@@ -197,7 +197,22 @@ function render(){
  }
  if(Q.amaterasuImpact&&Q.amaterasuImpact.t<42){const q=Q.amaterasuImpact,p=point(q.target.x,q.target.y-84),t=q.t;s+='<g opacity="'+(1-t/44)+'"><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(28+t*4)+'" fill="none" stroke="#ff3b69" stroke-width="3"/><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(19+t*2.8)+'" fill="none" stroke="#8d3cff" stroke-width="2"/><path d="M '+(p.x-360)+' '+(p.y-180)+' L '+p.x+' '+p.y+' L '+(p.x+240)+' '+(p.y+60)+'" fill="none" stroke="#ed2c58" stroke-width="2"/><text x="'+p.x+'" y="'+(p.y-90-t)+'" fill="#ff8ca8" font-size="22" font-family="monospace" text-anchor="middle" letter-spacing="6">MANGEKYO LOCK</text></g>';}
  for(const b of Q.burns||[])if(b&&b.kind==='amaterasu'&&alive(b.target))s+=blackFire(b);
- if(!c||c.kind!=='ult')for(const f of fighters())if(f&&f.id==='itachi'&&f.moveKey==='s1'&&f.moveFrame<180){const P=computePose(f),sh={x:f.x+P.lean*.28,y:f.y+P.shY},ef=joint(sh,P.armF[0],20),hf=joint(ef,P.armF[0]+P.armF[1],20),eb=joint(sh,P.armB[0],17),hb=joint(eb,P.armB[0]+P.armB[1],17),mx=(hf.x+hb.x)*.5,my=(hf.y+hb.y)*.5,p=point(mx,my),t=Q.tick||0,r=5+Math.sin(t*.22)*2;s+='<g transform="translate('+p.x+' '+p.y+') scale('+p.s+')"><circle r="'+(r+10)+'" fill="#f15b42" opacity=".13"/><circle r="'+r+'" fill="#ff704b" opacity=".78"/><circle r="'+(r+8)+'" fill="none" stroke="#ffb28b" stroke-width="1.6" stroke-dasharray="3 5"/><path d="M -18 0 Q 0 -8 18 0 M 0 -18 Q 8 0 0 18" fill="none" stroke="#ffc49a" stroke-width="1.3" opacity=".8"/></g>';}
+ if(!c||c.kind!=='ult')for(const f of fighters())if(f&&f.id==='itachi'&&f.moveKey==='s1'&&f.moveFrame<180){
+  const P=computePose(f),sh={x:f.x+P.lean*.28,y:f.y+P.shY};
+  const ef=joint(sh,P.armF[0],20),hf=joint(ef,P.armF[0]+P.armF[1],20),eb=joint(sh,P.armB[0],17),hb=joint(eb,P.armB[0]+P.armB[1],17);
+  const pf=point(hf.x,hf.y),pb=point(hb.x,hb.y),ch=point((hf.x+hb.x)*.5,(hf.y+hb.y)*.5),t=Q.tick||0,mode=f.itachiFireMode||'charge';
+  if(mode==='fireball-seals'||mode==='breath-seals'){
+   const age=Math.max(0,(f.moveFrame||0)-(f.itachiSealStart||0)),fast=mode==='breath-seals';
+   for(let j=0;j<3;j++){
+    const fade=.36-j*.09,dx=Math.sin((age+j*2)*.7)*(fast?13:19),dy=Math.cos((age+j*2)*.63)*(fast?9:13);
+    s+='<path d="M '+(pf.x-dx)+' '+(pf.y-dy)+' Q '+(pf.x+dx*1.2)+' '+(pf.y-12-dy)+' '+(pf.x+dx*1.9)+' '+(pf.y-23-dy)+'" fill="none" stroke="'+(fast?'#ff8a45':'#ffb06b')+'" stroke-width="'+(3-j*.65)+'" stroke-linecap="round" opacity="'+fade+'"/><path d="M '+(pb.x+dx*.55)+' '+(pb.y+dy*.45)+' Q '+(pb.x-dx)+' '+(pb.y-9+dy)+' '+(pb.x-dx*1.7)+' '+(pb.y-20+dy)+'" fill="none" stroke="#ff5c36" stroke-width="'+(2.5-j*.5)+'" stroke-linecap="round" opacity="'+(fade*.8)+'"/>';
+   }
+   s+='<circle cx="'+ch.x+'" cy="'+ch.y+'" r="'+(7+Math.sin(t*.28)*2)+'" fill="#ff6738" opacity=".28"/>';
+  }else{
+   const r=5+Math.sin(t*.22)*2;
+   s+='<circle cx="'+ch.x+'" cy="'+ch.y+'" r="'+(r+10)+'" fill="#f15b42" opacity=".13"/><circle cx="'+ch.x+'" cy="'+ch.y+'" r="'+r+'" fill="#ff704b" opacity=".78"/><circle cx="'+ch.x+'" cy="'+ch.y+'" r="'+(r+8)+'" fill="none" stroke="#ffb28b" stroke-width="1.6" stroke-dasharray="3 5"/>';
+  }
+ }
  // Legacy SVG Susanoo art removed: js/52 draws a live articulated Canvas 2D rig.
  stage.innerHTML=s;
 }
