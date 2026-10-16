@@ -7,7 +7,7 @@
 if(window.__JFF_ITACHI_SUSANOO_FORM_V2__)return;
 const Q=window.JFF_ITACHI_REBOOT;
 if(!Q){console.warn('[Susanoo] Itachi controller missing');return;}
-window.__JFF_ITACHI_SUSANOO_FORM_V1__=true;
+window.__JFF_ITACHI_SUSANOO_FORM_V2__=true;
 const previousStart=window.startMove;
 const previousUpdate=window.updateMove;
 const previousReset=window.resetFighter;
@@ -476,8 +476,8 @@ function drawSummonPhase(frame,stage,edo){
   armorLimb([49,-210],[91,-200],13,edoForm?'#9c3f73':'#d65b4b');
   armorLimb([91,-200],[119,-183],11,edoForm?'#c083c7':'#ff9c70');
   if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal||cinematicOutro)drawSakeGourd(142+breath*.2,-169,1.03,t);
-  armorLimb([-70,-207],armL1,19,'#b84449');armorLimb(armL1,armL2,16,'#ff9c70');
-  armorLimb([70,-207],armR1,19,'#c84c4a');armorLimb(armR1,armR2,16,'#ffb07a');
+  armorLimb([-70,-207],armL1,19,edoForm?'#73305e':'#b84449');armorLimb(armL1,armL2,16,edoForm?'#bd78b0':'#ff9c70');
+  armorLimb([70,-207],armR1,19,edoForm?'#853564':'#c84c4a');armorLimb(armR1,armR2,16,edoForm?'#d1a0d6':'#ffb07a');
   // Angular bracers make the hands read as gauntlets at gameplay scale.
   polygon([[armL2[0]-12,armL2[1]-11],[armL2[0]+8,armL2[1]-14],[armL2[0]+12,armL2[1]+10],[armL2[0]-7,armL2[1]+15]],'#471324','#ffb07c',2);
   polygon([[armR2[0]-8,armR2[1]-14],[armR2[0]+13,armR2[1]-10],[armR2[0]+9,armR2[1]+15],[armR2[0]-12,armR2[1]+9]],'#57172a','#ffb07c',2);
@@ -551,10 +551,10 @@ function drawSummonPhase(frame,stage,edo){
     ctx.restore();
   }
   // Helmet and horned crown.
-  polygon([[-39,-249],[-57,-267],[-45,-264],[-48,-292],[-28,-270],[-13,-301],[0,-278],[17,-301],[27,-271],[49,-289],[46,-260],[36,-244],[31,-226],[0,-218],[-31,-226]],'#461326','#1a0710',4);
-  polygon([[-35,-255],[-23,-270],[0,-261],[23,-270],[35,-255],[29,-235],[13,-225],[-13,-225],[-29,-235]],'#a43843','#ffb07a',2.4);
-  polygon([[-22,-252],[0,-259],[22,-252],[17,-235],[0,-228],[-17,-235]],'#210913','#e98766',2);
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,75,52,.34)';ctx.beginPath();ctx.ellipse(-13,-244,12,5,0,0,Math.PI*2);ctx.ellipse(13,-244,12,5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff2c8';ctx.beginPath();ctx.ellipse(-13,-244,5.2,2.1,0,0,Math.PI*2);ctx.ellipse(13,-244,5.2,2.1,0,0,Math.PI*2);ctx.fill();ctx.restore();
+  polygon([[-39,-249],[-57,-267],[-45,-264],[-48,-292],[-28,-270],[-13,-301],[0,-278],[17,-301],[27,-271],[49,-289],[46,-260],[36,-244],[31,-226],[0,-218],[-31,-226]],edoForm?'#241025':'#461326',edoForm?'#e0c0eb':'#1a0710',edoForm?5:4);
+  polygon([[-35,-255],[-23,-270],[0,-261],[23,-270],[35,-255],[29,-235],[13,-225],[-13,-225],[-29,-235]],edoForm?'#71305c':'#a43843',edoForm?'#edcbed':'#ffb07a',edoForm?3:2.4);
+  polygon([[-22,-252],[0,-259],[22,-252],[17,-235],[0,-228],[-17,-235]],edoForm?'#17091d':'#210913',edoForm?'#d7b2ea':'#e98766',2);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,75,52,.34)';ctx.beginPath();ctx.ellipse(-13,-244,12,5,0,0,Math.PI*2);ctx.ellipse(13,-244,12,5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle=edoForm?'#e6d2ff':'#fff2c8';ctx.beginPath();ctx.ellipse(-13,-244,5.2,2.1,0,0,Math.PI*2);ctx.ellipse(13,-244,5.2,2.1,0,0,Math.PI*2);ctx.fill();ctx.restore();
   if(awakening&&n>8&&n<66){
     const roar=smooth(clamp((n-8)/18,0,1))*(1-smooth(clamp((n-55)/11,0,1)));
     ctx.save();ctx.globalAlpha*=roar;ctx.fillStyle='#10030b';ctx.strokeStyle='#ffb77f';ctx.lineWidth=2.2;
