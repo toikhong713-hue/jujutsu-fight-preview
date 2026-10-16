@@ -664,7 +664,7 @@ let phaseControlRoot=null,phaseControlOwners=[],phaseControlSignature='';
      const btn=e.target&&e.target.closest?e.target.closest('button[data-phase]'):null;
      if(!btn||!phaseControlRoot.contains(btn))return;
      const f=phaseControlOwners[Number(btn.getAttribute('data-owner-slot'))];
-     if(!f||!validItachi(f)||f.itachiEdo||!f.itachiSusanooActive)return;
+     if(!f||!validItachi(f)||!f.itachiSusanooActive)return;
      f.itachiSusanooPhase=clamp(Number(btn.getAttribute('data-phase'))||3,1,3);
      refreshPhaseControlButtons();
      if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
