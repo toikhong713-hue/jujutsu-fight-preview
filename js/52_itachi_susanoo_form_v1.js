@@ -416,12 +416,13 @@ function drawSummonPhase(frame,stage,edo){
     // Regular Itachi's guardian is composed and protective; Edo's is wider and more threatening.
     if(edoIdle){
       torsoAngle=-.075+idleSway*.014;
-      armL1=[-91,-199+idleBreath*2];armL2=[-142,-160+idleBreath*3];
-      armR1=[94,-202+idleBreath*2];armR2=[145,-163+idleBreath*3];swordAngle=2.78;
+      // Primary pair stays close to the torso; the rear pair holds Yata and Totsuka independently.
+      armL1=[-73,-188+idleBreath*1.7];armL2=[-91,-145+idleBreath*2.2];
+      armR1=[74,-188+idleBreath*1.7];armR2=[93,-145+idleBreath*2.2];swordAngle=2.78;
     }else{
       torsoAngle=-.035+idleSway*.012;
-      armL1=[-83,-196+idleBreath*1.5];armL2=[-128,-172+idleBreath*2.5];
-      armR1=[83,-195+idleBreath*1.5];armR2=[132,-172+idleBreath*2.5];swordAngle=2.92;
+      armL1=[-68,-182+idleBreath*1.2];armL2=[-81,-140+idleBreath*2];
+      armR1=[68,-182+idleBreath*1.2];armR2=[82,-140+idleBreath*2];swordAngle=2.92;
     }
   }else if(heavy){
     if(n<12){torsoAngle=-.24;armR1=[70,-228];armR2=[40,-246];armL1=[-84,-183];armL2=[-107,-142];swordAngle=-.48;}
@@ -464,7 +465,11 @@ function drawSummonPhase(frame,stage,edo){
     ctx.beginPath();ctx.moveTo(-36+i*2,yy);ctx.quadraticCurveTo(-12,yy+14,0,yy+10);ctx.quadraticCurveTo(15,yy+14,36-i*2,yy);ctx.stroke();
     ctx.strokeStyle='rgba(255,218,173,.62)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-31+i*2,yy-2);ctx.quadraticCurveTo(-12,yy+10,0,yy+7);ctx.quadraticCurveTo(15,yy+10,31-i*2,yy-2);ctx.stroke();
   }
-  for(let i=0;i<3;i++)polygon([[-21,-119+i*8],[-5,-124+i*8],[0,-117+i*8],[-5,-108+i*8],[-20,-110+i*8]],'#9c3040','#f08d66',1.2);
+  for(let i=0;i<3;i++)polygon([[-21,-119+i*8],[-5,-124+i*8],[0,-117+i*8],[-5,-108+i*8],[-20,-110+i*8]],edoForm?'#7d2859':'#9c3040',edoForm?'#dcaedc':'#f08d66',1.2);
+  // Inner chakra core: hot yellow for living Itachi, pale sealed light for Edo Tensei.
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=.8+.12*Math.sin(t*.09);
+  ctx.fillStyle=edoForm?'rgba(201,151,255,.19)':'rgba(255,255,118,.24)';ctx.beginPath();ctx.ellipse(0,-164,24,32,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=edoForm?'rgba(232,211,255,.82)':'rgba(255,255,153,.9)';ctx.beginPath();ctx.moveTo(0,-184);ctx.lineTo(11,-164);ctx.lineTo(0,-145);ctx.lineTo(-11,-164);ctx.closePath();ctx.fill();ctx.restore();
   // Neck, shoulders and independent arms.
   armorLimb([-20,-215],[-12,-231],15,edoForm?'#b95182':'#ffad7a');armorLimb([20,-215],[12,-231],15,edoForm?'#b95182':'#ffad7a');
   polygon([[-82,-227],[-112,-217],[-119,-193],[-98,-177],[-69,-189],[-55,-213]],edoForm?'#42132f':'#7e2036',shellDark,edoForm?5:4);
