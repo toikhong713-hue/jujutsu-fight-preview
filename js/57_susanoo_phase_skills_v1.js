@@ -103,7 +103,7 @@ function hitTarget(f,damage,range,opts){
  const cfg=opts||{};
  const mv={damage:damage,hitstun:cfg.hitstun||22,blockstun:cfg.blockstun===undefined?10:cfg.blockstun,kbx:cfg.kbx===undefined?d*6:cfg.kbx,kby:cfg.kby===undefined?-2:cfg.kby,hitstop:cfg.hitstop||7,meter:cfg.meter===undefined?6:cfg.meter,armorBreak:!!cfg.armorBreak,kind:cfg.kind||'special',type:cfg.type||'special',susanoo:true,trueDamage:!!cfg.trueDamage};
  const result=typeof window.resolveHit==='function'?window.resolveHit(f,o,mv,f.x+d*Math.min(range,Math.max(80,dx)),f.y-105):'whiff';
- if(result&&result!=='whiff'){if(cfg.fx!==false)fx(cfg.fx||'slash',o.x,o.y-100,cfg.fxDuration||22);return true;}
+ if(result==='hit'){if(cfg.fx!==false)fx(cfg.fx||'slash',o.x,o.y-100,cfg.fxDuration||22);return true;}
  return false;
 }
 function addBurn(target,kind){
@@ -182,6 +182,7 @@ function frontFacing(def,att){return (def.facing||1)===(Math.sign(att.x-def.x)||
 if(typeof oldResolve==='function')window.resolveHit=function(attacker,defender,mv,hx,hy){
  const t=now();
  if(mv&&mv.trueDamage&&defender&&alive(defender)&&alive(attacker)&&attacker!==defender&&typeof oldResolve==='function'){
+  if((defender.invuln||0)>0)return 'whiff';
   const safe=Object.assign({},mv,{damage:0,armorBreak:true,trueDamage:false});const staged=oldResolve.call(this,attacker,defender,safe,hx,hy);
   if(staged==='whiff'||staged==='infinity'||staged==='parry')return staged;
   const amount=Math.max(0,Number(mv.damage)||0);defender.hp=Math.max(0,defender.hp-amount);defender.hitFlash=7;
@@ -196,7 +197,8 @@ if(typeof oldResolve==='function')window.resolveHit=function(attacker,defender,m
    return 'parry';
   }
   if(defender.itachiPhaseSkillKey==='edo_p2_counter'&&(defender.itachiPhaseCounterUntil||0)>=t&&!defender.itachiPhaseParryTriggered&&frontFacing(defender,attacker)){
-   defender.itachiPhaseParryTriggered=true;defender.itachiPhaseParryTarget=attacker;defender.itachiPhaseCounterUntil=0;attacker.vx=0;attacker.vy=0;
+   defender.itachiPhaseParryTriggered=true;defender.itachiPhaseParryTarget=attacker;defender.itachiPhaseCounterUntil=0;
+   attacker.vx=0;attacker.vy=0;attacker.hitstun=Math.max(attacker.hitstun||0,18);attacker.state='HITSTUN';attacker.stateFrame=0;attacker.move=null;attacker.moveKey=null;attacker.moveFrame=0;
    fx('crows',defender.x,defender.y-94,30);fx('reflect',defender.x+(defender.facing||1)*54,defender.y-113,26);
    if(typeof window.floatText==='function')window.floatText(attacker.x,attacker.y-172,'COUNTER CONFIRMED','#e2caff',14,36);
    impact(.13,'#cba0ff',7);return 'parry';
@@ -225,7 +227,7 @@ function updateProjectiles(){
    fx('explosion',ix,iy,44);fx('shock',ix,iy+30,43);fx('crows',ix,iy-20,36);fx('magatama',ix,iy,28);impact(.24,'#a65f91',13);
    if(alive(o)&&Math.abs(o.x-ix)<155&&Math.abs(o.y-iy)<190){
     const result=window.resolveHit(p.owner,o,{damage:22,hitstun:25,blockstun:11,kbx:(p.owner&&p.owner.facing||1)*8,kby:-3,hitstop:8,meter:7,armorBreak:false,kind:'special',type:'chakra'},ix,iy);
-    if(result&&result!=='whiff'){
+    if(result==='hit'){
      const base=Number.isFinite(o.walk)?o.walk:3.5;o.itachiPhaseSlowBase=base;o.itachiPhaseSlowUntil=t+120;
      fx('seal',o.x,o.y-90,20);if(typeof window.floatText==='function')window.floatText(o.x,o.y-150,'SLOWED · 30%','#ddc3e7',12,36);
     }
