@@ -430,7 +430,18 @@ function drawFormHint(){
   const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
-  if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
+  const cine=Q.edoSusanooCutscene;
+  if(cine&&cine.owner===f&&validItachi(f)&&f.itachiSusanooActive){
+    const n=cine.frame||0;
+    let size=f.itachiEdo?2.12:1.94,mode='battle';
+    if(n<72){size=.06+1.98*smooth(n/50);mode='awakening';}
+    else if(n<168)size=2.12;
+    else if(n<270)size=2.24;
+    else if(n<348)size=2.12;
+    else if(n<390)size=2.08;
+    else size=1.92;
+    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,cine.rigTick||n,1,mode);
+  }else if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
     const size=f.itachiEdo?1.88:1.64;
     drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
   }
@@ -472,7 +483,8 @@ if(typeof previousStep==='function')window.step=function(){
 };
 if(typeof previousRender==='function')window.render=function(){
   const out=previousRender.apply(this,arguments);
-  if(Q.cinema&&Q.cinema.kind==='ult')drawAwakening();
+  if(Q.edoSusanooCutscene)hideStages(true);
+  else if(Q.cinema&&Q.cinema.kind==='ult')drawAwakening();
   else{
     hideStages(false);
     if(typeof G!=='undefined'&&G.mode!=='menu')drawFormHint();
