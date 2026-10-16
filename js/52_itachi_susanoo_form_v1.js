@@ -430,39 +430,6 @@ function drawFormHint(){
   const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
-  const cine=Q.edoSusanooCine;
-  if(cine&&Q.cinema&&Q.cinema.kind==='edoSusanoo'&&cine.rebuildVersion===2&&cine.owner===f&&validItachi(f)){
-    // The rebuilt ultimate uses the dedicated SVG rig. Keep Itachi visible, but remove the retired undersized Canvas Susanoo.
-    return previousDrawFighter.apply(this,arguments);
-  }
-  if(cine&&Q.cinema&&Q.cinema.kind==='edoSusanoo'&&cine.owner===f&&validItachi(f)){
-    const n=cine.frame||0,dir=cine.face||1,size=1.98;
-    const actor=Object.assign({},f,{itachiEdo:true,itachiSusanooActive:true,facing:dir,state:'IDLE',itachiSusanooAction:'cinematic'});
-    let mode='battle',baseY=f.y+3,scale=size;
-    if(n<60){
-      mode='awakening';actor.moveKey='ult';actor.moveFrame=n;
-      scale=.18+1.80*smooth(n/52);
-    }else if(n<150){
-      actor.moveKey='sus_m1';actor.moveFrame=((n-60)%68)+1;
-    }else if(n<240){
-      actor.moveKey='sus_x';actor.moveFrame=19+((n-150)%63);
-      baseY-=Math.sin(((n-150)/90)*Math.PI)*76;
-    }else if(n<330){
-      actor.moveKey='sus_charge';actor.moveFrame=n-240;
-    }else if(n<390){
-      actor.moveKey='sus_final';actor.moveFrame=n-330;
-    }else{
-      actor.moveKey='sus_m1';actor.moveFrame=50+clamp(n-390,0,17);
-    }
-    if(typeof ctx!=='undefined'){
-      ctx.save();
-      try{
-        if('filter' in ctx)ctx.filter='hue-rotate(265deg) saturate(1.42) brightness(1.05)';
-        drawSusanooRig(actor,f.x-dir*11,baseY,scale,n,1,mode);
-      }finally{ctx.restore();}
-    }
-    return;
-  }
   if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
     const size=f.itachiEdo?1.88:1.64;
     drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
@@ -506,7 +473,6 @@ if(typeof previousStep==='function')window.step=function(){
 if(typeof previousRender==='function')window.render=function(){
   const out=previousRender.apply(this,arguments);
   if(Q.cinema&&Q.cinema.kind==='ult')drawAwakening();
-  else if(Q.edoSusanooCine)hideStages(true);
   else{
     hideStages(false);
     if(typeof G!=='undefined'&&G.mode!=='menu')drawFormHint();
