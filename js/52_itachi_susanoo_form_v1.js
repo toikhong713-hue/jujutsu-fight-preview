@@ -205,87 +205,122 @@ function drawTotsuka(x,y,angle,scale,power){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.48+power*.38;ctx.strokeStyle='#fff0c6';ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(0,-146);ctx.stroke();ctx.restore();
   ctx.restore();
 }
+const SUSANOO_FRENZY_POSES=[
+ {f:0,torso:-.30,l1:[-91,-206],l2:[-57,-246],r1:[74,-233],r2:[121,-275],s:-.68,kl:[-42,-54],al:[-49,-29],kr:[37,-56],ar:[43,-30]},
+ {f:12,torso:.30,l1:[-75,-193],l2:[-34,-167],r1:[98,-190],r2:[145,-143],s:1.04,kl:[-42,-54],al:[-50,-29],kr:[50,-47],ar:[56,-25]},
+ {f:27,torso:-.24,l1:[-79,-194],l2:[-102,-163],r1:[101,-191],r2:[171,-183],s:1.54,kl:[-48,-54],al:[-57,-27],kr:[38,-57],ar:[45,-30]},
+ {f:42,torso:.43,l1:[-72,-202],l2:[-42,-177],r1:[90,-214],r2:[132,-253],s:-.91,kl:[-45,-53],al:[-54,-29],kr:[44,-51],ar:[52,-27]},
+ {f:58,torso:.35,l1:[-46,-207],l2:[14,-197],r1:[116,-188],r2:[169,-178],s:1.52,kl:[-35,-54],al:[-42,-28],kr:[51,-47],ar:[58,-25]},
+ {f:76,torso:-.09,l1:[-78,-181],l2:[-42,-144],r1:[98,-184],r2:[131,-148],s:1.05,kl:[-30,-56],al:[-34,-27],kr:[35,-57],ar:[39,-27]},
+ {f:96,torso:-.12,l1:[-82,-181],l2:[-50,-143],r1:[87,-180],r2:[119,-154],s:.64,kl:[-31,-56],al:[-34,-27],kr:[33,-56],ar:[37,-27]}
+];
 function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(typeof ctx==='undefined')return;
-  const t=phase||0,k=sceneMode==='awakening'?'ult':(f&&f.moveKey||''),n=f&&f.moveFrame||0;
+  const t=phase||0,k=sceneMode==='awakening'?'ult':(f&&f.moveKey||''),rawFrame=f&&f.moveFrame||0;
   const prog=alpha===undefined?1:clamp(alpha,0,1);
-  ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale((f&&(f.facing||1)<0?-1:1)*scale,scale);
+  const awakening=sceneMode==='awakening',cinematicSlash=sceneMode==='cinematic-slash',cinematicSlam=sceneMode==='cinematic-slam',
+        cinematicCharge=sceneMode==='cinematic-charge',cinematicFinal=sceneMode==='cinematic-final',cinematicOutro=sceneMode==='cinematic-outro';
+  const segmentStart=awakening?0:(cinematicSlash?72:(cinematicSlam?168:(cinematicCharge?270:(cinematicFinal?348:(cinematicOutro?390:0)))));
+  const n=(awakening||cinematicSlash||cinematicSlam||cinematicCharge||cinematicFinal||cinematicOutro)?t-segmentStart:rawFrame;
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
-  const heavy=k==='sus_m1',guard=k==='sus_z',thrust=k==='sus_x',charge=k==='sus_charge',finalStrike=k==='sus_final',awakening=sceneMode==='awakening';
+  const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
+        charge=cinematicCharge||k==='sus_charge',finalStrike=cinematicFinal||k==='sus_final';
   // Shadow and chakra silhouette behind the fighter.
   const aura=ctx.createRadialGradient(0,-155,18,0,-155,194);aura.addColorStop(0,'rgba(255,119,77,.20)');aura.addColorStop(.5,'rgba(197,37,60,.11)');aura.addColorStop(1,'rgba(90,6,28,0)');
   ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-155,178,205,0,0,Math.PI*2);ctx.fill();
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,126,89,.18)';ctx.lineWidth=2.2;
   for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-112,72+i*16,31+i*9,0,Math.PI*(.1+i*.13)+t*.002,Math.PI*(1.05+i*.17)+t*.002);ctx.stroke();}
   ctx.restore();
-  // Legs and split greaves. The silhouette shares the fighter's feet so it never floats.
-  const legLift=(f&&f.state==='WALK')?Math.sin(t*.24)*7:0;
-  armorLimb([-25,-91],[-31+legLift*.35,-42],15,'#ff9a65');
-  armorLimb([25,-91],[31-legLift*.35,-42],15,'#d85349');
-  polygon([[-43,-55],[-18,-59],[-13,-28],[-48,-25]],'#5a162b','#210711',3);
-  polygon([[18,-59],[43,-55],[48,-25],[13,-28]],'#7a2035','#210711',3);
-  ctx.fillStyle='#211018';ctx.beginPath();ctx.ellipse(-33,-18,23,8,-.08,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(33,-18,23,8,.08,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle='#ed8562';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-47,-20);ctx.lineTo(-17,-20);ctx.moveTo(17,-20);ctx.lineTo(47,-20);ctx.stroke();
-  // Articulated hips, ribbed breastplate, and layered abdominal armor.
-  polygon([[-48,-128],[-37,-102],[-25,-91],[0,-86],[25,-91],[37,-102],[48,-128],[31,-148],[-31,-148]],'#421225','#16060d',4);
-  polygon([[-50,-204],[-76,-218],[-65,-177],[-47,-158],[-36,-119],[-17,-101],[0,-97],[17,-101],[36,-119],[47,-158],[65,-177],[76,-218],[50,-204],[34,-213],[-34,-213]],'#651b30','#1b0711',5);
-  const chest=ctx.createLinearGradient(-50,-208,45,-104);chest.addColorStop(0,'#ffb181');chest.addColorStop(.24,'#c9514f');chest.addColorStop(.55,'#7c2035');chest.addColorStop(1,'#330c1c');
-  polygon([[-43,-205],[-26,-216],[0,-211],[26,-216],[43,-205],[31,-169],[17,-139],[0,-126],[-17,-139],[-31,-169]],chest,'#ffad80',3);
-  // Rib plates are individual curved strokes, not a flat breastplate decal.
-  ctx.lineCap='round';ctx.lineJoin='round';
-  for(let i=0;i<4;i++){
-    const yy=-192+i*13;
-    ctx.strokeStyle=i%2?'#6e2034':'#f08b68';ctx.lineWidth=6.5;
-    ctx.beginPath();ctx.moveTo(-36+i*2,yy);ctx.quadraticCurveTo(-12,yy+14,0,yy+10);ctx.quadraticCurveTo(15,yy+14,36-i*2,yy);ctx.stroke();
-    ctx.strokeStyle='rgba(255,218,173,.62)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-31+i*2,yy-2);ctx.quadraticCurveTo(-12,yy+10,0,yy+7);ctx.quadraticCurveTo(15,yy+10,31-i*2,yy-2);ctx.stroke();
-  }
-  for(let i=0;i<3;i++)polygon([[-21,-119+i*8],[-5,-124+i*8],[0,-117+i*8],[-5,-108+i*8],[-20,-110+i*8]],'#9c3040','#f08d66',1.2);
-  // Neck, shoulders and independent arms.
-  armorLimb([-20,-215],[-12,-231],15,'#ffad7a');armorLimb([20,-215],[12,-231],15,'#ffad7a');
-  polygon([[-82,-227],[-112,-217],[-119,-193],[-98,-177],[-69,-189],[-55,-213]],'#7e2036','#210711',4);
-  polygon([[82,-227],[112,-217],[119,-193],[98,-177],[69,-189],[55,-213]],'#8d293a','#210711',4);
-  polygon([[-108,-214],[-82,-235],[-55,-222],[-72,-198],[-99,-193]],'#c7534d','#ffbb8a',2.4);
-  polygon([[108,-214],[82,-235],[55,-222],[72,-198],[99,-193]],'#d7604c','#ffc28f',2.4);
-  // Susanoo's secondary right arm carries the sake gourd that houses Totsuka.
-  // Keep this separate from the primary sword arm so both relics read clearly.
-  armorLimb([49,-210],[91,-200],13,'#d65b4b');
-  armorLimb([91,-200],[119,-183],11,'#ff9c70');
-  drawSakeGourd(142+breath*.2,-169,1.03,t);
-  // Motion keys shift the actual shoulder/elbow/wrist joints during attacks.
-  let armL1=[-91,-187],armL2=[-112,-145],armR1=[91,-185],armR2=[110,-143],swordAngle=.16;
-  if(heavy){const q=clamp(n/57,0,1);if(n<8){armR1=[70,-228];armR2=[40,-246];swordAngle=-.48;}else if(n<18){armR1=[97,-184];armR2=[143,-170];swordAngle=1.15;}else if(n<31){armR1=[75,-183];armR2=[120,-224];swordAngle=.55;}else{armR1=[108,-174];armR2=[151,-163];swordAngle=1.35;}armL1=[-84,-183];armL2=[-107,-142];}
-  if(guard){armR1=[100,-198];armR2=[128,-158];armL1=[-76,-184];armL2=[-41,-145];}
-  if(thrust){
-    armL1=[-88,-183];armL2=[-111,-145];
-    if(n<19){
-      const q=smooth(n/19);armR1=[lerp(91,58,q),lerp(-185,-224,q)];armR2=[lerp(119,34,q),lerp(-183,-248,q)];swordAngle=lerp(-.18,-.82,q);
-    }else if(n<32){
-      const q=smooth((n-19)/13);armR1=[lerp(58,85,q),lerp(-224,-251,q)];armR2=[lerp(34,67,q),lerp(-248,-282,q)];swordAngle=lerp(-.82,-.98,q);
-    }else if(n<44){
-      const q=smooth((n-32)/12);armR1=[lerp(85,112,q),lerp(-251,-185,q)];armR2=[lerp(67,151,q),lerp(-282,-160,q)];swordAngle=lerp(-.98,1.14,q);
-    }else if(n<63){
-      const q=smooth((n-44)/19);armR1=[lerp(112,82,q),lerp(-185,-201,q)];armR2=[lerp(151,114,q),lerp(-160,-171,q)];swordAngle=lerp(1.14,.55,q);
-    }else{
-      const q=smooth((n-63)/19);armR1=[lerp(82,91,q),lerp(-201,-185,q)];armR2=[lerp(114,119,q),lerp(-171,-183,q)];swordAngle=lerp(.55,-.18,q);
+  // Giant skeletal chakra wings flare during the Titan summon.
+  if(awakening){
+    const wingOpen=smooth(clamp(n/44,0,1));ctx.save();ctx.globalAlpha*=.24+.54*wingOpen;ctx.lineJoin='round';
+    for(const side of [-1,1]){
+      ctx.save();ctx.scale(side,1);ctx.fillStyle='#481327';ctx.strokeStyle='#ffb17d';ctx.lineWidth=3;
+      ctx.beginPath();ctx.moveTo(38,-190);ctx.bezierCurveTo(80,-261,155,-310,246,-325);ctx.bezierCurveTo(226,-287,211,-254,196,-222);ctx.bezierCurveTo(160,-238,133,-224,108,-194);ctx.closePath();ctx.fill();ctx.stroke();
+      for(let i=0;i<6;i++){const q=i/5,ex=82+q*148,ey=-224-q*82;ctx.beginPath();ctx.moveTo(72+q*100,-201-q*28);ctx.quadraticCurveTo(ex+17,ey-14,ex+19,ey+22);ctx.lineTo(ex-8,ey+8);ctx.closePath();ctx.fillStyle=i%2?'#7b2037':'#c64b4b';ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(82+q*95,-198-q*29);ctx.lineTo(ex+5,ey+5);ctx.strokeStyle='rgba(255,221,176,.8)';ctx.lineWidth=1.3;ctx.stroke();}
+      ctx.restore();
     }
+    ctx.restore();
   }
-  if(charge){
-    const q=smooth(clamp(n/78,0,1));
-    armR1=[lerp(91,72,q),lerp(-185,-232,q)];armR2=[lerp(119,57,q),lerp(-183,-326,q)];
-    armL1=[lerp(-91,-72,q),lerp(-187,-232,q)];armL2=[lerp(-112,-58,q),lerp(-145,-323,q)];
-    swordAngle=lerp(.16,-.05,q);
+  // Pose-driven leg rig: weight shifts through knees, ankles, planted toes and a hero landing.
+  let kneeL=[-31,-57],ankleL=[-31,-42],kneeR=[31,-57],ankleR=[31,-42],footLX=-33,footRX=33,footAngleL=-.08,footAngleR=.08;
+  const walkLift=(f&&f.state==='WALK')?Math.sin(t*.24)*7:0;
+  if(cinematicSlash){
+    const keys=SUSANOO_FRENZY_POSES,fr=clamp(n,0,96);let ii=0;while(ii<keys.length-2&&fr>keys[ii+1].f)ii++;
+    const a=keys[ii],b=keys[ii+1],q=smooth((fr-a.f)/(b.f-a.f));
+    kneeL=[lerp(a.kl[0],b.kl[0],q),lerp(a.kl[1],b.kl[1],q)];ankleL=[lerp(a.al[0],b.al[0],q),lerp(a.al[1],b.al[1],q)];
+    kneeR=[lerp(a.kr[0],b.kr[0],q),lerp(a.kr[1],b.kr[1],q)];ankleR=[lerp(a.ar[0],b.ar[0],q),lerp(a.ar[1],b.ar[1],q)];
+    footLX=ankleL[0]+7;footRX=ankleR[0]+7;footAngleL=-.1;footAngleR=.11;
+  }else if(cinematicSlam){
+    const landed=smooth((n-39)/12);kneeL=[lerp(-35,-42,landed),lerp(-58,-43,landed)];ankleL=[lerp(-43,-65,landed),lerp(-32,-20,landed)];
+    kneeR=[lerp(35,18,landed),lerp(-58,-49,landed)];ankleR=[lerp(43,14,landed),lerp(-31,-17,landed)];
+    footLX=ankleL[0]+8;footRX=ankleR[0]+5;footAngleL=-.08;footAngleR=.28*landed;
+  }else if(cinematicCharge){
+    kneeL=[-30,-64];ankleL=[-41,-43];kneeR=[31,-66];ankleR=[44,-42];footLX=-41;footRX=48;footAngleL=-.12;footAngleR=.12;
+  }else if(cinematicFinal){
+    const q=smooth(n/19);kneeL=[lerp(-30,-43,q),lerp(-57,-49,q)];ankleL=[lerp(-34,-60,q),lerp(-26,-22,q)];
+    kneeR=[lerp(31,24,q),lerp(-57,-45,q)];ankleR=[lerp(37,19,q),lerp(-26,-18,q)];footLX=ankleL[0]+7;footRX=ankleR[0]+6;footAngleL=-.08;footAngleR=.22*q;
+  }else{
+    kneeL=[-31+walkLift*.25,-58];ankleL=[-31+walkLift*.35,-42];kneeR=[31-walkLift*.25,-58];ankleR=[31-walkLift*.35,-42];
+    footLX=-33;footRX=33;footAngleL=-.08;footAngleR=.08;
   }
-  if(finalStrike){
+  armorLimb([-25,-91],kneeL,15,'#ff9a65');armorLimb(kneeL,ankleL,13,'#ff8c61');armorLimb([25,-91],kneeR,15,'#d85349');armorLimb(kneeR,ankleR,13,'#d85349');
+  polygon([[kneeL[0]-13,kneeL[1]-4],[kneeL[0]+12,kneeL[1]-6],[ankleL[0]+15,ankleL[1]+1],[ankleL[0]-13,ankleL[1]+1]],'#5a162b','#210711',3);
+  polygon([[kneeR[0]-12,kneeR[1]-6],[kneeR[0]+13,kneeR[1]-4],[ankleR[0]+13,ankleR[1]+1],[ankleR[0]-15,ankleR[1]+1]],'#7a2035','#210711',3);
+  ctx.fillStyle='#211018';ctx.beginPath();ctx.ellipse(footLX,ankleL[1]+8,23,8,footAngleL,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(footRX,ankleR[1]+8,23,8,footAngleR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ed8562';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(footLX-14,ankleL[1]+8);ctx.lineTo(footLX+14,ankleL[1]+8);ctx.moveTo(footRX-14,ankleR[1]+8);ctx.lineTo(footRX+14,ankleR[1]+8);ctx.stroke();
+  let torsoAngle=0,armL1=[-91,-187],armL2=[-112,-145],armR1=[91,-185],armR2=[110,-143],swordAngle=.16;
+  if(awakening){
+    const q=smooth(clamp(n/48,0,1));torsoAngle=-.16+Math.sin(n*.055)*.018;
+    armL1=[lerp(-48,-122,q),lerp(-206,-184,q)];armL2=[lerp(-31,-184,q),lerp(-232,-166,q)];
+    armR1=[lerp(48,122,q),lerp(-206,-184,q)];armR2=[lerp(31,184,q),lerp(-232,-166,q)];swordAngle=-.15;
+  }else if(cinematicSlash){
+    let i=0;while(i<SUSANOO_FRENZY_POSES.length-2&&n>SUSANOO_FRENZY_POSES[i+1].f)i++;
+    const a=SUSANOO_FRENZY_POSES[i],b=SUSANOO_FRENZY_POSES[i+1],q=smooth((n-a.f)/(b.f-a.f)),mix=(x,y)=>[lerp(x[0],y[0],q),lerp(x[1],y[1],q)];
+    torsoAngle=lerp(a.torso,b.torso,q);armL1=mix(a.l1,b.l1);armL2=mix(a.l2,b.l2);armR1=mix(a.r1,b.r1);armR2=mix(a.r2,b.r2);swordAngle=lerp(a.s,b.s,q);
+  }else if(cinematicSlam){
+    const wind=smooth(clamp(n/43,0,1)),landed=smooth((n-43)/16);
+    const r1=[72,-232],r2=[57,-326],l1=[-72,-232],l2=[-58,-323],lr1=[97,-203],lr2=[116,-166],ll1=[-86,-202],ll2=[-38,-183];
+    armR1=[lerp(r1[0],lr1[0],wind),lerp(r1[1],lr1[1],wind)];armR2=[lerp(r2[0],lr2[0],wind),lerp(r2[1],lr2[1],wind)];
+    armL1=[lerp(l1[0],ll1[0],wind),lerp(l1[1],ll1[1],wind)];armL2=[lerp(l2[0],ll2[0],wind),lerp(l2[1],ll2[1],wind)];
+    torsoAngle=lerp(-.04,.35,landed);swordAngle=lerp(-.05,Math.PI,wind);
+  }else if(cinematicCharge){
+    const q=smooth(clamp(n/22,0,1));torsoAngle=-.07;
+    armR1=[lerp(86,72,q),lerp(-204,-232,q)];armR2=[lerp(118,57,q),lerp(-184,-326,q)];
+    armL1=[lerp(-83,-72,q),lerp(-204,-232,q)];armL2=[lerp(-39,-58,q),lerp(-179,-323,q)];swordAngle=lerp(1.15,.02,q);
+  }else if(cinematicFinal){
+    const q=smooth(clamp(n/19,0,1)),follow=smooth(clamp((n-19)/22,0,1));
+    torsoAngle=lerp(-.07,.52,q)-follow*.16;armR1=[lerp(72,104,q),lerp(-232,-184,q)];armR2=[lerp(57,149,q),lerp(-326,-169,q)];
+    armL1=[lerp(-72,-107,q),lerp(-232,-181,q)];armL2=[lerp(-58,-129,q),lerp(-323,-148,q)];swordAngle=lerp(.02,Math.PI,q);
+    if(n>19){armR1[1]-=follow*5;armR2[1]-=follow*12;armL1[1]-=follow*4;armL2[1]-=follow*7;}
+  }else if(cinematicOutro){
+    const q=smooth(clamp(n/14,0,1)),wave=smooth(clamp((n-11)/12,0,1));torsoAngle=lerp(.24,-.025,q);
+    armR1=[lerp(104,82,q),lerp(-183,-174,q)];armR2=[lerp(132,114,q),lerp(-143,-139,q)];
+    armL1=[lerp(-108,-126,wave),lerp(-182,-166,wave)];armL2=[lerp(-136,-180,wave),lerp(-141,-150,wave)];swordAngle=lerp(1.25,.76,q);
+  }else if(heavy){
+    if(n<12){torsoAngle=-.24;armR1=[70,-228];armR2=[40,-246];armL1=[-84,-183];armL2=[-107,-142];swordAngle=-.48;}
+    else if(n<28){torsoAngle=.28;armR1=[97,-184];armR2=[143,-170];armL1=[-84,-183];armL2=[-107,-142];swordAngle=1.15;}
+    else if(n<45){torsoAngle=-.18;armR1=[75,-183];armR2=[120,-224];armL1=[-84,-183];armL2=[-107,-142];swordAngle=.55;}
+    else{torsoAngle=.14;armR1=[108,-174];armR2=[151,-163];armL1=[-84,-183];armL2=[-107,-142];swordAngle=1.35;}
+  }else if(guard){armR1=[100,-198];armR2=[128,-158];armL1=[-76,-184];armL2=[-41,-145];}
+  else if(thrust){
+    armL1=[-88,-183];armL2=[-111,-145];
+    if(n<19){const q=smooth(n/19);armR1=[lerp(91,58,q),lerp(-185,-224,q)];armR2=[lerp(119,34,q),lerp(-183,-248,q)];swordAngle=lerp(-.18,-.82,q);}
+    else if(n<32){const q=smooth((n-19)/13);armR1=[lerp(58,85,q),lerp(-224,-251,q)];armR2=[lerp(34,67,q),lerp(-248,-282,q)];swordAngle=lerp(-.82,-.98,q);}
+    else if(n<44){const q=smooth((n-32)/12);armR1=[lerp(85,112,q),lerp(-251,-185,q)];armR2=[lerp(67,151,q),lerp(-282,-160,q)];swordAngle=lerp(-.98,1.14,q);}
+    else if(n<63){const q=smooth((n-44)/19);armR1=[lerp(112,82,q),lerp(-185,-201,q)];armR2=[lerp(151,114,q),lerp(-160,-171,q)];swordAngle=lerp(1.14,.55,q);}
+    else{const q=smooth((n-63)/19);armR1=[lerp(82,91,q),lerp(-201,-185,q)];armR2=[lerp(114,119,q),lerp(-171,-183,q)];swordAngle=lerp(.55,-.18,q);}
+  }else if(charge){
+    const q=smooth(clamp(n/78,0,1));armR1=[lerp(91,72,q),lerp(-185,-232,q)];armR2=[lerp(119,57,q),lerp(-183,-326,q)];
+    armL1=[lerp(-91,-72,q),lerp(-187,-232,q)];armL2=[lerp(-112,-58,q),lerp(-145,-323,q)];swordAngle=lerp(.16,-.05,q);
+  }else if(finalStrike){
     if(n<14){armR1=[72,-232];armR2=[57,-326];armL1=[-72,-232];armL2=[-58,-323];swordAngle=-.05;}
     else if(n<42){const q=smooth((n-14)/28);armR1=[lerp(72,112,q),lerp(-232,-185,q)];armR2=[lerp(57,151,q),lerp(-326,-160,q)];armL1=[lerp(-72,-108,q),lerp(-232,-184,q)];armL2=[lerp(-58,-135,q),lerp(-323,-141,q)];swordAngle=lerp(-.05,2.55,q);}
     else{armR1=[108,-174];armR2=[151,-163];armL1=[-108,-183];armL2=[-135,-140];swordAngle=1.35;}
   }
-  if(awakening){
-    if(t<42){armR1=[64,-186];armR2=[46,-202];armL1=[-64,-186];armL2=[-47,-202];}
-    else if(t<88){armR1=[83,-197];armR2=[111,-158];armL1=[-83,-197];armL2=[-111,-158];}
-    else if(t<154){armR1=[98,-190];armR2=[129,-149];armL1=[-98,-190];armL2=[-129,-149];}
-    else {armR1=[108,-183];armR2=[135,-140];armL1=[-108,-183];armL2=[-135,-140];}
-  }
+  // Apply a curving upper body independently of the planted feet.
+  ctx.save();ctx.translate(0,-91);ctx.rotate(torsoAngle);ctx.translate(0,91);
+  // Articulated hips, ribbed breastplate, and layered abdominal armor.
   armorLimb([-70,-207],armL1,19,'#b84449');armorLimb(armL1,armL2,16,'#ff9c70');
   armorLimb([70,-207],armR1,19,'#c84c4a');armorLimb(armR1,armR2,16,'#ffb07a');
   // Angular bracers make the hands read as gauntlets at gameplay scale.
@@ -298,13 +333,13 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     drawShield(armR2[0]+33,armR2[1]-8,2.08,shieldPulse);
     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.28+Math.sin(n*.42)*.12;ctx.strokeStyle='#fff1c6';ctx.lineWidth=3;
     ctx.beginPath();ctx.ellipse(armR2[0]+33,armR2[1]-8,72,111,-.1,0,Math.PI*2);ctx.stroke();ctx.restore();
-  }else{
-    // The large mirror remains attached to the off-hand even when not guarding.
+  }else if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal&&!cinematicOutro){
+    // Keep the Yata shield away from both hands during two-handed Totsuka poses.
     drawShield(armL2[0]-5,armL2[1]-10,1.03,.28);
   }
   // The sword is not permanently in the hand: it is drawn out of the sake gourd for M1/X, then returns.
-  if(heavy||thrust||charge||finalStrike){
-    const pulling=heavy?n<8:(thrust&&n<19);
+  if(heavy||thrust||charge||finalStrike||cinematicOutro){
+    const pulling=cinematicOutro?false:(heavy?n<8:(thrust&&!cinematicSlam&&n<19));
     if(pulling){
       const q=heavy?clamp(n/8,0,1):clamp(n/19,0,1);
       const gx=142,gy=-216;
@@ -313,7 +348,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,1.42,1);
   }
   // Boss-scale diagonal slash with layered hot-orange trails and drawn sword afterimages.
-  if(thrust&&n>=29&&n<=62){
+  if(k==='sus_x'&&!cinematicSlam&&n>=29&&n<=62){
     const fade=n<47?1:clamp(1-(n-47)/15,0,1);
     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
     for(let i=0;i<3;i++){
@@ -343,7 +378,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     ctx.strokeStyle='rgba(255,248,228,.96)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-209,-330);ctx.quadraticCurveTo(24,-216,253,-50);ctx.stroke();
     ctx.restore();
   }
-  if(thrust&&n>=42&&n<=68){
+  if(k==='sus_x'&&!cinematicSlam&&n>=42&&n<=68){
     const impactFade=n<54?1:clamp(1-(n-54)/14,0,1);
     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=impactFade;
     ctx.strokeStyle='rgba(255,119,61,.78)';ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(170,-17,35+(n-42)*8,9+(n-42)*.45,0,Math.PI,Math.PI*2);ctx.stroke();
@@ -361,12 +396,23 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   polygon([[-35,-255],[-23,-270],[0,-261],[23,-270],[35,-255],[29,-235],[13,-225],[-13,-225],[-29,-235]],'#a43843','#ffb07a',2.4);
   polygon([[-22,-252],[0,-259],[22,-252],[17,-235],[0,-228],[-17,-235]],'#210913','#e98766',2);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='rgba(255,75,52,.34)';ctx.beginPath();ctx.ellipse(-13,-244,12,5,0,0,Math.PI*2);ctx.ellipse(13,-244,12,5,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff2c8';ctx.beginPath();ctx.ellipse(-13,-244,5.2,2.1,0,0,Math.PI*2);ctx.ellipse(13,-244,5.2,2.1,0,0,Math.PI*2);ctx.fill();ctx.restore();
-  polygon([[-13,-234],[0,-224],[13,-234],[8,-212],[-8,-212]],'#e36a55','#561728',2);
+  if(awakening&&n>8&&n<66){
+    const roar=smooth(clamp((n-8)/18,0,1))*(1-smooth(clamp((n-55)/11,0,1)));
+    ctx.save();ctx.globalAlpha*=roar;ctx.fillStyle='#10030b';ctx.strokeStyle='#ffb77f';ctx.lineWidth=2.2;
+    ctx.beginPath();ctx.moveTo(-13,-234);ctx.quadraticCurveTo(0,-225,13,-234);ctx.lineTo(9,-213);ctx.quadraticCurveTo(0,-204,-9,-213);ctx.closePath();ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff0c8';ctx.beginPath();ctx.moveTo(-9,-229);ctx.lineTo(9,-229);ctx.lineTo(7,-224);ctx.lineTo(-7,-224);ctx.closePath();ctx.fill();ctx.restore();
+  }else polygon([[-13,-234],[0,-224],[13,-234],[8,-212],[-8,-212]],'#e36a55','#561728',2);
+  // Chakra fingers fan outward during the summon roar.
+  if(awakening&&n>18){
+    ctx.save();ctx.globalAlpha*=.85;ctx.strokeStyle='#ffc18c';ctx.lineWidth=2.2;ctx.lineCap='round';
+    for(const side of [-1,1]){const hx=side*184,hy=-166;for(let j=0;j<4;j++){const sx=hx+side*j*2,sy=hy-4-j*1.8,ex=hx+side*(12+j*7),ey=hy-23-j*4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(hx+side*(7+j*5),hy-15-j*3,ex,ey);ctx.stroke();}ctx.beginPath();ctx.moveTo(hx,hy+1);ctx.lineTo(hx+side*17,hy+10);ctx.stroke();}
+    ctx.restore();
+  }
   // Crest and shoulder embers remain deterministic, with no particle objects allocated.
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.65;
   for(let i=0;i<5;i++){const ex=Math.sin(t*.12+i*2.1)*(50+i*14),ey=-150-((t*1.4+i*39)%120);ctx.fillStyle=i%2?'#ffca86':'#ff5b45';ctx.beginPath();ctx.arc(ex,ey,1.2+(i%3)*.45,0,Math.PI*2);ctx.fill();}
-  ctx.restore();
-  ctx.restore();
+  ctx.restore(); // upper-body pose transform
+  ctx.restore(); // complete Susanoo rig
 }
 function drawAwakeningBackground(n){
   const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#080610');g.addColorStop(.52,'#24101f');g.addColorStop(1,'#08070c');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
@@ -432,18 +478,16 @@ function drawFormHint(){
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
   const cine=Q.edoSusanooCutscene;
   if(cine&&cine.owner===f&&validItachi(f)&&f.itachiSusanooActive){
-    const n=cine.frame||0;
-    let size=f.itachiEdo?2.12:1.94,mode='battle';
+    const n=cine.frame||0;let size=f.itachiEdo?2.12:1.94,mode='battle',baseY=f.y+3,alpha=1;
     if(n<72){size=.06+1.98*smooth(n/50);mode='awakening';}
-    else if(n<168)size=2.12;
-    else if(n<270)size=2.24;
-    else if(n<348)size=2.12;
-    else if(n<390)size=2.08;
-    else size=1.92;
-    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,cine.rigTick||n,1,mode);
+    else if(n<168){size=2.12;mode='cinematic-slash';}
+    else if(n<270){size=2.24;mode='cinematic-slam';baseY-=Math.sin(Math.min(1,(n-168)/42)*Math.PI)*44;}
+    else if(n<348){size=2.12;mode='cinematic-charge';baseY-=92*smooth((n-270)/24);}
+    else if(n<390){size=2.08;mode='cinematic-final';baseY-=20;}
+    else{size=1.92;mode='cinematic-outro';alpha=Math.max(0,1-(n-390)/30);}
+    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,baseY,size,n,alpha,mode);
   }else if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
-    const size=f.itachiEdo?1.88:1.64;
-    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
+    const size=f.itachiEdo?1.88:1.64;drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
   }
   return previousDrawFighter.apply(this,arguments);
 };
