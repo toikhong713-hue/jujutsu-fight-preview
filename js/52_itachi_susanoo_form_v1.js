@@ -54,7 +54,7 @@ function beginAttack(f,key){
   return true;
 }
 function activate(f,key){return beginAttack(f,key==='z'?'sus_z':(key==='x'?'sus_x':'sus_m1'));}
-window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:1};
+window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:2,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'}};
 function hit(f,frame,damage,range,opts){
   const o=f&&f.opp,d=f.facing||1;if(!alive(o))return false;
   const cfg=opts||{};
@@ -225,6 +225,9 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   // Restore the rig's world anchor and facing transform before any body parts are rendered.
   ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale((f&&(f.facing||1)<0?-1:1)*scale,scale);
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
+  // Persistent battle-form idle is its own pose, not the default attack-rest pose.
+  const battleIdle=sceneMode==='battle'&&!(f&&f.move)&&!(k==='sus_m1'||k==='sus_z'||k==='sus_x');
+  const edoIdle=!!(f&&f.itachiEdo),idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
         charge=cinematicCharge||k==='sus_charge',finalStrike=cinematicFinal||k==='sus_final';
   // Shadow and chakra silhouette behind the fighter.
@@ -267,6 +270,16 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     kneeL=[lerp(-29,-46,wide),-55];ankleL=[lerp(-30,-67,wide),-27];
     kneeR=[lerp(29,46,wide),-55];ankleR=[lerp(30,67,wide),-27];
     footLX=ankleL[0]-2;footRX=ankleR[0]+2;footAngleL=-.12;footAngleR=.12;
+  }else if(battleIdle){
+    // Both variants stay planted behind Itachi; Edo uses a heavier, wider guard stance.
+    const sway=Math.sin(t*.024);
+    if(edoIdle){
+      kneeL=[-43+sway*1.2,-58];ankleL=[-50+sway,-36];kneeR=[41-sway*1.1,-55];ankleR=[48-sway,-34];
+      footLX=ankleL[0]-2;footRX=ankleR[0]+4;footAngleL=-.11;footAngleR=.16;
+    }else{
+      kneeL=[-37+sway,-57];ankleL=[-41+sway*.7,-39];kneeR=[35-sway,-56];ankleR=[40-sway*.7,-39];
+      footLX=ankleL[0]-2;footRX=ankleR[0]+2;footAngleL=-.08;footAngleR=.09;
+    }
   }else{
     kneeL=[-31+walkLift*.25,-58];ankleL=[-31+walkLift*.35,-42];kneeR=[31-walkLift*.25,-58];ankleR=[31-walkLift*.35,-42];
     footLX=-33;footRX=33;footAngleL=-.08;footAngleR=.08;
@@ -304,6 +317,17 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     const q=smooth(clamp(n/14,0,1)),wave=smooth(clamp((n-11)/12,0,1));torsoAngle=lerp(.24,-.025,q);
     armR1=[lerp(104,82,q),lerp(-183,-174,q)];armR2=[lerp(132,114,q),lerp(-143,-139,q)];
     armL1=[lerp(-108,-126,wave),lerp(-182,-166,wave)];armL2=[lerp(-136,-180,wave),lerp(-141,-150,wave)];swordAngle=lerp(1.25,.76,q);
+  }else if(battleIdle){
+    // Regular Itachi's guardian is composed and protective; Edo's is wider and more threatening.
+    if(edoIdle){
+      torsoAngle=-.075+idleSway*.014;
+      armL1=[-91,-199+idleBreath*2];armL2=[-142,-160+idleBreath*3];
+      armR1=[94,-202+idleBreath*2];armR2=[145,-163+idleBreath*3];swordAngle=2.78;
+    }else{
+      torsoAngle=-.035+idleSway*.012;
+      armL1=[-83,-196+idleBreath*1.5];armL2=[-128,-172+idleBreath*2.5];
+      armR1=[83,-195+idleBreath*1.5];armR2=[132,-172+idleBreath*2.5];swordAngle=2.92;
+    }
   }else if(heavy){
     if(n<12){torsoAngle=-.24;armR1=[70,-228];armR2=[40,-246];armL1=[-84,-183];armL2=[-107,-142];swordAngle=-.48;}
     else if(n<28){torsoAngle=.28;armR1=[97,-184];armR2=[143,-170];armL1=[-84,-183];armL2=[-107,-142];swordAngle=1.15;}
@@ -364,19 +388,23 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     drawShield(armR2[0]+33,armR2[1]-8,2.08,shieldPulse);
     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.28+Math.sin(n*.42)*.12;ctx.strokeStyle='#fff1c6';ctx.lineWidth=3;
     ctx.beginPath();ctx.ellipse(armR2[0]+33,armR2[1]-8,72,111,-.1,0,Math.PI*2);ctx.stroke();ctx.restore();
+  }else if(battleIdle){
+    // Distinct resting guard: Itachi's shield is compact; Edo keeps Yata raised and ready.
+    const shieldPulse=.55+Math.sin(t*.026)*.08;
+    drawShield(armL2[0]-(edoIdle?13:8),armL2[1]-12,edoIdle?1.12:.94,shieldPulse);
   }else if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal&&!cinematicOutro){
     // Keep the Yata shield away from both hands during two-handed Totsuka poses.
     drawShield(armL2[0]-5,armL2[1]-10,1.03,.28);
   }
-  // The sword is not permanently in the hand: it is drawn out of the sake gourd for M1/X, then returns.
-  if(heavy||thrust||charge||finalStrike||cinematicOutro){
-    const pulling=cinematicOutro?false:(heavy?n<8:(thrust&&!cinematicSlam&&n<19));
+  // Totsuka rests tip-down during idle, then animates normally for attacks and cinematics.
+  if(heavy||thrust||charge||finalStrike||cinematicOutro||battleIdle){
+    const pulling=cinematicOutro||battleIdle?false:(heavy?n<8:(thrust&&!cinematicSlam&&n<19));
     if(pulling){
       const q=heavy?clamp(n/8,0,1):clamp(n/19,0,1);
       const gx=142,gy=-216;
       const hx=armR2[0]+7,hy=armR2[1]+1;
       drawTotsuka(gx+(hx-gx)*q,gy+(hy-gy)*q,heavy?lerp(-.48,swordAngle,q):lerp(-.18,swordAngle,q),heavy?lerp(.55,1.42,q):lerp(.62,1.42,q),1);
-    }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,1.42,1);
+    }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,battleIdle?(edoIdle?.92:.90):1.42,battleIdle?.72:1);
   }
   // Boss-scale diagonal slash with layered hot-orange trails and drawn sword afterimages.
   if(k==='sus_x'&&!cinematicSlam&&n>=29&&n<=62){
@@ -477,7 +505,10 @@ function drawAwakening(){
   }
   const appear=n<28?smooth(n/28)*.08:(n<68?.08+smooth((n-28)/40)*.35:(n<132?.43+smooth((n-68)/64)*.48:1));
   const rigScale=(n<35?.16+easeOut(n/35)*.36:(n<105?.52+easeOut((n-35)/70)*.76:(n<150?1.28+easeOut((n-105)/45)*.30:1.58)));
-  drawSusanooRig(owner,ox-16,610,rigScale,n,appear,'awakening');
+  const priorRigFacing=owner.facing;
+  owner.facing=1; // the staged opponent is on the right; Susanoo must face the same way
+  drawSusanooRig(owner,ox-64,610+34*rigScale,rigScale,n,appear,'awakening');
+  owner.facing=priorRigFacing;
   const save={x:owner.x,y:owner.y,facing:owner.facing,pose:owner.itachiPoseKey};
   try{owner.x=ox;owner.y=610;owner.facing=target&&target.x<owner.x?-1:1;owner.itachiPoseKey='ult';window.drawFighter(owner);}finally{owner.x=save.x;owner.y=save.y;owner.facing=save.facing;owner.itachiPoseKey=save.pose;}
   ctx.restore();
@@ -517,9 +548,16 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     else if(n<348){size=2.12;mode='cinematic-charge';baseY-=92*smooth((n-270)/24);}
     else if(n<390){size=2.08;mode='cinematic-final';baseY-=20;}
     else{size=1.92;mode='cinematic-outro';alpha=Math.max(0,1-(n-390)/30);}
-    drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,baseY,size,n,alpha,mode);
+    const face=f.facing||1;
+    // On the summon/reveal shot, anchor the giant behind Itachi and put its feet on the stage floor.
+    const rigX=mode==='awakening'?f.x-face*72:f.x-face*9*size/1.58;
+    if(mode==='awakening')baseY=f.y+34*size;
+    drawSusanooRig(f,rigX,baseY,size,n,alpha,mode);
   }else if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
-    const size=f.itachiEdo?1.88:1.64;drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
+    const size=f.itachiEdo?1.88:1.64,face=f.facing||1;
+    const backOffset=f.itachiEdo?82:64;
+    const baseY=f.y+34*size; // the rig's lowest feet sit 34 local units above its anchor
+    drawSusanooRig(f,f.x-face*backOffset,baseY,size,tick(),1,'battle');
   }
   return previousDrawFighter.apply(this,arguments);
 };
@@ -582,5 +620,5 @@ addEventListener('keydown',function(e){
   if(!Q.cinema&&!f.move&&['IDLE','WALK','LAND','ATTACK'].includes(f.state))activate(f,key);
 },true);
 window.JFF_ITACHI_SUSANOO_DEBUG={getForm:f=>!!(f&&f.itachiSusanooActive),drawSusanoo:drawSusanooRig,reset:f=>{if(f){f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';}}};
-console.info('[Itachi Susanoo] Rebuilt articulated guardian, awakening cinematic, Totsuka M1, Yata Z, sealing thrust X.');
+console.info('[Itachi Susanoo] Distinct grounded Itachi/Edo idle stances, guardian positioned behind fighter, cinematic and attack rigs preserved.');
 })();
