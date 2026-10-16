@@ -205,7 +205,7 @@ function updateProjectiles(){
    for(const dy of [-12,0,12])fx('magatama',p.x,p.y+dy,8,{spin:p.age*.2,ash:!!(p.owner&&p.owner.itachiEdo)});
    if(p.age%6===0)fx('crows',p.x-p.vx*1.5,p.y+10,8);
   }
-  const collided=alive(o)&&Math.abs(o.x-p.x)<68&&Math.abs(o.y-p.y)<130;
+  const collided=alive(o)&&Math.abs(o.x-p.x)<68&&Math.abs((o.y-92)-p.y)<115;
   const missed=p.age>=p.maxAge||p.x<(window.WALL||90)||p.x>(window.ARENA_W||3200)-(window.WALL||90);
   if(collided||missed){
    const ix=p.x,iy=p.y;
