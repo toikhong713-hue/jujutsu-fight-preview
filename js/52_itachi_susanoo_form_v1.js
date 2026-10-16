@@ -440,6 +440,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   // Crest and shoulder embers remain deterministic, with no particle objects allocated.
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.65;
   for(let i=0;i<5;i++){const ex=Math.sin(t*.12+i*2.1)*(50+i*14),ey=-150-((t*1.4+i*39)%120);ctx.fillStyle=i%2?'#ffca86':'#ff5b45';ctx.beginPath();ctx.arc(ex,ey,1.2+(i%3)*.45,0,Math.PI*2);ctx.fill();}
+  ctx.restore(); // ember particle subpass
   ctx.restore(); // upper-body pose transform
   ctx.restore(); // complete Susanoo rig
 }
