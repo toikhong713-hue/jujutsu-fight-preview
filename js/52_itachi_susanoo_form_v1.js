@@ -682,7 +682,7 @@ let phaseControlRoot=null,phaseControlOwners=[],phaseControlSignature='';
  function updatePhaseControls(){
    ensurePhaseControls();if(!phaseControlRoot)return;
    const hidden=typeof G==='undefined'||G.mode==='menu'||G.paused||!!Q.edoSusanooCutscene||!!Q.cinema;
-   const owners=hidden?[]:fighters().filter(f=>validItachi(f)&&!f.itachiEdo&&f.itachiSusanooActive).sort((a,b)=>(a.isP2?1:0)-(b.isP2?1:0));
+   const owners=hidden?[]:fighters().filter(f=>validItachi(f)&&!f.ai&&!f.itachiEdo&&f.itachiSusanooActive).sort((a,b)=>(a.isP2?1:0)-(b.isP2?1:0));
    const signature=owners.map(f=>f.isP2?'P2':'P1').join('|');
    phaseControlOwners=owners;
    if(signature!==phaseControlSignature){
