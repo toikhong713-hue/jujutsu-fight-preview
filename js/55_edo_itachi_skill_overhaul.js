@@ -322,12 +322,12 @@ function susanooCinemaSvg(c){
  '<radialGradient id="edoNewAura"><stop offset="0" stop-color="#e6d7ff" stop-opacity=".5"/><stop offset=".36" stop-color="#8158ff" stop-opacity=".28"/><stop offset="1" stop-color="#2a0b63" stop-opacity="0"/></radialGradient>'+
  '<linearGradient id="edoNewArmor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f6f1ff"/><stop offset=".16" stop-color="#bda3ff"/><stop offset=".42" stop-color="#7049d6"/><stop offset=".72" stop-color="#30205f"/><stop offset="1" stop-color="#120c2d"/></linearGradient>'+
  '<linearGradient id="edoNewBlade" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffaff"/><stop offset=".18" stop-color="#d4c5ff"/><stop offset=".46" stop-color="#8c69ff"/><stop offset=".72" stop-color="#f9f5ff"/><stop offset="1" stop-color="#4d2ab5"/></linearGradient>'+
- '<filter id="edoNewGlow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+ '</defs>';
  svg+='<rect width="1280" height="720" fill="#09051a" opacity=".19"/><rect width="1280" height="720" fill="#5726bd" opacity="'+(final?.075:.025)+'"/>';
  for(let i=0;i<7;i++){const x=32+i*197+(n%17)*.7,off=Math.sin(n*.035+i*2.2)*13;svg+='<path d="M '+x+' 45 L '+(x-18+off)+' 164 L '+(x+16-off)+' 238 L '+(x-7)+' 322" fill="none" stroke="'+(i%2?'#8060d9':'#e9e1ff')+'" stroke-width="'+(i%3===0?2.2:1)+'" opacity="'+(.16+appear*.18)+'"/>';}
  if(n<54||guard||seal){const rr=44+appear*128+Math.sin(n*.09)*5,cx=owner.x,cy=baseY-212*s;svg+='<g opacity="'+(.22+appear*.42)+'"><ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rr+'" ry="'+(rr*.32)+'" fill="none" stroke="#a88cff" stroke-width="2.2" stroke-dasharray="8 10" transform="rotate('+(-17+n*.7)+' '+cx+' '+cy+')"/><ellipse cx="'+cx+'" cy="'+cy+'" rx="'+(rr*.68)+'" ry="'+(rr*.48)+'" fill="none" stroke="#f3edff" stroke-width="1.1" stroke-dasharray="3 9" transform="rotate('+(23-n*.55)+' '+cx+' '+cy+')"/></g>';}
  // New articulated guardian: oversized head, layered armor, moving arms, giant Yata and Totsuka.
- svg+='<g transform="translate('+owner.x+' '+baseY+') scale('+(dir*s*appear)+' '+(s*appear)+')" opacity="'+(.38+appear*.62)+'" filter="url(#edoNewGlow)">';
+ svg+='<g transform="translate('+owner.x+' '+baseY+') scale('+(dir*s*appear)+' '+(s*appear)+')" opacity="'+(.38+appear*.62)+'">';
  svg+='<ellipse cx="0" cy="-177" rx="170" ry="244" fill="url(#edoNewAura)"/><ellipse cx="0" cy="-18" rx="128" ry="19" fill="#7b50ef" opacity=".22"/>';
  svg+='<path d="M -54 -162 L -78 -102 L -69 -32 L -28 -25 L -17 -91 L -17 -152 Z M 18 -152 L 18 -91 L 29 -25 L 71 -32 L 79 -102 L 54 -162 Z" fill="url(#edoNewArmor)" stroke="#d4c5ff" stroke-width="4"/>';
  svg+='<path d="M -77 -95 L -35 -87 L -39 -37 L -77 -35 Z M 35 -87 L 77 -95 L 77 -35 L 39 -37 Z" fill="#211443" stroke="#8766f7" stroke-width="2.5"/>';
@@ -350,7 +350,7 @@ function susanooCinemaSvg(c){
  for(const h of c.hitEvents||[]){
   const age=n-h.frame;if(age<0||age>(h.final?12:7))continue;
   const endX=h.final?target.x+dir*118:target.x+dir*(35+age*12),endY=h.final?target.y-100:target.y-80-age*3,alpha=1-age/(h.final?13:8);
-  svg+='<g opacity="'+alpha+'" filter="url(#edoNewGlow)"><path d="M '+(target.x-dir*260)+' '+(endY+130)+' Q '+(target.x-dir*60)+' '+(endY-120)+' '+endX+' '+(endY-35)+'" fill="none" stroke="'+(h.final?'#cdbbff':'#8a68ff')+'" stroke-width="'+(h.final?43:24)+'" stroke-linecap="round"/><path d="M '+(target.x-dir*260)+' '+(endY+130)+' Q '+(target.x-dir*60)+' '+(endY-120)+' '+endX+' '+(endY-35)+'" fill="none" stroke="#fffaff" stroke-width="'+(h.final?11:5)+'" stroke-linecap="round"/>';
+  svg+='<g opacity="'+alpha+'"><path d="M '+(target.x-dir*260)+' '+(endY+130)+' Q '+(target.x-dir*60)+' '+(endY-120)+' '+endX+' '+(endY-35)+'" fill="none" stroke="'+(h.final?'#cdbbff':'#8a68ff')+'" stroke-width="'+(h.final?43:24)+'" stroke-linecap="round"/><path d="M '+(target.x-dir*260)+' '+(endY+130)+' Q '+(target.x-dir*60)+' '+(endY-120)+' '+endX+' '+(endY-35)+'" fill="none" stroke="#fffaff" stroke-width="'+(h.final?11:5)+'" stroke-linecap="round"/>';
   if(h.final)svg+='<path d="M '+(target.x-dir*185)+' '+(target.y-210)+' L '+target.x+' '+(target.y+42)+' L '+(target.x+dir*185)+' '+(target.y-210)+'" fill="none" stroke="#f2eaff" stroke-width="3"/>';
   svg+='</g>';
  }
