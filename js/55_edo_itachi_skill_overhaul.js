@@ -200,7 +200,7 @@ function renderStage(){
  stage.innerHTML=out;
 }
 if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);renderStage();return r;};
-if(typeof CHARS!=='undefined'&&CHARS.edo_itachi&&CHARS.edo_itachi.moves&&CHARS.edo_itachi.moves.ult)CHARS.edo_itachi.moves.ult.name='Susanoo: Scarlet Totsuka Verdict';
+if(typeof CHARS!=='undefined'&&CHARS.edo_itachi&&CHARS.edo_itachi.moves&&CHARS.edo_itachi.moves.ult)CHARS.edo_itachi.moves.ult.name='Susanoo: Thiên Phá Trảm';
 window.JFF_EDO_ITACHI_SKILLS={ready:true,version:5,ultimate:'Susanoo: Scarlet Totsuka Verdict · live combat · no global pause',skills:['Crow Body Replacement','Yasaka Barrage','Amaterasu Black Flame Field','Yata Mirror Reversal','Scarlet Totsuka Verdict']};
 console.info('[Edo Itachi] Regular skills loaded; fresh non-pausing Susanoo ultimate is in js/56.');
 })();
