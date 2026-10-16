@@ -73,6 +73,8 @@ function restoreCinematicUI(u){
  u.hidden=[];
 }
 function screenImpact(power,color){
+ const u=Q.edoSusanooCutscene;
+ if(u){u.impactPower=power||.2;u.impactColor=color||'#fff0d9';u.impactFlashUntil=u.frame+(power>.5?4:2);return;}
  if(typeof window.flash==='function')window.flash(power,color);
  if(typeof window.shake==='function')window.shake(power>0.5?18:(power>0.25?11:5));
  if(typeof window.camPunch==='function')window.camPunch(power>0.5?.3:.12);
@@ -183,7 +185,7 @@ function damageTarget(u,event){
  const x=o.x,y=o.y-96;
  const mark={frame:event.frame,x,y,kind:event.kind,final:!!event.final};
  u.hitEvents.push(mark);if(u.hitEvents.length>10)u.hitEvents.shift();
- u.invertUntil=event.frame+2;u.impactFlashUntil=event.frame+(event.final?8:3);
+ u.invertUntil=event.frame+1;u.impactFlashUntil=event.frame+(event.final?8:3);
  if(event.heavy){
   screenImpact(event.final?.9:.65,event.final?'#fff0d9':'#f05a46');
   if(typeof SFX!=='undefined'){
@@ -194,10 +196,6 @@ function damageTarget(u,event){
  }else{
   screenImpact(.2,'#fff0d9');
   if(typeof SFX!=='undefined'&&SFX.heavy)SFX.heavy();
- }
- if(typeof window.JFF_OUTSIDER_FX==='function'){
-  window.JFF_OUTSIDER_FX('shock',x,y,event.final?46:(event.heavy?34:19),{edoSusanoo:true,kind:event.kind});
-  if(event.final)window.JFF_OUTSIDER_FX('seal',x,y,60,{edoSusanoo:true,final:true});
  }
 }
 function applyTimeline(u,n){
@@ -386,7 +384,7 @@ function renderCutscene(u){
   if(n>314)s+='<rect width="1280" height="720" fill="#05030a" opacity="'+((n-314)/34*.24)+'"/>';
  }else if(n<390){
   // Shot 5: extreme-wide vertical world split, 40px screen-slice offsets, dimensional fracture and black smoke.
-  const q=smooth((n-348)/42),hitAge=n-366,center=point((u.ownerX+u.targetX)*.5,u.ownerY-30),split=n>=354&&n<=369?40*(1-Math.abs(n-361.5)/8):0;
+  const q=smooth((n-348)/42),hitAge=n-366,center=point((u.ownerX+u.targetX)*.5,u.ownerY-30),split=n>=355&&n<=367?40*(1-Math.abs(n-361)/6):0;
   s+='<rect width="1280" height="720" fill="#07030b" opacity=".16"/>';
   s+='<path d="M '+(center.x+split)+' -30 L '+(center.x-split*.4)+' 135 L '+(center.x+split*.25)+' 278 L '+(center.x-split*.7)+' 438 L '+(center.x+split*.3)+' 755" stroke="#130713" stroke-width="'+(45+q*42)+'" opacity=".84"/>';
   s+='<path d="M '+(center.x+split)+' -20 L '+(center.x-split*.4)+' 135 L '+(center.x+split*.25)+' 278 L '+(center.x-split*.7)+' 438 L '+(center.x+split*.3)+' 755" stroke="#ee3d4e" stroke-width="'+(21+q*16)+'"/>';
@@ -404,6 +402,7 @@ function renderCutscene(u){
  }
  // Two-frame monochrome inversion on every actual cutscene impact.
  if(n<=u.invertUntil&&n>=u.invertUntil-1)s+='<rect width="1280" height="720" fill="#fff" opacity=".8" style="mix-blend-mode:difference"/>';
+ if(n<=u.impactFlashUntil&&u.impactPower>.35)s+='<rect width="1280" height="720" fill="'+(u.impactColor||'#fff0d9')+'" opacity="'+(Math.max(0,1-(u.impactFlashUntil-n)/4)*.16)+'"/>';
  if(n<6)s+='<rect width="1280" height="720" fill="#000" opacity="'+(1-smooth(n/6))+'"/>';
  if(n>=414)s+='<rect width="1280" height="720" fill="#fff4df" opacity="'+(smooth((n-414)/6)*.94)+'"/>';
  s+='<rect width="1280" height="720" fill="url(#tenpazanVignette)"/>';
@@ -440,7 +439,7 @@ window.render=function(){
 };
 window.JFF_EDO_SUSANOO_TENPAZAN={
  ready:true,version:1,durationFrames:DURATION,durationSeconds:7,
- phases:[{start:0,end:72,key:'Summon'},{start:72,end:168,key:'Five aerial slashes'},{start:168,end:270,key:'Ground crush'},{start:270,end:348,key:'Slow-motion charge'},{start:348,end:390,key:'Tenpazan space slice'},{start:390,end:420,key:'Outtro and camera return'}],
+ phases:[{start:0,end:72,key:'Summon'},{start:72,end:168,key:'Five aerial slashes'},{start:168,end:270,key:'Ground crush'},{start:270,end:348,key:'Slow-motion charge'},{start:348,end:390,key:'Tenpazan space slice'},{start:390,end:420,key:'Outro and camera return'}],
  hits:HITS.map(e=>({frame:e.frame,damage:e.damage,kind:e.kind})),
  cancel:cancelCutscene
 };
