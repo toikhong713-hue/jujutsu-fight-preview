@@ -161,7 +161,10 @@ function blackFire(b){
 }
 // Tsukuyomi is rendered only by js/51_itachi_rig_cinematics_v2.js using live game fighters.
 function render(){
- if(!stage)return;const cinematic=Q.cinema&&Q.cinema.kind==='ult';stage.style.zIndex=cinematic?'9':'6';if(typeof G!=='undefined'&&G.mode==='menu'){stage.innerHTML='';return;}
+ if(!stage)return;
+ // Edo Susanoo has its own animated rig/overlay; skip this redundant legacy SVG pass.
+ if(Q.cinema&&Q.cinema.kind==='edoSusanoo')return;
+ const cinematic=Q.cinema&&Q.cinema.kind==='ult';stage.style.zIndex=cinematic?'9':'6';if(typeof G!=='undefined'&&G.mode==='menu'){stage.innerHTML='';return;}
  let s='<defs><radialGradient id="it50Gourd"><stop stop-color="#f7cf88"/><stop offset=".28" stop-color="#b85135"/><stop offset=".68" stop-color="#71203c"/><stop offset="1" stop-color="#2b0b20"/></radialGradient><linearGradient id="it50Blade" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#9b9cab"/><stop offset=".22" stop-color="#fff4d2"/><stop offset=".45" stop-color="#8b93a8"/><stop offset=".65" stop-color="#f9f4e5"/><stop offset="1" stop-color="#44445c"/></linearGradient><linearGradient id="it50Armor" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f8b188"/><stop offset=".23" stop-color="#ad4350"/><stop offset=".62" stop-color="#4a132d"/><stop offset="1" stop-color="#110711"/></linearGradient><linearGradient id="it50ArmorBright" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffc698"/><stop offset=".35" stop-color="#c65b65"/><stop offset=".75" stop-color="#6b203b"/><stop offset="1" stop-color="#230a1e"/></linearGradient><linearGradient id="it50Mirror" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4cf"/><stop offset=".18" stop-color="#9af4ff"/><stop offset=".36" stop-color="#b59cff"/><stop offset=".54" stop-color="#ffb0cf"/><stop offset=".72" stop-color="#f6f1d0"/><stop offset="1" stop-color="#8ad7fb"/></linearGradient></defs>';
  const c=Q.cinema;
  if(Q.flameBreath&&Q.flameBreath.owner){
@@ -200,7 +203,7 @@ function render(){
   s+='<path d="'+inner+'" fill="url(#it50FlamethrowerCore)" opacity=".9"/>';
   s+='<path d="M '+ox+' '+oy+' C '+(ox+d*length*.24)+' '+(oy-4*scale)+' '+(midX-d*length*.08)+' '+(midY-spread*.16)+' '+endX+' '+(endY-11*scale)+' Q '+(endX-d*length*.1)+' '+endY+' '+endX+' '+(endY+11*scale)+' C '+(midX-d*length*.08)+' '+(midY+spread*.16)+' '+(ox+d*length*.24)+' '+(oy+4*scale)+' '+ox+' '+oy+' Z" fill="#fff7bc" opacity=".91"/>';
   // Rolling pockets and corkscrew bands make the flame turbulent rather than a straight laser.
-  for(let i=0;i<22;i++){
+  for(let i=0;i<10;i++){
    const u=.08+((i*17+b.t*2.5)%88)/100,v=1-u;
    const cx=v*v*v*ox+3*v*v*u*(ox+d*length*.3)+3*v*u*u*(endX-d*length*.2)+u*u*u*endX;
    const baseline=oy+(endY-oy)*u;
@@ -209,10 +212,10 @@ function render(){
    const col=i%5===0?'#fff8c4':(i%3===0?'#ffd24b':(i%2?'#ff6a22':'#ef2c1b'));
    s+='<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" transform="rotate('+(d*(b.t*5+i*29))+' '+cx+' '+cy+')" fill="'+col+'" opacity="'+(.38+(i%4)*.12)+'"/>';
   }
-  for(let r=0;r<4;r++){
+  for(let r=0;r<2;r++){
    let ribbon='';
-   for(let j=0;j<=13;j++){
-    const u=.04+j*.071,v=1-u,x=ox+d*length*u;
+   for(let j=0;j<=8;j++){
+    const u=.04+j*.115,v=1-u,x=ox+d*length*u;
     const centre=oy+(endY-oy)*u;
     const phase=b.t*.22+u*13+r*1.6;
     const y=centre+Math.sin(phase)*(spread*u*.32)+Math.cos(phase*.55)*spread*u*.08;
@@ -221,7 +224,7 @@ function render(){
    s+='<path d="'+ribbon+'" fill="none" stroke="'+(r%2?'#ffba35':'#fff2a1')+'" stroke-width="'+((13-r*2.1)*scale)+'" stroke-linecap="round" opacity="'+(.3+r*.07)+'"/>';
   }
   // Long ragged tongues flare outward at the sides of the cone.
-  for(let k=0;k<24;k++){
+  for(let k=0;k<12;k++){
    const u=.1+((k*19+b.t*1.8)%86)/100,x=ox+d*length*u;
    const baseY=oy+(endY-oy)*u+Math.sin(b.t*.22+u*12)*spread*u*.12;
    const side=k%2?-1:1,reach=(12+(k%5)*7+Math.sin(b.t*.25+k)*5)*scale*(.4+u);
@@ -229,10 +232,10 @@ function render(){
    s+='<path d="M '+(x-d*reach*.2)+' '+baseY+' Q '+(x+flick)+' '+(baseY+side*reach*.5)+' '+(x+flick+d*reach*.9)+' '+(baseY+side*reach)+' Q '+(x+flick-d*reach*.15)+' '+(baseY+side*reach*.42)+' '+(x-d*reach*.2)+' '+baseY+' Z" fill="'+(k%4===0?'#fff6b0':(k%3===0?'#ffb638':'#ff4520'))+'" opacity="'+(.43+(k%5)*.1)+'"/>';
   }
   // Electrical discharge branches through the fire, not around a dragon.
-  for(let arc=0;arc<9;arc++){
+  for(let arc=0;arc<5;arc++){
    const from=.08+arc*.095,to=Math.min(.99,from+.2+(arc%3)*.07),pts=[];
-   for(let q=0;q<=8;q++){
-    const u=from+(to-from)*q/8,x=ox+d*length*u;
+   for(let q=0;q<=6;q++){
+    const u=from+(to-from)*q/6,x=ox+d*length*u;
     const centre=oy+(endY-oy)*u;
     const offset=q===0||q===8?0:Math.sin((b.t*1.45+arc*11+q*3)*.38)*(spread*u*.42);
     pts.push([x,centre+offset]);
@@ -244,7 +247,7 @@ function render(){
    s+='<path d="'+bolt+'" fill="none" stroke="#176cff" stroke-width="'+(5.8*scale)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".83"/>';
    s+='<path d="'+bolt+'" fill="none" stroke="#d2fbff" stroke-width="'+(2.25*scale)+'" stroke-linecap="round" stroke-linejoin="round" opacity=".99"/>';
   }
-  for(let i=0;i<30;i++){
+  for(let i=0;i<14;i++){
    const u=((i*17+b.t*2.7)%98)/100,x=ox+d*length*u;
    const y=oy+(endY-oy)*u+Math.sin(i*3+b.t*.2)*spread*u*.58;
    s+='<circle cx="'+(x+Math.sin(i*5+b.t*.18)*16*scale)+'" cy="'+y+'" r="'+((1.3+i%4*.65)*scale)+'" fill="'+(i%6===0?'#c9fbff':(i%2?'#ffd66b':'#ff5725'))+'" opacity="'+(.32+(i%5)*.12)+'"/>';
