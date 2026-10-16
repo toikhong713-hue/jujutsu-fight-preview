@@ -268,7 +268,7 @@ function handleKey(e){
 }
 addEventListener('keydown',handleKey,true);
 const oldRender=window.render;
-if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);const t=now();if(t%6===0||t!==lastPanelTick){lastPanelTick=t;updatePanel(true);}else updatePanel(false);return r;};
+if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);const t=now();if(t%6===0){lastPanelTick=t;updatePanel(true);}else updatePanel(false);return r;};
 if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseYataUntil=0;f.itachiPhaseCounterUntil=0;f.itachiPhaseRootUntil=0;delete f.itachiPhaseRootX;delete f.itachiPhaseRootY;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;}return oldReset.apply(this,arguments);};
