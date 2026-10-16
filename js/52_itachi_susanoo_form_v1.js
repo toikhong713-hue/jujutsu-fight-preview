@@ -222,6 +222,8 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
         cinematicCharge=sceneMode==='cinematic-charge',cinematicFinal=sceneMode==='cinematic-final',cinematicOutro=sceneMode==='cinematic-outro';
   const segmentStart=awakening?0:(cinematicSlash?72:(cinematicSlam?168:(cinematicCharge?270:(cinematicFinal?348:(cinematicOutro?390:0)))));
   const n=(awakening||cinematicSlash||cinematicSlam||cinematicCharge||cinematicFinal||cinematicOutro)?t-segmentStart:rawFrame;
+  // Restore the rig's world anchor and facing transform before any body parts are rendered.
+  ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale((f&&(f.facing||1)<0?-1:1)*scale,scale);
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
         charge=cinematicCharge||k==='sus_charge',finalStrike=cinematicFinal||k==='sus_final';
