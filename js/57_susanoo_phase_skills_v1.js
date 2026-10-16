@@ -148,7 +148,7 @@ function updateSkill(f){
   if(n>=42)finishSkill(f);
  }else if(id==='edo_p1_grasp'){
   if(n===9){fx('shock',o&&o.x||f.x+d*150,f.y-12,20);fx('crows',o&&o.x||f.x+d*150,f.y-30,18);}
-  if(n===23&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;if(hitTarget(f,17,390,{hitstun:42,blockstun:0,kbx:d*2,kby:-1,armorBreak:true,fx:'explosion',fxDuration:28})){o.itachiPhaseRootUntil=t+90;o.vx=0;o.vy=0;fx('seal',o.x,o.y-95,28);fx('crows',o.x,o.y-35,30);if(typeof window.floatText==='function')window.floatText(o.x,o.y-160,'EDO BONE GRASP · ROOT','#d4c8df',12,44);}}
+  if(n===23&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;if(hitTarget(f,17,390,{hitstun:42,blockstun:0,kbx:d*2,kby:-1,armorBreak:true,fx:'explosion',fxDuration:28})){o.itachiPhaseRootUntil=t+90;o.itachiPhaseRootX=o.x;o.itachiPhaseRootY=o.y;o.vx=0;o.vy=0;fx('seal',o.x,o.y-95,28);fx('crows',o.x,o.y-35,30);if(typeof window.floatText==='function')window.floatText(o.x,o.y-160,'EDO BONE GRASP · ROOT','#d4c8df',12,44);}}
   if(n>=54)finishSkill(f);
  }else if(id==='edo_p2_amaterasu'){
   if(n===7){fx('amaterasu',f.x+d*110,f.y-180,24);fx('crows',f.x-d*25,f.y-130,14);}
@@ -164,7 +164,7 @@ function updateSkill(f){
 }
 const oldUpdate=window.updateMove;
 if(typeof oldUpdate==='function')window.updateMove=function(f){
- if(f&&f.itachiPhaseSkillKey){updateSkill(f);return;}
+ if(f&&f.itachiPhaseSkillKey){const k=f.itachiPhaseSkillKey;if(!f.move||!skillNames[k]||f.moveKey!==skillNames[k].visual){f.itachiPhaseSkillKey='';f.itachiPhaseYataUntil=0;f.itachiPhaseCounterUntil=0;return oldUpdate.apply(this,arguments);}updateSkill(f);return;}
  return oldUpdate.apply(this,arguments);
 };
 const oldResolve=window.resolveHit;
@@ -234,7 +234,7 @@ function updateStatuses(){
   if(!f)continue;
   if((f.itachiPhaseSlowUntil||0)>t&&Number.isFinite(f.itachiPhaseSlowBase))f.walk=f.itachiPhaseSlowBase*.7;
   else if(f.itachiPhaseSlowBase!==undefined){f.walk=f.itachiPhaseSlowBase;delete f.itachiPhaseSlowBase;f.itachiPhaseSlowUntil=0;}
-  if((f.itachiPhaseRootUntil||0)>t){f.vx=0;if(f.onGround)f.vy=0;}
+  if((f.itachiPhaseRootUntil||0)>t){if(Number.isFinite(f.itachiPhaseRootX))f.x=f.itachiPhaseRootX;if(Number.isFinite(f.itachiPhaseRootY))f.y=f.itachiPhaseRootY;f.vx=0;f.vy=0;}else if(f.itachiPhaseRootX!==undefined){delete f.itachiPhaseRootX;delete f.itachiPhaseRootY;}
   if((f.itachiPhaseSilenceUntil||0)>0&&(f.itachiPhaseSilenceUntil||0)<=t)f.itachiPhaseSilenceUntil=0;
  }
 }
@@ -255,7 +255,7 @@ const oldRender=window.render;
 if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);const t=now();if(t%6===0||t!==lastPanelTick){lastPanelTick=t;updatePanel(true);}else updatePanel(false);return r;};
 if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
- window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseYataUntil=0;f.itachiPhaseCounterUntil=0;f.itachiPhaseRootUntil=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;}return oldReset.apply(this,arguments);};
+ window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseYataUntil=0;f.itachiPhaseCounterUntil=0;f.itachiPhaseRootUntil=0;delete f.itachiPhaseRootX;delete f.itachiPhaseRootY;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;}return oldReset.apply(this,arguments);};
 }
 window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:1,skills:skillNames,phase3Unchanged:true};
 console.info('[Itachi Susanoo] Phase 1/2 skills enabled for regular + Edo; phase 3 moveset untouched.');
