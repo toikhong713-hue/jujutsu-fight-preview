@@ -84,6 +84,7 @@ function startSkill(f,id){
  f.itachiPhaseSkillCooldowns=f.itachiPhaseSkillCooldowns||{};
  f.itachiPhaseSkillCooldowns[id]=now()+def.cd;
  f.itachiPhaseSkillKey=id;f.itachiPhaseSkillUsed=false;f.itachiPhaseSkillMarks={};f.itachiPhaseParryTriggered=false;
+ if(id==='edo_p2_counter'){f.itachiPhaseCounterUntil=now()+11;f.itachiPhaseParryTarget=null;f.itachiPhaseCounterTeleported=false;f.itachiPhaseCounterHit=false;}
  f.moveKey=def.visual;f.moveFrame=0;f.state='ATTACK';f.stateFrame=0;f.vx*=.16;
  f.itachiSusanooAction=def.visual;f.itachiPoseKey=def.visual;
  f.move={name:def.name,kind:'special',startup:12,active:24,recovery:20,damage:0,hitbox:null,cost:0,cd:0};
@@ -165,7 +166,7 @@ function updateSkill(f){
   if(n===40&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;const ok=hitTarget(f,42,610,{hitstun:42,blockstun:0,kbx:d*16,kby:-7,hitstop:16,armorBreak:true,trueDamage:true,kind:'fire',fx:false});fx('amaterasu',f.x+d*230,f.y-12,100);fx('slash',f.x+d*210,f.y-22,104);fx('explosion',f.x+d*225,f.y-70,43);if(ok){addBurn(o,'amaterasu');fx('amaterasu',o.x,o.y-70,72);fx('crows',o.x,o.y-45,38);fx('shock',o.x,o.y-24,43);impact(.34,'#9c68d4',17);if(typeof window.floatText==='function')window.floatText(o.x,o.y-185,'BLACK FLAME · TRUE DAMAGE','#d6b9ff',15,48);}else impact(.15,'#9c68d4',6);}
   if(n>=132)finishSkill(f);
  }else if(id==='edo_p2_counter'){
-  if(n===1){f.itachiPhaseCounterUntil=t+12;f.itachiPhaseParryTriggered=false;f.itachiPhaseParryTarget=null;f.itachiPhaseCounterTeleported=false;f.itachiPhaseCounterHit=false;fx('reflect',f.x+d*135,f.y-160,30);fx('crows',f.x+d*80,f.y-70,24);impact(.06,'#caa6f2',2);}
+  if(n===1){f.itachiPhaseParryTriggered=false;f.itachiPhaseParryTarget=null;f.itachiPhaseCounterTeleported=false;f.itachiPhaseCounterHit=false;fx('reflect',f.x+d*135,f.y-160,30);fx('crows',f.x+d*80,f.y-70,24);impact(.06,'#caa6f2',2);}
   if(f.itachiPhaseParryTriggered&&n===3&&!f.itachiPhaseCounterTeleported){const enemy=f.itachiPhaseParryTarget||f.opp;if(alive(enemy)){f.itachiPhaseCounterTeleported=true;const face=f.facing||1;fx('crows',f.x,f.y-92,38);fx('reflect',f.x,f.y-115,27);f.x=clamp(enemy.x+face*78,window.WALL||90,(window.ARENA_W||3200)-(window.WALL||90));f.y=enemy.y;f.facing=enemy.x>=f.x?1:-1;f.vx=0;f.vy=0;fx('crows',f.x,f.y-90,46);fx('seal',f.x,f.y-115,25);fx('slash',f.x,f.y-100,25);impact(.14,'#b989e8',8);}}
   if(f.itachiPhaseParryTriggered&&n===15&&!f.itachiPhaseCounterHit){f.itachiPhaseCounterHit=true;const target=f.itachiPhaseParryTarget||f.opp;const ok=hitTarget(f,43,260,{hitstun:58,blockstun:0,kbx:(f.facing||1)*15,kby:-6,hitstop:16,armorBreak:true,kind:'special',fx:false});if(ok){fx('slash',target.x,target.y-105,43);fx('shock',target.x,target.y-45,39);fx('crows',target.x,target.y-72,44);impact(.38,'#bb8cf2',18);if(typeof window.floatText==='function')window.floatText(target.x,target.y-185,'YATA COUNTER · CRITICAL','#e2caff',16,46);}else impact(.1,'#b989e8',5);}
   if(n===14&&!f.itachiPhaseParryTriggered)f.itachiPhaseCounterUntil=0;
