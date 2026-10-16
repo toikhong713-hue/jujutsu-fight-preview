@@ -260,6 +260,11 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   }else if(cinematicFinal){
     const q=smooth(n/19);kneeL=[lerp(-30,-43,q),lerp(-57,-49,q)];ankleL=[lerp(-34,-60,q),lerp(-26,-22,q)];
     kneeR=[lerp(31,24,q),lerp(-57,-45,q)];ankleR=[lerp(37,19,q),lerp(-26,-18,q)];footLX=ankleL[0]+7;footRX=ankleR[0]+6;footAngleL=-.08;footAngleR=.22*q;
+  }else if(awakening){
+    const wide=smooth(clamp(n/48,0,1));
+    kneeL=[lerp(-29,-46,wide),-55];ankleL=[lerp(-30,-67,wide),-27];
+    kneeR=[lerp(29,46,wide),-55];ankleR=[lerp(30,67,wide),-27];
+    footLX=ankleL[0]-2;footRX=ankleR[0]+2;footAngleL=-.12;footAngleR=.12;
   }else{
     kneeL=[-31+walkLift*.25,-58];ankleL=[-31+walkLift*.35,-42];kneeR=[31-walkLift*.25,-58];ankleR=[31-walkLift*.35,-42];
     footLX=-33;footRX=33;footAngleL=-.08;footAngleR=.08;
@@ -321,6 +326,30 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   // Apply a curving upper body independently of the planted feet.
   ctx.save();ctx.translate(0,-91);ctx.rotate(torsoAngle);ctx.translate(0,91);
   // Articulated hips, ribbed breastplate, and layered abdominal armor.
+  polygon([[-48,-128],[-37,-102],[-25,-91],[0,-86],[25,-91],[37,-102],[48,-128],[31,-148],[-31,-148]],'#421225','#16060d',4);
+  polygon([[-50,-204],[-76,-218],[-65,-177],[-47,-158],[-36,-119],[-17,-101],[0,-97],[17,-101],[36,-119],[47,-158],[65,-177],[76,-218],[50,-204],[34,-213],[-34,-213]],'#651b30','#1b0711',5);
+  const chest=ctx.createLinearGradient(-50,-208,45,-104);chest.addColorStop(0,'#ffb181');chest.addColorStop(.24,'#c9514f');chest.addColorStop(.55,'#7c2035');chest.addColorStop(1,'#330c1c');
+  polygon([[-43,-205],[-26,-216],[0,-211],[26,-216],[43,-205],[31,-169],[17,-139],[0,-126],[-17,-139],[-31,-169]],chest,'#ffad80',3);
+  // Rib plates are individual curved strokes, not a flat breastplate decal.
+  ctx.lineCap='round';ctx.lineJoin='round';
+  for(let i=0;i<4;i++){
+    const yy=-192+i*13;
+    ctx.strokeStyle=i%2?'#6e2034':'#f08b68';ctx.lineWidth=6.5;
+    ctx.beginPath();ctx.moveTo(-36+i*2,yy);ctx.quadraticCurveTo(-12,yy+14,0,yy+10);ctx.quadraticCurveTo(15,yy+14,36-i*2,yy);ctx.stroke();
+    ctx.strokeStyle='rgba(255,218,173,.62)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-31+i*2,yy-2);ctx.quadraticCurveTo(-12,yy+10,0,yy+7);ctx.quadraticCurveTo(15,yy+10,31-i*2,yy-2);ctx.stroke();
+  }
+  for(let i=0;i<3;i++)polygon([[-21,-119+i*8],[-5,-124+i*8],[0,-117+i*8],[-5,-108+i*8],[-20,-110+i*8]],'#9c3040','#f08d66',1.2);
+  // Neck, shoulders and independent arms.
+  armorLimb([-20,-215],[-12,-231],15,'#ffad7a');armorLimb([20,-215],[12,-231],15,'#ffad7a');
+  polygon([[-82,-227],[-112,-217],[-119,-193],[-98,-177],[-69,-189],[-55,-213]],'#7e2036','#210711',4);
+  polygon([[82,-227],[112,-217],[119,-193],[98,-177],[69,-189],[55,-213]],'#8d293a','#210711',4);
+  polygon([[-108,-214],[-82,-235],[-55,-222],[-72,-198],[-99,-193]],'#c7534d','#ffbb8a',2.4);
+  polygon([[108,-214],[82,-235],[55,-222],[72,-198],[99,-193]],'#d7604c','#ffc28f',2.4);
+  // Susanoo's secondary right arm carries the sake gourd that houses Totsuka.
+  // Keep this separate from the primary sword arm so both relics read clearly.
+  armorLimb([49,-210],[91,-200],13,'#d65b4b');
+  armorLimb([91,-200],[119,-183],11,'#ff9c70');
+  if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal||cinematicOutro)drawSakeGourd(142+breath*.2,-169,1.03,t);
   armorLimb([-70,-207],armL1,19,'#b84449');armorLimb(armL1,armL2,16,'#ff9c70');
   armorLimb([70,-207],armR1,19,'#c84c4a');armorLimb(armR1,armR2,16,'#ffb07a');
   // Angular bracers make the hands read as gauntlets at gameplay scale.
