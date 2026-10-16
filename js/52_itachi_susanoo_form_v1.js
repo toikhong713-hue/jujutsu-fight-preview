@@ -55,7 +55,7 @@ function beginAttack(f,key){
   return true;
 }
 function activate(f,key){return beginAttack(f,key==='z'?'sus_z':(key==='x'?'sus_x':'sus_m1'));}
-window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:3,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu']};
+window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:4,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu'],setPhase:(f,n)=>{if(!validItachi(f)||f.itachiEdo||!f.itachiSusanooActive)return false;f.itachiSusanooPhase=clamp(Math.round(Number(n)||3),1,3);return true;}};
 function hit(f,frame,damage,range,opts){
   const o=f&&f.opp,d=f.facing||1;if(!alive(o))return false;
   const cfg=opts||{};
@@ -321,7 +321,9 @@ function drawSummonPhase(frame,stage,edo){
   const battleIdle=sceneMode==='battle'&&!(f&&f.move)&&!(k==='sus_m1'||k==='sus_z'||k==='sus_x');
   const edoForm=!!(f&&f.itachiEdo),edoIdle=edoForm,idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
   const shellDark=edoForm?'#211020':'#19070e',shellMid=edoForm?'#561b40':'#682033',shellHot=edoForm?'#a33b68':'#d96a4c',shellEdge=edoForm?'#e0a6d0':'#ff9c70',coreGlow=edoForm?'#e0c6ff':'#ffff99';
-  // Standard summon evolves slowly through three silhouettes; Edo condenses faster into a sharper, stable armor.
+  // Manual phase buttons affect Itachi's resting battlefield form; attacks retain the full weapon rig.
+  if(sceneMode==='battle'&&battleIdle&&!edoForm){const selectedPhase=clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);if(selectedPhase<3){drawSummonPhase(t,selectedPhase-1,false);ctx.restore();return;}}
+  // Summon cinematic evolves automatically through skeletal, muscular, and armored forms.
   if(awakening){const summonStage=edoForm?(n<19?0:(n<42?1:2)):(n<48?0:(n<108?1:2));if(summonStage<2){drawSummonPhase(n,summonStage,edoForm);ctx.restore();return;}}
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
         charge=cinematicCharge||k==='sus_charge',finalStrike=cinematicFinal||k==='sus_final';
@@ -648,7 +650,51 @@ function drawAwakening(){
   if(n>234){ctx.save();ctx.globalAlpha=smooth((n-234)/6);ctx.fillStyle='#ffe8c9';ctx.fillRect(0,0,W,H);ctx.restore();}
   ctx.restore();return true;
 }
-function drawFormHint(){
+let phaseControlRoot=null,phaseControlOwners=[],phaseControlSignature='';
+ function ensurePhaseControls(){
+   if(phaseControlRoot||!document||!document.getElementById)return;
+   const wrap=document.getElementById('wrap');if(!wrap)return;
+   const style=document.createElement('style');
+   style.id='jffSusanooPhaseControlStyle';
+   style.textContent='#jffSusanooPhaseControls{position:absolute;right:18px;top:162px;width:354px;padding:10px 11px 11px;z-index:8;display:none;pointer-events:auto;color:#f1e6ed;background:linear-gradient(145deg,rgba(19,7,20,.96),rgba(7,8,15,.96));border:1px solid rgba(234,133,119,.58);box-shadow:0 7px 26px rgba(0,0,0,.42),inset 0 1px rgba(255,255,255,.06);font-family:Consolas,monospace}#jffSusanooPhaseControls .jff-phase-head{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:8px;font-size:9px;letter-spacing:1.5px;font-weight:900;color:#ffbd9f}#jffSusanooPhaseControls .jff-phase-sub{font-size:7px;letter-spacing:.8px;color:#8e859a;font-weight:700}#jffSusanooPhaseControls .jff-phase-row{display:flex;align-items:center;gap:5px;margin-top:5px}#jffSusanooPhaseControls .jff-phase-player{width:28px;flex:0 0 28px;font-size:8px;font-weight:900;color:#d6a8bf}#jffSusanooPhaseControls button{appearance:none;flex:1;min-width:0;padding:8px 4px;border:1px solid rgba(201,144,151,.24);border-radius:2px;background:linear-gradient(180deg,rgba(47,24,39,.88),rgba(17,11,22,.95));color:#b8a8b7;font:900 8px/1 Consolas,monospace;letter-spacing:.2px;cursor:pointer;transition:background .12s,border-color .12s,color .12s}#jffSusanooPhaseControls button:hover{border-color:#ffb08b;color:#fff0db;background:rgba(103,39,53,.85)}#jffSusanooPhaseControls button.is-active{border-color:#ff946d;color:#fff3c8;background:linear-gradient(180deg,rgba(128,43,42,.9),rgba(57,16,29,.95));box-shadow:inset 0 0 12px rgba(255,99,65,.18),0 0 8px rgba(255,100,71,.12)}#jffSusanooPhaseControls button:focus-visible{outline:2px solid #fff0bf;outline-offset:2px}';
+   document.head.appendChild(style);
+   phaseControlRoot=document.createElement('div');phaseControlRoot.id='jffSusanooPhaseControls';
+   phaseControlRoot.setAttribute('aria-label','Susanoo form selector');phaseControlRoot.setAttribute('aria-hidden','true');
+   phaseControlRoot.addEventListener('click',function(e){
+     const btn=e.target&&e.target.closest?e.target.closest('button[data-phase]'):null;
+     if(!btn||!phaseControlRoot.contains(btn))return;
+     const f=phaseControlOwners[Number(btn.getAttribute('data-owner-slot'))];
+     if(!f||!validItachi(f)||f.itachiEdo||!f.itachiSusanooActive)return;
+     f.itachiSusanooPhase=clamp(Number(btn.getAttribute('data-phase'))||3,1,3);
+     refreshPhaseControlButtons();
+     if(typeof SFX!=='undefined'&&SFX.ui)SFX.ui();
+   });
+   wrap.appendChild(phaseControlRoot);
+ }
+ function refreshPhaseControlButtons(){
+   if(!phaseControlRoot)return;
+   for(const btn of phaseControlRoot.querySelectorAll('button[data-phase]')){
+     const f=phaseControlOwners[Number(btn.getAttribute('data-owner-slot'))];
+     const selected=!!(f&&clamp(Math.round(Number(f.itachiSusanooPhase)||3),1,3)===Number(btn.getAttribute('data-phase')));
+     btn.classList.toggle('is-active',selected);btn.setAttribute('aria-pressed',selected?'true':'false');
+   }
+ }
+ function updatePhaseControls(){
+   ensurePhaseControls();if(!phaseControlRoot)return;
+   const hidden=typeof G==='undefined'||G.mode==='menu'||G.paused||!!Q.edoSusanooCutscene||!!Q.cinema;
+   const owners=hidden?[]:fighters().filter(f=>validItachi(f)&&!f.itachiEdo&&f.itachiSusanooActive).sort((a,b)=>(a.isP2?1:0)-(b.isP2?1:0));
+   const signature=owners.map(f=>f.isP2?'P2':'P1').join('|');
+   phaseControlOwners=owners;
+   if(signature!==phaseControlSignature){
+     phaseControlSignature=signature;
+     phaseControlRoot.innerHTML=owners.map((f,i)=>'<div class="jff-phase-row-wrap"><div class="jff-phase-head"><span>'+(f.isP2?'P2':'P1')+' · SUSANOO FORM</span><span class="jff-phase-sub">SELECT PHASE</span></div><div class="jff-phase-row"><span class="jff-phase-player">FORM</span><button type="button" data-owner-slot="'+i+'" data-phase="1">01 · SKELETAL</button><button type="button" data-owner-slot="'+i+'" data-phase="2">02 · MUSCULAR</button><button type="button" data-owner-slot="'+i+'" data-phase="3">03 · ARMORED</button></div></div>').join('');
+   }
+   const visible=owners.length>0&&!hidden;
+   phaseControlRoot.style.display=visible?'block':'none';
+   phaseControlRoot.setAttribute('aria-hidden',visible?'false':'true');
+   refreshPhaseControlButtons();
+ }
+ function drawFormHint(){
   const fs=fighters(),f=fs.find(x=>x&&x.id==='itachi'&&x.itachiSusanooActive&&alive(x));
   if(!f||typeof ctx==='undefined'||!W||!H)return;
   ctx.save();ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=.93;
@@ -683,7 +729,7 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
 };
 if(typeof previousReset==='function')window.resetFighter=function(f){
   if(f&&f.id==='itachi'){
-    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiYataCounterUsed=false;
+    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiSusanooPhase=3;f.itachiYataCounterUsed=false;
   }
   return previousReset.apply(this,arguments);
 };
@@ -691,8 +737,10 @@ if(typeof previousStep==='function')window.step=function(){
   const r=previousStep.apply(this,arguments);
   for(const f of fighters()){
     if(!f||f.id!=='itachi')continue;
+    if(f.itachiEdo)f.itachiSusanooPhase=3;
+    else if(!Number.isFinite(f.itachiSusanooPhase))f.itachiSusanooPhase=3;
     if(f.itachiSusanooPending&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
-      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
+      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiSusanooPhase=3;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
       f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.move=null;f.moveKey=null;f.moveFrame=0;f.vx=0;f.vy=0;
       f.invuln=Math.min(f.invuln||0,36);f.itachiPoseKey='';
       fx('shock',f.x,f.y-90,44);fx('magatama',f.x+f.facing*52,f.y-185,48);
@@ -723,6 +771,7 @@ if(typeof previousRender==='function')window.render=function(){
     hideStages(false);
     if(typeof G!=='undefined'&&G.mode!=='menu')drawFormHint();
   }
+  updatePhaseControls();
   return out;
 };
 // M1 / Z / X are consumed only while Itachi's persistent Susanoo form is active.
@@ -740,5 +789,5 @@ addEventListener('keydown',function(e){
   if(!Q.cinema&&!f.move&&['IDLE','WALK','LAND','ATTACK'].includes(f.state))activate(f,key);
 },true);
 window.JFF_ITACHI_SUSANOO_DEBUG={getForm:f=>!!(f&&f.itachiSusanooActive),drawSusanoo:drawSusanooRig,reset:f=>{if(f){f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';}}};
-console.info('[Itachi Susanoo] Phased Tengu summon, four-arm relic rig, living ember / Edo ash materials, distinct Itachi/Edo idle poses loaded.');
+console.info('[Itachi Susanoo] On-screen phase buttons: Skeletal / Muscular / Armored. Edo stays complete.');
 })();
