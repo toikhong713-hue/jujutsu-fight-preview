@@ -1,6 +1,6 @@
 /* EDO ITACHI SKILL OVERHAUL
-   S4 Crow Replacement -> S3 Yasaka Barrage -> S5 Amaterasu Field -> Yata -> Totsuka.
-   Lightweight custom SVG overlay; original character artwork remains unchanged.
+   S4 Crow Replacement -> S3 Yasaka Barrage -> S5 Amaterasu Field -> Yata -> animated Susanoo finisher.
+   The finisher uses the existing articulated Canvas rig; SVG is reserved for light camera/VFX overlays.
 */
 (function(){
 'use strict';
@@ -359,83 +359,40 @@ function crows(p,t,alpha){
 }
 function susanooCinemaSvg(c){
  if(!c||!c.owner)return '';
- const n=c.frame||0,f=c.owner,o=c.target,d=c.face||1;
- const p=point(f.x,f.y),tp=point(o&&Number.isFinite(o.x)?o.x:c.ownerStartX+d*300,o&&Number.isFinite(o.y)?o.y-90:c.ownerStartY-90);
- const appear=clamp(n/48,0,1),ease=appear*appear*(3-2*appear),scale=.16+ease*.99;
- let swordAngle=-22;
- if(n<60)swordAngle=-38+clamp(n/60,0,1)*18;
- else if(n<150)swordAngle=Math.sin(n*.25)*48;
- else if(n<240)swordAngle=95+Math.sin(n*.17)*8;
- else if(n<330)swordAngle=-82+Math.sin(n*.035)*5;
- else if(n<350)swordAngle=-82+clamp((n-330)/20,0,1)*153;
- else if(n<390)swordAngle=71-(n-350)*.52;
- else swordAngle=50-clamp((n-390)/30,0,1)*76;
+ const n=c.frame||0,o=c.target,dir=c.face||1,owner=point(c.owner.x,c.owner.y);
+ const target=point(o&&Number.isFinite(o.x)?o.x:c.ownerStartX+dir*300,o&&Number.isFinite(o.y)?o.y-92:c.ownerStartY-92);
  let s='';
- s+='<defs><linearGradient id=\"edoSusArmor\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#edf2ff\"/><stop offset=\".18\" stop-color=\"#9aa8c8\"/><stop offset=\".44\" stop-color=\"#42445f\"/><stop offset=\".72\" stop-color=\"#171729\"/><stop offset=\"1\" stop-color=\"#a9b5d7\"/></linearGradient>';
- s+='<linearGradient id=\"edoSusBlade\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"0\"><stop offset=\"0\" stop-color=\"#21182f\"/><stop offset=\".33\" stop-color=\"#b6a9e6\"/><stop offset=\".52\" stop-color=\"#fffdf7\"/><stop offset=\".72\" stop-color=\"#bda8f9\"/><stop offset=\"1\" stop-color=\"#261a38\"/></linearGradient>';
- s+='<linearGradient id=\"edoSusSlash\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5d3eaa\"/><stop offset=\".44\" stop-color=\"#fffdf5\"/><stop offset=\".7\" stop-color=\"#e5c8ff\"/><stop offset=\"1\" stop-color=\"#7d183c\"/></linearGradient>';
- s+='<radialGradient id=\"edoSusVignette\"><stop offset=\".12\" stop-color=\"#080610\" stop-opacity=\".04\"/><stop offset=\".66\" stop-color=\"#080610\" stop-opacity=\".32\"/><stop offset=\"1\" stop-color=\"#010107\" stop-opacity=\".88\"/></radialGradient></defs>';
- s+='<rect width=\"1280\" height=\"720\" fill=\"#070611\" opacity=\".48\"/><rect width=\"1280\" height=\"720\" fill=\"url(#edoSusVignette)\"/>';
- const aura=26+Math.sin(n*.09)*9;
- s+='<g opacity=\"'+(.28+.28*ease)+'\"><ellipse cx=\"'+p.x+'\" cy=\"'+(p.y-178*scale)+'\" rx=\"'+(175*scale+aura)+'\" ry=\"'+(248*scale+aura)+'\" fill=\"#6551b6\" opacity=\".14\"/><ellipse cx=\"'+p.x+'\" cy=\"'+(p.y-172*scale)+'\" rx=\"'+(139*scale+aura)+'\" ry=\"'+(214*scale+aura)+'\" fill=\"none\" stroke=\"#a99dff\" stroke-width=\"2.5\" stroke-dasharray=\"7 13\"/><ellipse cx=\"'+p.x+'\" cy=\"'+(p.y-174*scale)+'\" rx=\"'+(108*scale+aura)+'\" ry=\"'+(182*scale+aura)+'\" fill=\"none\" stroke=\"#e5e1ff\" stroke-width=\"1.2\" opacity=\".5\"/></g>';
- // A complete armored Susanoo silhouette: helmet, horned crest, shoulder wings, ribbed cuirass, limbs and a full-length blade.
- s+='<g transform=\"translate('+p.x+' '+p.y+') scale('+(d*scale)+' '+scale+')\" opacity=\"'+(.2+.8*ease)+'\">';
- s+='<ellipse cx=\"0\" cy=\"-18\" rx=\"108\" ry=\"15\" fill=\"#06040e\" opacity=\".8\"/><path d=\"M -84 -80 L -112 -35 L -70 -24 L -33 -49 L 0 -29 L 35 -49 L 74 -24 L 115 -37 L 83 -84 Z\" fill=\"#25243d\" stroke=\"#aaa9d4\" stroke-width=\"3\"/>';
- s+='<path d=\"M -35 -88 L -28 -38 L -54 -25 L -67 -28 L -61 -88 Z M 35 -88 L 28 -38 L 54 -25 L 67 -28 L 61 -88 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#222039\" stroke-width=\"4\"/>';
- s+='<path d=\"M -68 -87 L -88 -174 L -54 -211 L -27 -183 L -8 -151 L 0 -112 L 8 -151 L 27 -183 L 54 -211 L 88 -174 L 68 -87 L 36 -64 L 0 -57 L -36 -64 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#d8dcfa\" stroke-width=\"4\"/>';
- s+='<path d=\"M -84 -179 L -137 -235 L -163 -286 L -113 -267 L -78 -235 L -57 -195 Z\" fill=\"#3a385b\" stroke=\"#c0c4e8\" stroke-width=\"3\"/><path d=\"M 84 -179 L 137 -235 L 163 -286 L 113 -267 L 78 -235 L 57 -195 Z\" fill=\"#3a385b\" stroke=\"#c0c4e8\" stroke-width=\"3\"/>';
- s+='<path d=\"M -112 -235 L -176 -254 L -145 -204 L -102 -190 Z M 112 -235 L 176 -254 L 145 -204 L 102 -190 Z\" fill=\"#19182b\" stroke=\"#8b91bc\" stroke-width=\"3\"/>';
- s+='<path d=\"M -39 -268 L -61 -308 L -43 -307 L -23 -334 L -8 -302 L 0 -288 L 8 -302 L 23 -334 L 43 -307 L 61 -308 L 39 -268 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#eff0ff\" stroke-width=\"3\"/>';
- s+='<path d=\"M -36 -275 L -31 -326 L -17 -301 L 0 -354 L 17 -301 L 31 -326 L 36 -275 Z\" fill=\"#25213c\" stroke=\"#b4b6df\" stroke-width=\"3\"/>';
- s+='<path d=\"M -28 -280 Q -43 -299 -35 -326 L -18 -343 L 0 -351 L 18 -343 L 35 -326 Q 43 -299 28 -280 L 22 -252 L 0 -241 L -22 -252 Z\" fill=\"#555675\" stroke=\"#e0e5ff\" stroke-width=\"3\"/>';
- s+='<path d=\"M -27 -314 L -8 -309 L -14 -298 L -30 -303 Z M 27 -314 L 8 -309 L 14 -298 L 30 -303 Z\" fill=\"#e7e7ff\" stroke=\"#b4b6f4\" stroke-width=\"2\"/><path d=\"M -25 -310 L -11 -307 L -18 -303 Z M 25 -310 L 11 -307 L 18 -303 Z\" fill=\"#f2e9ff\"/>';
- s+='<path d=\"M -12 -281 L 0 -291 L 12 -281 L 8 -260 L 0 -251 L -8 -260 Z\" fill=\"#0a0712\" stroke=\"#b7a9e8\" stroke-width=\"2\"/><path d=\"M -9 -274 L 0 -270 L 9 -274\" stroke=\"#d7d7f5\" stroke-width=\"2.5\" fill=\"none\"/>';
- s+='<path d=\"M -58 -239 L -92 -218 L -87 -158 L -60 -125 L -34 -143 L -24 -199 Z\" fill=\"#3f405e\" stroke=\"#bec7ec\" stroke-width=\"3\"/><path d=\"M 58 -239 L 92 -218 L 87 -158 L 60 -125 L 34 -143 L 24 -199 Z\" fill=\"#3f405e\" stroke=\"#bec7ec\" stroke-width=\"3\"/>';
- s+='<path d=\"M -66 -231 L -104 -248 L -128 -222 L -107 -181 L -76 -173 L -57 -194 Z M 66 -231 L 104 -248 L 128 -222 L 107 -181 L 76 -173 L 57 -194 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#f0efff\" stroke-width=\"3\"/>';
- s+='<path d=\"M -56 -222 Q 0 -255 56 -222 L 75 -184 L 49 -126 L 0 -103 L -49 -126 L -75 -184 Z\" fill=\"#222138\" stroke=\"#a7a8d2\" stroke-width=\"4\"/>';
- for(let i=0;i<4;i++){const yy=-211+i*19,ww=43+i*7;s+='<path d=\"M -'+ww+' '+yy+' Q 0 '+(yy+20)+' '+ww+' '+yy+'\" fill=\"none\" stroke=\"'+(i%2?'#c7c9ee':'#7f83b4')+'\" stroke-width=\"5\" opacity=\".95\"/>';}
- s+='<path d=\"M -43 -220 L -30 -185 L 0 -166 L 30 -185 L 43 -220 L 28 -230 L 0 -212 L -28 -230 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#d6d7f4\" stroke-width=\"2.5\"/>';
- s+='<path d=\"M -23 -174 L -37 -145 L -25 -119 L 0 -111 L 25 -119 L 37 -145 L 23 -174 L 0 -158 Z\" fill=\"#4a456e\" stroke=\"#dddafa\" stroke-width=\"3\"/><path d=\"M -8 -154 L 0 -166 L 8 -154 L 0 -137 Z\" fill=\"#e7e1ff\" stroke=\"#8174bf\" stroke-width=\"2\"/>';
- s+='<path d=\"M -74 -226 L -105 -192 L -91 -148 L -66 -126 L -53 -157 L -58 -191 Z\" fill=\"#686887\" stroke=\"#dadcf4\" stroke-width=\"3\"/><path d=\"M 74 -226 L 105 -192 L 91 -148 L 66 -126 L 53 -157 L 58 -191 Z\" fill=\"#686887\" stroke=\"#dadcf4\" stroke-width=\"3\"/>';
- s+='<path d=\"M -75 -143 L -49 -119 L -46 -83 L -65 -60 L -91 -77 L -93 -115 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#bfc5e4\" stroke-width=\"3\"/><path d=\"M 75 -143 L 49 -119 L 46 -83 L 65 -60 L 91 -77 L 93 -115 Z\" fill=\"url(#edoSusArmor)\" stroke=\"#bfc5e4\" stroke-width=\"3\"/>';
- s+='<path d=\"M -34 -113 L -56 -86 L -48 -35 L -24 -23 L -8 -34 L -12 -87 Z M 34 -113 L 56 -86 L 48 -35 L 24 -23 L 8 -34 L 12 -87 Z\" fill=\"#33314d\" stroke=\"#adb5dc\" stroke-width=\"3\"/>';
- // The sword follows the full cinematic wind-up and snaps down during the dimensional cut.
- s+='<g transform=\"translate(80 -253) rotate('+swordAngle+')\"><path d=\"M -18 7 L -24 -37 L -15 -130 L 14 -273 L 30 -291 L 29 -245 L 18 -128 L 16 -38 L 11 7 Z\" fill=\"url(#edoSusBlade)\" stroke=\"#f3efff\" stroke-width=\"3.5\"/><path d=\"M -8 -35 L 20 -252\" stroke=\"#ffffff\" stroke-width=\"3\" opacity=\".85\"/><path d=\"M -28 -27 L 24 -17 L 36 -6 L -35 -10 Z\" fill=\"#c7c6e9\" stroke=\"#fff6dd\" stroke-width=\"2.5\"/><path d=\"M -8 7 L -11 32 L -2 41 L 10 32 L 8 7 Z\" fill=\"#171124\" stroke=\"#aeb7dd\" stroke-width=\"3\"/><path d=\"M -8 12 L 8 29 M 8 12 L -8 29\" stroke=\"#d9dff6\" stroke-width=\"2\"/></g>';
- s+='<path d=\"M -33 -92 L -8 -72 L 0 -43 L 8 -72 L 33 -92 L 24 -48 L 0 -31 L -24 -48 Z\" fill=\"#7d7ca7\" stroke=\"#d6d9f5\" stroke-width=\"3\"/>';
- s+='<path d=\"M -16 -25 L -25 -8 L 0 0 L 25 -8 L 16 -25 Z\" fill=\"#27253d\" stroke=\"#d0d4ef\" stroke-width=\"2\"/>';
- s+='</g>';
- // Five fast air cuts, then the ground-splitting pressure sequence.
+ s+='<defs><linearGradient id="edoRigSlash" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8061ee"/><stop offset=".42" stop-color="#ffffff"/><stop offset=".72" stop-color="#c4a7ff"/><stop offset="1" stop-color="#5428bc"/></linearGradient><radialGradient id="edoRigCharge"><stop offset="0" stop-color="#eee5ff" stop-opacity=".85"/><stop offset=".35" stop-color="#8c63ff" stop-opacity=".3"/><stop offset="1" stop-color="#5b34c8" stop-opacity="0"/></radialGradient></defs>';
+ // The game-rendered articulated rig remains visible underneath; this layer contains only camera effects.
+ s+='<rect x="0" y="0" width="1280" height="47" fill="#05030b" opacity=".78"/><rect x="0" y="673" width="1280" height="47" fill="#05030b" opacity=".78"/>';
+ if(n<60){
+  const p=clamp(n/52,0,1),cy=owner.y-155*owner.s,rad=(30+p*170)*owner.s;
+  s+='<g opacity="'+(.18+p*.52)+'"><ellipse cx="'+owner.x+'" cy="'+cy+'" rx="'+(rad*1.1)+'" ry="'+(rad*.34)+'" fill="none" stroke="#9875ff" stroke-width="3" stroke-dasharray="9 10" transform="rotate('+(-20+n*1.4)+' '+owner.x+' '+cy+')"/><ellipse cx="'+owner.x+'" cy="'+cy+'" rx="'+(rad*.82)+'" ry="'+(rad*.48)+'" fill="none" stroke="#e8e1ff" stroke-width="1.8" stroke-dasharray="3 12" transform="rotate('+(27-n*1.1)+' '+owner.x+' '+cy+')"/><circle cx="'+owner.x+'" cy="'+cy+'" r="'+(rad*.48)+'" fill="url(#edoRigCharge)"/></g>';
+ }
  for(const h of c.hitEvents||[]){
   const age=n-h.frame;if(age<0||age>9)continue;
-  const hp=point(h.x,h.y),fade=1-age/10,ang=(h.index%2?1:-1)*(h.final?-.45:(.35+(h.index%3)*.18));
-  const dx=235,dy=130,ax=Math.cos(ang)*dx,ay=Math.sin(ang)*dy;
-  s+='<g opacity=\"'+fade+'\"><path d=\"M '+(hp.x-ax)+' '+(hp.y-ay)+' Q '+hp.x+' '+(hp.y+((h.index%2)?-42:42))+' '+(hp.x+ax)+' '+(hp.y+ay)+'\" fill=\"none\" stroke=\"url(#edoSusSlash)\" stroke-width=\"'+(h.final?45:31)+'\" stroke-linecap=\"round\" opacity=\".5\"/><path d=\"M '+(hp.x-ax)+' '+(hp.y-ay)+' Q '+hp.x+' '+(hp.y+((h.index%2)?-42:42))+' '+(hp.x+ax)+' '+(hp.y+ay)+'\" fill=\"none\" stroke=\"#f8f4ff\" stroke-width=\"'+(h.final?12:7)+'\" stroke-linecap=\"round\"/><circle cx=\"'+hp.x+'\" cy=\"'+hp.y+'\" r=\"'+(17+age*16)+'\" fill=\"none\" stroke=\"'+(h.final?'#fff2ff':'#b9a4f2')+'\" stroke-width=\"'+(h.final?4:2)+'\" opacity=\".8\"/></g>';
- }
- // Low-cost ash streaks and an expanding impact floor ring.
- if(n>24&&n<390){
-  for(let i=0;i<13;i++){const x=(i*151+n*(.6+(i%3)*.14))%1280,y=(i*91+n*(.9+(i%4)*.13))%630;s+='<path d=\"M '+x+' '+y+' l '+(-13-(i%4)*4)+' '+(16+(i%5)*4)+'\" stroke=\"'+(i%3?'#827ab8':'#efe9ff')+'\" stroke-width=\"1.3\" opacity=\"'+(.15+ease*.2)+'\"/>';}
- }
- if(n>=150&&n<240){
-  const prog=(n-150)/90,rad=90+prog*370;
-  s+='<ellipse cx=\"'+(p.x+(tp.x-p.x)*.44)+'\" cy=\"'+(p.y+12)+'\" rx=\"'+rad+'\" ry=\"'+(13+prog*10)+'\" fill=\"none\" stroke=\"#9ba2d9\" stroke-width=\"'+(4-prog*2)+'\" opacity=\"'+(.6-prog*.3)+'\"/><path d=\"M 0 634 Q 240 610 420 640 T 835 630 T 1280 636\" fill=\"none\" stroke=\"#aab0e9\" stroke-width=\"2\" opacity=\".55\"/>';
+  const p=point(h.x,h.y),fade=1-age/10,angle=h.final?-.45:((h.index%2)?-.28:.34);
+  const dx=h.final?520:250,dy=h.final?520:180;
+  const ax=Math.cos(angle)*dx,ay=Math.sin(angle)*dy;
+  s+='<g opacity="'+fade+'"><path d="M '+(p.x-ax)+' '+(p.y-ay)+' Q '+p.x+' '+(p.y+(h.index%2?-40:40))+' '+(p.x+ax)+' '+(p.y+ay)+'" fill="none" stroke="#734fe5" stroke-width="'+(h.final?58:36)+'" stroke-linecap="round" opacity=".42"/><path d="M '+(p.x-ax)+' '+(p.y-ay)+' Q '+p.x+' '+(p.y+(h.index%2?-40:40))+' '+(p.x+ax)+' '+(p.y+ay)+'" fill="none" stroke="url(#edoRigSlash)" stroke-width="'+(h.final?25:13)+'" stroke-linecap="round"/><path d="M '+(p.x-ax)+' '+(p.y-ay)+' Q '+p.x+' '+(p.y+(h.index%2?-40:40))+' '+(p.x+ax)+' '+(p.y+ay)+'" fill="none" stroke="#ffffff" stroke-width="'+(h.final?4:2)+'" stroke-linecap="round"/><circle cx="'+p.x+'" cy="'+p.y+'" r="'+(20+age*13)+'" fill="none" stroke="#dfd3ff" stroke-width="2.4" stroke-dasharray="7 9"/></g>';
  }
  if(n>=240&&n<330){
-  const charge=clamp((n-240)/90,0,1),cx=p.x+d*85,cy=p.y-475*scale;
-  s+='<g opacity=\"'+(.25+charge*.5)+'\"><circle cx=\"'+cx+'\" cy=\"'+cy+'\" r=\"'+(26+charge*74)+'\" fill=\"none\" stroke=\"#e7e3ff\" stroke-width=\"2\" stroke-dasharray=\"5 9\"/><circle cx=\"'+cx+'\" cy=\"'+cy+'\" r=\"'+(13+charge*47)+'\" fill=\"#dedbff\" opacity=\".18\"/><path d=\"M '+cx+' '+(cy-130*charge)+' L '+(cx+9)+' '+(cy-19)+' L '+(cx-11)+' '+(cy+24)+' L '+(cx+7)+' '+(cy+102*charge)+'\" stroke=\"#f7f3ff\" stroke-width=\"2.5\" fill=\"none\"/></g>';
+  const q=clamp((n-240)/90,0,1),cx=owner.x+dir*68*owner.s,cy=owner.y-420*owner.s,r=(25+q*105)*owner.s;
+  s+='<g opacity="'+(.3+q*.55)+'"><circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="url(#edoRigCharge)"/><circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#a88eff" stroke-width="2.3" stroke-dasharray="6 9" transform="rotate('+n+' '+cx+' '+cy+')"/><circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.62)+'" fill="none" stroke="#f4edff" stroke-width="1.6" stroke-dasharray="2 7" transform="rotate('+(-n*1.7)+' '+cx+' '+cy+')"/>';
+  for(let i=0;i<14;i++){const a=i*2.399+n*.075,rr=r*(.65+((i%4)*.09)),x=cx+Math.cos(a)*rr,y=cy+Math.sin(a)*rr;s+='<path d="M '+(x-4)+' '+(y+8)+' L '+x+' '+(y-8)+' L '+(x+4)+' '+(y+5)+'" stroke="'+(i%3?'#b19aff':'#fffaff')+'" stroke-width="1.5" fill="none"/>';}
+  s+='</g>';
  }
  if(n>=345&&n<=368){
-  const age=n-350,tearFade=Math.max(0,1-Math.abs(age)/19);
-  const shift=(n<350?1:age<0?1:-1)*Math.min(28,Math.abs(age)*2.8);
-  s+='<g opacity=\"'+(.22+tearFade*.55)+'\"><path d=\"M 0 58 L 163 83 L 260 65 L 388 104 L 493 75 L 623 113 L 761 65 L 888 88 L 1012 48 L 1134 82 L 1280 47 L 1280 206 L 1110 224 L 976 190 L 826 231 L 691 193 L 551 225 L 415 182 L 277 220 L 142 183 L 0 202 Z\" fill=\"#9f6cef\" opacity=\".35\" transform=\"translate('+shift+' 0)\"/><path d=\"M 0 65 L 168 92 L 263 69 L 390 110 L 498 81 L 627 120 L 760 72 L 888 94 L 1014 56 L 1137 88 L 1280 54\" fill=\"none\" stroke=\"#f7f2ff\" stroke-width=\"3\"/><path d=\"M 0 201 L 142 183 L 277 220 L 415 182 L 551 225 L 691 193 L 826 231 L 976 190 L 1110 224 L 1280 206\" fill=\"none\" stroke=\"#d52e88\" stroke-width=\"2.5\" transform=\"translate('+(-shift)+' 0)\"/></g>';
+  const age=Math.abs(n-350),fade=Math.max(0,1-age/19),shift=(n<350?1:-1)*Math.min(30,age*3);
+  s+='<g opacity="'+(.25+fade*.65)+'"><rect x="0" y="0" width="1280" height="720" fill="#8c6aff" opacity=".06"/><path d="M 0 80 L 160 102 L 270 73 L 410 122 L 540 88 L 665 132 L 800 78 L 940 105 L 1058 63 L 1168 95 L 1280 61" stroke="#e8e0ff" stroke-width="3" fill="none" transform="translate('+shift+' 0)"/><path d="M 0 640 L 142 612 L 278 652 L 413 608 L 556 657 L 691 620 L 826 662 L 970 615 L 1110 649 L 1280 618" stroke="#965dff" stroke-width="4" fill="none" transform="translate('+(-shift)+' 0)"/>';
+  for(let i=0;i<8;i++){const x=i*173+((n-350)*29%173);s+='<path d="M '+x+' 48 L '+(x-22)+' 210 L '+(x+10)+' 300 L '+(x-18)+' 410" stroke="'+(i%2?'#aa86ff':'#fffaff')+'" stroke-width="'+(i%3===0?3:1.3)+'" opacity=".72" fill="none"/>';}
+  s+='</g>';
  }
- const flashHit=(c.hitEvents||[]).some(h=>n>=h.frame&&n<h.frame+(h.final?7:3));
- if(flashHit){const final=(c.hitEvents||[]).some(h=>h.final&&n>=h.frame&&n<h.frame+5);s+='<rect width=\"1280\" height=\"720\" fill=\"'+(final?'#efe8ff':'#bcb2ef')+'\" opacity=\"'+(final?.22:.09)+'\"/>';}
- const introGlow=clamp(1-n/35,0,1)*.24;
- if(introGlow>0)s+='<rect width=\"1280\" height=\"720\" fill=\"#a99dff\" opacity=\"'+introGlow+'\"/>';
- s+='<rect x=\"0\" y=\"0\" width=\"1280\" height=\"58\" fill=\"#020208\" opacity=\".96\"/><rect x=\"0\" y=\"662\" width=\"1280\" height=\"58\" fill=\"#020208\" opacity=\".96\"/>';
- s+='<text x=\"640\" y=\"34\" text-anchor=\"middle\" fill=\"#e6e2ff\" font-family=\"monospace\" font-size=\"13\" letter-spacing=\"5\" opacity=\".9\">EDO TENSEI  //  PERFECT SUSANOO</text>';
- s+='<text x=\"640\" y=\"694\" text-anchor=\"middle\" fill=\"#f1edff\" font-family=\"serif\" font-size=\"20\" letter-spacing=\"4\">SUSANOO · THIÊN PHÁ TRẢM</text>';
- s+='<text x=\"640\" y=\"714\" text-anchor=\"middle\" fill=\"#9c91cc\" font-family=\"monospace\" font-size=\"9\" letter-spacing=\"3\">SPACE-SEVERING FINISHER   ·   '+Math.min(12,(c.hitEvents||[]).length)+' / 12 IMPACTS</text>';
+ const flashHit=(c.hitEvents||[]).some(h=>n>=h.frame&&n<h.frame+(h.final?6:3));
+ if(flashHit){const final=(c.hitEvents||[]).some(h=>h.final&&n>=h.frame&&n<h.frame+5);s+='<rect width="1280" height="720" fill="'+(final?'#f2edff':'#d6c8ff')+'" opacity="'+(final?.23:.075)+'"/>';}
+ s+='<text x="640" y="29" text-anchor="middle" fill="#ded5ff" font-family="monospace" font-size="12" letter-spacing="4" opacity=".9">EDO TENSEI  /  SUSANOO</text>';
+ s+='<text x="640" y="701" text-anchor="middle" fill="#f0eaff" font-family="serif" font-size="18" letter-spacing="3">THIÊN PHÁ TRẢM</text>';
+ s+='<text x="640" y="716" text-anchor="middle" fill="#a997e7" font-family="monospace" font-size="9" letter-spacing="2">'+Math.min(12,(c.hitEvents||[]).length)+' / 12 IMPACTS</text>';
  return s;
 }
 function renderStage(){
@@ -461,6 +418,6 @@ function renderStage(){
 }
 if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);renderStage();return r;};
 if(typeof CHARS!=='undefined'&&CHARS.edo_itachi&&CHARS.edo_itachi.moves&&CHARS.edo_itachi.moves.ult)CHARS.edo_itachi.moves.ult.name='Susanoo: Thiên Phá Trảm';
-window.JFF_EDO_ITACHI_SKILLS={ready:true,version:2,cinematicUltimate:'Susanoo: Thiên Phá Trảm · 7 seconds · 12 hit beats',skills:['Crow Body Replacement','Yasaka Barrage','Amaterasu Black Flame Field','Yata Mirror Reversal','Totsuka Sealing Finale']};
+window.JFF_EDO_ITACHI_SKILLS={ready:true,version:3,cinematicUltimate:'Articulated Purple Susanoo: Thiên Phá Trảm · 7 seconds · 12 hit beats',skills:['Crow Body Replacement','Yasaka Barrage','Amaterasu Black Flame Field','Yata Mirror Reversal','Totsuka Sealing Finale']};
 console.info('[Edo Itachi] Unique skills loaded: Crow Replacement, Yasaka Barrage, Black Flame Field, Yata Reversal, Totsuka Sealing.');
 })();
