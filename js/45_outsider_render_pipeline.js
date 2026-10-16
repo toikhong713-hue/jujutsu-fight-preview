@@ -180,6 +180,8 @@
       root.innerHTML=defs;sys.fx.length=0;sys.shots.length=0;sys.clone=null;sys.burn=null;sys.burns=[];sys.moon=null;sys.genjutsu=null;sys.sealing=null;
       const canvas=document.getElementById('cv');if(canvas)canvas.style.filter='';return;
     }
+    const itachiController=window.JFF_ITACHI_REBOOT;
+    if(itachiController&&itachiController.cinema&&itachiController.cinema.kind==='edoSusanoo')return;
     const canvas=document.getElementById('cv');if(canvas)canvas.style.filter=sys.moon?'grayscale(1) contrast(1.35) saturate(.45)':'';
     const active=G.fighters||[];
     const outsider=active.filter(f=>f&&f.id==='itachi');
