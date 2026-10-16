@@ -431,6 +431,10 @@ function drawFormHint(){
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
   const cine=Q.edoSusanooCine;
+  if(cine&&Q.cinema&&Q.cinema.kind==='edoSusanoo'&&cine.rebuildVersion===2&&cine.owner===f&&validItachi(f)){
+    // The rebuilt ultimate uses the dedicated SVG rig. Keep Itachi visible, but remove the retired undersized Canvas Susanoo.
+    return previousDrawFighter.apply(this,arguments);
+  }
   if(cine&&Q.cinema&&Q.cinema.kind==='edoSusanoo'&&cine.owner===f&&validItachi(f)){
     const n=cine.frame||0,dir=cine.face||1,size=1.98;
     const actor=Object.assign({},f,{itachiEdo:true,itachiSusanooActive:true,facing:dir,state:'IDLE',itachiSusanooAction:'cinematic'});
