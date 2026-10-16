@@ -9,6 +9,7 @@ const Q=window.JFF_ITACHI_REBOOT;
 if(!Q||!window.JFF_EDO_ITACHI)return;
 window.__JFF_EDO_ITACHI_SKILLS_V1__=true;
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const smooth=t=>{t=clamp(t,0,1);return t*t*(3-2*t);};
 const alive=f=>!!(f&&f.hp>0&&f.state!=='DEFEAT'&&f.state!=='VICTORY');
 const sign=v=>v<0?-1:(v>0?1:0);
 const fx=(t,x,y,d,data)=>{if(typeof window.JFF_OUTSIDER_FX==='function')window.JFF_OUTSIDER_FX(t,x,y,d||20,data||{});};
