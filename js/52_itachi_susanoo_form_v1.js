@@ -55,7 +55,7 @@ function beginAttack(f,key){
   return true;
 }
 function activate(f,key){return beginAttack(f,key==='z'?'sus_z':(key==='x'?'sus_x':'sus_m1'));}
-window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:4,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu'],setPhase:(f,n)=>{if(!validItachi(f)||f.itachiEdo||!f.itachiSusanooActive)return false;f.itachiSusanooPhase=clamp(Math.round(Number(n)||3),1,3);return true;}};
+window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:5,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu'],setPhase:(f,n)=>{if(!validItachi(f)||!f.itachiSusanooActive)return false;f.itachiSusanooPhase=clamp(Math.round(Number(n)||3),1,3);return true;}};
 function hit(f,frame,damage,range,opts){
   const o=f&&f.opp,d=f.facing||1;if(!alive(o))return false;
   const cfg=opts||{};
@@ -322,7 +322,7 @@ function drawSummonPhase(frame,stage,edo){
   const edoForm=!!(f&&f.itachiEdo),edoIdle=edoForm,idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
   const shellDark=edoForm?'#211020':'#19070e',shellMid=edoForm?'#561b40':'#682033',shellHot=edoForm?'#a33b68':'#d96a4c',shellEdge=edoForm?'#e0a6d0':'#ff9c70',coreGlow=edoForm?'#e0c6ff':'#ffff99';
   // Manual phase buttons affect Itachi's resting battlefield form; attacks retain the full weapon rig.
-  if(sceneMode==='battle'&&battleIdle&&!edoForm){const selectedPhase=clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);if(selectedPhase<3){drawSummonPhase(t,selectedPhase-1,false);ctx.restore();return;}}
+  if(sceneMode==='battle'&&battleIdle){const selectedPhase=clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);if(selectedPhase<3){drawSummonPhase(t,selectedPhase-1,edoForm);ctx.restore();return;}}
   // Summon cinematic evolves automatically through skeletal, muscular, and armored forms.
   if(awakening){const summonStage=edoForm?(n<19?0:(n<42?1:2)):(n<48?0:(n<108?1:2));if(summonStage<2){drawSummonPhase(n,summonStage,edoForm);ctx.restore();return;}}
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
@@ -682,7 +682,7 @@ let phaseControlRoot=null,phaseControlOwners=[],phaseControlSignature='';
  function updatePhaseControls(){
    ensurePhaseControls();if(!phaseControlRoot)return;
    const hidden=typeof G==='undefined'||G.mode==='menu'||G.paused||!!Q.edoSusanooCutscene||!!Q.cinema;
-   const owners=hidden?[]:fighters().filter(f=>validItachi(f)&&!f.ai&&!f.itachiEdo&&f.itachiSusanooActive).sort((a,b)=>(a.isP2?1:0)-(b.isP2?1:0));
+   const owners=hidden?[]:fighters().filter(f=>validItachi(f)&&!f.ai&&f.itachiSusanooActive).sort((a,b)=>(a.isP2?1:0)-(b.isP2?1:0));
    const signature=owners.map(f=>f.isP2?'P2':'P1').join('|');
    phaseControlOwners=owners;
    if(signature!==phaseControlSignature){
@@ -737,8 +737,7 @@ if(typeof previousStep==='function')window.step=function(){
   const r=previousStep.apply(this,arguments);
   for(const f of fighters()){
     if(!f||f.id!=='itachi')continue;
-    if(f.itachiEdo)f.itachiSusanooPhase=3;
-    else if(!Number.isFinite(f.itachiSusanooPhase))f.itachiSusanooPhase=3;
+    if(!Number.isFinite(f.itachiSusanooPhase))f.itachiSusanooPhase=3;
     if(f.itachiSusanooPending&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
       f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiSusanooPhase=3;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
       f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.move=null;f.moveKey=null;f.moveFrame=0;f.vx=0;f.vy=0;
@@ -789,5 +788,5 @@ addEventListener('keydown',function(e){
   if(!Q.cinema&&!f.move&&['IDLE','WALK','LAND','ATTACK'].includes(f.state))activate(f,key);
 },true);
 window.JFF_ITACHI_SUSANOO_DEBUG={getForm:f=>!!(f&&f.itachiSusanooActive),drawSusanoo:drawSusanooRig,reset:f=>{if(f){f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';}}};
-console.info('[Itachi Susanoo] On-screen phase buttons: Skeletal / Muscular / Armored. Edo stays complete.');
+console.info('[Itachi Susanoo] On-screen phase buttons: Skeletal / Muscular / Armored for regular and Edo Itachi.');
 })();
