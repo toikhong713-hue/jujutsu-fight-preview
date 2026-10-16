@@ -4,7 +4,7 @@
    Escape, reset, menu exit, KO state, and teardown all restore camera/HUD/input state. */
 (function(){
 'use strict';
-if(window.__JFF_EDO_SUSANOO_TENPAZAN_V1__)return;
+if(window.__JFF_EDO_SUSANOO_TENPAZAN_V2__)return;
 const Q=window.JFF_ITACHI_REBOOT;
 if(!Q||typeof window.updateMove!=='function'||typeof window.step!=='function')return;
 window.__JFF_EDO_SUSANOO_TENPAZAN_V1__=true;
@@ -92,6 +92,7 @@ function startCutscene(f){
   invertUntil:0,shakeFrame:0
  };
  Q.edoSusanooCutscene=u;
+ if(stage){stage.style.display='block';stage.style.opacity='1';stage.innerHTML='';}
  f.facing=face;f.vx=0;f.vy=0;f.moveKey='ult';f.moveFrame=0;f.itachiPoseKey='ult';
  f.itachiCinemaKind='tenpazan';f.itachiSusanooActive=true;f.itachiSusanooAction='cinematic';
  f.itachiEdoUltimateActive=true;f.itachiSusanooFrames=Math.max(f.itachiSusanooFrames||0,DURATION+30);
@@ -226,11 +227,15 @@ function finishCutscene(u,cancelled){
   f.x=u.ownerX;f.y=u.ownerY;f.facing=prev.facing===undefined?u.face:prev.facing;
   f.vx=0;f.vy=0;f.move=null;f.moveKey=null;f.moveFrame=0;
   f.itachiPoseKey='';f.itachiCinemaKind=prev.itachiCinemaKind||'';
-  f.itachiSusanooActive=!!prev.itachiSusanooActive;
-  f.itachiSusanooAction=prev.itachiSusanooAction||'';
-  f.itachiSusanooFrames=prev.itachiSusanooFrames||0;f.itachiEdoUltimateActive=!!prev.itachiEdoUltimateActive;
+  // Keep Edo's complete guardian summoned after a successful ultimate rather than clearing the form.
+  f.itachiSusanooActive=!!(prev.itachiSusanooActive||(!cancelled&&f.itachiEdo));
+  f.itachiSusanooAction='';
+  f.itachiSusanooFrames=Math.max(prev.itachiSusanooFrames||0,(!cancelled&&f.itachiEdo)?600:0);
+  f.itachiEdoUltimateActive=false;
   f.itachiSusanooPending=!!prev.itachiSusanooPending;f.invuln=prev.invuln||0;f.hitstun=prev.hitstun||0;f.immobilize=prev.immobilize||0;
-  if(alive(f)){f.state='IDLE';f.stateFrame=0;}else{f.hp=0;f.state='DEFEAT';f.stateFrame=0;}
+  // Do not turn a living owner into a defeat state during cinematic cleanup.
+  if((Number(f.hp)||0)>0){f.state='IDLE';f.stateFrame=0;f.hitstun=0;f.immobilize=0;}
+  else{f.hp=0;f.state='DEFEAT';f.stateFrame=0;}
  }
  if(o){
   const prev=u.targetBefore||{};
@@ -248,7 +253,7 @@ function finishCutscene(u,cancelled){
   }
  }
  restoreCamera(u);restoreCinematicUI(u);
- if(stage)stage.innerHTML='';
+ if(stage){stage.innerHTML='';stage.style.display='none';stage.style.opacity='';}
  Q.edoSusanooCutscene=null;
 }
 function lockPose(u){
@@ -300,7 +305,8 @@ if(typeof oldReset==='function')window.resetFighter=function(f){
 window.step=function(){
  const u=Q.edoSusanooCutscene;
  if(u){
-  if(typeof G!=='undefined'&&(G.mode==='menu'||G.matchOver||G.roundState==='ko')){finishCutscene(u,true);return;}
+  // Do not abort on roundState='ko' while the ultimate is animating; finish the cleanup timeline.
+  if(typeof G!=='undefined'&&(G.mode==='menu'||G.matchOver)){finishCutscene(u,true);return;}
   if(typeof G!=='undefined'&&G.paused)return;
   if(u.frame>=DURATION){finishCutscene(u,false);return;}
   applyTimeline(u,u.frame+1);
@@ -438,7 +444,7 @@ window.render=function(){
  return result;
 };
 window.JFF_EDO_SUSANOO_TENPAZAN={
- ready:true,version:1,durationFrames:DURATION,durationSeconds:7,
+ ready:true,version:2,durationFrames:DURATION,durationSeconds:7,
  phases:[{start:0,end:72,key:'Summon'},{start:72,end:168,key:'Five aerial slashes'},{start:168,end:270,key:'Ground crush'},{start:270,end:348,key:'Slow-motion charge'},{start:348,end:390,key:'Tenpazan space slice'},{start:390,end:420,key:'Outro and camera return'}],
  hits:HITS.map(e=>({frame:e.frame,damage:e.damage,kind:e.kind})),
  cancel:cancelCutscene
@@ -448,5 +454,5 @@ addEventListener('keydown',function(e){
  if(e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();cancelCutscene();return;}
  e.preventDefault();e.stopImmediatePropagation();
 },true);
-console.info('[Edo Itachi] Tenpazan 7s full camera cutscene loaded; finite timeline, safe camera/HUD restoration.');
+console.info('[Edo Itachi] Tenpazan v2 loaded; safe fighter/form/camera/HUD restoration.');
 })();
