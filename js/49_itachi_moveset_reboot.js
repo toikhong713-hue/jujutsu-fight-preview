@@ -634,6 +634,8 @@
   }
   function renderStage(){
     if(!stage)return;
+    // This separate legacy SVG scene is hidden during Edo Susanoo; do not rebuild it every frame.
+    if(Q.cinema&&Q.cinema.kind==='edoSusanoo')return;
     if(typeof G==='undefined'||G.mode==='menu'){stage.innerHTML='';return;}
     const defs='<defs><radialGradient id="itRebootMoon"><stop stop-color="#ff9cac"/><stop offset=".42" stop-color="#ba173d"/><stop offset="1" stop-color="#320916"/></radialGradient><radialGradient id="itRebootFire"><stop stop-color="#fff9d9"/><stop offset=".23" stop-color="#ffc16b"/><stop offset=".55" stop-color="#ef4931"/><stop offset=".84" stop-color="#5b101e"/><stop offset="1" stop-color="#17050c" stop-opacity="0"/></radialGradient><linearGradient id="itRebootPrism" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2d4ff"/><stop offset=".18" stop-color="#8de7ff"/><stop offset=".38" stop-color="#f8efba"/><stop offset=".57" stop-color="#f7a4c7"/><stop offset=".78" stop-color="#b4f4d0"/><stop offset="1" stop-color="#a1aaff"/></linearGradient><radialGradient id="itRebootUltVignette"><stop stop-color="#bd493c" stop-opacity=".06"/><stop offset=".72" stop-color="#250711" stop-opacity=".22"/><stop offset="1" stop-color="#030208" stop-opacity=".92"/></radialGradient></defs>';
     let body='';
