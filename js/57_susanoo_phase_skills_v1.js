@@ -34,7 +34,7 @@ function idFor(f,slot){
  return null;
 }
 function labelFor(f,id){
- const keys=f&&f.isP2?'NUM 2':'2',keys2=f&&f.isP2?'NUM 3':'3';
+ const keys=f&&f.isP2?'NUM −':'Z',keys2=f&&f.isP2?'NUM /':'X';
  const one=skillNames[idFor(f,1)],two=skillNames[idFor(f,2)];
  return '<div class="jff-psk-owner">'+(f.isP2?'P2':'P1')+' · '+(f.itachiEdo?'EDO ITACHI':'ITACHI')+' · PHASE '+phaseOf(f)+'</div>'+
  '<div class="jff-psk-grid"><div class="jff-psk-card"><span class="jff-psk-key">'+keys+'</span><b>'+one.name+'</b><small>'+cooldownText(f,idFor(f,1))+'</small></div>'+
@@ -64,7 +64,7 @@ function updatePanel(force){
 }
 function findPlayer(code){
  const fs=fighters();
- const f=(code==='Numpad2'||code==='Numpad3')?fs[1]:fs[0];
+ const f=(code==='NumpadSubtract'||code==='NumpadDivide')?fs[1]:fs[0];
  return f&&f.id==='itachi'&&!f.ai&&f.itachiSusanooActive&&alive(f)?f:null;
 }
 function canCast(f,id){
@@ -243,9 +243,9 @@ if(typeof oldStep==='function')window.step=function(){const r=oldStep.apply(this
 function handleKey(e){
  if(typeof G==='undefined'||G.mode==='menu'||G.paused||Q.cinema||Q.edoSusanooCutscene)return;
  if(e.repeat)return;
- if(e.code!=='Digit2'&&e.code!=='Digit3'&&e.code!=='Numpad2'&&e.code!=='Numpad3')return;
+ if(e.code!=='KeyZ'&&e.code!=='KeyX'&&e.code!=='NumpadSubtract'&&e.code!=='NumpadDivide')return;
  const f=findPlayer(e.code);if(!f||phaseOf(f)>=3)return;
- const slot=(e.code==='Digit2'||e.code==='Numpad2')?1:2,id=idFor(f,slot);
+ const slot=(e.code==='KeyZ'||e.code==='NumpadSubtract')?1:2,id=idFor(f,slot);
  if(!id)return;
  e.preventDefault();e.stopImmediatePropagation();
  startSkill(f,id);
@@ -257,6 +257,6 @@ if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseYataUntil=0;f.itachiPhaseCounterUntil=0;f.itachiPhaseRootUntil=0;delete f.itachiPhaseRootX;delete f.itachiPhaseRootY;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;}return oldReset.apply(this,arguments);};
 }
-window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:1,skills:skillNames,phase3Unchanged:true};
+window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:2,skills:skillNames,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
 console.info('[Itachi Susanoo] Phase 1/2 skills enabled for regular + Edo; phase 3 moveset untouched.');
 })();
