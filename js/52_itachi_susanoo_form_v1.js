@@ -211,7 +211,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   const prog=alpha===undefined?1:clamp(alpha,0,1);
   ctx.save();ctx.globalAlpha*=prog;ctx.translate(x,baseY);ctx.scale((f&&(f.facing||1)<0?-1:1)*scale,scale);
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
-  const heavy=k==='sus_m1',guard=k==='sus_z',thrust=k==='sus_x',awakening=sceneMode==='awakening';
+  const heavy=k==='sus_m1',guard=k==='sus_z',thrust=k==='sus_x',charge=k==='sus_charge',finalStrike=k==='sus_final',awakening=sceneMode==='awakening';
   // Shadow and chakra silhouette behind the fighter.
   const aura=ctx.createRadialGradient(0,-155,18,0,-155,194);aura.addColorStop(0,'rgba(255,119,77,.20)');aura.addColorStop(.5,'rgba(197,37,60,.11)');aura.addColorStop(1,'rgba(90,6,28,0)');
   ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-155,178,205,0,0,Math.PI*2);ctx.fill();
@@ -269,6 +269,17 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
       const q=smooth((n-63)/19);armR1=[lerp(82,91,q),lerp(-201,-185,q)];armR2=[lerp(114,119,q),lerp(-171,-183,q)];swordAngle=lerp(.55,-.18,q);
     }
   }
+  if(charge){
+    const q=smooth(clamp(n/78,0,1));
+    armR1=[lerp(91,72,q),lerp(-185,-232,q)];armR2=[lerp(119,57,q),lerp(-183,-326,q)];
+    armL1=[lerp(-91,-72,q),lerp(-187,-232,q)];armL2=[lerp(-112,-58,q),lerp(-145,-323,q)];
+    swordAngle=lerp(.16,-.05,q);
+  }
+  if(finalStrike){
+    if(n<14){armR1=[72,-232];armR2=[57,-326];armL1=[-72,-232];armL2=[-58,-323];swordAngle=-.05;}
+    else if(n<42){const q=smooth((n-14)/28);armR1=[lerp(72,112,q),lerp(-232,-185,q)];armR2=[lerp(57,151,q),lerp(-326,-160,q)];armL1=[lerp(-72,-108,q),lerp(-232,-184,q)];armL2=[lerp(-58,-135,q),lerp(-323,-141,q)];swordAngle=lerp(-.05,2.55,q);}
+    else{armR1=[108,-174];armR2=[151,-163];armL1=[-108,-183];armL2=[-135,-140];swordAngle=1.35;}
+  }
   if(awakening){
     if(t<42){armR1=[64,-186];armR2=[46,-202];armL1=[-64,-186];armL2=[-47,-202];}
     else if(t<88){armR1=[83,-197];armR2=[111,-158];armL1=[-83,-197];armL2=[-111,-158];}
@@ -292,8 +303,8 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     drawShield(armL2[0]-5,armL2[1]-10,1.03,.28);
   }
   // The sword is not permanently in the hand: it is drawn out of the sake gourd for M1/X, then returns.
-  if(heavy||thrust){
-    const pulling=heavy?n<8:n<19;
+  if(heavy||thrust||charge||finalStrike){
+    const pulling=heavy?n<8:(thrust&&n<19);
     if(pulling){
       const q=heavy?clamp(n/8,0,1):clamp(n/19,0,1);
       const gx=142,gy=-216;
@@ -321,6 +332,15 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
       ctx.strokeStyle=i%3===0?'rgba(255,245,200,.9)':'rgba(255,117,48,.75)';ctx.lineWidth=i%3===0?2.6:1.4;
       ctx.beginPath();ctx.moveTo(px-9,py-7+wig);ctx.lineTo(px+13,py+5+wig);ctx.stroke();
     }
+    ctx.restore();
+  }
+  if(finalStrike&&n>=12&&n<=42){
+    const fade=n<31?1:clamp(1-(n-31)/11,0,1);
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+    ctx.strokeStyle='rgba(255,82,52,.20)';ctx.lineWidth=66;ctx.beginPath();ctx.moveTo(-240,-343);ctx.quadraticCurveTo(12,-222,283,-35);ctx.stroke();
+    ctx.strokeStyle='rgba(255,119,67,.50)';ctx.lineWidth=36;ctx.beginPath();ctx.moveTo(-235,-340);ctx.quadraticCurveTo(15,-220,279,-38);ctx.stroke();
+    ctx.strokeStyle='rgba(255,221,166,.92)';ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-224,-337);ctx.quadraticCurveTo(20,-219,269,-43);ctx.stroke();
+    ctx.strokeStyle='rgba(255,248,228,.96)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-209,-330);ctx.quadraticCurveTo(24,-216,253,-50);ctx.stroke();
     ctx.restore();
   }
   if(thrust&&n>=42&&n<=68){
@@ -410,6 +430,35 @@ function drawFormHint(){
   const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
+  const cine=Q.edoSusanooCine;
+  if(cine&&Q.cinema&&Q.cinema.kind==='edoSusanoo'&&cine.owner===f&&validItachi(f)){
+    const n=cine.frame||0,dir=cine.face||1,size=1.98;
+    const actor=Object.assign({},f,{itachiEdo:true,itachiSusanooActive:true,facing:dir,state:'IDLE',itachiSusanooAction:'cinematic'});
+    let mode='battle',baseY=f.y+3,scale=size;
+    if(n<60){
+      mode='awakening';actor.moveKey='ult';actor.moveFrame=n;
+      scale=.18+1.80*smooth(n/52);
+    }else if(n<150){
+      actor.moveKey='sus_m1';actor.moveFrame=((n-60)%68)+1;
+    }else if(n<240){
+      actor.moveKey='sus_x';actor.moveFrame=19+((n-150)%63);
+      baseY-=Math.sin(((n-150)/90)*Math.PI)*76;
+    }else if(n<330){
+      actor.moveKey='sus_charge';actor.moveFrame=n-240;
+    }else if(n<390){
+      actor.moveKey='sus_final';actor.moveFrame=n-330;
+    }else{
+      actor.moveKey='sus_m1';actor.moveFrame=50+clamp(n-390,0,17);
+    }
+    if(typeof ctx!=='undefined'){
+      ctx.save();
+      try{
+        if('filter' in ctx)ctx.filter='hue-rotate(265deg) saturate(1.42) brightness(1.05)';
+        drawSusanooRig(actor,f.x-dir*11,baseY,scale,n,1,mode);
+      }finally{ctx.restore();}
+    }
+    return;
+  }
   if(validItachi(f)&&f.itachiSusanooActive&&!(Q.cinema&&Q.cinema.kind==='ult')){
     const size=f.itachiEdo?1.88:1.64;
     drawSusanooRig(f,f.x-(f.facing||1)*9*size/1.58,f.y+3,size,tick(),1,'battle');
@@ -453,6 +502,7 @@ if(typeof previousStep==='function')window.step=function(){
 if(typeof previousRender==='function')window.render=function(){
   const out=previousRender.apply(this,arguments);
   if(Q.cinema&&Q.cinema.kind==='ult')drawAwakening();
+  else if(Q.edoSusanooCine)hideStages(true);
   else{
     hideStages(false);
     if(typeof G!=='undefined'&&G.mode!=='menu')drawFormHint();
