@@ -459,6 +459,7 @@ function renderStage(){
  stage.innerHTML=s;
 }
 if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);renderStage();return r;};
-window.JFF_EDO_ITACHI_SKILLS={ready:true,version:2,cinematicUltimate:'Susanoo: Tenpa Zan · 7 seconds · 12 hit beats',skills:['Crow Body Replacement','Yasaka Barrage','Amaterasu Black Flame Field','Yata Mirror Reversal','Totsuka Sealing Finale']};
+if(typeof CHARS!=='undefined'&&CHARS.edo_itachi&&CHARS.edo_itachi.moves&&CHARS.edo_itachi.moves.ult)CHARS.edo_itachi.moves.ult.name='Susanoo: Thiên Phá Trảm';
+window.JFF_EDO_ITACHI_SKILLS={ready:true,version:2,cinematicUltimate:'Susanoo: Thiên Phá Trảm · 7 seconds · 12 hit beats',skills:['Crow Body Replacement','Yasaka Barrage','Amaterasu Black Flame Field','Yata Mirror Reversal','Totsuka Sealing Finale']};
 console.info('[Edo Itachi] Unique skills loaded: Crow Replacement, Yasaka Barrage, Black Flame Field, Yata Reversal, Totsuka Sealing.');
 })();
