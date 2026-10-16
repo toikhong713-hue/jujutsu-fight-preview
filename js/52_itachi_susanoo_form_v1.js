@@ -1,9 +1,10 @@
-/* ITACHI SUSANOO FORM REBUILD v1
+/* ITACHI SUSANOO FORM REBUILD v2 · PHASED TENGU GUARDIAN
+
    Persistent articulated Susanoo, awakening cinematic, M1 / Z / X moves.
    Lightweight Canvas 2D rig designed for low-end PCs. */
 (function(){
 'use strict';
-if(window.__JFF_ITACHI_SUSANOO_FORM_V1__)return;
+if(window.__JFF_ITACHI_SUSANOO_FORM_V2__)return;
 const Q=window.JFF_ITACHI_REBOOT;
 if(!Q){console.warn('[Susanoo] Itachi controller missing');return;}
 window.__JFF_ITACHI_SUSANOO_FORM_V1__=true;
@@ -54,7 +55,7 @@ function beginAttack(f,key){
   return true;
 }
 function activate(f,key){return beginAttack(f,key==='z'?'sus_z':(key==='x'?'sus_x':'sus_m1'));}
-window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:2,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'}};
+window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:3,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu']};
 function hit(f,frame,damage,range,opts){
   const o=f&&f.opp,d=f.facing||1;if(!alive(o))return false;
   const cfg=opts||{};
@@ -214,7 +215,98 @@ const SUSANOO_FRENZY_POSES=[
  {f:76,torso:-.09,l1:[-78,-181],l2:[-42,-144],r1:[98,-184],r2:[131,-148],s:1.05,kl:[-30,-56],al:[-34,-27],kr:[35,-57],ar:[39,-27]},
  {f:96,torso:-.12,l1:[-82,-181],l2:[-50,-143],r1:[87,-180],r2:[119,-154],s:.64,kl:[-31,-56],al:[-34,-27],kr:[33,-56],ar:[37,-27]}
 ];
-function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
+function drawSummonPhase(frame,stage,edo){
+   // Animated in-engine articulated silhouette. These are live rig phases, not cutscene stills.
+   const t=frame||0,pulse=.72+.28*Math.sin(t*.22),sway=Math.sin(t*.075);
+   const hot=edo?'#c85c83':'#ff4a18',edge=edo?'#e2b8d3':'#ffad69',
+         deep=edo?'#260e29':'#500d19',mid=edo?'#681a43':'#a92127',
+         core=edo?'#e3caff':'#ffff99';
+   const bone=(x1,y1,x2,y2,w,outer,inner)=>{
+     ctx.lineCap='round';ctx.lineJoin='round';
+     ctx.strokeStyle=deep;ctx.lineWidth=w+5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+     ctx.strokeStyle=outer;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+     ctx.strokeStyle=inner||edge;ctx.lineWidth=Math.max(1.5,w*.24);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
+   };
+   const joint=(x,y,r)=>{
+     ctx.save();ctx.globalCompositeOperation='lighter';
+     ctx.fillStyle=edo?'rgba(209,176,255,.3)':'rgba(255,255,130,.35)';
+     ctx.beginPath();ctx.arc(x,y,r*2.1,0,Math.PI*2);ctx.fill();
+     ctx.fillStyle=core;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();
+   };
+   const aura=ctx.createRadialGradient(0,-157,8,0,-157,225);
+   aura.addColorStop(0,edo?'rgba(131,25,80,.3)':'rgba(255,71,17,.25)');
+   aura.addColorStop(.62,edo?'rgba(62,16,64,.19)':'rgba(206,35,16,.15)');
+   aura.addColorStop(1,'rgba(20,4,15,0)');
+   ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-158,220,236,0,0,Math.PI*2);ctx.fill();
+   // Four spectral wing spars stretch out behind the frame as the skeleton coalesces.
+   ctx.save();ctx.globalAlpha*=stage===0?.9:.45;
+   for(const side of [-1,1]){
+     ctx.save();ctx.scale(side,1);bone(34,-192,92,-253,8,hot,edge);bone(92,-253,151,-294,6,hot,edge);bone(65,-212,154,-231,5,hot,edge);
+     for(let i=0;i<4;i++){const y=-247-i*15,x=90+i*13;bone(x,y,x+31,y-26,3,mid,edge);}
+     ctx.restore();
+   }
+   ctx.restore();
+   // Shared lower-body skeleton remains fully articulated while the upper form evolves.
+   bone(-24,-93,-43+sway*2,-58,13,hot,edge);bone(-43+sway*2,-58,-50+sway*2,-30,10,hot,edge);
+   bone(24,-93,42-sway*2,-58,13,hot,edge);bone(42-sway*2,-58,49-sway*2,-30,10,hot,edge);
+   bone(-50,-28,-22,-27,12,deep,edge);bone(22,-27,53,-26,12,deep,edge);
+   joint(-43+sway*2,-58,5);joint(42-sway*2,-58,5);
+   if(stage===0){
+     // Phase 1: ribs, spine, shoulder sockets, long Tengu skull and twin swept-back horns.
+     bone(0,-103,0,-206,13,hot,core);
+     for(let i=0;i<6;i++){
+       const y=-191+i*14,w=36-i*2;
+       ctx.strokeStyle=deep;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-w,y);ctx.quadraticCurveTo(-12,y+9,0,y+7);ctx.quadraticCurveTo(12,y+9,w,y);ctx.stroke();
+       ctx.strokeStyle=hot;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-w,y);ctx.quadraticCurveTo(-12,y+9,0,y+7);ctx.quadraticCurveTo(12,y+9,w,y);ctx.stroke();
+       ctx.strokeStyle=core;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-w+2,y-1);ctx.quadraticCurveTo(0,y+12,w-2,y-1);ctx.stroke();
+     }
+     bone(-43,-201,-82,-205,13,hot,core);bone(-82,-205,-113,-178,10,hot,edge);
+     bone(43,-201,82,-205,13,hot,core);bone(82,-205,113,-178,10,hot,edge);
+     bone(-8,-205,-12,-230,11,hot,edge);bone(8,-205,12,-230,11,hot,edge);
+     // Tengu mask silhouette with sharply glowing eyes and a long beak.
+     polygon([[-27,-239],[-37,-258],[-20,-252],[-14,-275],[-2,-259],[11,-277],[22,-254],[37,-261],[28,-238],[18,-223],[-18,-223]],deep,edge,3);
+     polygon([[-16,-239],[0,-248],[16,-239],[7,-226],[2,-205],[-2,-205],[-7,-226]],mid,hot,2);
+     ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=pulse;
+     ctx.beginPath();ctx.ellipse(-10,-242,5,2.4,-.18,0,Math.PI*2);ctx.ellipse(10,-242,5,2.4,.18,0,Math.PI*2);ctx.fill();ctx.restore();
+     bone(-25,-244,-53,-260,6,hot,edge);bone(25,-244,53,-260,6,hot,edge);
+     ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-13,-218);ctx.lineTo(-8,-211);ctx.lineTo(-3,-218);ctx.lineTo(2,-211);ctx.lineTo(7,-218);ctx.lineTo(12,-211);ctx.stroke();
+     [[-43,-201],[-82,-205],[43,-201],[82,-205],[-12,-230],[12,-230],[0,-104]].forEach(p=>joint(p[0],p[1],4));
+   }else{
+     // Phase 2: chakra musculature takes shape; face stays Tengu-like, with a long beak and flared cheek-tusks.
+     const flesh=ctx.createLinearGradient(-70,-220,65,-93);
+     flesh.addColorStop(0,edo?'rgba(128,28,78,.92)':'rgba(226,64,30,.86)');
+     flesh.addColorStop(.52,edo?'rgba(76,17,61,.94)':'rgba(139,20,29,.92)');
+     flesh.addColorStop(1,deep);
+     polygon([[-41,-207],[-68,-188],[-54,-145],[-25,-119],[0,-109],[25,-119],[54,-145],[68,-188],[41,-207],[20,-197],[0,-185],[-20,-197]],flesh,edge,3.5);
+     ctx.strokeStyle=hot;ctx.lineWidth=7;ctx.lineCap='round';
+     for(let i=0;i<4;i++){const y=-185+i*17;ctx.beginPath();ctx.moveTo(-32+i*2,y);ctx.quadraticCurveTo(-10,y+13,0,y+9);ctx.quadraticCurveTo(10,y+13,32-i*2,y);ctx.stroke();}
+     bone(-53,-192,-99,-197,16,mid,edge);bone(-99,-197,-134,-163,12,mid,edge);
+     bone(53,-192,99,-197,16,mid,edge);bone(99,-197,134,-163,12,mid,edge);
+     bone(-14,-208,-18,-229,15,mid,edge);bone(14,-208,18,-229,15,mid,edge);
+     polygon([[-33,-244],[-27,-264],[-12,-253],[0,-274],[12,-253],[28,-264],[34,-244],[19,-224],[-19,-224]],deep,edge,3);
+     polygon([[-17,-241],[0,-251],[17,-241],[9,-226],[4,-206],[0,-200],[-4,-206],[-9,-226]],mid,hot,2.5);
+     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=pulse;ctx.fillStyle=core;
+     ctx.beginPath();ctx.ellipse(-10,-243,4.6,2.2,0,0,Math.PI*2);ctx.ellipse(10,-243,4.6,2.2,0,0,Math.PI*2);ctx.fill();ctx.restore();
+     // The chakra cloak blows out in separate animated tongues, not a flat ring.
+     ctx.save();ctx.globalAlpha*=.58;ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle=hot;
+     for(let side of [-1,1])for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(side*(42+j*4),-127-j*9);ctx.bezierCurveTo(side*(91+j*9),-153-j*9,side*(110+j*11),-220-j*12,side*(76+j*18),-246-j*10);ctx.stroke();}
+     ctx.restore();
+     [[-99,-197],[-134,-163],[99,-197],[134,-163],[-18,-229],[18,-229]].forEach(p=>joint(p[0],p[1],3.4));
+   }
+   // Edo ash or living-form embers are deterministic and allocation-free.
+   if(edo){
+     ctx.save();ctx.globalAlpha*=.66;ctx.strokeStyle='#160c20';ctx.lineWidth=2;
+     for(let i=0;i<4;i++){const x=Math.sin(t*.12+i*2.6)*(64+i*23),y=-90-((t*1.9+i*47)%210);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+6,y-8);ctx.lineTo(x+1,y-15);ctx.lineTo(x+12,y-22);ctx.stroke();}
+     ctx.fillStyle='#8e8999';
+     for(let i=0;i<6;i++){const x=Math.sin(t*.055+i*4.2)*(48+i*19),y=-35-((t*1.55+i*31)%220);ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*.03+i)*.8);ctx.beginPath();ctx.moveTo(-3,-5);ctx.lineTo(4,-3);ctx.lineTo(3,5);ctx.lineTo(-2,4);ctx.closePath();ctx.fill();ctx.restore();}
+     ctx.restore();
+   }else{
+     ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff9a48';
+     for(let i=0;i<7;i++){const x=Math.sin(t*.1+i*2.1)*(36+i*15),y=-42-((t*2+i*29)%228);ctx.globalAlpha=.35;ctx.beginPath();ctx.arc(x,y,1.1+(i%3)*.5,0,Math.PI*2);ctx.fill();}
+     ctx.restore();
+   }
+ }
+ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(typeof ctx==='undefined')return;
   const t=phase||0,k=sceneMode==='awakening'?'ult':(f&&f.moveKey||''),rawFrame=f&&f.moveFrame||0;
   const prog=alpha===undefined?1:clamp(alpha,0,1);
@@ -227,11 +319,14 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   const bob=Math.sin(t*.075)*2,breath=Math.sin(t*.055)*2.4;
   // Persistent battle-form idle is its own pose, not the default attack-rest pose.
   const battleIdle=sceneMode==='battle'&&!(f&&f.move)&&!(k==='sus_m1'||k==='sus_z'||k==='sus_x');
-  const edoIdle=!!(f&&f.itachiEdo),idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
+  const edoForm=!!(f&&f.itachiEdo),edoIdle=edoForm,idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
+  const shellDark=edoForm?'#211020':'#19070e',shellMid=edoForm?'#561b40':'#682033',shellHot=edoForm?'#a33b68':'#d96a4c',shellEdge=edoForm?'#e0a6d0':'#ff9c70',coreGlow=edoForm?'#e0c6ff':'#ffff99';
+  // Standard summon evolves slowly through three silhouettes; Edo condenses faster into a sharper, stable armor.
+  if(awakening){const summonStage=edoForm?(n<19?0:(n<42?1:2)):(n<48?0:(n<108?1:2));if(summonStage<2){drawSummonPhase(n,summonStage,edoForm);ctx.restore();return;}}
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
         charge=cinematicCharge||k==='sus_charge',finalStrike=cinematicFinal||k==='sus_final';
   // Shadow and chakra silhouette behind the fighter.
-  const aura=ctx.createRadialGradient(0,-155,18,0,-155,194);aura.addColorStop(0,'rgba(255,119,77,.20)');aura.addColorStop(.5,'rgba(197,37,60,.11)');aura.addColorStop(1,'rgba(90,6,28,0)');
+  const aura=ctx.createRadialGradient(0,-155,18,0,-155,194);aura.addColorStop(0,edoForm?'rgba(173,57,111,.24)':'rgba(255,119,77,.20)');aura.addColorStop(.5,edoForm?'rgba(92,24,83,.17)':'rgba(197,37,60,.11)');aura.addColorStop(1,'rgba(24,5,24,0)');
   ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-155,178,205,0,0,Math.PI*2);ctx.fill();
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,126,89,.18)';ctx.lineWidth=2.2;
   for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-112,72+i*16,31+i*9,0,Math.PI*(.1+i*.13)+t*.002,Math.PI*(1.05+i*.17)+t*.002);ctx.stroke();}
@@ -240,7 +335,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(awakening){
     const wingOpen=smooth(clamp(n/44,0,1));ctx.save();ctx.globalAlpha*=.24+.54*wingOpen;ctx.lineJoin='round';
     for(const side of [-1,1]){
-      ctx.save();ctx.scale(side,1);ctx.fillStyle='#481327';ctx.strokeStyle='#ffb17d';ctx.lineWidth=3;
+      ctx.save();ctx.scale(side,1);ctx.fillStyle=edoForm?'#2a102b':'#481327';ctx.strokeStyle=edoForm?'#d8b7e9':'#ffb17d';ctx.lineWidth=edoForm?2.3:3;
       ctx.beginPath();ctx.moveTo(38,-190);ctx.bezierCurveTo(80,-261,155,-310,246,-325);ctx.bezierCurveTo(226,-287,211,-254,196,-222);ctx.bezierCurveTo(160,-238,133,-224,108,-194);ctx.closePath();ctx.fill();ctx.stroke();
       for(let i=0;i<6;i++){const q=i/5,ex=82+q*148,ey=-224-q*82;ctx.beginPath();ctx.moveTo(72+q*100,-201-q*28);ctx.quadraticCurveTo(ex+17,ey-14,ex+19,ey+22);ctx.lineTo(ex-8,ey+8);ctx.closePath();ctx.fillStyle=i%2?'#7b2037':'#c64b4b';ctx.fill();ctx.stroke();ctx.beginPath();ctx.moveTo(82+q*95,-198-q*29);ctx.lineTo(ex+5,ey+5);ctx.strokeStyle='rgba(255,221,176,.8)';ctx.lineWidth=1.3;ctx.stroke();}
       ctx.restore();
@@ -284,9 +379,9 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     kneeL=[-31+walkLift*.25,-58];ankleL=[-31+walkLift*.35,-42];kneeR=[31-walkLift*.25,-58];ankleR=[31-walkLift*.35,-42];
     footLX=-33;footRX=33;footAngleL=-.08;footAngleR=.08;
   }
-  armorLimb([-25,-91],kneeL,15,'#ff9a65');armorLimb(kneeL,ankleL,13,'#ff8c61');armorLimb([25,-91],kneeR,15,'#d85349');armorLimb(kneeR,ankleR,13,'#d85349');
-  polygon([[kneeL[0]-13,kneeL[1]-4],[kneeL[0]+12,kneeL[1]-6],[ankleL[0]+15,ankleL[1]+1],[ankleL[0]-13,ankleL[1]+1]],'#5a162b','#210711',3);
-  polygon([[kneeR[0]-12,kneeR[1]-6],[kneeR[0]+13,kneeR[1]-4],[ankleR[0]+13,ankleR[1]+1],[ankleR[0]-15,ankleR[1]+1]],'#7a2035','#210711',3);
+  armorLimb([-25,-91],kneeL,15,edoForm?'#c2618b':'#ff9a65');armorLimb(kneeL,ankleL,13,edoForm?'#ad477b':'#ff8c61');armorLimb([25,-91],kneeR,15,edoForm?'#95406e':'#d85349');armorLimb(kneeR,ankleR,13,edoForm?'#95406e':'#d85349');
+  polygon([[kneeL[0]-13,kneeL[1]-4],[kneeL[0]+12,kneeL[1]-6],[ankleL[0]+15,ankleL[1]+1],[ankleL[0]-13,ankleL[1]+1]],edoForm?'#451632':'#5a162b',shellDark,edoForm?4:3);
+  polygon([[kneeR[0]-12,kneeR[1]-6],[kneeR[0]+13,kneeR[1]-4],[ankleR[0]+13,ankleR[1]+1],[ankleR[0]-15,ankleR[1]+1]],edoForm?'#5b1a42':'#7a2035',shellDark,edoForm?4:3);
   ctx.fillStyle='#211018';ctx.beginPath();ctx.ellipse(footLX,ankleL[1]+8,23,8,footAngleL,0,Math.PI*2);ctx.fill();ctx.beginPath();ctx.ellipse(footRX,ankleR[1]+8,23,8,footAngleR,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#ed8562';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(footLX-14,ankleL[1]+8);ctx.lineTo(footLX+14,ankleL[1]+8);ctx.moveTo(footRX-14,ankleR[1]+8);ctx.lineTo(footRX+14,ankleR[1]+8);ctx.stroke();
   let torsoAngle=0,armL1=[-91,-187],armL2=[-112,-145],armR1=[91,-185],armR2=[110,-143],swordAngle=.16;
@@ -351,30 +446,35 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   }
   // Apply a curving upper body independently of the planted feet.
   ctx.save();ctx.translate(0,-91);ctx.rotate(torsoAngle);ctx.translate(0,91);
+  // The fourth arm grows from behind the left shoulder. It is the guardian's Yata-support arm;
+  // the existing secondary right arm carries the sake gourd and Totsuka, separate from the two combat arms.
+  armorLimb([-43,-197],[-91,-194],edoForm?13:12,edoForm?'#b45a91':'#ff9a70');
+  armorLimb([-91,-194],[-135,-158],edoForm?10:9,edoForm?'#d1a1d5':'#ffb180');
+  ctx.strokeStyle=edoForm?'#dfbedf':'#ffc58d';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-135,-158);ctx.lineTo(-146,-150);ctx.lineTo(-140,-164);ctx.moveTo(-134,-157);ctx.lineTo(-127,-149);ctx.stroke();
   // Articulated hips, ribbed breastplate, and layered abdominal armor.
-  polygon([[-48,-128],[-37,-102],[-25,-91],[0,-86],[25,-91],[37,-102],[48,-128],[31,-148],[-31,-148]],'#421225','#16060d',4);
-  polygon([[-50,-204],[-76,-218],[-65,-177],[-47,-158],[-36,-119],[-17,-101],[0,-97],[17,-101],[36,-119],[47,-158],[65,-177],[76,-218],[50,-204],[34,-213],[-34,-213]],'#651b30','#1b0711',5);
-  const chest=ctx.createLinearGradient(-50,-208,45,-104);chest.addColorStop(0,'#ffb181');chest.addColorStop(.24,'#c9514f');chest.addColorStop(.55,'#7c2035');chest.addColorStop(1,'#330c1c');
-  polygon([[-43,-205],[-26,-216],[0,-211],[26,-216],[43,-205],[31,-169],[17,-139],[0,-126],[-17,-139],[-31,-169]],chest,'#ffad80',3);
+  polygon([[-48,-128],[-37,-102],[-25,-91],[0,-86],[25,-91],[37,-102],[48,-128],[31,-148],[-31,-148]],edoForm?'#2d112b':'#421225',shellDark,edoForm?5:4);
+  polygon([[-50,-204],[-76,-218],[-65,-177],[-47,-158],[-36,-119],[-17,-101],[0,-97],[17,-101],[36,-119],[47,-158],[65,-177],[76,-218],[50,-204],[34,-213],[-34,-213]],edoForm?'#451539':'#651b30',shellDark,edoForm?6:5);
+  const chest=ctx.createLinearGradient(-50,-208,45,-104);chest.addColorStop(0,edoForm?'#bc739d':'#ffb181');chest.addColorStop(.24,edoForm?'#943b70':'#c9514f');chest.addColorStop(.55,edoForm?'#59163f':'#7c2035');chest.addColorStop(1,edoForm?'#1c0a22':'#330c1c');
+  polygon([[-43,-205],[-26,-216],[0,-211],[26,-216],[43,-205],[31,-169],[17,-139],[0,-126],[-17,-139],[-31,-169]],chest,edoForm?'#e0a6d0':'#ffad80',edoForm?4:3);
   // Rib plates are individual curved strokes, not a flat breastplate decal.
   ctx.lineCap='round';ctx.lineJoin='round';
   for(let i=0;i<4;i++){
     const yy=-192+i*13;
-    ctx.strokeStyle=i%2?'#6e2034':'#f08b68';ctx.lineWidth=6.5;
+    ctx.strokeStyle=edoForm?(i%2?'#44132f':'#aa4d7e'):(i%2?'#6e2034':'#f08b68');ctx.lineWidth=edoForm?7.2:6.5;
     ctx.beginPath();ctx.moveTo(-36+i*2,yy);ctx.quadraticCurveTo(-12,yy+14,0,yy+10);ctx.quadraticCurveTo(15,yy+14,36-i*2,yy);ctx.stroke();
     ctx.strokeStyle='rgba(255,218,173,.62)';ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-31+i*2,yy-2);ctx.quadraticCurveTo(-12,yy+10,0,yy+7);ctx.quadraticCurveTo(15,yy+10,31-i*2,yy-2);ctx.stroke();
   }
   for(let i=0;i<3;i++)polygon([[-21,-119+i*8],[-5,-124+i*8],[0,-117+i*8],[-5,-108+i*8],[-20,-110+i*8]],'#9c3040','#f08d66',1.2);
   // Neck, shoulders and independent arms.
-  armorLimb([-20,-215],[-12,-231],15,'#ffad7a');armorLimb([20,-215],[12,-231],15,'#ffad7a');
-  polygon([[-82,-227],[-112,-217],[-119,-193],[-98,-177],[-69,-189],[-55,-213]],'#7e2036','#210711',4);
-  polygon([[82,-227],[112,-217],[119,-193],[98,-177],[69,-189],[55,-213]],'#8d293a','#210711',4);
-  polygon([[-108,-214],[-82,-235],[-55,-222],[-72,-198],[-99,-193]],'#c7534d','#ffbb8a',2.4);
-  polygon([[108,-214],[82,-235],[55,-222],[72,-198],[99,-193]],'#d7604c','#ffc28f',2.4);
+  armorLimb([-20,-215],[-12,-231],15,edoForm?'#b95182':'#ffad7a');armorLimb([20,-215],[12,-231],15,edoForm?'#b95182':'#ffad7a');
+  polygon([[-82,-227],[-112,-217],[-119,-193],[-98,-177],[-69,-189],[-55,-213]],edoForm?'#42132f':'#7e2036',shellDark,edoForm?5:4);
+  polygon([[82,-227],[112,-217],[119,-193],[98,-177],[69,-189],[55,-213]],edoForm?'#4c1538':'#8d293a',shellDark,edoForm?5:4);
+  polygon([[-108,-214],[-82,-235],[-55,-222],[-72,-198],[-99,-193]],edoForm?'#7e285a':'#c7534d',edoForm?'#dfabd6':'#ffbb8a',edoForm?3:2.4);
+  polygon([[108,-214],[82,-235],[55,-222],[72,-198],[99,-193]],edoForm?'#732455':'#d7604c',edoForm?'#dfabd6':'#ffc28f',edoForm?3:2.4);
   // Susanoo's secondary right arm carries the sake gourd that houses Totsuka.
   // Keep this separate from the primary sword arm so both relics read clearly.
-  armorLimb([49,-210],[91,-200],13,'#d65b4b');
-  armorLimb([91,-200],[119,-183],11,'#ff9c70');
+  armorLimb([49,-210],[91,-200],13,edoForm?'#9c3f73':'#d65b4b');
+  armorLimb([91,-200],[119,-183],11,edoForm?'#c083c7':'#ff9c70');
   if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal||cinematicOutro)drawSakeGourd(142+breath*.2,-169,1.03,t);
   armorLimb([-70,-207],armL1,19,'#b84449');armorLimb(armL1,armL2,16,'#ff9c70');
   armorLimb([70,-207],armR1,19,'#c84c4a');armorLimb(armR1,armR2,16,'#ffb07a');
@@ -391,7 +491,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   }else if(battleIdle){
     // Distinct resting guard: Itachi's shield is compact; Edo keeps Yata raised and ready.
     const shieldPulse=.55+Math.sin(t*.026)*.08;
-    drawShield(armL2[0]-(edoIdle?13:8),armL2[1]-12,edoIdle?1.12:.94,shieldPulse);
+    drawShield(-151,-164,edoIdle?1.12:.94,shieldPulse);
   }else if(!cinematicSlash&&!cinematicSlam&&!cinematicCharge&&!cinematicFinal&&!cinematicOutro){
     // Keep the Yata shield away from both hands during two-handed Totsuka poses.
     drawShield(armL2[0]-5,armL2[1]-10,1.03,.28);
@@ -404,7 +504,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
       const gx=142,gy=-216;
       const hx=armR2[0]+7,hy=armR2[1]+1;
       drawTotsuka(gx+(hx-gx)*q,gy+(hy-gy)*q,heavy?lerp(-.48,swordAngle,q):lerp(-.18,swordAngle,q),heavy?lerp(.55,1.42,q):lerp(.62,1.42,q),1);
-    }else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,battleIdle?(edoIdle?.92:.90):1.42,battleIdle?.72:1);
+    }else if(battleIdle){drawTotsuka(132,-177,swordAngle,edoIdle?1.02:.94,edoIdle?.92:.78);}else drawTotsuka(armR2[0]+7,armR2[1]+1,swordAngle,1.42,1);
   }
   // Boss-scale diagonal slash with layered hot-orange trails and drawn sword afterimages.
   if(k==='sus_x'&&!cinematicSlam&&n>=29&&n<=62){
@@ -460,17 +560,32 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
     ctx.save();ctx.globalAlpha*=roar;ctx.fillStyle='#10030b';ctx.strokeStyle='#ffb77f';ctx.lineWidth=2.2;
     ctx.beginPath();ctx.moveTo(-13,-234);ctx.quadraticCurveTo(0,-225,13,-234);ctx.lineTo(9,-213);ctx.quadraticCurveTo(0,-204,-9,-213);ctx.closePath();ctx.fill();ctx.stroke();
     ctx.fillStyle='#fff0c8';ctx.beginPath();ctx.moveTo(-9,-229);ctx.lineTo(9,-229);ctx.lineTo(7,-224);ctx.lineTo(-7,-224);ctx.closePath();ctx.fill();ctx.restore();
-  }else polygon([[-13,-234],[0,-224],[13,-234],[8,-212],[-8,-212]],'#e36a55','#561728',2);
+  }else polygon([[-13,-234],[0,-224],[13,-234],[8,-212],[-8,-212]],edoForm?'#a64b7f':'#e36a55',edoForm?'#280c2b':'#561728',2);
+  // Tengu facial profile: long beak, angular cheek flanges, split fangs and pointed Kabuto crest.
+  const beak=ctx.createLinearGradient(-7,-241,8,-199);beak.addColorStop(0,edoForm?'#dba8d5':'#ffd09a');beak.addColorStop(.45,edoForm?'#8f376e':'#c94a43');beak.addColorStop(1,edoForm?'#35102f':'#5a1422');
+  polygon([[-10,-239],[0,-246],[10,-239],[5,-222],[3,-207],[0,-200],[-3,-207],[-5,-222]],beak,edoForm?'#e2bde2':'#ffc18c',edoForm?2.7:2.2);
+  polygon([[-23,-237],[-39,-244],[-51,-258],[-44,-236],[-29,-223],[-17,-226]],edoForm?'#421333':'#651628',edoForm?'#bd79b4':'#ffad76',2);
+  polygon([[23,-237],[39,-244],[51,-258],[44,-236],[29,-223],[17,-226]],edoForm?'#421333':'#651628',edoForm?'#bd79b4':'#ffad76',2);
+  ctx.strokeStyle=edoForm?'#e3c9e3':'#ffe1b4';ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-14,-216);ctx.lineTo(-9,-208);ctx.lineTo(-4,-216);ctx.lineTo(1,-207);ctx.lineTo(6,-216);ctx.lineTo(11,-208);ctx.lineTo(16,-216);ctx.stroke();
+  // Edo's plates have a hard, crystal-like highlight rather than soft flame edging.
+  if(edoForm){ctx.save();ctx.globalAlpha*=.72;ctx.strokeStyle='#ead7fa';ctx.lineWidth=1.15;ctx.beginPath();ctx.moveTo(-49,-204);ctx.lineTo(-66,-177);ctx.lineTo(-44,-124);ctx.lineTo(0,-112);ctx.lineTo(44,-124);ctx.lineTo(66,-177);ctx.lineTo(49,-204);ctx.moveTo(-31,-169);ctx.lineTo(-15,-139);ctx.lineTo(0,-126);ctx.lineTo(15,-139);ctx.lineTo(31,-169);ctx.stroke();ctx.restore();}
   // Chakra fingers fan outward during the summon roar.
   if(awakening&&n>18){
     ctx.save();ctx.globalAlpha*=.85;ctx.strokeStyle='#ffc18c';ctx.lineWidth=2.2;ctx.lineCap='round';
     for(const side of [-1,1]){const hx=side*184,hy=-166;for(let j=0;j<4;j++){const sx=hx+side*j*2,sy=hy-4-j*1.8,ex=hx+side*(12+j*7),ey=hy-23-j*4;ctx.beginPath();ctx.moveTo(sx,sy);ctx.quadraticCurveTo(hx+side*(7+j*5),hy-15-j*3,ex,ey);ctx.stroke();}ctx.beginPath();ctx.moveTo(hx,hy+1);ctx.lineTo(hx+side*17,hy+10);ctx.stroke();}
     ctx.restore();
   }
-  // Crest and shoulder embers remain deterministic, with no particle objects allocated.
+  // Variant-specific ambient matter: warm sparks for the living form, paper-ash and black crackle for Edo.
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.65;
-  for(let i=0;i<5;i++){const ex=Math.sin(t*.12+i*2.1)*(50+i*14),ey=-150-((t*1.4+i*39)%120);ctx.fillStyle=i%2?'#ffca86':'#ff5b45';ctx.beginPath();ctx.arc(ex,ey,1.2+(i%3)*.45,0,Math.PI*2);ctx.fill();}
-  ctx.restore(); // ember particle subpass
+  if(edoForm){
+    ctx.globalCompositeOperation='source-over';
+    for(let i=0;i<8;i++){const ex=Math.sin(t*.047+i*2.7)*(38+i*15),ey=-18-((t*1.35+i*31)%255),rot=Math.sin(t*.031+i)*.9;ctx.save();ctx.translate(ex,ey);ctx.rotate(rot);ctx.fillStyle=i%2?'rgba(133,132,150,.77)':'rgba(49,43,65,.92)';ctx.strokeStyle='rgba(220,207,237,.54)';ctx.lineWidth=.7;ctx.beginPath();ctx.moveTo(-3,-6);ctx.lineTo(4,-4);ctx.lineTo(3,5);ctx.lineTo(-2,4);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+    ctx.strokeStyle='rgba(19,8,28,.92)';ctx.lineWidth=1.7;
+    for(let i=0;i<4;i++){const ex=Math.sin(t*.12+i*2.1)*(55+i*14),ey=-135-((t*1.7+i*37)%135);ctx.beginPath();ctx.moveTo(ex,ey);ctx.lineTo(ex+5,ey-7);ctx.lineTo(ex+1,ey-12);ctx.lineTo(ex+9,ey-18);ctx.stroke();}
+  }else{
+    for(let i=0;i<7;i++){const ex=Math.sin(t*.12+i*2.1)*(50+i*14),ey=-150-((t*1.4+i*39)%120);ctx.fillStyle=i%2?'#ffca86':'#ff5b45';ctx.beginPath();ctx.arc(ex,ey,1.2+(i%3)*.45,0,Math.PI*2);ctx.fill();}
+  }
+  ctx.restore(); // ember / Edo ash subpass
   ctx.restore(); // upper-body pose transform
   ctx.restore(); // complete Susanoo rig
 }
@@ -620,5 +735,5 @@ addEventListener('keydown',function(e){
   if(!Q.cinema&&!f.move&&['IDLE','WALK','LAND','ATTACK'].includes(f.state))activate(f,key);
 },true);
 window.JFF_ITACHI_SUSANOO_DEBUG={getForm:f=>!!(f&&f.itachiSusanooActive),drawSusanoo:drawSusanooRig,reset:f=>{if(f){f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';}}};
-console.info('[Itachi Susanoo] Distinct grounded Itachi/Edo idle stances, guardian positioned behind fighter, cinematic and attack rigs preserved.');
+console.info('[Itachi Susanoo] Phased Tengu summon, four-arm relic rig, living ember / Edo ash materials, distinct Itachi/Edo idle poses loaded.');
 })();
