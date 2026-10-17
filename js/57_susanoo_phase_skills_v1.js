@@ -27,6 +27,7 @@ function phaseOf(f){return clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),
 function idFor(f,slot){if(phaseOf(f)===1)return slot===1?'p1_bones':(f&&f.itachiEdo?'edo_p1_rift':'p1_magatama');if(phaseOf(f)===2)return slot===1?'p2_seal':(f&&f.itachiEdo?'edo_p2_eclipse':'p2_guard');return null;}
 function cooldownText(f,id){const until=f.itachiPhaseSkillCooldowns&&f.itachiPhaseSkillCooldowns[id]||0;return until>now()?'COOLDOWN '+((until-now())/60).toFixed(1)+'s':'READY';}
 function skillNameFor(f,id){
+ if(!id||!skills[id])return 'No Phase Skill';
  if(id==='edo_p1_rift')return 'Edo · Crow Rift Collapse';
  if(id==='edo_p2_eclipse')return 'Edo · Black Ash Eclipse';
  return skills[id].name;
