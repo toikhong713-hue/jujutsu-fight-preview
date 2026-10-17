@@ -353,6 +353,25 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  }else if(id==='p1_magatama'){
   const charge=1-smooth(n/38),release=smooth((n-34)/14),fade=n<42?1:Math.max(0,1-(n-42)/43);
   const cx=88+charge*18,cy=-203-charge*28;
+  if(edo){
+   // Edo X: a distinct giant Susanoo forearm reaches from the shoulder and opens its palm to release the triad.
+   const reach=smooth((n-24)/18),recoil=smooth((n-48)/12),armAlpha=n<44?1:Math.max(.18,1-(n-44)/32);
+   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=armAlpha;
+   const shoulder=[34,-193],elbow=[62+reach*36,-184-reach*13],wrist=[94+reach*100-recoil*18,-174-reach*17];
+   path([shoulder,elbow,wrist],31,hot,.98);path([shoulder,elbow,wrist],17,edge,.7);
+   glow(elbow[0],elbow[1],12,hot,.8);glow(wrist[0],wrist[1],15,edge,.95);
+   // Palm plate and five clearly separated chakra fingers make the move read as a Susanoo cast, not a basic punch.
+   ctx.save();ctx.translate(wrist[0],wrist[1]);ctx.rotate(-.16+reach*.1);
+   ctx.beginPath();ctx.moveTo(-10,-13);ctx.lineTo(11,-17);ctx.lineTo(25,-7);ctx.lineTo(24,10);ctx.lineTo(8,17);ctx.lineTo(-9,10);ctx.closePath();
+   ctx.fillStyle='rgba(106,14,39,.9)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3;ctx.stroke();
+   for(let finger=0;finger<5;finger++){
+    const fx0=10+(finger-2)*5,fy0=-8+Math.abs(finger-2)*3;
+    path([[fx0,fy0],[fx0+9+reach*6,fy0-8-finger%2*4],[fx0+14+reach*8,fy0-5-finger%2*3]],3.8,edge,.95);
+    glow(fx0+14+reach*8,fy0-5-finger%2*3,2.8,hot,.65);
+   }
+   for(let bead=0;bead<3;bead++){const a=t*.15+bead*Math.PI*2/3,bx=wrist[0]+Math.cos(a)*17,by=wrist[1]-19+Math.sin(a)*9;glow(bx,by,7,edge,.9);ring(bx,by,9,6,hot,1.8,.9,a);}
+   ctx.restore();ctx.restore();
+  }
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=n<34?1:fade;
   for(let i=0;i<3;i++){
    const a=t*.17+i*Math.PI*2/3,x=cx+Math.cos(a)*19,y=cy+Math.sin(a)*13;
@@ -376,6 +395,21 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  }else if(id==='p2_guard'){
   const guard=smooth(n/12),counter=smooth((n-82)/12),fade=n<110?1:Math.max(0,1-(n-110)/28);
   const sx=112,sy=-150;
+  if(edo){
+   // Edo X: the Susanoo's huge left arm braces the mirror, then thrusts the guard forward as a broad wave.
+   const brace=smooth(n/14),thrust=smooth((n-82)/13),armFade=n<112?1:Math.max(0,1-(n-112)/25);
+   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=armFade;
+   const shoulder=[-39,-194],elbow=[-67-brace*9,-170],wrist=[-18+thrust*98,-151-thrust*8];
+   path([shoulder,elbow,wrist],34,hot,.98);path([shoulder,elbow,wrist],18,edge,.82);
+   glow(elbow[0],elbow[1],12,edge,.85);glow(wrist[0],wrist[1],16,hot,.9);
+   ctx.save();ctx.translate(wrist[0],wrist[1]);ctx.rotate(-.12+thrust*.08);
+   ctx.beginPath();ctx.moveTo(-18,-25);ctx.lineTo(13,-30);ctx.lineTo(30,-11);ctx.lineTo(27,18);ctx.lineTo(5,30);ctx.lineTo(-20,13);ctx.closePath();
+   ctx.fillStyle='rgba(102,10,39,.92)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3;ctx.stroke();
+   for(let j=0;j<4;j++){const yy=-16+j*9;path([[6,yy],[24,yy+3]],2.4,edge,.8);}
+   ctx.restore();
+   if(n>80){for(let j=0;j<4;j++){const yy=-179+j*12;path([[wrist[0]+8,yy],[wrist[0]+30+thrust*125,yy+(j-1.5)*9]],3.2,edge,.8*thrust);}}
+   ctx.restore();
+  }
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
   ctx.translate(sx,sy);ctx.rotate(Math.sin(t*.035)*.035);
   ctx.beginPath();ctx.moveTo(0,-70);ctx.lineTo(46,-48);ctx.lineTo(55,-8);ctx.lineTo(38,39);ctx.lineTo(0,63);ctx.lineTo(-38,39);ctx.lineTo(-55,-8);ctx.lineTo(-46,-48);ctx.closePath();
