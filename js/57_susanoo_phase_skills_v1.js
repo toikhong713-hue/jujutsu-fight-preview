@@ -16,7 +16,8 @@ const fx=(kind,x,y,d,data)=>{if(typeof window.JFF_OUTSIDER_FX==='function')windo
 const impact=(power,color,hitstop)=>{if(typeof window.flash==='function')window.flash(power||.12,color||'#e84b45');if(typeof window.shake==='function')window.shake(Math.max(2,Math.round((power||.12)*24)));if(typeof window.camPunch==='function')window.camPunch((power||.12)*.2);if(hitstop&&typeof G!=='undefined')G.hitstop=Math.max(G.hitstop||0,hitstop);};
 const projectiles=[];
 const skills={
- p1_bones:{name:'Bones of Judgement',cd:390,hp:3,duration:132,visual:'phase1_bones'},
+ p1_bones:{name:'Bone Requiem',cd:390,hp:3,duration:132,visual:'phase1_bones'},
+ edo_p1_grasp:{name:'Edo · Ashen Grasp',cd:420,hp:0,duration:120,visual:'edo_phase1_grasp'},
  p1_magatama:{name:'Yasaka Magatama',cd:420,hp:4,duration:150,visual:'phase1_magatama'},
  edo_p1_rift:{name:'Edo · Crow Rift Collapse',cd:450,hp:0,duration:108,visual:'edo_phase1_rift'},
  p2_seal:{name:'Crimson Sealing Wave',cd:600,hp:6,duration:168,visual:'phase2_seal'},
@@ -24,7 +25,7 @@ const skills={
  edo_p2_eclipse:{name:'Edo · Black Ash Eclipse',cd:600,hp:0,duration:132,visual:'edo_phase2_eclipse'}
 };
 function phaseOf(f){return clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);}
-function idFor(f,slot){if(phaseOf(f)===1)return slot===1?'p1_bones':(f&&f.itachiEdo?'edo_p1_rift':'p1_magatama');if(phaseOf(f)===2)return slot===1?'p2_seal':(f&&f.itachiEdo?'edo_p2_eclipse':'p2_guard');return null;}
+function idFor(f,slot){if(phaseOf(f)===1)return slot===1?(f&&f.itachiEdo?'edo_p1_grasp':'p1_bones'):(f&&f.itachiEdo?'edo_p1_rift':'p1_magatama');if(phaseOf(f)===2)return slot===1?'p2_seal':(f&&f.itachiEdo?'edo_p2_eclipse':'p2_guard');return null;}
 function cooldownText(f,id){const until=f.itachiPhaseSkillCooldowns&&f.itachiPhaseSkillCooldowns[id]||0;return until>now()?'COOLDOWN '+((until-now())/60).toFixed(1)+'s':'READY';}
 function skillNameFor(f,id){
  if(!id||!skills[id])return 'No Phase Skill';
@@ -97,13 +98,22 @@ function updateSkill(f){
  const id=f.itachiPhaseSkillKey;if(!id||!f.move){finishSkill(f);return;}
  const n=(f.moveFrame||0)+1,o=f.opp,d=f.facing||1,t=now();f.moveFrame=n;f.itachiPoseKey=f.moveKey;f.itachiSusanooAction=f.moveKey;
  if(id==='p1_bones'){
-  if(n===1){f.vx*=.1;fx('seal',f.x,f.y-125,24);fx('reflect',f.x,f.y-165,24);}
-  if(n===18){fx('seal',f.x,f.y-155,40);fx('shock',f.x,f.y-90,28);impact(.08,f.itachiEdo?'#b52c48':'#ff633f',2);}
-  if(n===34){fx('shock',f.x+d*100,f.y-100,35);fx('fire',f.x+d*95,f.y-145,28);}
-  if(n===50){fx('shock',f.x+d*170,f.y-40,45);fx('explosion',f.x+d*185,f.y-75,36);}
-  if(n===66){fx('shock',f.x+d*205,f.y-30,50);fx('explosion',f.x+d*210,f.y-85,40);impact(.2,f.itachiEdo?'#bd324c':'#ff5b38',8);}
-  if(n===76&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;const ok=hitTarget(f,32,390,{hitstun:34,kbx:d*13,kby:-5,hitstop:12,armorBreak:true,vertical:205,fx:false});if(ok){fx('explosion',o.x,o.y-75,42);fx('shock',o.x,o.y-25,52);fx('fire',o.x,o.y-95,35);impact(.27,f.itachiEdo?'#9d243b':'#ff6038',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-176,'BONES OF JUDGEMENT','#ffd0a8',14,40);}else impact(.1,'#ff633f',3);}
+  // Bone Requiem: twin skeletal arms rise, sweep the opponent off balance, then crash down together.
+  if(n===1){f.vx*=.08;fx('seal',f.x,f.y-128,24);fx('reflect',f.x,f.y-168,20);}
+  if(n===18){fx('seal',f.x,f.y-165,32);fx('shock',f.x,f.y-95,20);impact(.06,'#ff714b',2);}
+  if(n===36){fx('shock',f.x+d*95,f.y-120,25);fx('fire',f.x+d*110,f.y-165,20);}
+  if(n===48&&!f.itachiPhaseSkillMarks.boneSweep){f.itachiPhaseSkillMarks.boneSweep=true;const ok=hitTarget(f,12,390,{hitstun:18,kbx:d*4,kby:-1,hitstop:5,vertical:220,fx:false});if(ok){fx('shock',o.x,o.y-80,28);fx('seal',o.x,o.y-125,20);impact(.1,'#ff7548',4);}}
+  if(n===68){fx('shock',f.x+d*170,f.y-25,40);fx('explosion',f.x+d*175,f.y-75,28);}
+  if(n===78&&!f.itachiPhaseSkillMarks.boneSlam){f.itachiPhaseSkillMarks.boneSlam=true;const ok=hitTarget(f,25,420,{hitstun:32,kbx:d*12,kby:-5,hitstop:11,armorBreak:true,vertical:230,fx:false});if(ok){fx('explosion',o.x,o.y-82,42);fx('shock',o.x,o.y-25,50);fx('fire',o.x,o.y-95,28);impact(.24,'#ff603c',11);if(typeof window.floatText==='function')window.floatText(o.x,o.y-176,'BONE REQUIEM','#ffd0a8',14,40);}else impact(.08,'#ff633f',3);}
   if(n>=132)finishSkill(f);
+ }else if(id==='edo_p1_grasp'){
+  // Ashen Grasp: ash opens a seal beneath the opponent, a giant hand rises and closes, then compresses.
+  if(n===1){f.vx=0;fx('crows',f.x,f.y-90,26);fx('seal',f.x+d*130,f.y-35,26);impact(.05,'#6b1429',2);}
+  if(n===18){const tx=alive(o)?o.x:f.x+d*210;fx('seal',tx,f.y-24,36);fx('crows',tx,f.y-60,22);}
+  if(n===36&&alive(o)&&Math.abs(o.x-f.x)<440&&Math.abs(o.y-f.y)<220){o.vx*=.25;fx('seal',o.x,o.y-18,40);fx('shock',o.x,o.y-40,24);impact(.08,'#72172d',3);}
+  if(n===54&&!f.itachiPhaseSkillMarks.ashGrip){f.itachiPhaseSkillMarks.ashGrip=true;const ok=hitTarget(f,14,450,{hitstun:22,kbx:d*2,kby:-1,hitstop:6,vertical:240,fx:false});if(ok){fx('seal',o.x,o.y-65,36);fx('crows',o.x,o.y-55,20);impact(.1,'#81203b',5);}}
+  if(n===76&&!f.itachiPhaseSkillMarks.ashCrush){f.itachiPhaseSkillMarks.ashCrush=true;const ok=hitTarget(f,27,450,{hitstun:34,kbx:d*10,kby:-5,hitstop:12,armorBreak:true,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-70,42);fx('shock',o.x,o.y-20,48);fx('crows',o.x,o.y-90,28);impact(.25,'#9b2444',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-172,'ASHEN GRASP','#ffc8d2',13,40);}else impact(.08,'#72172d',3);}
+  if(n>=120)finishSkill(f);
  }else if(id==='p1_magatama'){
   if(n===1){f.vx*=.1;fx('magatama',f.x+d*50,f.y-155,26);}
   if(n===15){fx('magatama',f.x+d*72,f.y-200,26);fx('magatama',f.x+d*95,f.y-178,26);fx('magatama',f.x+d*62,f.y-151,26);}
