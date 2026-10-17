@@ -350,6 +350,32 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   ring(0,-100,42+slam*205,19+slam*67,hot,2.5,slam*.85);
   if(n>57&&n<98){for(let i=0;i<9;i++){const a=i*Math.PI*2/9+Math.sin(t*.1)*.08,x=Math.cos(a)*(38+slam*150),y=-100+Math.sin(a)*(12+slam*48);path([[x,y],[x+Math.cos(a)*24,y+Math.sin(a)*17]],2.4,edge,.75*fade);}}
   ctx.restore();
+ }else if(id==='edo_phase1_rift'){
+  // Crow Rift Collapse: a vanishing silhouette, three offset rupture planes, then a converging crimson burst.
+  const vanish=1-smooth(n/19),returning=smooth((n-18)/10),collapse=smooth((n-52)/16),fade=n<74?1:Math.max(0,1-(n-74)/30);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+  // Ash vortex around the caster, unlike the normal phase's orb volley.
+  for(let layer=0;layer<4;layer++){
+   const rr=22+layer*13+n*.48;
+   ctx.save();ctx.rotate(t*.025*(layer%2?1:-1)+layer*.5);
+   ctx.beginPath();ctx.ellipse(0,-105,rr,rr*.72,0,Math.PI*.12,Math.PI*1.72);
+   ctx.strokeStyle=layer%2?edge:hot;ctx.lineWidth=layer===0?4:1.8;ctx.stroke();ctx.restore();
+  }
+  ctx.globalAlpha*=Math.max(.08,vanish);
+  for(let i=0;i<12;i++){const a=i*2.399+t*.06,rr=20+(n%20)*2.4;glow(Math.cos(a)*rr,-100+Math.sin(a)*rr,2+(i%3),edge,.65);}
+  ctx.globalAlpha*=Math.max(.1,returning);
+  if(n>25){
+   const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*260)-f.x)*d,100,480),ty=-112;
+   for(let plane=0;plane<3;plane++){
+    const q=smooth((n-(28+plane*8))/10),spread=24+q*94;
+    ctx.save();ctx.translate(tx,ty+(plane-1)*18);ctx.rotate((plane-1)*.55+t*.01);
+    ctx.beginPath();ctx.moveTo(-spread,-spread*.55);ctx.lineTo(-spread*.35,-spread*.12);ctx.lineTo(0,-spread*.82);ctx.lineTo(spread*.28,-spread*.1);ctx.lineTo(spread,spread*.52);
+    ctx.strokeStyle=dark;ctx.lineWidth=12;ctx.stroke();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();ctx.restore();
+   }
+   for(let j=0;j<3;j++){const q=smooth((n-(42+j*11))/13),rr=(1-q)*74+q*18;ring(tx,ty,rr+j*8,rr*.58+j*5,j===1?hot:edge,3,fade*.9,t*.03+j);}
+   if(n>58){const q=smooth((n-58)/12);ctx.globalAlpha*=q;for(let i=0;i<12;i++){const a=i*2.399+t*.025,rr=20+q*94;path([[tx+Math.cos(a)*rr,ty+Math.sin(a)*rr*.58],[tx+Math.cos(a)*(rr+18),ty+Math.sin(a)*(rr+16)*.58]],2.8,edge,.9);}}
+  }
+  ctx.restore();
  }else if(id==='p1_magatama'){
   const charge=1-smooth(n/38),release=smooth((n-34)/14),fade=n<42?1:Math.max(0,1-(n-42)/43);
   const cx=88+charge*18,cy=-203-charge*28;
@@ -391,6 +417,25 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   const sx=145+sweep*85,sy=-140+sweep*40;
   for(let i=0;i<4;i++)ring(sx,sy,22+i*17+charge*9,14+i*11+charge*5, i%2?hot:edge, i===0?3:1.8,.8*fade,t*.02+i*.45);
   for(let i=0;i<10;i++){const q=i/9,x=28+q*220,y=-255+q*183+Math.sin(t*.17+i)*7;glow(x,y,3+i%3,edge,.68*fade);}
+  ctx.restore();
+ }else if(id==='edo_phase2_eclipse'){
+  // Black Ash Eclipse: a remote black sun grows above the opponent and collapses in stacked shock-rings.
+  const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*300)-f.x)*d,130,520),ty=-155;
+  const open=smooth(n/35),collapse=smooth((n-64)/22),fade=n<94?1:Math.max(0,1-(n-94)/36);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+  // Distinct eclipse disc, angular corona and inward falling ash ribbons.
+  ctx.save();ctx.translate(tx,ty);ctx.rotate(t*.012);
+  ctx.beginPath();ctx.arc(0,0,20+open*39,0,Math.PI*2);ctx.fillStyle='rgba(5,2,10,'(.65+collapse*.2)+')';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
+  for(let i=0;i<12;i++){const a=i*Math.PI/6+t*.018,inner=48+open*18,outer=80+open*35;path([[Math.cos(a)*inner,Math.sin(a)*inner],[Math.cos(a+.09)*outer,Math.sin(a+.09)*outer]],i%3===0?4:2, i%2?hot:edge,.9);}
+  ctx.restore();
+  for(let layer=0;layer<5;layer++){
+   const rr=(52+layer*22)*(1-collapse)+collapse*(14+layer*8);
+   ctx.save();ctx.translate(tx,ty);ctx.rotate((layer%2?1:-1)*(t*.02+n*.006));
+   ctx.beginPath();ctx.ellipse(0,0,rr,rr*(.42+layer*.04),0,0,Math.PI*2);
+   ctx.strokeStyle=layer%2?hot:edge;ctx.lineWidth=layer===0?5:2.1;ctx.stroke();ctx.restore();
+  }
+  if(n>35){for(let i=0;i<10;i++){const q=(i/10),a=i*2.399+t*.025,rr=118-(n%24)*2.4;path([[tx+Math.cos(a)*rr,ty+Math.sin(a)*rr*.5],[tx+Math.cos(a)*(rr-20),ty+Math.sin(a)*(rr-12)*.5]],2.2,edge,.75);}}
+  if(n>61){const q=smooth((n-61)/20);ring(tx,ty,36+q*175,20+q*82,edge,5,q,t*.025);ring(tx,ty,50+q*195,28+q*94,hot,2.4,q*.82,-t*.018);}
   ctx.restore();
  }else if(id==='p2_guard'){
   const guard=smooth(n/12),counter=smooth((n-82)/12),fade=n<110?1:Math.max(0,1-(n-110)/28);
