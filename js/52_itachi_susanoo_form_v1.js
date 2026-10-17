@@ -416,13 +416,13 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   ctx.restore();
 }else if(id==='edo_phase1_grasp'){
   // Ashen Grasp: ground seal -> giant Edo hand rises -> fingers clamp -> crushing impact.
-  const rise=smooth((n-12)/50),close=smooth((n-70)/36),crush=smooth((n-108)/15),fade=n<120?1:Math.max(0,1-(n-120)/30);
-  const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*260)-f.x)*d,115,450);
+  const rise=smooth((n-12)/50),close=smooth((n-66)/36),crush=smooth((n-105)/15),fade=n<126?1:Math.max(0,1-(n-126)/24);
+  const worldDx=(f.opp&&Number.isFinite(f.opp.x)?(f.opp.x-f.x)*d:260),tx=clamp(worldDx/Math.max(.8,rigScale||1),90,230);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
   ring(tx,4,25+rise*55,7+rise*13,edge,3,.92,t*.025);
   ring(tx,4,38+rise*78,12+rise*18,hot,1.9,.72,-t*.018);
   for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,rr=42+rise*48;path([[tx+Math.cos(a)*rr,Math.sin(a)*9],[tx+Math.cos(a)*(rr+14),Math.sin(a)*13-5]],2.2,edge,.78);}
-  const palmY=58-rise*132+crush*24,palmW=22+close*18;
+  const palmY=62-rise*136+crush*44,palmW=25+close*22;
   path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],13,dark,.98);
   path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],7,hot,.95);
   ctx.beginPath();ctx.ellipse(tx,palmY,palmW,20,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.2;ctx.stroke();
@@ -432,8 +432,8 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    path([[tx+spread*.42,palmY-5],[tx+spread*.7,palmY-26-rise*9],[tipX,tipY]],4.2,hot,.98);
    glow(tipX,tipY,5,edge,.85);
   }
-  if(n>68){
-   const q=smooth((n-68)/34);
+  if(n>62){
+   const q=smooth((n-62)/38);
    ring(tx,palmY-15,26+q*58,13+q*28,edge,3.2,q*.92,t*.018);
    ring(tx,palmY-15,38+q*72,19+q*35,hot,1.8,q*.7,-t*.022);
    for(let i=0;i<6;i++){const a=i*Math.PI/3+t*.02,rr=26+q*68;path([[tx+Math.cos(a)*rr,palmY-15+Math.sin(a)*rr*.42],[tx+Math.cos(a)*(rr+14),palmY-15+Math.sin(a)*(rr+10)*.42]],2.3,edge,.72*fade);}
