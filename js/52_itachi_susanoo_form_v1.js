@@ -222,19 +222,19 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
    const isWalking=!!(owner&&/^(WALK|RUN|DASH)$/.test(state));
    const hasSkill=!!(owner&&owner.itachiPhaseSkillKey);
    const isActing=!!(owner&&owner.move&&!isWalking)||hasSkill;
-   const poseWeight=isActing?.16:1;
+   const poseWeight=isActing ? 0.16 : 1;
    const gait=t*.32,step=isWalking?Math.sin(gait):0;
    const liftL=isWalking?Math.max(0,Math.cos(gait))*5.5:0;
    const liftR=isWalking?Math.max(0,Math.cos(gait+Math.PI))*5.5:0;
-   const idlePulse=Math.sin(t*(stage===0?.071:.058))*poseWeight;
-   const breath=Math.sin(t*.078)*(stage===0?2.4:1.8)*poseWeight;
-   const sway=Math.sin(t*(stage===0?.045:.031))*(stage===0?3.2:2.2)*poseWeight;
-   const armFlex=Math.sin(t*(isWalking?.36:.05))*(isWalking?4.4:(stage===0?3:4))*poseWeight;
+   const idlePulse=Math.sin(t*(stage===0 ? 0.071 : 0.058))*poseWeight;
+   const breath=Math.sin(t*.078)*(stage===0 ? 2.4 : 1.8)*poseWeight;
+   const sway=Math.sin(t*(stage===0 ? 0.045 : 0.031))*(stage===0 ? 3.2 : 2.2)*poseWeight;
+   const armFlex=Math.sin(t*(isWalking ? 0.36 : 0.05))*(isWalking?4.4:(stage===0 ? 3 : 4))*poseWeight;
    const hitReact=!!(owner&&(state==='HITSTUN'||(owner.hitstun||0)>0));
    const reactWeight=hitReact?Math.min(1,Math.max(.35,(owner.hitstun||8)/8)):0;
    const torsoLean=(stage===0?Math.sin(t*.027)*.028:Math.sin(t*.022)*.018)*poseWeight
-     -(isWalking?step*(stage===0?.035:.028):0)-reactWeight*(stage===0?.11:.085);
-   const rootBob=isWalking?Math.abs(Math.sin(gait))*3.8:Math.sin(t*.075)*(stage===0?1.6:1.25)*poseWeight;
+     -(isWalking?step*(stage===0 ? 0.035 : 0.028):0)-reactWeight*(stage===0 ? 0.11 : 0.085);
+   const rootBob=isWalking?Math.abs(Math.sin(gait))*3.8:Math.sin(t*.075)*(stage===0 ? 1.6 : 1.25)*poseWeight;
    const hot=edo?'#c85c83':'#ff4a18',edge=edo?'#e2b8d3':'#ffad69',
          deep=edo?'#260e29':'#500d19',mid=edo?'#681a43':'#a92127',
          core=edo?'#e3caff':'#ffff99';
