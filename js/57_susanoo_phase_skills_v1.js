@@ -18,15 +18,17 @@ const projectiles=[];
 const skills={
  p1_bones:{name:'Bones of Judgement',cd:390,hp:3,duration:132,visual:'phase1_bones'},
  p1_magatama:{name:'Yasaka Magatama',cd:420,hp:4,duration:150,visual:'phase1_magatama'},
+ edo_p1_rift:{name:'Edo · Crow Rift Collapse',cd:450,hp:0,duration:108,visual:'edo_phase1_rift'},
  p2_seal:{name:'Crimson Sealing Wave',cd:600,hp:6,duration:168,visual:'phase2_seal'},
- p2_guard:{name:'Prismatic Chakra Guard',cd:540,hp:5,duration:144,visual:'phase2_guard'}
+ p2_guard:{name:'Prismatic Chakra Guard',cd:540,hp:5,duration:144,visual:'phase2_guard'},
+ edo_p2_eclipse:{name:'Edo · Black Ash Eclipse',cd:600,hp:0,duration:132,visual:'edo_phase2_eclipse'}
 };
 function phaseOf(f){return clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);}
-function idFor(f,slot){return phaseOf(f)===1?(slot===1?'p1_bones':'p1_magatama'):(phaseOf(f)===2?(slot===1?'p2_seal':'p2_guard'):null);}
+function idFor(f,slot){if(phaseOf(f)===1)return slot===1?'p1_bones':(f&&f.itachiEdo?'edo_p1_rift':'p1_magatama');if(phaseOf(f)===2)return slot===1?'p2_seal':(f&&f.itachiEdo?'edo_p2_eclipse':'p2_guard');return null;}
 function cooldownText(f,id){const until=f.itachiPhaseSkillCooldowns&&f.itachiPhaseSkillCooldowns[id]||0;return until>now()?'COOLDOWN '+((until-now())/60).toFixed(1)+'s':'READY';}
 function skillNameFor(f,id){
- if(f&&f.itachiEdo&&id==='p1_magatama')return 'Edo · Triple Magatama Volley';
- if(f&&f.itachiEdo&&id==='p2_guard')return 'Edo · Black Ash Eclipse';
+ if(id==='edo_p1_rift')return 'Edo · Crow Rift Collapse';
+ if(id==='edo_p2_eclipse')return 'Edo · Black Ash Eclipse';
  return skills[id].name;
 }
 function labelFor(f){
@@ -102,25 +104,23 @@ function updateSkill(f){
   if(n===76&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;const ok=hitTarget(f,32,390,{hitstun:34,kbx:d*13,kby:-5,hitstop:12,armorBreak:true,vertical:205,fx:false});if(ok){fx('explosion',o.x,o.y-75,42);fx('shock',o.x,o.y-25,52);fx('fire',o.x,o.y-95,35);impact(.27,f.itachiEdo?'#9d243b':'#ff6038',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-176,'BONES OF JUDGEMENT','#ffd0a8',14,40);}else impact(.1,'#ff633f',3);}
   if(n>=132)finishSkill(f);
  }else if(id==='p1_magatama'){
-  if(f.itachiEdo){
-   if(n===1){f.vx*=.08;f.itachiPhaseSkillMarks={};fx('crows',f.x,f.y-105,24);fx('seal',f.x+d*76,f.y-175,30);}
-   if(n===16){fx('magatama',f.x+d*76,f.y-205,28);fx('magatama',f.x+d*94,f.y-177,28);fx('magatama',f.x+d*68,f.y-149,28);fx('seal',f.x+d*86,f.y-177,22);}
-   for(let shot=0;shot<3;shot++){
-    const fireAt=34+shot*8,key='edoBead'+shot;
-    if(n===fireAt&&!f.itachiPhaseSkillMarks[key]){
-     f.itachiPhaseSkillMarks[key]=true;
-     const yy=f.y-178+(shot-1)*30;
-     projectiles.push({type:'edo-yasaka-bead',owner:f,target:o,x:f.x+d*102,y:yy,vx:d*(14.8-shot*.45),dir:d,age:0,maxAge:68,done:false,shot});
-     fx('magatama',f.x+d*103,yy,24);fx('seal',f.x+d*116,yy,14);impact(.06,'#b12c43',2);
-    }
-   }
-   if(n===61){fx('explosion',o&&alive(o)?o.x:f.x+d*240,o&&alive(o)?o.y-95:f.y-95,28);fx('shock',f.x+d*205,f.y-90,30);}
-  }else{
-   if(n===1){f.vx*=.1;fx('magatama',f.x+d*50,f.y-155,26);}
-   if(n===15){fx('magatama',f.x+d*72,f.y-200,26);fx('magatama',f.x+d*95,f.y-178,26);fx('magatama',f.x+d*62,f.y-151,26);}
-   if(n===38&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;projectiles.push({type:'yasaka-triad',owner:f,target:o,x:f.x+d*98,y:f.y-178,vx:d*15.5,dir:d,age:0,maxAge:70,done:false});fx('magatama',f.x+d*105,f.y-178,32);fx('shock',f.x+d*90,f.y-155,24);fx('seal',f.x+d*118,f.y-178,18);impact(.08,'#ff693d',3);}
-  }
+  if(n===1){f.vx*=.1;fx('magatama',f.x+d*50,f.y-155,26);}
+  if(n===15){fx('magatama',f.x+d*72,f.y-200,26);fx('magatama',f.x+d*95,f.y-178,26);fx('magatama',f.x+d*62,f.y-151,26);}
+  if(n===38&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;projectiles.push({type:'yasaka-triad',owner:f,target:o,x:f.x+d*98,y:f.y-178,vx:d*15.5,dir:d,age:0,maxAge:70,done:false});fx('magatama',f.x+d*105,f.y-178,32);fx('shock',f.x+d*90,f.y-155,24);fx('seal',f.x+d*118,f.y-178,18);impact(.08,'#ff693d',3);}
   if(n>=150)finishSkill(f);
+ }else if(id==='edo_p1_rift'){
+  // A phase change, not a projectile: vanish into ash, reappear behind the opponent, then trigger three remote rift bursts.
+  if(n===1){f.vx=0;f.invuln=Math.max(f.invuln||0,10);fx('crows',f.x,f.y-100,34);fx('seal',f.x,f.y-125,28);impact(.08,'#6f112b',3);}
+  if(n===12){fx('crows',f.x,f.y-105,42);fx('explosion',f.x,f.y-95,24);}
+  if(n===22&&alive(o)&&Math.abs(o.x-f.x)<620&&Math.abs(o.y-f.y)<240){
+   const dir=o.x>=f.x?1:-1;f.x=clamp(o.x-dir*86,window.WALL||90,(window.ARENA_W||3200)-(window.WALL||90));f.facing=dir;f.vx=0;f.invuln=Math.max(f.invuln||0,12);
+   fx('crows',f.x,f.y-100,38);fx('seal',o.x,o.y-120,30);impact(.12,'#7c102b',5);
+  }
+  if(n===34){fx('seal',o&&alive(o)?o.x:f.x+d*150,o&&alive(o)?o.y-120:f.y-120,34);fx('shock',o&&alive(o)?o.x:f.x+d*150,o&&alive(o)?o.y-90:f.y-90,24);}
+  if(n===43&&!f.itachiPhaseSkillMarks.riftA){f.itachiPhaseSkillMarks.riftA=true;const ok=hitTarget(f,12,440,{hitstun:18,kbx:d*3,kby:-1,hitstop:4,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-90,26);fx('crows',o.x,o.y-100,18);}}
+  if(n===54&&!f.itachiPhaseSkillMarks.riftB){f.itachiPhaseSkillMarks.riftB=true;const ok=hitTarget(f,12,440,{hitstun:20,kbx:d*5,kby:-2,hitstop:5,vertical:240,fx:false});if(ok){fx('shock',o.x,o.y-75,28);fx('seal',o.x,o.y-110,28);}}
+  if(n===66&&!f.itachiPhaseSkillMarks.riftC){f.itachiPhaseSkillMarks.riftC=true;const ok=hitTarget(f,24,470,{hitstun:32,kbx:d*12,kby:-6,hitstop:12,armorBreak:true,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-85,42);fx('shock',o.x,o.y-35,46);fx('crows',o.x,o.y-100,26);impact(.26,'#97152f',13);if(typeof window.floatText==='function')window.floatText(o.x,o.y-175,'CROW RIFT · COLLAPSE','#ffd0dc',13,40);}else impact(.08,'#6f112b',3);}
+  if(n>=108)finishSkill(f);
  }else if(id==='p2_seal'){
   if(n===1){f.vx*=.08;fx('seal',f.x,f.y-150,30);fx('reflect',f.x+d*75,f.y-165,22);}
   if(n===25){fx('seal',f.x+d*95,f.y-175,34);fx('magatama',f.x+d*120,f.y-180,25);}
@@ -129,28 +129,34 @@ function updateSkill(f){
   if(n===92&&!f.itachiPhaseSkillUsed){f.itachiPhaseSkillUsed=true;const ok=hitTarget(f,39,590,{hitstun:40,kbx:d*16,kby:-4,hitstop:14,armorBreak:true,vertical:195,fx:false});if(ok){o.itachiPhaseSilenceUntil=t+120;fx('seal',o.x,o.y-110,48);fx('shock',o.x,o.y-40,52);fx('explosion',o.x,o.y-85,36);impact(.31,f.itachiEdo?'#ad2d4c':'#ff643f',15);if(typeof window.floatText==='function')window.floatText(o.x,o.y-182,'CRIMSON SEAL · 2s','#ffd4b9',14,44);}else impact(.12,'#ff633f',5);}
   if(n>=168)finishSkill(f);
  }else if(id==='p2_guard'){
-  if(f.itachiEdo){
-   if(n===1){f.itachiPhaseGuardUntil=0;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;f.vx*=.05;fx('crows',f.x,f.y-110,28);fx('seal',f.x+d*150,f.y-115,22);}
-   if(n===20){const tx=alive(o)?o.x:f.x+d*260,ty=alive(o)?o.y:f.y;fx('seal',tx,ty-90,38);fx('magatama',tx,ty-155,28);impact(.07,'#9e183a',3);}
-   if(n===38){const tx=alive(o)?o.x:f.x+d*270,ty=alive(o)?o.y:f.y;fx('seal',tx,ty-90,48);fx('reflect',tx,ty-120,34);fx('crows',tx,ty-85,24);}
-   if(n===59){const tx=alive(o)?o.x:f.x+d*270,ty=alive(o)?o.y:f.y;fx('shock',tx,ty-35,52);fx('explosion',tx,ty-95,44);impact(.16,'#b3244b',7);}
-   if(n===88&&!f.itachiPhaseSkillUsed){
-    f.itachiPhaseSkillUsed=true;
-    const ok=hitTarget(f,44,560,{hitstun:44,kbx:d*8,kby:-7,hitstop:15,armorBreak:true,vertical:220,fx:false});
-    if(ok){o.itachiPhaseSilenceUntil=t+150;fx('seal',o.x,o.y-100,54);fx('shock',o.x,o.y-35,62);fx('explosion',o.x,o.y-105,48);fx('crows',o.x,o.y-75,28);impact(.32,'#9d1738',16);if(typeof window.floatText==='function')window.floatText(o.x,o.y-185,'BLACK ASH ECLIPSE · SEALED','#ffc4d0',14,48);}
-    else impact(.12,'#9e183a',5);
-   }
-  }else{
-   if(n===1){f.itachiPhaseGuardUntil=t+78;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;fx('reflect',f.x+d*94,f.y-145,30);fx('seal',f.x+d*94,f.y-145,24);impact(.06,'#ff9666',2);}
-   if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);}
-   if(f.itachiPhaseGuardTriggered&&n===34&&!f.itachiPhaseGuardCounterHit){
-    f.itachiPhaseGuardCounterHit=true;const target=f.itachiPhaseGuardTarget||o;
-    const ok=hitTarget(f,31,420,{hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:200,fx:false});
-    if(ok){const waveX=f.x+d*170,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,36);fx('shock',waveX,waveY,48);fx('explosion',f.x+d*235,f.y-85,40);fx('seal',target.x,target.y-115,30);impact(.25,'#ff7449',13);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA SHOCKWAVE','#ffd7b8',14,40);}
-   }
-   if(n===80)f.itachiPhaseGuardUntil=0;
+  if(n===1){f.itachiPhaseGuardUntil=t+78;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;fx('reflect',f.x+d*94,f.y-145,30);fx('seal',f.x+d*94,f.y-145,24);impact(.06,'#ff9666',2);}
+  if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);}
+  if(f.itachiPhaseGuardTriggered&&n===34&&!f.itachiPhaseGuardCounterHit){
+   f.itachiPhaseGuardCounterHit=true;const target=f.itachiPhaseGuardTarget||o;
+   const ok=hitTarget(f,31,420,{hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:200,fx:false});
+   if(ok){const waveX=f.x+d*170,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,36);fx('shock',waveX,waveY,48);fx('explosion',f.x+d*235,f.y-85,40);fx('seal',target.x,target.y-115,30);impact(.25,'#ff7449',13);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA SHOCKWAVE','#ffd7b8',14,40);}
   }
+  if(n===80)f.itachiPhaseGuardUntil=0;
   if(n>=144){f.itachiPhaseGuardUntil=0;finishSkill(f);}
+ }else if(id==='edo_p2_eclipse'){
+  // A large, remote gravity well. No parry stance and no arm-based heavy animation.
+  if(n===1){f.vx=0;fx('crows',f.x,f.y-105,36);fx('seal',f.x+d*120,f.y-175,32);impact(.08,'#390b22',3);}
+  if(n===18){const tx=alive(o)?o.x:f.x+d*300,ty=alive(o)?o.y:f.y;fx('seal',tx,ty-135,50);fx('magatama',tx,ty-185,36);fx('crows',tx,ty-95,26);}
+  if(n===38&&alive(o)&&Math.abs(o.x-f.x)<760&&Math.abs(o.y-f.y)<300){
+   o.itachiEclipseMarkedUntil=t+60;o.vx*=.25;fx('seal',o.x,o.y-130,54);fx('shock',o.x,o.y-55,28);impact(.1,'#64112a',5);
+  }
+  if(n===62&&!f.itachiPhaseSkillMarks.eclipseA){
+   f.itachiPhaseSkillMarks.eclipseA=true;
+   const ok=hitTarget(f,18,780,{hitstun:24,kbx:d*3,kby:-2,hitstop:7,vertical:300,fx:false});
+   if(ok){o.vx=(f.x-o.x)*.035;fx('explosion',o.x,o.y-105,34);fx('seal',o.x,o.y-135,48);impact(.13,'#78132d',7);}
+  }
+  if(n===84&&!f.itachiPhaseSkillMarks.eclipseB){
+   f.itachiPhaseSkillMarks.eclipseB=true;
+   const ok=hitTarget(f,34,780,{hitstun:42,kbx:d*14,kby:-7,hitstop:15,armorBreak:true,vertical:300,fx:false});
+   if(ok){o.itachiPhaseSilenceUntil=t+120;fx('explosion',o.x,o.y-100,58);fx('shock',o.x,o.y-30,64);fx('crows',o.x,o.y-95,36);impact(.32,'#9d1738',16);if(typeof window.floatText==='function')window.floatText(o.x,o.y-185,'BLACK ASH ECLIPSE','#ffc4d0',15,48);}
+   else impact(.1,'#64112a',4);
+  }
+  if(n>=132)finishSkill(f);
  }
 }
 const oldUpdate=window.updateMove;
@@ -214,6 +220,8 @@ function updateStatuses(){
   if(!f)continue;
   if((f.itachiPhaseSlowUntil||0)>t&&Number.isFinite(f.itachiPhaseSlowBase))f.walk=f.itachiPhaseSlowBase*.7;
   else if(f.itachiPhaseSlowBase!==undefined){f.walk=f.itachiPhaseSlowBase;delete f.itachiPhaseSlowBase;f.itachiPhaseSlowUntil=0;}
+  if((f.itachiEclipseMarkedUntil||0)>t&&f.itachiEclipseMarkedUntil&&f.opp&&alive(f.opp)){f.vx+=(f.opp.x-f.x)*.0008;}
+  else if(f.itachiEclipseMarkedUntil){f.itachiEclipseMarkedUntil=0;}
   if((f.itachiPhaseSilenceUntil||0)>t&&f.itachiPhaseSilenceUntil){/* active seal status */}
   else if(f.itachiPhaseSilenceUntil){f.itachiPhaseSilenceUntil=0;}
  }
@@ -239,6 +247,6 @@ if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseGuardUntil=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;delete f.itachiPhaseSlowBase;}return oldReset.apply(this,arguments);};
 }
-window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:7,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
+window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:8,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
 console.info('[Susanoo] Phase 1/2 abilities rebuilt; P2 uses Numpad + and Numpad /. Numpad - remains available to passive.');
 })();
