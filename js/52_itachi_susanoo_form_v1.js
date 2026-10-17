@@ -38,8 +38,7 @@ function validItachi(f){return !!(f&&f.id==='itachi'&&alive(f));}
 function currentOwnerForCode(code){
   const fs=fighters();
   if(code==='Digit1'||code==='KeyZ'||code==='KeyX')return fs[0]&&fs[0].id==='itachi'&&!fs[0].ai&&fs[0].itachiSusanooActive?fs[0]:null;
-  if(code==='Numpad1'||code==='NumpadDivide')return fs[1]&&fs[1].id==='itachi'&&!fs[1].ai&&fs[1].itachiSusanooActive?fs[1]:null;
-  if(code==='NumpadSubtract')return fs[1]&&fs[1].id==='itachi'&&!fs[1].ai&&fs[1].itachiSusanooActive?fs[1]:null;
+  if(code==='Numpad1'||code==='NumpadDivide'||code==='NumpadAdd')return fs[1]&&fs[1].id==='itachi'&&!fs[1].ai&&fs[1].itachiSusanooActive?fs[1]:null;
   return null;
 }
 function beginAttack(f,key){
@@ -55,7 +54,7 @@ function beginAttack(f,key){
   return true;
 }
 function activate(f,key){return beginAttack(f,key==='z'?'sus_z':(key==='x'?'sus_x':'sus_m1'));}
-window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:7,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu'],setPhase:(f,n)=>{if(!validItachi(f)||!f.itachiSusanooActive)return false;f.itachiSusanooPhase=clamp(Math.round(Number(n)||3),1,3);return true;}};
+window.JFF_ITACHI_SUSANOO_FORM={ready:true,activate:activate,version:8,idlePoses:{itachi:'Guardian Stance',edo:'Edo War Stance'},summonPhases:['Skeletal','Muscular Chakra','Armored Tengu'],setPhase:(f,n)=>{if(!validItachi(f)||!f.itachiSusanooActive)return false;f.itachiSusanooPhase=clamp(Math.round(Number(n)||3),1,3);return true;}};
 function hit(f,frame,damage,range,opts){
   const o=f&&f.opp,d=f.facing||1;if(!alive(o))return false;
   const cfg=opts||{};
@@ -216,299 +215,178 @@ const SUSANOO_FRENZY_POSES=[
  {f:96,torso:-.12,l1:[-82,-181],l2:[-50,-143],r1:[87,-180],r2:[119,-154],s:.64,kl:[-31,-56],al:[-34,-27],kr:[33,-56],ar:[37,-27]}
 ];
 function drawSummonPhase(frame,stage,edo,fighter,rigScale){
-   // Animated in-engine articulated silhouette. These are live rig phases, not cutscene stills.
-   const t=frame||0,pulse=.72+.28*Math.sin(t*.22);
-   const owner=fighter||null,state=owner&&owner.state||'IDLE';
-   const isWalking=!!(owner&&/^(WALK|RUN|DASH)$/.test(state));
-   const hasSkill=!!(owner&&owner.itachiPhaseSkillKey);
-   const isActing=!!(owner&&owner.move&&!isWalking)||hasSkill;
-   const poseWeight=isActing ? 0.16 : 1;
-   const gait=t*.32,step=isWalking?Math.sin(gait):0;
-   const liftL=isWalking?Math.max(0,Math.cos(gait))*5.5:0;
-   const liftR=isWalking?Math.max(0,Math.cos(gait+Math.PI))*5.5:0;
-   const idlePulse=Math.sin(t*(stage===0 ? 0.071 : 0.058))*poseWeight;
-   const breath=Math.sin(t*.078)*(stage===0 ? 2.4 : 1.8)*poseWeight;
-   const sway=Math.sin(t*(stage===0 ? 0.045 : 0.031))*(stage===0 ? 3.2 : 2.2)*poseWeight;
-   const armFlex=Math.sin(t*(isWalking ? 0.36 : 0.05))*(isWalking?4.4:(stage===0 ? 3 : 4))*poseWeight;
-   const hitReact=!!(owner&&(state==='HITSTUN'||(owner.hitstun||0)>0));
-   const reactWeight=hitReact?Math.min(1,Math.max(.35,(owner.hitstun||8)/8)):0;
-   const torsoLean=(stage===0?Math.sin(t*.027)*.028:Math.sin(t*.022)*.018)*poseWeight
-     -(isWalking?step*(stage===0 ? 0.035 : 0.028):0)-reactWeight*(stage===0 ? 0.11 : 0.085);
-   const rootBob=isWalking?Math.abs(Math.sin(gait))*3.8:Math.sin(t*.075)*(stage===0 ? 1.6 : 1.25)*poseWeight;
-   const hot=edo?'#c85c83':'#ff4a18',edge=edo?'#e2b8d3':'#ffad69',
-         deep=edo?'#260e29':'#500d19',mid=edo?'#681a43':'#a92127',
-         core=edo?'#e3caff':'#ffff99';
-   const bone=(x1,y1,x2,y2,w,outer,inner)=>{
-     ctx.lineCap='round';ctx.lineJoin='round';
-     ctx.strokeStyle=deep;ctx.lineWidth=w+5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-     ctx.strokeStyle=outer;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-     ctx.strokeStyle=inner||edge;ctx.lineWidth=Math.max(1.5,w*.24);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();
-   };
-   const joint=(x,y,r)=>{
-     ctx.save();ctx.globalCompositeOperation='lighter';
-     ctx.fillStyle=edo?'rgba(209,176,255,.3)':'rgba(255,255,130,.35)';
-     ctx.beginPath();ctx.arc(x,y,r*2.1,0,Math.PI*2);ctx.fill();
-     ctx.fillStyle=core;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();
-   };
-   const aura=ctx.createRadialGradient(0,-157,8,0,-157,225);
-   aura.addColorStop(0,edo?'rgba(131,25,80,.3)':'rgba(255,71,17,.25)');
-   aura.addColorStop(.62,edo?'rgba(62,16,64,.19)':'rgba(206,35,16,.15)');
-   aura.addColorStop(1,'rgba(20,4,15,0)');
-   ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-158,220,236,0,0,Math.PI*2);ctx.fill();
-   // Four spectral wing spars stretch out behind the frame as the skeleton coalesces.
-   ctx.save();ctx.globalAlpha*=stage===0?.9:.45;
-   for(const side of [-1,1]){
-     ctx.save();ctx.scale(side,1);bone(34,-192,92,-253,8,hot,edge);bone(92,-253,151,-294,6,hot,edge);bone(65,-212,154,-231,5,hot,edge);
-     for(let i=0;i<4;i++){const y=-247-i*15,x=90+i*13;bone(x,y,x+31,y-26,3,mid,edge);}
-     ctx.restore();
-   }
-   ctx.restore();
-   // Shared lower-body skeleton remains fully articulated while the upper form evolves.
-   const kneeLX=-43+sway*.45+(isWalking?step*5:0),kneeLY=-58-liftL;
-   const kneeRX=42-sway*.45-(isWalking?step*5:0),kneeRY=-58-liftR;
-   const ankleLX=-50+sway*.5+(isWalking?step*8:0),ankleLY=-30-liftL*.9;
-   const ankleRX=49-sway*.5-(isWalking?step*8:0),ankleRY=-30-liftR*.9;
-   bone(-24,-93,kneeLX,kneeLY,13,hot,edge);bone(kneeLX,kneeLY,ankleLX,ankleLY,10,hot,edge);
-   bone(24,-93,kneeRX,kneeRY,13,hot,edge);bone(kneeRX,kneeRY,ankleRX,ankleRY,10,hot,edge);
-   bone(ankleLX,ankleLY,ankleLX+28,ankleLY+2,12,deep,edge);bone(ankleRX,ankleRY,ankleRX+28,ankleRY+2,12,deep,edge);
-   joint(kneeLX,kneeLY,5);joint(kneeRX,kneeRY,5);
-   // Move the upper body around the spine pivot while the legs keep their own gait.
-   // The live combat state reduces idle sway during attacks and emphasizes recoil on hit.
-   ctx.save();
-   ctx.translate(isWalking?-step*1.8:sway*.12,-rootBob);
-   ctx.translate(0,-120);ctx.rotate(torsoLean);ctx.translate(0,120);
-   if(stage===0){
-     // Phase 1: ribs, spine, shoulder sockets, long Tengu skull and twin swept-back horns.
-     bone(0,-103,0,-206,13,hot,core);
-     for(let i=0;i<6;i++){
-       const y=-191+i*14+breath*.28,w=36-i*2+Math.abs(idlePulse)*.35;
-       ctx.strokeStyle=deep;ctx.lineWidth=11;ctx.beginPath();ctx.moveTo(-w,y);ctx.quadraticCurveTo(-12,y+9,0,y+7);ctx.quadraticCurveTo(12,y+9,w,y);ctx.stroke();
-       ctx.strokeStyle=hot;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-w,y);ctx.quadraticCurveTo(-12,y+9,0,y+7);ctx.quadraticCurveTo(12,y+9,w,y);ctx.stroke();
-       ctx.strokeStyle=core;ctx.lineWidth=1.4;ctx.beginPath();ctx.moveTo(-w+2,y-1);ctx.quadraticCurveTo(0,y+12,w-2,y-1);ctx.stroke();
-     }
-     const p1ElbowY=-205+armFlex*.22,p1WristY=-178+armFlex;
-     bone(-43,-201,-82-armFlex*.28,p1ElbowY,13,hot,core);
-     bone(-82-armFlex*.28,p1ElbowY,-113-armFlex*.42,p1WristY,10,hot,edge);
-     bone(43,-201,82+armFlex*.28,p1ElbowY,13,hot,core);
-     bone(82+armFlex*.28,p1ElbowY,113+armFlex*.42,p1WristY,10,hot,edge);
-     bone(-8,-205,-12,-230,11,hot,edge);bone(8,-205,12,-230,11,hot,edge);
-     // Tengu mask silhouette with sharply glowing eyes and a long beak.
-     polygon([[-27,-239],[-37,-258],[-20,-252],[-14,-275],[-2,-259],[11,-277],[22,-254],[37,-261],[28,-238],[18,-223],[-18,-223]],deep,edge,3);
-     polygon([[-16,-239],[0,-248],[16,-239],[7,-226],[2,-205],[-2,-205],[-7,-226]],mid,hot,2);
-     ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=pulse;
-     ctx.beginPath();ctx.ellipse(-10,-242,5,2.4,-.18,0,Math.PI*2);ctx.ellipse(10,-242,5,2.4,.18,0,Math.PI*2);ctx.fill();ctx.restore();
-     bone(-25,-244,-53,-260,6,hot,edge);bone(25,-244,53,-260,6,hot,edge);
-     ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-13,-218);ctx.lineTo(-8,-211);ctx.lineTo(-3,-218);ctx.lineTo(2,-211);ctx.lineTo(7,-218);ctx.lineTo(12,-211);ctx.stroke();
-     [[-43,-201],[-82,-205],[43,-201],[82,-205],[-12,-230],[12,-230],[0,-104]].forEach(p=>joint(p[0],p[1],4));
-   }else{
-     // Phase 2: chakra musculature takes shape; face stays Tengu-like, with a long beak and flared cheek-tusks.
-     const flesh=ctx.createLinearGradient(-70,-220,65,-93);
-     flesh.addColorStop(0,edo?'rgba(128,28,78,.92)':'rgba(226,64,30,.86)');
-     flesh.addColorStop(.52,edo?'rgba(76,17,61,.94)':'rgba(139,20,29,.92)');
-     flesh.addColorStop(1,deep);
-     polygon([[-41,-207],[-68,-188],[-54,-145],[-25,-119],[0,-109],[25,-119],[54,-145],[68,-188],[41,-207],[20,-197],[0,-185],[-20,-197]],flesh,edge,3.5);
-     ctx.strokeStyle=hot;ctx.lineWidth=7;ctx.lineCap='round';
-     for(let i=0;i<4;i++){const y=-185+i*17+breath*.34;ctx.beginPath();ctx.moveTo(-32+i*2,y);ctx.quadraticCurveTo(-10,y+13,0,y+9+breath*.22);ctx.quadraticCurveTo(10,y+13,32-i*2,y);ctx.stroke();}
-     const p2ElbowY=-197+armFlex*.7,p2WristY=-163+armFlex*1.25;
-     bone(-53,-192,-99-armFlex*.4,p2ElbowY,16,mid,edge);
-     bone(-99-armFlex*.4,p2ElbowY,-134-armFlex*.65,p2WristY,12,mid,edge);
-     bone(53,-192,99+armFlex*.4,p2ElbowY,16,mid,edge);
-     bone(99+armFlex*.4,p2ElbowY,134+armFlex*.65,p2WristY,12,mid,edge);
-     bone(-14,-208,-18,-229,15,mid,edge);bone(14,-208,18,-229,15,mid,edge);
-     polygon([[-33,-244],[-27,-264],[-12,-253],[0,-274],[12,-253],[28,-264],[34,-244],[19,-224],[-19,-224]],deep,edge,3);
-     polygon([[-17,-241],[0,-251],[17,-241],[9,-226],[4,-206],[0,-200],[-4,-206],[-9,-226]],mid,hot,2.5);
-     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=pulse;ctx.fillStyle=core;
-     ctx.beginPath();ctx.ellipse(-10,-243,4.6,2.2,0,0,Math.PI*2);ctx.ellipse(10,-243,4.6,2.2,0,0,Math.PI*2);ctx.fill();ctx.restore();
-     // The chakra cloak blows out in separate animated tongues, not a flat ring.
-     ctx.save();ctx.globalAlpha*=.58;ctx.lineWidth=5;ctx.lineCap='round';ctx.strokeStyle=hot;
-     for(let side of [-1,1])for(let j=0;j<3;j++){ctx.beginPath();ctx.moveTo(side*(42+j*4),-127-j*9);ctx.bezierCurveTo(side*(91+j*9),-153-j*9,side*(110+j*11),-220-j*12,side*(76+j*18),-246-j*10);ctx.stroke();}
-     ctx.restore();
-     [[-99,-197],[-134,-163],[99,-197],[134,-163],[-18,-229],[18,-229]].forEach(p=>joint(p[0],p[1],3.4));
-   }
-   // Finger curl makes both skeletal hands and muscular gauntlets feel alive.
-   const handX=stage===0?113:134,handY=stage===0?-178+armFlex:-163+armFlex*1.25;
-   const handCurl=Math.sin(t*.063)*2.8*poseWeight;
-   for(const side of [-1,1]){
-     const hx=side*handX,hy=handY;
-     bone(hx,hy,hx+side*(8+handCurl*.35),hy-7+handCurl,4.2,hot,edge);
-     bone(hx+side*(8+handCurl*.35),hy-7+handCurl,hx+side*(13+handCurl*.6),hy-14-handCurl,3.2,mid,edge);
-     bone(hx,hy,hx+side*5,hy+5+handCurl*.4,3.1,hot,edge);
-   }
-   ctx.restore();
-   if(reactWeight>.1){
-     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=Math.min(.54,reactWeight*.46);
-     ctx.strokeStyle=edo?'#e4b5ff':'#ffd59a';ctx.lineWidth=2.6;
-     ctx.beginPath();ctx.ellipse(0,-164,72+reactWeight*23,49+reactWeight*16,torsoLean,0,Math.PI*2);ctx.stroke();
-     ctx.beginPath();ctx.moveTo(-58,-204);ctx.lineTo(-72,-216);ctx.lineTo(-63,-228);
-     ctx.moveTo(58,-204);ctx.lineTo(72,-216);ctx.lineTo(63,-228);ctx.stroke();ctx.restore();
-   }
-   drawPhaseCombatMotion(fighter,stage,edo,t,rigScale);
-
-   // Edo ash or living-form embers are deterministic and allocation-free.
-   if(edo){
-     ctx.save();ctx.globalAlpha*=.66;ctx.strokeStyle='#160c20';ctx.lineWidth=2;
-     for(let i=0;i<4;i++){const x=Math.sin(t*.12+i*2.6)*(64+i*23),y=-90-((t*1.9+i*47)%210);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+6,y-8);ctx.lineTo(x+1,y-15);ctx.lineTo(x+12,y-22);ctx.stroke();}
-     ctx.fillStyle='#8e8999';
-     for(let i=0;i<6;i++){const x=Math.sin(t*.055+i*4.2)*(48+i*19),y=-35-((t*1.55+i*31)%220);ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*.03+i)*.8);ctx.beginPath();ctx.moveTo(-3,-5);ctx.lineTo(4,-3);ctx.lineTo(3,5);ctx.lineTo(-2,4);ctx.closePath();ctx.fill();ctx.restore();}
-     ctx.restore();
-   }else{
-     ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff9a48';
-     for(let i=0;i<7;i++){const x=Math.sin(t*.1+i*2.1)*(36+i*15),y=-42-((t*2+i*29)%228);ctx.globalAlpha=.35;ctx.beginPath();ctx.arc(x,y,1.1+(i%3)*.5,0,Math.PI*2);ctx.fill();}
-     ctx.restore();
-   }
- }
- 
-function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
- const id=f&&f.itachiPhaseSkillKey;
- if(!id)return;
- const n=f.moveFrame||0,wide=stage===1,sc=rigScale||2,d=f.facing||1;
- const hot=edo?'#c47be8':'#ff5928',edge=edo?'#ead0ff':'#ffe1a0',dark=edo?'#210b29':'#490b17';
- const smoothLocal=q=>{q=clamp(q,0,1);return q*q*(3-2*q);};
- const path=(pts,w,color,alpha)=>{
-  ctx.save();ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.lineCap='round';ctx.lineJoin='round';
-  ctx.strokeStyle=dark;ctx.lineWidth=w+8;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();
-  ctx.strokeStyle=color||hot;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();
-  ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1.4,w*.16);ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0]-1,pts[i][1]-1);ctx.stroke();ctx.restore();
- };
- const glow=(x,y,r,color,alpha)=>{
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?.8:alpha;ctx.fillStyle=color||hot;
-  ctx.beginPath();ctx.arc(x,y,r*2.2,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=.65;ctx.beginPath();ctx.arc(x,y,r*.8,0,Math.PI*2);ctx.fill();ctx.restore();
- };
- const ring=(x,y,rx,ry,color,width,alpha,rotate)=>{
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=width||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rotate||0,0,Math.PI*2);ctx.stroke();ctx.restore();
- };
- let shoulder=wide?[54,-191]:[43,-198],elbow=[wide?92:76,wide?-166:-173],hand=[wide?130:106,wide?-143:-147];
- const idleJiggle=Math.sin(t*.18)*2;
- if(id==='life_p1_claw'){
-  if(n<13){const q=smoothLocal(n/13);elbow=[lerp(65,94,q),lerp(-182,-209,q)];hand=[lerp(72,104,q),lerp(-220,-249,q)];}
-  else if(n<32){const q=smoothLocal((n-13)/19);elbow=[lerp(94,153,q),lerp(-209,-145,q)];hand=[lerp(104,224,q),lerp(-249,-63,q)];}
-  else{const q=smoothLocal((n-32)/33);elbow=[lerp(153,79,q),lerp(-145,-171,q)];hand=[lerp(224,106,q),lerp(-63,-147,q)];}
- }else if(id==='life_p1_fist'){
-  if(n<19){const q=smoothLocal(n/19);elbow=[lerp(84,61,q),lerp(-173,-159,q)];hand=[lerp(112,58,q),lerp(-143,-130,q)];}
-  else if(n<38){const q=smoothLocal((n-19)/19);elbow=[lerp(61,151,q),lerp(-159,-142,q)];hand=[lerp(58,240,q),lerp(-130,-125,q)];}
-  else{const q=smoothLocal((n-38)/40);elbow=[lerp(151,76,q),lerp(-142,-173,q)];hand=[lerp(240,106,q),lerp(-125,-147,q)];}
- }else if(id==='edo_p1_yasaka'){
-  if(n<20){const q=smoothLocal(n/20);elbow=[lerp(81,88,q),lerp(-174,-206,q)];hand=[lerp(112,136,q),lerp(-151,-237,q)];}
-  else if(n<31){const q=smoothLocal((n-20)/11);elbow=[lerp(88,145,q),lerp(-206,-164,q)];hand=[lerp(136,202,q),lerp(-237,-152,q)];}
-  else{const q=smoothLocal((n-31)/41);elbow=[lerp(145,75,q),lerp(-164,-172,q)];hand=[lerp(202,105,q),lerp(-152,-147,q)];}
- }else if(id==='edo_p1_grasp'){
-  const q=smoothLocal(n<22?n/22:(n<49?1:1-(n-49)/35));elbow=[lerp(76,134,q),lerp(-178,-144,q)];hand=[lerp(105,190,q),lerp(-154,-91,q)];
- }else if(id==='life_p2_yata'||id==='edo_p2_counter'){
-  const q=smoothLocal(n<13?n/13:(n<73?1:Math.max(0,1-(n-73)/30)));elbow=[lerp(72,110,q),lerp(-177,-194,q)];hand=[lerp(103,150,q),lerp(-151,-175,q)];
- }else if(id==='life_p2_totsuka'){
-  if(n<24){const q=smoothLocal(n/24);elbow=[lerp(78,100,q),lerp(-175,-225,q)];hand=[lerp(105,145,q),lerp(-151,-255,q)];}
-  else if(n<45){const q=smoothLocal((n-24)/21);elbow=[lerp(100,171,q),lerp(-225,-155,q)];hand=[lerp(145,258,q),lerp(-255,-114,q)];}
-  else{const q=smoothLocal((n-45)/75);elbow=[lerp(171,78,q),lerp(-155,-175,q)];hand=[lerp(258,105,q),lerp(-114,-151,q)];}
- }else if(id==='edo_p2_amaterasu'){
-  if(n<30){const q=smoothLocal(n/30);elbow=[lerp(77,98,q),lerp(-176,-231,q)];hand=[lerp(104,145,q),lerp(-151,-276,q)];}
-  else if(n<49){const q=smoothLocal((n-30)/19);elbow=[lerp(98,155,q),lerp(-231,-137,q)];hand=[lerp(145,223,q),lerp(-276,-55,q)];}
-  else{const q=smoothLocal((n-49)/83);elbow=[lerp(155,77,q),lerp(-137,-175,q)];hand=[lerp(223,105,q),lerp(-55,-151,q)];}
- }
- // The attacking arm is a jointed, scaled rig, not a flat slash pasted over the character.
+ const t=frame||0,owner=fighter||null,state=owner&&owner.state||'IDLE';
+ const moving=/^(WALK|RUN|DASH)$/.test(state),skill=owner&&owner.itachiPhaseSkillKey;
+ const active=!!(owner&&owner.move&&!moving)||!!skill;
+ const idle=active?.2:1,walk=t*.34,step=moving?Math.sin(walk):0;
+ const breath=Math.sin(t*(stage===0?.078:.055))*idle*(stage===0?2.5:3.5);
+ const sway=Math.sin(t*(stage===0?.047:.033))*idle*(stage===0?3.6:2.3);
+ const armSwing=moving?step*9:Math.sin(t*.052)*(stage===0?3:5)*idle;
+ const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.071)*1.6*idle;
+ const hit=owner&&(state==='HITSTUN'||(owner.hitstun||0)>0);
+ const recoil=hit?Math.min(1,Math.max(.25,(owner.hitstun||5)/8)):0;
+ const hot=edo?'#a81e38':'#e54a2e';
+ const edge=edo?'#f06a73':'#ff9b62';
+ const dark=edo?'#210b18':'#3b1016';
+ const core=edo?'#ff283f':'#ffe29a';
+ const mid=edo?'#64152d':'#a82c26';
+ const bone=(x1,y1,x2,y2,w,c)=>{ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=dark;ctx.lineWidth=w+5;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.strokeStyle=c||hot;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1.1,w*.17);ctx.beginPath();ctx.moveTo(x1-1,y1-1);ctx.lineTo(x2-1,y2-1);ctx.stroke();};
+ const orb=(x,y,r,c)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=c;ctx.globalAlpha*=.25;ctx.beginPath();ctx.arc(x,y,r*2.3,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=3.1;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();};
+ const joint=(x,y,r)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=.72;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();};
+ // A restrained aura field, with a different color temperature for living and Edo forms.
  ctx.save();ctx.globalCompositeOperation='lighter';
- path([shoulder,elbow],wide?22:12,hot,.96);glow(elbow[0],elbow[1],wide?14:9,edge,.85);
- path([elbow,hand],wide?19:10,hot,.98);glow(hand[0],hand[1],wide?16:10,edge,.95);
- if(!wide){
-  for(let i=0;i<5;i++){const spread=(i-2)*6,fan=(i-2)*8;path([[hand[0],hand[1]+spread*.3],[hand[0]+27+Math.abs(i-2)*2,hand[1]+fan-12]],3.2,hot,.95);}
+ const aura=ctx.createRadialGradient(0,-155,10,0,-155,220);
+ aura.addColorStop(0,edo?'rgba(159,22,53,.28)':'rgba(244,67,39,.25)');
+ aura.addColorStop(.55,edo?'rgba(84,9,35,.18)':'rgba(163,32,22,.15)');
+ aura.addColorStop(1,'rgba(10,3,8,0)');
+ ctx.fillStyle=aura;ctx.beginPath();ctx.ellipse(0,-155,218,235,0,0,Math.PI*2);ctx.fill();ctx.restore();
+ // Lower body: clear joint pivots and planted feet. Phase 1 remains skeletal; Phase 2 has plated greaves.
+ const kly=-57-Math.max(0,Math.cos(walk))*5.5*(moving?1:0),kry=-57-Math.max(0,Math.cos(walk+Math.PI))*5.5*(moving?1:0);
+ const klx=-39+sway*.35+step*5,krx=39-sway*.35-step*5;
+ bone(-20,-102,klx,kly,stage===0?11:17,stage===0?hot:mid);
+ bone(20,-102,krx,kry,stage===0?11:17,stage===0?hot:mid);
+ bone(klx,kly,-47+step*7,-28,stage===0?8:13,stage===0?hot:mid);
+ bone(krx,kry,47-step*7,-28,stage===0?8:13,stage===0?hot:mid);
+ bone(-47+step*7,-28,-17+step*7,-26,stage===0?8:14,dark);
+ bone(47-step*7,-28,17-step*7,-26,stage===0?8:14,dark);
+ joint(klx,kly,4);joint(krx,kry,4);
+ ctx.save();ctx.translate(sway*.13,-bob);ctx.translate(0,-126);ctx.rotate(-recoil*(stage===0?.09:.065)+Math.sin(t*.025)*idle*.025);ctx.translate(0,126);
+ if(stage===0){
+  // NEW PHASE 1: narrow, sharp rib cage; asymmetrical shoulder bones and an exposed spine.
+  bone(0,-105,0,-224,11,hot);bone(-7,-206,0,-218,5,edge);bone(7,-206,0,-218,5,edge);
+  for(let i=0;i<7;i++){
+   const y=-196+i*13+breath*.24,w=39-i*2.4;
+   ctx.strokeStyle=dark;ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-8,y+9,-15,y+12,0,y+7);ctx.bezierCurveTo(15,y+12,w+8,y+9,w,y);ctx.stroke();
+   ctx.strokeStyle=hot;ctx.lineWidth=5.3;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-8,y+9,-15,y+12,0,y+7);ctx.bezierCurveTo(15,y+12,w+8,y+9,w,y);ctx.stroke();
+   ctx.strokeStyle=edge;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-w+3,y);ctx.quadraticCurveTo(0,y+13,w-3,y);ctx.stroke();
+  }
+  const eY=-201+armSwing*.28,wY=-166+armSwing*.6;
+  bone(-35,-202,-73+sway,eY,12,hot);bone(-73+sway,eY,-104+armSwing,wY,8,hot);
+  bone(35,-202,73-sway,eY,12,hot);bone(73-sway,eY,104-armSwing,wY,8,hot);
+  for(const side of [-1,1]){
+   const hx=side*(104-armSwing),hy=wY;
+   for(let j=0;j<4;j++)bone(hx+side*j*2,hy,hx+side*(9+j*3),hy-12-j*2,2.5,edge);
+  }
+  // Angular Tengu skull and horns; regular Itachi eyes flicker weakly, Edo eyes stay intense.
+  polygon([[-29,-239],[-37,-258],[-19,-252],[-12,-276],[0,-260],[12,-276],[20,-252],[37,-258],[29,-238],[17,-223],[-17,-223]],dark,edge,2.5);
+  polygon([[-16,-240],[0,-249],[16,-240],[7,-226],[2,-208],[-2,-208],[-7,-226]],mid,hot,2);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;
+  ctx.globalAlpha*=edo?.98:(.48+.36*Math.sin(t*.29));
+  ctx.beginPath();ctx.ellipse(-10,-242,5,2.3,-.1,0,Math.PI*2);ctx.ellipse(10,-242,5,2.3,.1,0,Math.PI*2);ctx.fill();ctx.restore();
+  bone(-25,-243,-53,-261,5,hot);bone(25,-243,53,-261,5,hot);
+  for(const p of [[-35,-202],[-73,-201],[35,-202],[73,-201],[0,-105]])joint(p[0],p[1],3.4);
  }else{
-  ctx.fillStyle=edo?'#572354':'#9e2734';ctx.strokeStyle=edge;ctx.lineWidth=3;
-  ctx.beginPath();ctx.ellipse(hand[0]+6,hand[1],17,22,-.28,0,Math.PI*2);ctx.fill();ctx.stroke();
+  // NEW PHASE 2: muscular torso, broad shoulder plates, segmented arm guards and a reinforced Tengu helm.
+  const muscle=ctx.createLinearGradient(-70,-220,70,-90);
+  muscle.addColorStop(0,edo?'#9b1d3a':'#e64b2c');muscle.addColorStop(.5,edo?'#64152d':'#a92b24');muscle.addColorStop(1,dark);
+  polygon([[-39,-211],[-68,-191],[-58,-151],[-39,-125],[-17,-112],[0,-108],[17,-112],[39,-125],[58,-151],[68,-191],[39,-211],[18,-197],[0,-188],[-18,-197]],muscle,edge,3.5);
+  // Sternum and abdominal segmentation move with the breathing cycle.
+  ctx.strokeStyle=edge;ctx.lineWidth=5;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(0,-202);ctx.lineTo(0,-119);
+  for(let i=0;i<4;i++){const y=-184+i*16+breath*.25;ctx.moveTo(-31+i*2,y);ctx.quadraticCurveTo(-12,y+10,0,y+5);ctx.quadraticCurveTo(12,y+10,31-i*2,y);}ctx.stroke();
+  polygon([[-53,-205],[-79,-194],[-91,-171],[-68,-161],[-48,-177]],dark,edge,2.2);
+  polygon([[53,-205],[79,-194],[91,-171],[68,-161],[48,-177]],dark,edge,2.2);
+  polygon([[-58,-189],[-82,-181],[-102,-159],[-91,-144],[-67,-157]],mid,edge,2);
+  polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
+  const ey=-192+armSwing*.45,wy=-153+armSwing*.9;
+  bone(-51,-193,-83+sway,ey,17,mid);bone(-83+sway,ey,-119+armSwing,wy,13,mid);
+  bone(51,-193,83-sway,ey,17,mid);bone(83-sway,ey,119-armSwing,wy,13,mid);
+  for(const side of [-1,1]){
+   const hx=side*(119-armSwing),hy=wy;
+   polygon([[hx-side*7,hy-7],[hx+side*4,hy-13],[hx+side*17,hy-9],[hx+side*22,hy+2],[hx+side*9,hy+6]],dark,edge,1.8);
+   for(let j=0;j<4;j++)bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*1.5,3,mid);
+  }
+  // Layered Tengu helm with a long angular faceplate and a visible forehead chakra seal.
+  polygon([[-34,-245],[-30,-263],[-13,-255],[0,-278],[13,-255],[30,-263],[34,-245],[20,-222],[-20,-222]],dark,edge,3);
+  polygon([[-17,-241],[0,-252],[17,-241],[9,-224],[4,-205],[0,-199],[-4,-205],[-9,-224]],mid,hot,2.5);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=edo?.98:(.62+.2*Math.sin(t*.22));
+  ctx.beginPath();ctx.ellipse(-11,-243,4.7,2.2,0,0,Math.PI*2);ctx.ellipse(11,-243,4.7,2.2,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=hot;ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,-230,9,t*.025,t*.025+Math.PI*1.5);ctx.stroke();ctx.restore();
+  // Two rotating Mangekyo-inspired rings are abstract chakra marks, not physical objects.
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.strokeStyle=edo?'#ff304e':'#ff9562';ctx.lineWidth=2.2;ctx.globalAlpha*=.62;
+  for(let j=0;j<3;j++){ctx.beginPath();ctx.ellipse(0,-221,13+j*5,4+j*1.6,t*.035+j*.8,0,Math.PI*2);ctx.stroke();}ctx.restore();
+  // Forearm and shoulder plate highlights give Phase 2 a heavier silhouette.
+  for(const side of [-1,1]){
+   polygon([[side*66,-185],[side*88,-176],[side*98,-160],[side*84,-149],[side*68,-162]],dark,edge,1.8);
+   bone(side*25,-112,side*34,-91,8,mid);joint(side*83,ey,4);
+  }
  }
  ctx.restore();
- if(id==='life_p1_claw'){
-  const q=n<13?0:(n<34?1:Math.max(0,1-(n-34)/28));
-  if(q>0){
-   for(let i=0;i<3;i++){
-    const shift=(i-1)*22;
-    path([[40+shift,-267],[98+shift,-216],[151+shift,-151],[191+shift,-65]],44-i*7,'rgba(255,70,24,.88)',q*.85);
-    path([[43+shift,-262],[100+shift,-214],[151+shift,-150],[188+shift,-70]],4.5,'rgba(255,230,165,.95)',q);
-   }
-   if(n>=17&&n<=47){
-    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=q;
-    for(let i=0;i<3;i++){const xx=136+i*30;ctx.strokeStyle=i===1?'#ffdb8a':'#ff5425';ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(xx,-22);ctx.lineTo(xx+20,-7);ctx.stroke();ctx.strokeStyle='#260811';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(xx,-20);ctx.lineTo(xx+20,-5);ctx.stroke();}
-    ctx.restore();
-   }
-  }
- }else if(id==='life_p1_fist'){
-  const charge=1-smoothLocal(n/20);
-  if(n<21){glow(hand[0],hand[1],18+charge*17,'#ffbc5b',.75);ring(hand[0],hand[1],22+(n%4)*4,18+(n%3)*3,'#ff8c37',4,.82);}
-  if(n>=24&&n<=43){
-   const q=smoothLocal((n-24)/7),fade=n<34?1:Math.max(0,1-(n-34)/9);
-   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-   ring(hand[0]+35,hand[1]+3,25+q*165,19+q*82,'#ffb95c',7,.95);
-   ring(hand[0]+35,hand[1]+3,40+q*145,30+q*75,'#ff5b29',3,.85);
-   for(let i=0;i<13;i++){const a=i*Math.PI*2/13+q*.22;path([[hand[0]+20+Math.cos(a)*30,hand[1]+Math.sin(a)*22],[hand[0]+20+Math.cos(a)*(110+q*60),hand[1]+Math.sin(a)*(65+q*40)]],3,i%3?'#ff8b40':'#ffe3a5',.7);}
-   ctx.restore();
-  }
- }else if(id==='life_p2_yata'||id==='edo_p2_counter'){
-  const sx=hand[0]+48,sy=hand[1]-1,active=id==='edo_p2_counter'?(n<13):(n<75);
-  ctx.save();ctx.translate(sx,sy);ctx.rotate(Math.sin(t*.03)*.035);
-  ctx.globalCompositeOperation='lighter';
-  ctx.fillStyle=edo?'rgba(89,48,128,.87)':'rgba(236,166,62,.83)';ctx.strokeStyle=edge;ctx.lineWidth=4;
-  ctx.beginPath();ctx.moveTo(0,-65);ctx.quadraticCurveTo(50,-51,51,-12);ctx.quadraticCurveTo(44,37,0,61);ctx.quadraticCurveTo(-44,37,-51,-12);ctx.quadraticCurveTo(-50,-51,0,-65);ctx.closePath();ctx.fill();ctx.stroke();
-  for(let i=0;i<12;i++){const a=i*Math.PI/6+t*.035;ctx.save();ctx.rotate(a);ctx.strokeStyle=i%2?edge:(edo?'#c78aff':'#fff1ae');ctx.lineWidth=2.4;ctx.beginPath();ctx.moveTo(-4,-45);ctx.lineTo(4,-37);ctx.lineTo(-2,-29);ctx.stroke();ctx.restore();}
-  ring(0,-2,63+n%4,76+n%5,edge,2.5,.8);
-  ring(0,-2,72+n%7,84+n%6,edo?'#c28cff':'#ffb94e',1.7,.55);
-  ctx.restore();
-  if(active&&n%8<4)ring(sx,sy,83+n%5,100+n%4,edge,2,.55);
-  if(id==='edo_p2_counter'&&n>13&&n<48){
-   const fade=Math.max(0,1-(n-13)/35);for(let i=0;i<8;i++){const a=t*.13+i*2.4,x=sx+Math.cos(a)*(35+i%3*14),y=sy+Math.sin(a)*(28+i%4*12);path([[x,y],[x+Math.cos(a+1)*22,y-11]],2.5,'#8a758f',fade);}
-  }
- }else if(id==='life_p2_totsuka'){
-  const q=smoothLocal((n-23)/23),fade=n<24?.15:(n<61?1:Math.max(0,1-(n-61)/21));
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  // Broad 180-degree liquid-flame sweep: three nested ribbons make the strike read at arena scale.
-  ctx.strokeStyle='rgba(73,9,20,.98)';ctx.lineWidth=69;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-28,-181);ctx.bezierCurveTo(42,-292,160,-269,231,-157);ctx.bezierCurveTo(290,-67,260,-26,222,-20);ctx.stroke();
-  ctx.strokeStyle='rgba(255,81,36,.96)';ctx.lineWidth=43;ctx.beginPath();ctx.moveTo(-28,-181);ctx.bezierCurveTo(42,-292,160,-269,231,-157);ctx.bezierCurveTo(290,-67,260,-26,222,-20);ctx.stroke();
-  ctx.strokeStyle='rgba(255,203,125,.98)';ctx.lineWidth=14;ctx.beginPath();ctx.moveTo(-25,-181);ctx.bezierCurveTo(44,-282,163,-259,227,-157);ctx.bezierCurveTo(279,-73,253,-37,220,-22);ctx.stroke();
-  ctx.strokeStyle='rgba(255,250,219,.98)';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(-19,-180);ctx.bezierCurveTo(45,-276,166,-255,223,-157);ctx.bezierCurveTo(270,-80,250,-42,219,-25);ctx.stroke();
-  for(let i=0;i<16;i++){const z=i/15,x=20+z*220,y=-252+z*213+Math.sin(t*.25+i)*9;glow(x,y,4+i%4,'#ffd38a',.75);}
-  ctx.restore();
- }else if(id==='edo_p1_yasaka'){
-  // Three large rotating beads connected by a visible chakra cord before launch.
-  for(let i=0;i<3;i++){const a=t*.23+i*Math.PI*2/3,x=hand[0]+35+Math.cos(a)*18,y=hand[1]-13+Math.sin(a)*13;glow(x,y,10,'#bd84f1',1);ring(x,y,10,10,'#e9d8ff',3,.95);path([[hand[0]+21,hand[1]-13],[x,y]],3,'#9d69d1',.8);}
- }else if(id==='edo_p1_grasp'){
-  const target=f.opp;
-  if(target&&alive(target)){
-   const tx=40+(target.x-f.x)*d/sc,gy=(target.y-f.y)/sc-34;
-   const rise=smoothLocal((n-15)/18)*74,fade=n<18?.4:(n<52?1:Math.max(0,1-(n-52)/31));
-   if(n>=12&&n<=83){
-    ctx.save();ctx.globalAlpha*=fade;
-    // Ground fracture and ash paper spiral surround the exact target point.
-    ctx.strokeStyle='#64213f';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(tx-65,gy+4);ctx.lineTo(tx-24,gy-1);ctx.lineTo(tx-43,gy-24);ctx.moveTo(tx+60,gy+5);ctx.lineTo(tx+25,gy-3);ctx.lineTo(tx+42,gy-28);ctx.moveTo(tx-22,gy+8);ctx.lineTo(tx-9,gy+20);ctx.moveTo(tx+21,gy+6);ctx.lineTo(tx+8,gy+21);ctx.stroke();
-    ctx.strokeStyle='rgba(203,109,193,.9)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(tx-48,gy+2);ctx.lineTo(tx-22,gy-2);ctx.lineTo(tx-34,gy-17);ctx.moveTo(tx+45,gy+2);ctx.lineTo(tx+21,gy-2);ctx.lineTo(tx+35,gy-20);ctx.stroke();
-    const palmY=gy+11-rise;
-    ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.beginPath();ctx.ellipse(tx,palmY,27,32,-.1,0,Math.PI*2);ctx.fill();ctx.stroke();
-    ctx.fillStyle=edo?'#68274f':'#ad303a';ctx.beginPath();ctx.ellipse(tx,palmY,19,23,-.1,0,Math.PI*2);ctx.fill();
-    for(let i=0;i<5;i++){
-      const spread=(i-2)*12,fx=tx+spread,fy=palmY-18-Math.abs(i-2)*4;
-      path([[tx+(i-2)*4,palmY-12],[fx,fy-29],[fx+d*2,fy-47]],10,'#9a4267',fade);
-      path([[tx+(i-2)*4,palmY-12],[fx,fy-29],[fx+d*2,fy-47]],3,edge,fade);
-      glow(fx,fy-47,4,'#c49bd7',.7*fade);
-    }
-    for(let i=0;i<12;i++){const a=t*.1+i*2.4,x=tx+Math.cos(a)*(38+i%3*13),y=palmY-20+Math.sin(a)*(28+i%4*9);path([[x,y],[x+Math.cos(a+1)*9,y-13]],2.4,i%3?'#827887':'#c4a4d8',.75*fade);}
-    ctx.restore();
-   }
-  }
- }else if(id==='edo_p2_amaterasu'){
-  const q=smoothLocal((n-28)/22),fade=n<21?.35:(n<60?1:Math.max(0,1-(n-60)/28));
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  // Amaterasu blade: black-violet core wrapped in restless violet fire tongues.
-  ctx.strokeStyle='rgba(5,3,13,.99)';ctx.lineWidth=72;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(hand[0]-3,hand[1]-28);ctx.lineTo(hand[0]+18,hand[1]+195*q);ctx.stroke();
-  ctx.strokeStyle='rgba(58,18,80,.98)';ctx.lineWidth=43;ctx.beginPath();ctx.moveTo(hand[0]-3,hand[1]-28);ctx.lineTo(hand[0]+18,hand[1]+195*q);ctx.stroke();
-  ctx.strokeStyle='rgba(177,105,243,.9)';ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(hand[0]-3,hand[1]-28);ctx.lineTo(hand[0]+18,hand[1]+195*q);ctx.stroke();
-  for(let i=0;i<11;i++){const u=i/11,x=hand[0]+Math.sin(t*.18+i*2.7)*10+u*18,y=hand[1]-32+u*205*q;path([[x,y],[x+Math.sin(i*3+t*.12)*13,y-14-i%4*4]],3.4,i%2?'#8d59cf':'#24142e',.95*fade);}
-  if(n>=33&&n<=61){const surge=smoothLocal((n-33)/8);ring(hand[0]+26,hand[1]+163*surge,27+surge*110,8+surge*22,'#9f6be9',5,.8);}
-  ctx.restore();
+ // Shared live hand/finger articulation and a restrained reaction ripple.
+ if(recoil>.1){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=recoil*.55;ctx.strokeStyle=edge;ctx.lineWidth=2.4;ctx.beginPath();ctx.ellipse(0,-163,80+recoil*20,52+recoil*14,0,0,Math.PI*2);ctx.stroke();ctx.restore();}
+ drawPhaseCombatMotion(fighter,stage,edo,t,rigScale);
+ // Ambient differences: living chakra is ember-like; Edo reanimation sheds paper ash and black-red flakes.
+ ctx.save();
+ if(edo){
+  ctx.globalAlpha*=.72;ctx.fillStyle='#b2a8b7';ctx.strokeStyle='#2b0b20';ctx.lineWidth=1;
+  for(let i=0;i<7;i++){const x=Math.sin(t*.055+i*2.4)*(48+i*15),y=-30-((t*1.45+i*37)%225);ctx.save();ctx.translate(x,y);ctx.rotate(Math.sin(t*.031+i)*.9);ctx.beginPath();ctx.moveTo(-3,-5);ctx.lineTo(4,-3);ctx.lineTo(3,5);ctx.lineTo(-2,4);ctx.closePath();ctx.fill();ctx.stroke();ctx.restore();}
+  ctx.globalCompositeOperation='lighter';ctx.strokeStyle='#270711';ctx.lineWidth=2;
+  for(let i=0;i<4;i++){const x=Math.sin(t*.1+i*2.3)*(55+i*17),y=-100-((t*1.8+i*43)%130);ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+5,y-7);ctx.lineTo(x+2,y-13);ctx.lineTo(x+10,y-19);ctx.stroke();}
+ }else{
+  ctx.globalCompositeOperation='lighter';ctx.fillStyle='#ff9a62';
+  for(let i=0;i<8;i++){const x=Math.sin(t*.1+i*2.1)*(35+i*14),y=-38-((t*1.8+i*29)%215);ctx.globalAlpha*=.96;ctx.beginPath();ctx.arc(x,y,1.2+(i%3)*.55,0,Math.PI*2);ctx.fill();}
  }
- // Screen-independent local dust trails make each pose readable even on low-end rendering.
- if(edo&&(n%3===0)&&(id==='edo_p1_grasp'||id==='edo_p1_yasaka'||id==='edo_p2_counter'||id==='edo_p2_amaterasu')){
-  ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#a49aab';
-  for(let i=0;i<8;i++){const x=Math.sin(t*.17+i*2.2)*(25+i*16),y=-65-((t*2.4+i*29)%230);ctx.save();ctx.translate(x,y);ctx.rotate(t*.04+i);ctx.beginPath();ctx.moveTo(-4,-7);ctx.lineTo(4,-4);ctx.lineTo(3,5);ctx.lineTo(-2,7);ctx.closePath();ctx.fill();ctx.restore();}
-  ctx.restore();
- }
+ ctx.restore();
 }
-
+function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
+ const id=f&&f.itachiPhaseSkillKey;if(!id)return;
+ const n=f.moveFrame||0,d=f.facing||1,hot=edo?'#bd243f':'#f05232',edge=edo?'#ff5267':'#ffb17a',dark=edo?'#300817':'#451016';
+ const smooth=q=>{q=clamp(q,0,1);return q*q*(3-2*q);};
+ const path=(pts,w,color,alpha)=>{ctx.save();ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=dark;ctx.lineWidth=w+7;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=color||hot;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1,w*.14);ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0]-1,pts[i][1]-1);ctx.stroke();ctx.restore();};
+ const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
+ const glow=(x,y,r,color,alpha)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?.8:alpha;ctx.fillStyle=color||hot;ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=.45;ctx.beginPath();ctx.arc(x,y,r*.7,0,Math.PI*2);ctx.fill();ctx.restore();};
+ if(id==='p1_bones'){
+  // Two oversized spectral arms form behind the rib cage, then descend in a synchronized ground slam.
+  const raise=smooth(n/28),slam=smooth((n-42)/24),fade=n<82?1:Math.max(0,1-(n-82)/35);
+  const leftElbow=[-68-raise*18,-197-raise*40+slam*58],rightElbow=[68+raise*18,-197-raise*40+slam*58];
+  const leftHand=[-104-raise*35,-158-raise*83+slam*122],rightHand=[104+raise*35,-158-raise*83+slam*122];
+  ctx.save();ctx.globalAlpha*=fade;
+  for(const side of [-1,1]){
+   const sh=[side*38,-193],el=side<0?leftElbow:rightElbow,ha=side<0?leftHand:rightHand;
+   path([sh,el],stage===0?15:20,hot,.98);path([el,ha],stage===0?12:17,hot,.98);glow(el[0],el[1],10,edge,.7);
+   for(let j=0;j<5;j++){const x=ha[0]+side*(j-2)*7,y=ha[1]+Math.abs(j-2)*3;path([[x,y],[x+side*(5+j),y+13+slam*5]],3.5,edge,.9);}
+  }
+  ring(0,-100,28+slam*175,12+slam*54,edge,5,slam*.95);
+  ring(0,-100,42+slam*205,19+slam*67,hot,2.5,slam*.85);
+  if(n>57&&n<98){for(let i=0;i<9;i++){const a=i*Math.PI*2/9+Math.sin(t*.1)*.08,x=Math.cos(a)*(38+slam*150),y=-100+Math.sin(a)*(12+slam*48);path([[x,y],[x+Math.cos(a)*24,y+Math.sin(a)*17]],2.4,edge,.75*fade);}}
+  ctx.restore();
+ }else if(id==='p1_magatama'){
+  const charge=1-smooth(n/38),release=smooth((n-34)/14),fade=n<42?1:Math.max(0,1-(n-42)/43);
+  const cx=88+charge*18,cy=-203-charge*28;
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=n<34?1:fade;
+  for(let i=0;i<3;i++){
+   const a=t*.17+i*Math.PI*2/3,x=cx+Math.cos(a)*19,y=cy+Math.sin(a)*13;
+   ctx.strokeStyle=dark;ctx.lineWidth=8;ctx.beginPath();ctx.arc(x,y,11,a,a+Math.PI*1.5);ctx.stroke();
+   ctx.strokeStyle=edge;ctx.lineWidth=3.5;ctx.beginPath();ctx.arc(x,y,11,a,a+Math.PI*1.5);ctx.stroke();glow(x,y,7,hot,.9);
+  }
+  path([[cx-17,cy],[cx,cy-7],[cx+18,cy],[cx,cy+8],[cx-17,cy]],2.5,edge,.9);
+  if(n>30){for(let j=0;j<3;j++){const x=35+release*(120+j*20),y=-207+j*24+Math.sin(t*.18+j)*7;ctx.save();ctx.translate(x,y);ctx.rotate(t*.16+j);ctx.beginPath();ctx.moveTo(-9,0);ctx.quadraticCurveTo(-4,-13,8,-8);ctx.quadraticCurveTo(15,0,3,10);ctx.quadraticCurveTo(-6,9,-9,0);ctx.fillStyle=hot;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.stroke();ctx.restore();}}
+  ctx.restore();
+ }else if(id==='p2_seal'){
+  const charge=smooth(n/48),sweep=smooth((n-48)/28),fade=n<106?1:Math.max(0,1-(n-106)/42);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+  // Wide chakra crescent and nested sealing rings, with no physical blade.
+  ctx.strokeStyle=dark;ctx.lineWidth=56;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
+  ctx.strokeStyle=hot;ctx.lineWidth=35;ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
+  ctx.strokeStyle=edge;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
+  const sx=145+sweep*85,sy=-140+sweep*40;
+  for(let i=0;i<4;i++)ring(sx,sy,22+i*17+charge*9,14+i*11+charge*5, i%2?hot:edge, i===0?3:1.8,.8*fade,t*.02+i*.45);
+  for(let i=0;i<10;i++){const q=i/9,x=28+q*220,y=-255+q*183+Math.sin(t*.17+i)*7;glow(x,y,3+i%3,edge,.68*fade);}
+  ctx.restore();
+ }else if(id==='p2_guard'){
+  const guard=smooth(n/12),counter=smooth((n-82)/12),fade=n<110?1:Math.max(0,1-(n-110)/28);
+  const sx=112,sy=-150;
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+  ctx.translate(sx,sy);ctx.rotate(Math.sin(t*.035)*.035);
+  ctx.beginPath();ctx.moveTo(0,-70);ctx.lineTo(46,-48);ctx.lineTo(55,-8);ctx.lineTo(38,39);ctx.lineTo(0,63);ctx.lineTo(-38,39);ctx.lineTo(-55,-8);ctx.lineTo(-46,-48);ctx.closePath();
+  ctx.fillStyle=edo?'rgba(128,20,54,.42)':'rgba(255,91,55,.32)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
+  for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(0,-2,63+i*12+guard*5,76+i*13+guard*5,t*.02+i*.6,0,Math.PI*2);ctx.strokeStyle=i===1?hot:edge;ctx.lineWidth=i===1?3:1.6;ctx.stroke();}
+  for(let i=0;i<6;i++){const a=t*.06+i*Math.PI/3;path([[Math.cos(a)*20,Math.sin(a)*24],[Math.cos(a)*(55+counter*90),Math.sin(a)*(62+counter*25)]],2.5,edge,.7+counter*.3);}
+  ctx.restore();
+  if(n>78&&n<118){ring(180,-145,30+counter*170,16+counter*80,edge,5,counter*.9);ring(180,-145,46+counter*190,24+counter*90,hot,2.4,counter*.8);}
+ }
+ if(edo&&(n%4===0)){ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#b6a9b9';for(let i=0;i<5;i++){const x=Math.sin(t*.14+i*2.5)*(25+i*14),y=-70-((t*2+i*27)%170);ctx.save();ctx.translate(x,y);ctx.rotate(t*.03+i);ctx.fillRect(-2,-4,4,7);ctx.restore();}ctx.restore();}
+}
 function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(typeof ctx==='undefined')return;
   const t=phase||0,k=sceneMode==='awakening'?'ult':(f&&f.moveKey||''),rawFrame=f&&f.moveFrame||0;
@@ -904,7 +782,7 @@ let phaseControlRoot=null,phaseControlOwners=[],phaseControlSignature='';
   const x=22,y=H-87,w=310,h=63;
   ctx.fillStyle='rgba(10,5,12,.82)';ctx.fillRect(x,y,w,h);ctx.strokeStyle='rgba(255,154,112,.65)';ctx.lineWidth=1.3;ctx.strokeRect(x,y,w,h);
   ctx.fillStyle='#ffd0a9';ctx.font='bold 13px sans-serif';ctx.textAlign='left';ctx.fillText('SUSANOO · AWAKENED',x+12,y+18);
-  ctx.fillStyle='#fff0dd';ctx.font='11px sans-serif';ctx.fillText((f.isP2?'NUM 1':'1')+' M1  TOTSUKA  ·  '+(f.isP2?'NUM −':'Z')+' YATA  ·  '+(f.isP2?'NUM /':'X')+' SEAL',x+12,y+37);
+  ctx.fillStyle='#fff0dd';ctx.font='11px sans-serif';ctx.fillText((f.isP2?'NUM 1':'1')+' M1  TOTSUKA  ·  '+(f.isP2?'NUM +':'Z')+' PHASE SKILL  ·  '+(f.isP2?'NUM /':'X')+' SEAL',x+12,y+37);
   const secs=Math.max(0,(f.itachiSusanooFrames||0)/60);ctx.fillStyle='rgba(255,200,157,.88)';ctx.font='10px sans-serif';ctx.fillText('FORM EXPIRES IN '+secs.toFixed(1)+'s',x+12,y+52);ctx.restore();
 }
 if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
@@ -979,14 +857,14 @@ if(typeof previousRender==='function')window.render=function(){
   return out;
 };
 // M1 / Z / X are consumed only while Itachi's persistent Susanoo form is active.
-// Old Itachi listeners are patched separately for X and P2's numpad-minus Z binding.
+// Old Itachi listeners are patched separately for X and P2's numpad-plus Z binding.
 addEventListener('keydown',function(e){
   if(typeof G==='undefined'||G.mode==='menu'||G.paused)return;
   const f=currentOwnerForCode(e.code);if(!f)return;
   if(e.repeat){e.preventDefault();e.stopImmediatePropagation();return;}
   let key=null;
   if(e.code==='Digit1'||e.code==='Numpad1')key='m1';
-  else if(e.code==='KeyZ'||e.code==='NumpadSubtract')key='z';
+  else if(e.code==='KeyZ'||e.code==='NumpadAdd')key='z';
   else if(e.code==='KeyX'||e.code==='NumpadDivide')key='x';
   if(!key)return;
   e.preventDefault();e.stopImmediatePropagation();
