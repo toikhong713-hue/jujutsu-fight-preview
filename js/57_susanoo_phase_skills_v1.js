@@ -111,8 +111,8 @@ function updateSkill(f){
   if(n===1){f.vx=0;fx('crows',f.x,f.y-90,26);fx('seal',f.x+d*130,f.y-35,26);impact(.05,'#6b1429',2);}
   if(n===15){const tx=alive(o)?o.x:f.x+d*210;fx('seal',tx,f.y-24,36);fx('crows',tx,f.y-60,22);}
   if(n===35&&alive(o)&&Math.abs(o.x-f.x)<440&&Math.abs(o.y-f.y)<220){o.vx*=.25;fx('seal',o.x,o.y-18,40);fx('shock',o.x,o.y-40,24);impact(.08,'#72172d',3);}
-  if(n===78&&!f.itachiPhaseSkillMarks.ashGrip){f.itachiPhaseSkillMarks.ashGrip=true;const ok=hitTarget(f,14,450,{hitstun:22,kbx:d*2,kby:-1,hitstop:6,vertical:240,fx:false});if(ok){fx('seal',o.x,o.y-65,36);fx('crows',o.x,o.y-55,20);impact(.1,'#81203b',5);}}
-  if(n===108&&!f.itachiPhaseSkillMarks.ashCrush){f.itachiPhaseSkillMarks.ashCrush=true;const ok=hitTarget(f,27,450,{hitstun:34,kbx:d*10,kby:-5,hitstop:12,armorBreak:true,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-70,42);fx('shock',o.x,o.y-20,48);fx('crows',o.x,o.y-90,28);impact(.25,'#9b2444',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-172,'ASHEN GRASP','#ffc8d2',13,40);}else impact(.08,'#72172d',3);}
+  if(n===78&&!f.itachiPhaseSkillMarks.ashGrip){f.itachiPhaseSkillMarks.ashGrip=true;const ok=hitTarget(f,14,520,{hitstun:22,kbx:d*2,kby:-1,hitstop:6,vertical:240,fx:false});if(ok){fx('seal',o.x,o.y-65,36);fx('crows',o.x,o.y-55,20);impact(.1,'#81203b',5);}}
+  if(n===120&&!f.itachiPhaseSkillMarks.ashCrush){f.itachiPhaseSkillMarks.ashCrush=true;const ok=hitTarget(f,27,520,{hitstun:34,kbx:d*10,kby:-5,hitstop:12,armorBreak:true,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-70,42);fx('shock',o.x,o.y-20,48);fx('crows',o.x,o.y-90,28);impact(.25,'#9b2444',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-172,'ASHEN GRASP','#ffc8d2',13,40);}else impact(.08,'#72172d',3);}
   if(n>=150)finishSkill(f);
  }else if(id==='p1_magatama'){
   if(n===1){f.vx*=.1;fx('magatama',f.x+d*50,f.y-155,26);}
