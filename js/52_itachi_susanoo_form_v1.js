@@ -370,6 +370,7 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    if(n>48){const q=smooth((n-48)/12);for(let i=0;i<5;i++){const a=i*2.399+t*.03,rr=28+q*55;glow(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,2.4,edge,.6*fade);}}
    ctx.restore();
   }
+  if(!edo){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=n<34?1:fade;
   for(let i=0;i<3;i++){
    const a=t*.17+i*Math.PI*2/3,x=cx+Math.cos(a)*19,y=cy+Math.sin(a)*13;
@@ -379,6 +380,7 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   path([[cx-17,cy],[cx,cy-7],[cx+18,cy],[cx,cy+8],[cx-17,cy]],2.5,edge,.9);
   if(n>30){for(let j=0;j<3;j++){const x=35+release*(120+j*20),y=-207+j*24+Math.sin(t*.18+j)*7;ctx.save();ctx.translate(x,y);ctx.rotate(t*.16+j);ctx.beginPath();ctx.moveTo(-9,0);ctx.quadraticCurveTo(-4,-13,8,-8);ctx.quadraticCurveTo(15,0,3,10);ctx.quadraticCurveTo(-6,9,-9,0);ctx.fillStyle=hot;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.stroke();ctx.restore();}}
   ctx.restore();
+  }
  }else if(id==='p2_seal'){
   const charge=smooth(n/48),sweep=smooth((n-48)/28),fade=n<106?1:Math.max(0,1-(n-106)/42);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
@@ -397,7 +399,8 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    // Edo X: Black Ash Eclipse. A remote seal opens around the opponent and contracts into a crimson-black implosion.
    const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*270)-f.x)*d,145,470),ty=-105;
    const charge=smooth(n/38),collapse=smooth((n-57)/31),fade=n<95?1:Math.max(0,1-(n-95)/39);
-   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+   if(!edo){
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
    for(let layer=0;layer<4;layer++){
     const rr=(72+layer*24)*(1-collapse)+collapse*(18+layer*8);
     ctx.save();ctx.translate(tx,ty);ctx.rotate((layer%2?1:-1)*(t*.025+n*.012));
@@ -428,6 +431,7 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    ctx.restore();
    ring(180,-145,30+counter*170,16+counter*80,edge,5,counter*.9);ring(180,-145,46+counter*190,24+counter*90,hot,2.4,counter*.8);
    for(let j=0;j<5;j++){const yy=-166+j*10;path([[65,yy],[110+q*80,yy+(j-2)*5]],2.2,edge,.65*counter);}
+  }
   }
  }
  if(edo&&(n%4===0)){ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#b6a9b9';for(let i=0;i<5;i++){const x=Math.sin(t*.14+i*2.5)*(25+i*14),y=-70-((t*2+i*27)%170);ctx.save();ctx.translate(x,y);ctx.rotate(t*.03+i);ctx.fillRect(-2,-4,4,7);ctx.restore();}ctx.restore();}
