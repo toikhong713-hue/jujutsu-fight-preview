@@ -379,31 +379,69 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
  const glow=(x,y,r,color,alpha)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?.8:alpha;ctx.fillStyle=color||hot;ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=.45;ctx.beginPath();ctx.arc(x,y,r*.7,0,Math.PI*2);ctx.fill();ctx.restore();};
  if(id==='p1_bones'){
-  // Bone Requiem: readable anticipation, cross-body sweep, then two giant hands slam the same lane.
-  const raise=smooth(n/30),sweep=smooth((n-30)/18),slam=smooth((n-57)/20),recover=n<82?1:Math.max(0,1-(n-82)/38);
+  // Bone Requiem: hand-seal anticipation -> twin-arm sweep -> synchronized ground smash.
+  const raise=smooth(n/30),sweep=smooth((n-30)/36),slam=smooth((n-72)/22),recover=n<108?1:Math.max(0,1-(n-108)/42);
   ctx.save();ctx.globalAlpha*=recover;
-  const arms=[
-   {sh:[-36,-205],el:[d*(52+raise*22+sweep*35),-205-raise*30+slam*24],ha:[d*(105+raise*42+sweep*78),-162-raise*66+slam*132]},
-   {sh:[36,-205],el:[d*(62+raise*15+sweep*58),-194-raise*44+slam*37],ha:[d*(132+raise*30+sweep*72),-150-raise*74+slam*118]}
-  ];
-  for(let a=0;a<arms.length;a++){const arm=arms[a],width=a===0?17:14;path([arm.sh,arm.el],width,hot,.98);glow(arm.el[0],arm.el[1],10,edge,.62);path([arm.el,arm.ha],width-3,hot,.98);for(let j=0;j<5;j++){const fan=(j-2)*7,curl=slam*10;path([[arm.ha[0]+fan,arm.ha[1]],[arm.ha[0]+fan+d*(j-2)*2,arm.ha[1]+12+Math.abs(j-2)*2+curl]],3.3,edge,.95);}}
-  if(n>28&&n<58){const q=smooth((n-28)/30);path([[d*35,-176],[d*(70+q*85),-195+q*25],[d*(125+q*85),-165+q*15]],5,edge,.75);ring(d*(110+q*75),-155,18+q*28,9+q*15,hot,2.2,q*.8,t*.02);}
-  if(n>55){const q=smooth((n-55)/20);ring(d*(145+q*65),-24,24+q*180,9+q*55,edge,5,q*.95);ring(d*(145+q*65),-24,38+q*195,16+q*72,hot,2.4,q*.8);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,x=d*(145+q*65)+Math.cos(a)*(35+q*145),y=-25+Math.sin(a)*(12+q*48);path([[x,y],[x+Math.cos(a)*19,y+Math.sin(a)*13]],2.3,edge,.78*recover);}}
+  if(n<34){
+   const seal=smooth(n/16);
+   ring(0,-177,24+seal*42,16+seal*27,edge,2.4,.45+seal*.35,t*.018);
+   ring(0,-177,17+seal*27,11+seal*18,hot,1.8,.55,t*-.02);
+   for(let i=0;i<5;i++){const a=t*.045+i*Math.PI*2/5;path([[Math.cos(a)*18,-177+Math.sin(a)*13],[Math.cos(a)*42,-177+Math.sin(a)*27]],2.1,edge,.62*seal);}
+  }
+  const armPose=(side)=>{
+   const shoulder=[side*34,-205];
+   const elbow=[side*(30+raise*28+sweep*45),-195-raise*48+sweep*38+slam*24];
+   const hand=[side*(10+raise*67+sweep*118),-178-raise*120+sweep*105+slam*145];
+   const sealMix=1-smooth((n-8)/22),sx=side*(18+raise*8),sy=-180;
+   const hx=hand[0]*(1-sealMix)+sx*sealMix,hy=hand[1]*(1-sealMix)+sy*sealMix;
+   const ex=elbow[0]*(1-sealMix)+side*25*sealMix,ey=elbow[1]*(1-sealMix)-190*sealMix;
+   return {shoulder,elbow:[ex,ey],hand:[hx,hy]};
+  };
+  for(const side of [-1,1]){
+   const arm=armPose(side),width=side===-1?19:22;
+   path([arm.shoulder,arm.elbow],width,dark,.98);path([arm.shoulder,arm.elbow],width-5,hot,.98);
+   glow(arm.elbow[0],arm.elbow[1],11,edge,.7);
+   path([arm.elbow,arm.hand],width-3,hot,.98);
+   for(let j=0;j<5;j++){const fan=(j-2)*7,curl=slam*11;path([[arm.hand[0]+fan,arm.hand[1]],[arm.hand[0]+fan+side*(j-2)*3,arm.hand[1]+13+Math.abs(j-2)*2+curl]],4,edge,.96);}
+   if(n>27&&n<75)path([[arm.elbow[0],arm.elbow[1]],[arm.hand[0]*.65,arm.hand[1]-12],[arm.hand[0],arm.hand[1]+7]],4.5,edge,.55*sweep);
+  }
+  // Low-cost ground fracture spokes and expanding shock rings.
+  if(n>70){
+   const q=smooth((n-72)/20),gx=d*145,gy=-18;
+   ring(gx,gy,22+q*165,8+q*43,edge,4.2,q*.95);
+   ring(gx,gy,38+q*190,15+q*62,hot,2.2,q*.82);
+   for(let i=0;i<8;i++){const a=i*Math.PI/4,inner=24+q*22,outer=62+q*142;path([[gx+Math.cos(a)*inner,gy+Math.sin(a)*inner*.45],[gx+Math.cos(a)*outer,gy+Math.sin(a)*outer*.52]],2.5,edge,.78*recover);}
+   if(n<100){path([[gx-45,-12],[gx-72,-3],[gx-93,4]],2.2,hot,.72);path([[gx+28,-12],[gx+51,-2],[gx+79,5]],2.2,edge,.72);}
+  }
   ctx.restore();
- }else if(id==='edo_phase1_grasp'){
-  // Ashen Grasp: a large spectral hand grows from a seal beneath the opponent; it does not reuse twin-arm slam poses.
-  const rise=smooth((n-18)/25),close=smooth((n-48)/22),crush=smooth((n-70)/12),fade=n<82?1:Math.max(0,1-(n-82)/38);
+}else if(id==='edo_phase1_grasp'){
+  // Ashen Grasp: ground seal -> giant Edo hand rises -> fingers clamp -> crushing impact.
+  const rise=smooth((n-12)/50),close=smooth((n-70)/36),crush=smooth((n-108)/15),fade=n<120?1:Math.max(0,1-(n-120)/30);
   const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*260)-f.x)*d,115,450);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  ring(tx,2,20+rise*40,6+rise*13,edge,3,.9,t*.025);ring(tx,2,32+rise*62,10+rise*18,hot,1.8,.7,-t*.018);
-  for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,rr=42+rise*42;path([[tx+Math.cos(a)*rr,Math.sin(a)*9],[tx+Math.cos(a)*(rr+12),Math.sin(a)*13-5]],2.2,edge,.75);}
-  const palmY=45-rise*112+crush*24,palmW=22+close*13;
-  path([[tx,-4],[tx-7,palmY+30],[tx,palmY+18]],10,hot,.9);
-  ctx.beginPath();ctx.ellipse(tx,palmY,palmW,18,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3;ctx.stroke();
-  for(let finger=0;finger<5;finger++){const spread=(finger-2)*12,outer=spread*(1-close*.62),baseX=tx+spread,tipX=tx+outer,tipY=palmY-28-rise*20+close*(finger===2?24:38)+crush*16;path([[tx+spread*.42,palmY-5],[baseX+spread*.22,palmY-24-rise*12],[tipX,tipY]],5.2,hot,.95);glow(tipX,tipY,3.5,edge,.8);}
-  if(n>45){const q=smooth((n-45)/28);ring(tx,palmY-18,24+q*55,13+q*27,edge,3,q*.9,t*.018);for(let i=0;i<6;i++){const a=i*Math.PI/3+t*.02,rr=24+q*62;path([[tx+Math.cos(a)*rr,palmY-18+Math.sin(a)*rr*.42],[tx+Math.cos(a)*(rr+13),palmY-18+Math.sin(a)*(rr+9)*.42]],2.4,hot,.72*fade);}}
+  ring(tx,4,25+rise*55,7+rise*13,edge,3,.92,t*.025);
+  ring(tx,4,38+rise*78,12+rise*18,hot,1.9,.72,-t*.018);
+  for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,rr=42+rise*48;path([[tx+Math.cos(a)*rr,Math.sin(a)*9],[tx+Math.cos(a)*(rr+14),Math.sin(a)*13-5]],2.2,edge,.78);}
+  const palmY=58-rise*132+crush*24,palmW=22+close*18;
+  path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],13,dark,.98);
+  path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],7,hot,.95);
+  ctx.beginPath();ctx.ellipse(tx,palmY,palmW,20,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.2;ctx.stroke();
+  for(let finger=0;finger<5;finger++){
+   const spread=(finger-2)*15,outer=spread*(1-close*.8),tipX=tx+outer,tipY=palmY-35-rise*17+close*(finger===2?30:43)+crush*16;
+   path([[tx+spread*.42,palmY-5],[tx+spread*.7,palmY-26-rise*9],[tipX,tipY]],8.2,dark,.98);
+   path([[tx+spread*.42,palmY-5],[tx+spread*.7,palmY-26-rise*9],[tipX,tipY]],4.2,hot,.98);
+   glow(tipX,tipY,5,edge,.85);
+  }
+  if(n>68){
+   const q=smooth((n-68)/34);
+   ring(tx,palmY-15,26+q*58,13+q*28,edge,3.2,q*.92,t*.018);
+   ring(tx,palmY-15,38+q*72,19+q*35,hot,1.8,q*.7,-t*.022);
+   for(let i=0;i<6;i++){const a=i*Math.PI/3+t*.02,rr=26+q*68;path([[tx+Math.cos(a)*rr,palmY-15+Math.sin(a)*rr*.42],[tx+Math.cos(a)*(rr+14),palmY-15+Math.sin(a)*(rr+10)*.42]],2.3,edge,.72*fade);}
+  }
+  // Edo-only paper ash uses a fixed number of shapes, not a live particle emitter.
+  for(let i=0;i<5;i++){const ax=tx+Math.sin(t*.055+i*2.4)*(30+i*12),ay=-30-((t*1.2+i*29)%155);ctx.save();ctx.translate(ax,ay);ctx.rotate(t*.025+i);ctx.fillStyle='#c2b7c8';ctx.globalAlpha*=.55;ctx.fillRect(-2,-4,4,7);ctx.restore();}
   ctx.restore();
- }else if(id==='edo_phase1_rift'){
+}else if(id==='edo_phase1_rift'){
   // Crow Rift Collapse: a vanishing silhouette, three offset rupture planes, then a converging crimson burst.
   const vanish=1-smooth(n/19),returning=smooth((n-18)/10),collapse=smooth((n-52)/16),fade=n<74?1:Math.max(0,1-(n-74)/30);
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
