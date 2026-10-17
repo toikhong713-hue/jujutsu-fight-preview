@@ -218,6 +218,11 @@ function updateStatuses(){
   else if(f.itachiPhaseSilenceUntil){f.itachiPhaseSilenceUntil=0;}
  }
 }
+const oldUpdateMove=window.updateMove;
+if(typeof oldUpdateMove==='function')window.updateMove=function(f){
+ if(f&&f.id==='itachi'&&f.itachiPhaseSkillKey){updateSkill(f);return;}
+ return oldUpdateMove.apply(this,arguments);
+};
 const oldStep=window.step;
 if(typeof oldStep==='function')window.step=function(){const r=oldStep.apply(this,arguments);if(typeof G!=='undefined'&&G.mode!=='menu'&&!G.paused){updateProjectiles();updateStatuses();}return r;};
 function handleKey(e){
@@ -234,6 +239,6 @@ if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseGuardUntil=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;delete f.itachiPhaseSlowBase;}return oldReset.apply(this,arguments);};
 }
-window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:6,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
+window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:7,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
 console.info('[Susanoo] Phase 1/2 abilities rebuilt; P2 uses Numpad + and Numpad /. Numpad - remains available to passive.');
 })();
