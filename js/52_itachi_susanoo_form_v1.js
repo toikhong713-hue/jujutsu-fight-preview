@@ -219,10 +219,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const moving=/^(WALK|RUN|DASH)$/.test(state),skill=owner&&owner.itachiPhaseSkillKey;
  const active=!!(owner&&owner.move&&!moving)||!!skill;
  const idle=active?.2:1,walk=t*.34,step=moving?Math.sin(walk):0;
- const breath=Math.sin(t*(stage===0?.078:.055))*idle*(stage===0?2.5:3.5);
- const sway=Math.sin(t*(stage===0?.047:.033))*idle*(stage===0?3.6:2.3);
- const armSwing=moving?step*9:Math.sin(t*.052)*(stage===0?3:5)*idle;
- const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.071)*1.6*idle;
+ const breath=Math.sin(t*(stage===0?.062:.055))*idle*(stage===0?4.2:3.5);
+ const sway=Math.sin(t*(stage===0?.031:.033))*idle*(stage===0?5.2:2.3);
+ const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
+ const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
+ const idleHeadTilt=stage===0?Math.sin(t*.019)*idle*.035:0;
+ const idleShoulderLift=stage===0?Math.sin(t*.062)*idle*2.1:0;
  const hit=owner&&(state==='HITSTUN'||(owner.hitstun||0)>0);
  const recoil=hit?Math.min(1,Math.max(.25,(owner.hitstun||5)/8)):0;
  const hot=edo?'#a81e38':'#e54a2e';
@@ -252,29 +254,70 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  joint(klx,kly,4);joint(krx,kry,4);
  ctx.save();ctx.translate(sway*.13,-bob);ctx.translate(0,-126);ctx.rotate(-recoil*(stage===0?.09:.065)+Math.sin(t*.025)*idle*.025);ctx.translate(0,126);
  if(stage===0){
-  // NEW PHASE 1: narrow, sharp rib cage; asymmetrical shoulder bones and an exposed spine.
-  bone(0,-105,0,-224,11,hot);bone(-7,-206,0,-218,5,edge);bone(7,-206,0,-218,5,edge);
-  for(let i=0;i<7;i++){
-   const y=-196+i*13+breath*.24,w=39-i*2.4;
-   ctx.strokeStyle=dark;ctx.lineWidth=10;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-8,y+9,-15,y+12,0,y+7);ctx.bezierCurveTo(15,y+12,w+8,y+9,w,y);ctx.stroke();
-   ctx.strokeStyle=hot;ctx.lineWidth=5.3;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-8,y+9,-15,y+12,0,y+7);ctx.bezierCurveTo(15,y+12,w+8,y+9,w,y);ctx.stroke();
-   ctx.strokeStyle=edge;ctx.lineWidth=1.1;ctx.beginPath();ctx.moveTo(-w+3,y);ctx.quadraticCurveTo(0,y+13,w-3,y);ctx.stroke();
+  // PHASE 1 REBIRTH: anatomy-first skeletal titan, with separate clavicles, scapulae, sternum and pelvis.
+  // The spine is segmented so the silhouette reads as a creature, not a set of glowing lines.
+  bone(0,-105,0,-226,12,hot);
+  for(let v=0;v<7;v++){
+   const sy=-118-v*13;
+   polygon([[-7,sy-3],[0,sy-6],[7,sy-3],[6,sy+4],[0,sy+7],[-6,sy+4]],v%2?mid:dark,edge,1.1);
   }
-  const eY=-201+armSwing*.28,wY=-166+armSwing*.6;
-  bone(-35,-202,-73+sway,eY,12,hot);bone(-73+sway,eY,-104+armSwing,wY,8,hot);
-  bone(35,-202,73-sway,eY,12,hot);bone(73-sway,eY,104-armSwing,wY,8,hot);
+  // Shoulder blades and clavicles create a wide, recognizable upper silhouette.
+  bone(0,-213,-34,-219,8,hot);bone(-34,-219,-63,-207,9,hot);
+  bone(0,-213,34,-219,8,hot);bone(34,-219,63,-207,9,hot);
+  polygon([[-39,-218],[-67,-225],[-91,-207],[-84,-188],[-58,-193],[-44,-205]],dark,edge,2.4);
+  polygon([[39,-218],[67,-225],[91,-207],[84,-188],[58,-193],[44,-205]],dark,edge,2.4);
+  // Seven separate ribs flare outward on inhale and tighten on exhale.
+  for(let i=0;i<7;i++){
+   const y=-196+i*13+breath*.42,w=39-i*2.1+Math.max(0,breath)*.7;
+   const tipY=y+8+(i%2?1.5:0);
+   ctx.strokeStyle=dark;ctx.lineWidth=12;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-13,y+4,-w+2,tipY+9,-14,tipY+2);ctx.quadraticCurveTo(-6,tipY+7,0,tipY+3);ctx.quadraticCurveTo(6,tipY+7,14,tipY+2);ctx.bezierCurveTo(w-2,tipY+9,w+13,y+4,w,y);ctx.stroke();
+   ctx.strokeStyle=hot;ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(-w,y);ctx.bezierCurveTo(-w-13,y+4,-w+2,tipY+9,-14,tipY+2);ctx.quadraticCurveTo(-6,tipY+7,0,tipY+3);ctx.quadraticCurveTo(6,tipY+7,14,tipY+2);ctx.bezierCurveTo(w-2,tipY+9,w+13,y+4,w,y);ctx.stroke();
+   ctx.strokeStyle=edge;ctx.lineWidth=1.35;ctx.beginPath();ctx.moveTo(-w+4,y-1);ctx.quadraticCurveTo(-w+3,tipY+2,-11,tipY+1);ctx.moveTo(w-4,y-1);ctx.quadraticCurveTo(w-3,tipY+2,11,tipY+1);ctx.stroke();
+  }
+  // Sternum glows in pulses; living Itachi's light flickers while Edo remains unwavering.
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=edo?.82:(.42+.32*Math.sin(t*.27));
+  ctx.fillStyle=core;ctx.beginPath();ctx.moveTo(0,-202);ctx.lineTo(7,-178);ctx.lineTo(0,-151);ctx.lineTo(-7,-178);ctx.closePath();ctx.fill();
+  ctx.strokeStyle=edge;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(-12,-146);ctx.lineTo(0,-139);ctx.lineTo(12,-146);ctx.stroke();ctx.restore();
+  // Pelvis ring and hip joints anchor the long skeletal arms and legs.
+  bone(-24,-112,-39,-97,8,hot);bone(-39,-97,-24,-83,7,hot);bone(-24,-83,0,-88,7,hot);
+  bone(24,-112,39,-97,8,hot);bone(39,-97,24,-83,7,hot);bone(24,-83,0,-88,7,hot);
+  const eY=-201+armSwing*.28+idleShoulderLift,wY=-166+armSwing*.6;
+  bone(-43,-211,-73+sway,eY,14,hot);bone(-73+sway,eY,-104+armSwing,wY,9,hot);
+  bone(43,-211,73-sway,eY,14,hot);bone(73-sway,eY,104-armSwing,wY,9,hot);
   for(const side of [-1,1]){
    const hx=side*(104-armSwing),hy=wY;
-   for(let j=0;j<4;j++)bone(hx+side*j*2,hy,hx+side*(9+j*3),hy-12-j*2,2.5,edge);
+   // Metacarpals, knuckles and hooked phalanges, with a slight idle curl.
+   bone(hx-side*5,hy,hx+side*5,hy+3,5,hot);
+   for(let j=0;j<4;j++){
+    const curl=Math.sin(t*.041+j*.7)*idle*1.7;
+    bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*2+curl,3,hot);
+    joint(hx+side*(8+j*3),hy-10-j*2+curl,1.7);
+   }
+   bone(hx-side*3,hy+3,hx-side*12,hy+11,3.2,edge);
   }
-  // Angular Tengu skull and horns; regular Itachi eyes flicker weakly, Edo eyes stay intense.
-  polygon([[-29,-239],[-37,-258],[-19,-252],[-12,-276],[0,-260],[12,-276],[20,-252],[37,-258],[29,-238],[17,-223],[-17,-223]],dark,edge,2.5);
-  polygon([[-16,-240],[0,-249],[16,-240],[7,-226],[2,-208],[-2,-208],[-7,-226]],mid,hot,2);
+  // Head has its own subtle idle tilt, independent of the breathing rib cage.
+  ctx.save();ctx.translate(0,-237);ctx.rotate(idleHeadTilt);ctx.translate(0,237);
+  // Angular Tengu skull: deep sockets, cheek flanges, split jaw and readable teeth.
+  polygon([[-31,-239],[-41,-260],[-24,-253],[-14,-280],[0,-263],[14,-280],[24,-253],[41,-260],[31,-239],[20,-224],[-20,-224]],dark,edge,2.8);
+  polygon([[-24,-243],[-13,-250],[0,-244],[13,-250],[24,-243],[16,-231],[0,-226],[-16,-231]],mid,hot,2);
+  polygon([[-17,-242],[-9,-247],[0,-243],[9,-247],[17,-242],[10,-235],[0,-232],[-10,-235]],dark,edge,1.3);
+  // Eye sockets are dark and recessed; only the inner Sharingan glow is luminous.
+  ctx.fillStyle='#10050c';ctx.beginPath();ctx.ellipse(-10,-243,7.4,4.1,-.12,0,Math.PI*2);ctx.ellipse(10,-243,7.4,4.1,.12,0,Math.PI*2);ctx.fill();
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;
-  ctx.globalAlpha*=edo?.98:(.48+.36*Math.sin(t*.29));
-  ctx.beginPath();ctx.ellipse(-10,-242,5,2.3,-.1,0,Math.PI*2);ctx.ellipse(10,-242,5,2.3,.1,0,Math.PI*2);ctx.fill();ctx.restore();
+  ctx.globalAlpha*=edo?.98:(.38+.48*Math.sin(t*.29));
+  ctx.beginPath();ctx.ellipse(-10,-243,4.8,2,-.1,0,Math.PI*2);ctx.ellipse(10,-243,4.8,2,.1,0,Math.PI*2);ctx.fill();
+  if(edo){ctx.strokeStyle='#ff879e';ctx.lineWidth=1.1;ctx.beginPath();ctx.arc(-10,-243,6.3,t*.06,t*.06+Math.PI*1.6);ctx.arc(10,-243,6.3,-t*.06,-t*.06+Math.PI*1.6);ctx.stroke();}
+  ctx.restore();
+  polygon([[-15,-233],[15,-233],[10,-218],[4,-211],[0,-208],[-4,-211],[-10,-218]],dark,edge,1.6);
+  ctx.strokeStyle=edge;ctx.lineWidth=1.7;ctx.beginPath();
+  for(let tooth=0;tooth<5;tooth++){const tx=-10+tooth*5;ctx.moveTo(tx,-230);ctx.lineTo(tx+1,-225);}
+  ctx.stroke();
   bone(-25,-243,-53,-261,5,hot);bone(25,-243,53,-261,5,hot);
-  for(const p of [[-35,-202],[-73,-201],[35,-202],[73,-201],[0,-105]])joint(p[0],p[1],3.4);
+  // Short horn ridges and temple plates break up the outline.
+  polygon([[-28,-253],[-40,-267],[-35,-245],[-25,-237]],dark,edge,1.6);
+  polygon([[28,-253],[40,-267],[35,-245],[25,-237]],dark,edge,1.6);
+  ctx.restore(); // independent skull idle
+  for(const p of [[-35,-202],[-73,-201],[35,-202],[73,-201],[0,-105],[-39,-97],[39,-97]])joint(p[0],p[1],3.4);
  }else{
   // NEW PHASE 2: muscular torso, broad shoulder plates, segmented arm guards and a reinforced Tengu helm.
   const muscle=ctx.createLinearGradient(-70,-220,70,-90);
