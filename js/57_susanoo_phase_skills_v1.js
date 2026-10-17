@@ -71,7 +71,7 @@ function startSkill(f,id){
  if(!f.itachiEdo&&def.hp)f.hp=Math.max(1,f.hp-def.hp);
  f.itachiPhaseSkillCooldowns=f.itachiPhaseSkillCooldowns||{};f.itachiPhaseSkillCooldowns[id]=now()+def.cd;
  f.itachiPhaseSkillKey=id;f.itachiPhaseSkillUsed=false;f.itachiPhaseSkillMarks={};f.itachiPhaseGuardTriggered=false;
- if(id==='p2_guard'&&!f.itachiEdo){f.itachiPhaseGuardUntil=now()+78;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;}
+ if(id==='p2_guard'){f.itachiPhaseGuardUntil=f.itachiEdo?0:now()+78;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;}
  f.moveKey=def.visual;f.moveFrame=0;f.state='ATTACK';f.stateFrame=0;f.vx*=.12;
  f.itachiSusanooAction=def.visual;f.itachiPoseKey=def.visual;
  f.move={name:skillNameFor(f,id),kind:'special',startup:12,active:24,recovery:20,damage:0,hitbox:null,cost:0,cd:0};
