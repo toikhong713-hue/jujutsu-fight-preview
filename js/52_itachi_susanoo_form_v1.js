@@ -379,19 +379,29 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
  const glow=(x,y,r,color,alpha)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?.8:alpha;ctx.fillStyle=color||hot;ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=.45;ctx.beginPath();ctx.arc(x,y,r*.7,0,Math.PI*2);ctx.fill();ctx.restore();};
  if(id==='p1_bones'){
-  // Two oversized spectral arms form behind the rib cage, then descend in a synchronized ground slam.
-  const raise=smooth(n/28),slam=smooth((n-42)/24),fade=n<82?1:Math.max(0,1-(n-82)/35);
-  const leftElbow=[-68-raise*18,-197-raise*40+slam*58],rightElbow=[68+raise*18,-197-raise*40+slam*58];
-  const leftHand=[-104-raise*35,-158-raise*83+slam*122],rightHand=[104+raise*35,-158-raise*83+slam*122];
-  ctx.save();ctx.globalAlpha*=fade;
-  for(const side of [-1,1]){
-   const sh=[side*38,-193],el=side<0?leftElbow:rightElbow,ha=side<0?leftHand:rightHand;
-   path([sh,el],stage===0?15:20,hot,.98);path([el,ha],stage===0?12:17,hot,.98);glow(el[0],el[1],10,edge,.7);
-   for(let j=0;j<5;j++){const x=ha[0]+side*(j-2)*7,y=ha[1]+Math.abs(j-2)*3;path([[x,y],[x+side*(5+j),y+13+slam*5]],3.5,edge,.9);}
-  }
-  ring(0,-100,28+slam*175,12+slam*54,edge,5,slam*.95);
-  ring(0,-100,42+slam*205,19+slam*67,hot,2.5,slam*.85);
-  if(n>57&&n<98){for(let i=0;i<9;i++){const a=i*Math.PI*2/9+Math.sin(t*.1)*.08,x=Math.cos(a)*(38+slam*150),y=-100+Math.sin(a)*(12+slam*48);path([[x,y],[x+Math.cos(a)*24,y+Math.sin(a)*17]],2.4,edge,.75*fade);}}
+  // Bone Requiem: readable anticipation, cross-body sweep, then two giant hands slam the same lane.
+  const raise=smooth(n/30),sweep=smooth((n-30)/18),slam=smooth((n-57)/20),recover=n<82?1:Math.max(0,1-(n-82)/38);
+  ctx.save();ctx.globalAlpha*=recover;
+  const arms=[
+   {sh:[-36,-205],el:[d*(52+raise*22+sweep*35),-205-raise*30+slam*24],ha:[d*(105+raise*42+sweep*78),-162-raise*66+slam*132]},
+   {sh:[36,-205],el:[d*(62+raise*15+sweep*58),-194-raise*44+slam*37],ha:[d*(132+raise*30+sweep*72),-150-raise*74+slam*118]}
+  ];
+  for(let a=0;a<arms.length;a++){const arm=arms[a],width=a===0?17:14;path([arm.sh,arm.el],width,hot,.98);glow(arm.el[0],arm.el[1],10,edge,.62);path([arm.el,arm.ha],width-3,hot,.98);for(let j=0;j<5;j++){const fan=(j-2)*7,curl=slam*10;path([[arm.ha[0]+fan,arm.ha[1]],[arm.ha[0]+fan+d*(j-2)*2,arm.ha[1]+12+Math.abs(j-2)*2+curl]],3.3,edge,.95);}}
+  if(n>28&&n<58){const q=smooth((n-28)/30);path([[d*35,-176],[d*(70+q*85),-195+q*25],[d*(125+q*85),-165+q*15]],5,edge,.75);ring(d*(110+q*75),-155,18+q*28,9+q*15,hot,2.2,q*.8,t*.02);}
+  if(n>55){const q=smooth((n-55)/20);ring(d*(145+q*65),-24,24+q*180,9+q*55,edge,5,q*.95);ring(d*(145+q*65),-24,38+q*195,16+q*72,hot,2.4,q*.8);for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,x=d*(145+q*65)+Math.cos(a)*(35+q*145),y=-25+Math.sin(a)*(12+q*48);path([[x,y],[x+Math.cos(a)*19,y+Math.sin(a)*13]],2.3,edge,.78*recover);}}
+  ctx.restore();
+ }else if(id==='edo_phase1_grasp'){
+  // Ashen Grasp: a large spectral hand grows from a seal beneath the opponent; it does not reuse twin-arm slam poses.
+  const rise=smooth((n-18)/25),close=smooth((n-48)/22),crush=smooth((n-70)/12),fade=n<82?1:Math.max(0,1-(n-82)/38);
+  const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*260)-f.x)*d,115,450);
+  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+  ring(tx,2,20+rise*40,6+rise*13,edge,3,.9,t*.025);ring(tx,2,32+rise*62,10+rise*18,hot,1.8,.7,-t*.018);
+  for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,rr=42+rise*42;path([[tx+Math.cos(a)*rr,Math.sin(a)*9],[tx+Math.cos(a)*(rr+12),Math.sin(a)*13-5]],2.2,edge,.75);}
+  const palmY=45-rise*112+crush*24,palmW=22+close*13;
+  path([[tx,-4],[tx-7,palmY+30],[tx,palmY+18]],10,hot,.9);
+  ctx.beginPath();ctx.ellipse(tx,palmY,palmW,18,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3;ctx.stroke();
+  for(let finger=0;finger<5;finger++){const spread=(finger-2)*12,outer=spread*(1-close*.62),baseX=tx+spread,tipX=tx+outer,tipY=palmY-28-rise*20+close*(finger===2?24:38)+crush*16;path([[tx+spread*.42,palmY-5],[baseX+spread*.22,palmY-24-rise*12],[tipX,tipY]],5.2,hot,.95);glow(tipX,tipY,3.5,edge,.8);}
+  if(n>45){const q=smooth((n-45)/28);ring(tx,palmY-18,24+q*55,13+q*27,edge,3,q*.9,t*.018);for(let i=0;i<6;i++){const a=i*Math.PI/3+t*.02,rr=24+q*62;path([[tx+Math.cos(a)*rr,palmY-18+Math.sin(a)*rr*.42],[tx+Math.cos(a)*(rr+13),palmY-18+Math.sin(a)*(rr+9)*.42]],2.4,hot,.72*fade);}}
   ctx.restore();
  }else if(id==='edo_phase1_rift'){
   // Crow Rift Collapse: a vanishing silhouette, three offset rupture planes, then a converging crimson burst.
