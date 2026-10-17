@@ -425,7 +425,7 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
   // Distinct eclipse disc, angular corona and inward falling ash ribbons.
   ctx.save();ctx.translate(tx,ty);ctx.rotate(t*.012);
-  ctx.beginPath();ctx.arc(0,0,20+open*39,0,Math.PI*2);ctx.fillStyle='rgba(5,2,10,'(.65+collapse*.2)+')';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
+  ctx.beginPath();ctx.arc(0,0,20+open*39,0,Math.PI*2);ctx.fillStyle='rgba(5,2,10,'+(.65+collapse*.2)+')';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
   for(let i=0;i<12;i++){const a=i*Math.PI/6+t*.018,inner=48+open*18,outer=80+open*35;path([[Math.cos(a)*inner,Math.sin(a)*inner],[Math.cos(a+.09)*outer,Math.sin(a+.09)*outer]],i%3===0?4:2, i%2?hot:edge,.9);}
   ctx.restore();
   for(let layer=0;layer<5;layer++){
