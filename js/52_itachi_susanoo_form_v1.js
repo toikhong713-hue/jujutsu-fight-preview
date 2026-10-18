@@ -1023,7 +1023,8 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     if(f.itachiPhaseSkillKey==='p1_bones'){
       const frame=f.moveFrame||0,target=f.opp;
       const dist=target&&Number.isFinite(target.x)?Math.abs(target.x-f.x):280;
-      const reach=clamp(dist-backOffset-52,Math.min(150,dist*.42),Math.min(460,Math.max(180,dist-backOffset-24)));
+      // The rig starts behind Itachi, so the gap is enemy distance PLUS its rear offset.
+      const reach=clamp(dist+backOffset-65,100,520);
       // Snap into acceleration, hold the forward drive through impact, then recoil.
       const charge=smooth(frame/5),hold=1-smooth((frame-48)/22),returnPhase=smooth((frame-70)/17);
       rigLunge=reach*charge*Math.max(hold,0)*(1-returnPhase);
