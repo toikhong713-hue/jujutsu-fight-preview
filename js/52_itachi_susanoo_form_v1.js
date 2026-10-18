@@ -1004,7 +1004,16 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     const size=phase===3?(f.itachiEdo?1.88:1.64):(phase===1?(f.itachiEdo?2.03:1.98):(f.itachiEdo?2.12:2.06));
     const backOffset=Math.round(size*(f.itachiEdo?43:39));
     const baseY=f.y+34*size;
-    drawSusanooRig(f,f.x-face*backOffset,baseY,size,tick(),1,'battle');
+    // Phase-1 Grave Slam moves the giant Susanoo rig independently of Itachi.
+    let rigLunge=0;
+    if(f.itachiPhaseSkillKey==='p1_bones'){
+      const frame=f.moveFrame||0,target=f.opp;
+      const dist=target&&Number.isFinite(target.x)?Math.abs(target.x-f.x):280;
+      const reach=clamp(dist-backOffset-52,150,390);
+      const charge=smooth(frame/7),returnPhase=smooth((frame-66)/24);
+      rigLunge=reach*charge*(1-returnPhase);
+    }
+    drawSusanooRig(f,f.x-face*backOffset+face*rigLunge,baseY,size,tick(),1,'battle');
   }
   return previousDrawFighter.apply(this,arguments);
 };
