@@ -185,7 +185,8 @@ function updateSkill(f){
  const n=(f.moveFrame||0)+1,o=f.opp,d=f.facing||1,t=now();f.moveFrame=n;f.itachiPoseKey=f.moveKey;f.itachiSusanooAction=f.moveKey;
  if(id==='p1_bones'){
    // Ordinary Itachi Z: one giant skeletal arm extends to the opponent and slams down once.
-   if(n===1){f.vx*=.04;fx('seal',f.x,f.y-128,20);fx('reflect',f.x,f.y-168,18);f.itachiPhaseSkillMarks.graveSlamHit=false;}
+   if(n===1){f.facing=alive(o)?(o.x>=f.x?1:-1):d;f.itachiGraveSlamStartX=f.x;const dir=f.facing||1;f.itachiGraveSlamDestX=alive(o)?clamp(o.x-dir*118,window.WALL||90,(window.ARENA_W||3200)-(window.WALL||90)):f.x+dir*170;f.vx=0;f.vy=0;fx('seal',f.x,f.y-128,22);fx('reflect',f.x+d*55,f.y-168,18);fx('shock',f.x,f.y-5,16);f.itachiPhaseSkillMarks.graveSlamHit=false;}
+   if(n>=2&&n<=34){const q=smooth((n-1)/33),from=Number.isFinite(f.itachiGraveSlamStartX)?f.itachiGraveSlamStartX:f.x,to=Number.isFinite(f.itachiGraveSlamDestX)?f.itachiGraveSlamDestX:f.x+d*170;f.x=from+(to-from)*q;f.vx=0;f.vy=0;if(n%4===0){fx('shock',f.x-d*26,f.y-8,12);fx('crows',f.x-d*12,f.y-80,8);}if(n===12||n===23){fx('seal',f.x+d*40,f.y-120,17);impact(.035,'#ff7548',1);}}
    if(n===16){fx('seal',f.x+d*38,f.y-160,24);fx('shock',f.x+d*64,f.y-95,16);impact(.045,'#ff714b',1);}
    if(n===31){fx('shock',f.x+d*110,f.y-125,20);fx('fire',f.x+d*145,f.y-150,16);}
    if(n===47){fx('shock',o&&alive(o)?o.x:f.x+d*230,o&&alive(o)?o.y-35:f.y-35,22);impact(.065,'#ff7548',2);}
