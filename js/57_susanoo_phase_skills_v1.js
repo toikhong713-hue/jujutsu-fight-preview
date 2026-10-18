@@ -115,6 +115,17 @@ function boneCapsule(x1,y1,x2,y2,w){
  const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,ang=Math.atan2(dy,dx)*180/Math.PI;
  return '<g transform="translate('+x1.toFixed(1)+' '+y1.toFixed(1)+') rotate('+ang.toFixed(1)+')"><rect x="0" y="'+(-w/2)+'" width="'+len.toFixed(1)+'" height="'+w+'" rx="'+(w*.42)+'" fill="url(#graveBone)" stroke="#34343b" stroke-width="'+Math.max(1,w*.09)+'"/><path d="M 4 '+(-w*.18)+' L '+(len-4)+' '+(-w*.18)+'" stroke="#fff2d6" stroke-width="'+Math.max(1,w*.11)+'" opacity=".85"/><ellipse cx="4" cy="0" rx="'+(w*.42)+'" ry="'+(w*.38)+'" fill="#b8b4b1" stroke="#34343b" stroke-width="1"/><ellipse cx="'+(len-4)+'" cy="0" rx="'+(w*.42)+'" ry="'+(w*.38)+'" fill="#d5d0c8" stroke="#34343b" stroke-width="1"/></g>';
 }
+/* Override the actual shared fighter rig only while Edo Z is active. */
+const gravehandBasePose=window.computePose;
+if(typeof gravehandBasePose==='function')window.computePose=function(f){
+ const pose=gravehandBasePose.apply(this,arguments);
+ if(f&&f.itachiGravehandPose==='kneel-touch'&&pose){
+  pose.hipY=-34;pose.shY=-52;pose.headY=-83;pose.lean=34;
+  pose.legF=[62,60];pose.legB=[120,-60];
+  pose.armF=[72,15];pose.armB=[110,30];
+ }
+ return pose;
+};
 function drawGravehand(){
  const svg=graveRoot();if(!svg)return;
  const g=gravehand,owner=g.owner,target=g.target;
