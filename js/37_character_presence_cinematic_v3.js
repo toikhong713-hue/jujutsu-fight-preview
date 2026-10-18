@@ -1142,8 +1142,10 @@
     if(f&&info){drawSignatureForeground(f,info);drawSignatureLabel(f,info);}
   };
   window.render=function(){
+    if(window.JFF_CHARACTER_STARTUP_V1&&typeof window.JFF_CHARACTER_STARTUP_V1.syncSkipButton==='function')window.JFF_CHARACTER_STARTUP_V1.syncSkipButton();
     baseRender.apply(this,arguments);
     if(active())drawCineOverlay();
+    if(window.JFF_CHARACTER_STARTUP_V1&&typeof window.JFF_CHARACTER_STARTUP_V1.syncSkipButton==='function')window.JFF_CHARACTER_STARTUP_V1.syncSkipButton();
     if(storyActive())drawStoryClash();
     drawPostFx();
   };
@@ -1154,7 +1156,7 @@
 
   window.JFF_CHARACTER_PRESENCE_V3={
     version:'4.0',profiles:Object.keys(PROFILE),duration:DURATION,lowEnd:LOW_END,
-    get active(){return active();},get time(){return G.presenceCine?G.presenceCine.t:0;}
+    get active(){return active();},get time(){return G.presenceCine?G.presenceCine.t:0;},skipIntro:finish
   };
   console.info('[JFF Presence V4] Distinct roster startups, character actions and environmental pressure ready.');
 })();
