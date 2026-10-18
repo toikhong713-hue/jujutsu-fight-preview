@@ -134,6 +134,7 @@ if(typeof previousResolveHit==='function')window.resolveHit=function(attacker,de
 };
 if(typeof previousStart==='function')window.startMove=function(f,key,isBF){
   if(f&&f.id==='itachi'&&f.itachiSusanooActive&&key==='ult')return false;
+  if(f&&f.id==='itachi'&&!f.itachiEdo&&f.itachiSusanooExhausted&&key==='ult'){if(typeof window.floatText==='function')window.floatText(f.x,f.y-180,'SUSANOO EXHAUSTED · ROUND RESET','#ffb0c4',12,34);return false;}
   const ok=previousStart.apply(this,arguments);
   if(ok&&f&&f.id==='itachi'&&key==='ult')f.itachiSusanooPending=true;
   return ok;
@@ -393,7 +394,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
 }
 function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  const id=f&&f.itachiPhaseSkillKey;if(!id)return;
- const n=f.moveFrame||0,d=f.facing||1,hot=edo?'#bd243f':'#f05232',edge=edo?'#ff5267':'#ffb17a',dark=edo?'#300817':'#451016';
+ const n=f.moveFrame||0,d=f.facing||1,edoX=id==='edo_p1_skeletal_x',hot=edoX?'#9c78ff':(edo?'#bd243f':'#f05232'),edge=edoX?'#e4d6ff':(edo?'#ff5267':'#ffb17a'),dark=edoX?'#24143f':(edo?'#300817':'#451016');
  const smooth=q=>{q=clamp(q,0,1);return q*q*(3-2*q);};
  const path=(pts,w,color,alpha)=>{ctx.save();ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=dark;ctx.lineWidth=w+7;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=color||hot;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1,w*.14);ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0]-1,pts[i][1]-1);ctx.stroke();ctx.restore();};
  const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
@@ -429,7 +430,22 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    }
    for(let i=0;i<7;i++){const age=(n+i*5)%24,xx=lerp(shoulder[0],wrist[0],i/7)+Math.sin(t*.15+i*2)*5,yy=lerp(shoulder[1],wrist[1],i/7)-age*.8;ctx.save();ctx.globalAlpha*=clamp(1-age/24,0,1)*(.4+slam*.6);ctx.fillStyle=i%2?edge:hot;ctx.translate(xx,yy);ctx.rotate(t*.04+i);ctx.fillRect(-2,-4,4,8);ctx.restore();}
    ctx.restore();
-}else if(id==='edo_phase1_grasp'){
+}else if(id==='p1_skeletal_x'||id==='edo_p1_skeletal_x'){
+  // Jointed Susanoo arms perform a cross-sweep and double-fist drop.
+  const edoX=id==='edo_p1_skeletal_x',wind=smooth(n/(edoX?25:20)),cross=smooth((n-(edoX?24:20))/(edoX?18:16)),drop=smooth((n-(edoX?52:47))/(edoX?13:11));
+  const fade=n<(edoX?94:85)?1:Math.max(0,1-(n-(edoX?94:85))/(edoX?30:27));
+  ctx.save();ctx.globalAlpha*=fade;
+  const bone=(pts,w,c)=>path(pts,w,c,.98);
+  ring(12,-171,27+wind*50,18+wind*30,edge,2.5,.3+wind*.35,t*.02);
+  const le=[-42+cross*68,-194+cross*42+drop*22],re=[42+cross*82,-194+cross*42+drop*22],lh=[8+cross*150,-171+cross*34+drop*92],rh=[20+cross*166,-166-cross*18+drop*98];
+  bone([[-42,-207],le],28,dark);bone([[-42,-207],le],19,hot);bone([le,lh],24,dark);bone([le,lh],15,hot);
+  bone([[42,-207],re],28,dark);bone([[42,-207],re],19,hot);bone([re,rh],24,dark);bone([re,rh],15,hot);
+  for(const h of [lh,rh]){const hx=h[0],hy=h[1];ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(hx-13,hy-12);ctx.lineTo(hx+17,hy-14);ctx.lineTo(hx+24,hy+2);ctx.lineTo(hx+14,hy+19);ctx.lineTo(hx-14,hy+16);ctx.closePath();ctx.fill();ctx.stroke();for(let j=0;j<4;j++)bone([[hx+3+j*3,hy-8],[hx+8+j*4,hy-21+drop*5]],4.2,edge);glow(hx+7,hy,13,edge,.65);}
+  const hitQ=smooth((n-(edoX?37:30))/(edoX?10:9));
+  if(n>=(edoX?36:30)&&n<=(edoX?70:61)){ring(150+drop*28,-65+drop*12,36+hitQ*92,15+hitQ*32,edge,3.5,fade*.88,t*.03);ring(164+drop*22,-58+drop*12,52+hitQ*120,20+hitQ*39,hot,2,fade*.7,-t*.025);}
+  if(edoX&&n>=52&&n<=76){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade*.7;ctx.strokeStyle='#bba0ff';ctx.lineWidth=3;for(let j=0;j<5;j++){ctx.beginPath();ctx.moveTo(35+j*15,-185);ctx.lineTo(120+j*17,8+drop*24);ctx.stroke();}ctx.restore();}
+  ctx.restore();
+ }else if(id==='edo_phase1_grasp'){
   // Oversized foreground hand: the underground arm clearly rises through a cracked seal and clamps down.
   const rise=smooth((n-8)/42),close=smooth((n-65)/35),slam=smooth((n-105)/16);
   const fade=n<126?1:Math.max(0,1-(n-126)/24);
@@ -1022,13 +1038,13 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     const baseY=f.y+34*size;
     // Phase-1 Grave Slam moves the giant Susanoo rig independently of Itachi.
     let rigLunge=0;
-    if(f.itachiPhaseSkillKey==='p1_bones'){
+    if(f.itachiPhaseSkillKey==='p1_bones'||f.itachiPhaseSkillKey==='p1_skeletal_x'||f.itachiPhaseSkillKey==='edo_p1_skeletal_x'){
       const frame=f.moveFrame||0,target=f.opp;
       const dist=target&&Number.isFinite(target.x)?Math.abs(target.x-f.x):280;
       // The rig starts behind Itachi, so the gap is enemy distance PLUS its rear offset.
       const reach=clamp(dist+backOffset-65,100,520);
       // Snap into acceleration, hold the forward drive through impact, then recoil.
-      const charge=smooth(frame/5),hold=1-smooth((frame-48)/22),returnPhase=smooth((frame-70)/17);
+      const charge=smooth(frame/5),hold=1-smooth((frame-(f.itachiPhaseSkillKey==='p1_skeletal_x'?54:48))/22),returnPhase=smooth((frame-70)/17);
       rigLunge=reach*charge*Math.max(hold,0)*(1-returnPhase);
     }
     f.itachiSusanooRigLunge=rigLunge;
@@ -1038,7 +1054,7 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
 };
 if(typeof previousReset==='function')window.resetFighter=function(f){
   if(f&&f.id==='itachi'){
-    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiSusanooPhase=3;f.itachiYataCounterUsed=false;
+    f.itachiSusanooActive=false;f.itachiSusanooPending=false;f.itachiSusanooAction='';f.itachiSusanooMarks={};f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiSusanooPhase=3;f.itachiYataCounterUsed=false;f.itachiSusanooExhausted=false;
   }
   return previousReset.apply(this,arguments);
 };
@@ -1047,7 +1063,7 @@ if(typeof previousStep==='function')window.step=function(){
   for(const f of fighters()){
     if(!f||f.id!=='itachi')continue;
     if(!Number.isFinite(f.itachiSusanooPhase))f.itachiSusanooPhase=3;
-    if(f.itachiSusanooPending&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
+    if(f.itachiSusanooPending&&!f.itachiSusanooExhausted&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
       f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiSusanooPhase=3;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
       f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.move=null;f.moveKey=null;f.moveFrame=0;f.vx=0;f.vy=0;
       f.invuln=Math.min(f.invuln||0,36);f.itachiPoseKey='';
@@ -1059,6 +1075,7 @@ if(typeof previousStep==='function')window.step=function(){
       f.itachiSusanooActive=false;f.itachiSusanooAction='';f.itachiSusanooFrames=0;
     }else if(f.itachiSusanooActive&&!f.itachiSusanooActivatedThisStep&&!G.paused&&G.roundState!=='ko'&&!Q.cinema&&f.itachiSusanooFrames>0){
       f.itachiSusanooFrames--;
+      if(!f.itachiEdo){const hpCap=Math.max(1,Number(f.maxHp)||200),floorHp=hpCap*.05;if(f.hp<=floorHp+.045){f.hp=floorHp;f.itachiSusanooActive=false;f.itachiSusanooAction='';f.itachiYataUntil=0;f.itachiSusanooFrames=0;f.itachiSusanooExhausted=true;f.itachiPhaseSkillKey='';f.itachiPhaseSkillUsed=false;f.itachiGravehandPose='';f.move=null;f.moveKey=null;f.moveFrame=0;f.state='IDLE';f.stateFrame=0;f.itachiPoseKey='';fx('shock',f.x,f.y-70,38);fx('crows',f.x,f.y-90,28);if(typeof window.floatText==='function')window.floatText(f.x,f.y-208,'SUSANOO EXHAUSTED · 5% HP','#ffb0c4',13,50);if(typeof flash==='function')flash(.18,'#bd5960');}else f.hp=Math.max(floorHp,f.hp-.045);}
       if(f.itachiSusanooFrames<=0){
         f.itachiSusanooActive=false;f.itachiSusanooAction='';f.itachiYataUntil=0;f.itachiSusanooFrames=0;
         if(/^sus_(m1|z|x)$/.test(f.moveKey||'')){f.move=null;f.moveKey=null;f.moveFrame=0;f.state='IDLE';f.stateFrame=0;}
