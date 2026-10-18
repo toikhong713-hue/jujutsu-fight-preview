@@ -1064,7 +1064,7 @@ if(typeof previousStep==='function')window.step=function(){
     if(!f||f.id!=='itachi')continue;
     if(!Number.isFinite(f.itachiSusanooPhase))f.itachiSusanooPhase=3;
     if(f.itachiSusanooPending&&!f.itachiSusanooExhausted&&!Q.cinema&&f.moveKey!=='ult'&&!f.move){
-      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiSusanooPhase=3;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
+      f.itachiSusanooPending=false;f.itachiSusanooActive=true;f.itachiSusanooAction='';f.itachiSusanooFrames=1200;f.itachiSusanooPhase=1;f.itachiYataUntil=0;f.itachiYataCounterUsed=false;
       f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.move=null;f.moveKey=null;f.moveFrame=0;f.vx=0;f.vy=0;
       f.invuln=Math.min(f.invuln||0,36);f.itachiPoseKey='';
       fx('shock',f.x,f.y-90,44);fx('magatama',f.x+f.facing*52,f.y-185,48);
