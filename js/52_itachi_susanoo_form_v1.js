@@ -379,41 +379,34 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
  const glow=(x,y,r,color,alpha)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?.8:alpha;ctx.fillStyle=color||hot;ctx.beginPath();ctx.arc(x,y,r*2,0,Math.PI*2);ctx.fill();ctx.globalAlpha*=.45;ctx.beginPath();ctx.arc(x,y,r*.7,0,Math.PI*2);ctx.fill();ctx.restore();};
  if(id==='p1_bones'){
-  // Bone Requiem: hand-seal anticipation -> twin-arm sweep -> synchronized ground smash.
-  const raise=smooth(n/30),sweep=smooth((n-30)/36),slam=smooth((n-72)/22),recover=n<108?1:Math.max(0,1-(n-108)/42);
-  ctx.save();ctx.globalAlpha*=recover;
-  if(n<34){
-   const seal=smooth(n/16);
-   ring(0,-177,24+seal*42,16+seal*27,edge,2.4,.45+seal*.35,t*.018);
-   ring(0,-177,17+seal*27,11+seal*18,hot,1.8,.55,t*-.02);
-   for(let i=0;i<5;i++){const a=t*.045+i*Math.PI*2/5;path([[Math.cos(a)*18,-177+Math.sin(a)*13],[Math.cos(a)*42,-177+Math.sin(a)*27]],2.1,edge,.62*seal);}
-  }
-  const armPose=(side)=>{
-   const shoulder=[side*34,-205];
-   const elbow=[side*(30+raise*28+sweep*45),-195-raise*48+sweep*38+slam*24];
-   const hand=[side*(10+raise*67+sweep*118),-178-raise*120+sweep*105+slam*145];
-   const sealMix=1-smooth((n-8)/22),sx=side*(18+raise*8),sy=-180;
-   const hx=hand[0]*(1-sealMix)+sx*sealMix,hy=hand[1]*(1-sealMix)+sy*sealMix;
-   const ex=elbow[0]*(1-sealMix)+side*25*sealMix,ey=elbow[1]*(1-sealMix)-190*sealMix;
-   return {shoulder,elbow:[ex,ey],hand:[hx,hy]};
-  };
-  for(const side of [-1,1]){
-   const arm=armPose(side),width=side===-1?19:22;
-   path([arm.shoulder,arm.elbow],width,dark,.98);path([arm.shoulder,arm.elbow],width-5,hot,.98);
-   glow(arm.elbow[0],arm.elbow[1],11,edge,.7);
-   path([arm.elbow,arm.hand],width-3,hot,.98);
-   for(let j=0;j<5;j++){const fan=(j-2)*7,curl=slam*11;path([[arm.hand[0]+fan,arm.hand[1]],[arm.hand[0]+fan+side*(j-2)*3,arm.hand[1]+13+Math.abs(j-2)*2+curl]],4,edge,.96);}
-   if(n>27&&n<75)path([[arm.elbow[0],arm.elbow[1]],[arm.hand[0]*.65,arm.hand[1]-12],[arm.hand[0],arm.hand[1]+7]],4.5,edge,.55*sweep);
-  }
-  // Low-cost ground fracture spokes and expanding shock rings.
-  if(n>70){
-   const q=smooth((n-72)/20),gx=d*145,gy=-18;
-   ring(gx,gy,22+q*165,8+q*43,edge,4.2,q*.95);
-   ring(gx,gy,38+q*190,15+q*62,hot,2.2,q*.82);
-   for(let i=0;i<8;i++){const a=i*Math.PI/4,inner=24+q*22,outer=62+q*142;path([[gx+Math.cos(a)*inner,gy+Math.sin(a)*inner*.45],[gx+Math.cos(a)*outer,gy+Math.sin(a)*outer*.52]],2.5,edge,.78*recover);}
-   if(n<100){path([[gx-45,-12],[gx-72,-3],[gx-93,4]],2.2,hot,.72);path([[gx+28,-12],[gx+51,-2],[gx+79,5]],2.2,edge,.72);}
-  }
-  ctx.restore();
+   // Ordinary Itachi Z: skeletal Susanoo winds up, extends one articulated arm, then hammers the target.
+   const wind=smooth(n/22),extend=smooth((n-20)/25),slam=smooth((n-43)/14),retract=smooth((n-70)/24);
+   const target=f.opp;
+   const targetDistance=target&&Number.isFinite(target.x)?clamp(((target.x-f.x)*(f.facing||1))/Math.max(.8,rigScale||1),118,310):245;
+   const reach=targetDistance,shoulder=[38,-204];
+   const elbow=[lerp(42,reach*.56,extend),lerp(-203,-157,extend)+slam*22+retract*28];
+   const handX=lerp(34,reach+8,extend),handY=lerp(-188,-116,extend)+slam*112+retract*(-48),wrist=[handX,handY];
+   const fistClose=smooth((n-38)/12)*(1-smooth((n-69)/12));
+   ctx.save();ctx.globalAlpha*=n<95?1:Math.max(0,1-(n-95)/22);
+   if(n<28){
+    ring(14,-177,25+wind*42,18+wind*24,edge,2.5,.35+wind*.35,t*.018);ring(14,-177,18+wind*28,12+wind*17,hot,1.7,.5,t*-.02);
+    for(let i=0;i<6;i++){const a=t*.035+i*Math.PI/3;path([[14+Math.cos(a)*23,-177+Math.sin(a)*15],[14+Math.cos(a)*(45+wind*18),-177+Math.sin(a)*(29+wind*8)]],2.1,edge,.6*wind);}
+   }
+   path([shoulder,elbow],31,dark,.98);path([shoulder,elbow],23,hot,.98);path([[shoulder[0],shoulder[1]-2],[elbow[0],elbow[1]-2]],3.2,edge,.78);glow(elbow[0],elbow[1],15,edge,.78);
+   path([elbow,wrist],26,dark,.98);path([elbow,wrist],18,hot,.98);path([[elbow[0],elbow[1]-2],[wrist[0],wrist[1]-2]],2.8,edge,.8);glow(wrist[0],wrist[1],18,edge,.85);
+   ctx.save();ctx.translate(wrist[0],wrist[1]);ctx.rotate(-.08+slam*.3-retract*.2);
+   ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=3.2;ctx.beginPath();ctx.moveTo(-15,-14);ctx.lineTo(22,-17);ctx.lineTo(34,0);ctx.lineTo(26,23);ctx.lineTo(-15,20);ctx.lineTo(-24,3);ctx.closePath();ctx.fill();ctx.stroke();
+   ctx.fillStyle=hot;ctx.globalAlpha*=.92;ctx.beginPath();ctx.moveTo(-10,-10);ctx.lineTo(19,-12);ctx.lineTo(27,1);ctx.lineTo(20,16);ctx.lineTo(-10,14);ctx.lineTo(-17,2);ctx.closePath();ctx.fill();
+   for(let i=0;i<4;i++){const fx=8+i*7,curl=fistClose*9;path([[fx,-10],[fx+3,-23+curl],[fx+8,-25+curl]],4.8,edge,.98);glow(fx+7,-24+curl,2.4,edge,.8);}
+   path([[-13,2],[-27,9],[-22,18],[-9,13]],5.5,edge,.95);ctx.restore();
+   if(n>=43&&n<=82){
+    const q=smooth((n-43)/15),alpha=(1-smooth((n-68)/14))*(n<57?0.65:1),gx=reach+4,gy=-7+slam*12;
+    ring(gx,gy,24+q*138,10+q*39,edge,4.5,alpha);ring(gx,gy,42+q*172,16+q*53,hot,2.3,alpha*.78);
+    for(let i=0;i<9;i++){const a=i*Math.PI*2/9,inner=20+q*18,outer=58+q*120;path([[gx+Math.cos(a)*inner,gy+Math.sin(a)*inner*.45],[gx+Math.cos(a)*outer,gy+Math.sin(a)*outer*.52]],2.5,edge,alpha*.8);}
+    if(n>=55&&n<=67){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=1-(n-55)/12;ctx.fillStyle='rgba(255,203,144,.24)';ctx.beginPath();ctx.ellipse(gx,gy,70,31,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+   }
+   for(let i=0;i<7;i++){const age=(n+i*5)%24,xx=lerp(shoulder[0],wrist[0],i/7)+Math.sin(t*.15+i*2)*5,yy=lerp(shoulder[1],wrist[1],i/7)-age*.8;ctx.save();ctx.globalAlpha*=clamp(1-age/24,0,1)*(.4+slam*.6);ctx.fillStyle=i%2?edge:hot;ctx.translate(xx,yy);ctx.rotate(t*.04+i);ctx.fillRect(-2,-4,4,8);ctx.restore();}
+   ctx.restore();
 }else if(id==='edo_phase1_grasp'){
   // Oversized foreground hand: the underground arm clearly rises through a cracked seal and clamps down.
   const rise=smooth((n-8)/42),close=smooth((n-65)/35),slam=smooth((n-105)/16);
