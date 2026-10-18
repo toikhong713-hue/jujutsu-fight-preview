@@ -222,6 +222,10 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const breath=Math.sin(t*(stage===0?.062:.055))*idle*(stage===0?4.2:3.5);
  const sway=Math.sin(t*(stage===0?.031:.033))*idle*(stage===0?5.2:2.3);
  const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
+ const skillKey=owner&&owner.itachiPhaseSkillKey||'';
+ const skillFrame=owner&&owner.moveFrame||0;
+ const armStretch=skillKey?((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/18)*Math.max(0,1-smooth((skillFrame-68)/28)):smooth(skillFrame/12)*22):0;
+ const dashPose=skillKey==='p1_bones'?smooth((skillFrame-3)/13)*(1-smooth((skillFrame-38)/14)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):0;
  const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
  const idleHeadTilt=stage===0?Math.sin(t*.019)*idle*.035:0;
  const idleShoulderLift=stage===0?Math.sin(t*.062)*idle*2.1:0;
@@ -252,7 +256,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  bone(-47+step*7,-28,-17+step*7,-26,stage===0?8:14,dark);
  bone(47-step*7,-28,17-step*7,-26,stage===0?8:14,dark);
  joint(klx,kly,4);joint(krx,kry,4);
- ctx.save();ctx.translate(sway*.13,-bob);ctx.translate(0,-126);ctx.rotate(-recoil*(stage===0?.09:.065)+Math.sin(t*.025)*idle*.025);ctx.translate(0,126);
+ ctx.save();ctx.translate(sway*.13,-bob+dashPose*10);ctx.translate(0,-126);ctx.rotate(-recoil*(stage===0?.09:.065)+Math.sin(t*.025)*idle*.025+dashPose*(owner&&owner.facing<0?-.42:.42));ctx.translate(0,126);
  if(stage===0){
   // PHASE 1 REBIRTH: anatomy-first skeletal titan, with separate clavicles, scapulae, sternum and pelvis.
   // The spine is segmented so the silhouette reads as a creature, not a set of glowing lines.
@@ -281,11 +285,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   // Pelvis ring and hip joints anchor the long skeletal arms and legs.
   bone(-24,-112,-39,-97,8,hot);bone(-39,-97,-24,-83,7,hot);bone(-24,-83,0,-88,7,hot);
   bone(24,-112,39,-97,8,hot);bone(39,-97,24,-83,7,hot);bone(24,-83,0,-88,7,hot);
-  const eY=-201+armSwing*.28+idleShoulderLift,wY=-166+armSwing*.6;
-  bone(-43,-211,-73+sway,eY,14,hot);bone(-73+sway,eY,-104+armSwing,wY,9,hot);
-  bone(43,-211,73-sway,eY,14,hot);bone(73-sway,eY,104-armSwing,wY,9,hot);
+  const eY=-201+armSwing*.28+idleShoulderLift+dashPose*10,wY=-166+armSwing*.6+dashPose*15;
+  const elbowReach=armStretch*.42,handReach=armStretch;
+  bone(-43,-211,-73+sway-elbowReach,eY,14,hot);bone(-73+sway-elbowReach,eY,-104+armSwing-handReach,wY,9,hot);
+  bone(43,-211,73-sway+elbowReach,eY,14,hot);bone(73-sway+elbowReach,eY,104-armSwing+handReach,wY,9,hot);
   for(const side of [-1,1]){
-   const hx=side*(104-armSwing),hy=wY;
+   const hx=side*(104-armSwing+handReach),hy=wY;
    // Metacarpals, knuckles and hooked phalanges, with a slight idle curl.
    bone(hx-side*5,hy,hx+side*5,hy+3,5,hot);
    for(let j=0;j<4;j++){
@@ -331,11 +336,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   polygon([[53,-205],[79,-194],[91,-171],[68,-161],[48,-177]],dark,edge,2.2);
   polygon([[-58,-189],[-82,-181],[-102,-159],[-91,-144],[-67,-157]],mid,edge,2);
   polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
-  const ey=-192+armSwing*.45,wy=-153+armSwing*.9;
-  bone(-51,-193,-83+sway,ey,17,mid);bone(-83+sway,ey,-119+armSwing,wy,13,mid);
-  bone(51,-193,83-sway,ey,17,mid);bone(83-sway,ey,119-armSwing,wy,13,mid);
+  const ey=-192+armSwing*.45+dashPose*8,wy=-153+armSwing*.9+dashPose*12;
+  const elbowReach=armStretch*.46,handReach=armStretch*1.08;
+  bone(-51,-193,-83+sway-elbowReach,ey,17,mid);bone(-83+sway-elbowReach,ey,-119+armSwing-handReach,wy,13,mid);
+  bone(51,-193,83-sway+elbowReach,ey,17,mid);bone(83-sway+elbowReach,ey,119-armSwing+handReach,wy,13,mid);
   for(const side of [-1,1]){
-   const hx=side*(119-armSwing),hy=wy;
+   const hx=side*(119-armSwing+handReach),hy=wy;
    polygon([[hx-side*7,hy-7],[hx+side*4,hy-13],[hx+side*17,hy-9],[hx+side*22,hy+2],[hx+side*9,hy+6]],dark,edge,1.8);
    for(let j=0;j<4;j++)bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*1.5,3,mid);
   }
