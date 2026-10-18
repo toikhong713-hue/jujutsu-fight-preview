@@ -196,7 +196,7 @@
     skipButton.id='jff-skip-startup';
     skipButton.textContent='SKIP INTRO  ›';
     skipButton.setAttribute('aria-label','Skip startup cutscene and start the fight');
-    skipButton.style.cssText='position:fixed;right:22px;bottom:22px;z-index:99999;display:none;padding:12px 18px;border:1px solid rgba(255,150,95,.9);border-radius:8px;background:linear-gradient(135deg,rgba(102,20,26,.97),rgba(25,12,20,.97));color:#fff0df;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;box-shadow:0 0 22px rgba(255,78,43,.28);cursor:pointer;pointer-events:auto;';
+    skipButton.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;display:none;padding:12px 18px;max-width:calc(100vw - 24px);border:1px solid rgba(255,150,95,.9);border-radius:8px;background:linear-gradient(135deg,rgba(102,20,26,.97),rgba(25,12,20,.97));color:#fff0df;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;box-shadow:0 0 22px rgba(255,78,43,.28);cursor:pointer;pointer-events:auto;';
     skipButton.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(activeCine())finishStartup();});
     document.body.appendChild(skipButton);
   }
