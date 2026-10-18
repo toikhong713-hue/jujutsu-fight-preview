@@ -199,7 +199,7 @@
     skipButton.textContent='SKIP INTRO  ›';
     skipButton.setAttribute('aria-label','Skip startup cutscene and start the fight');
     skipButton.style.cssText='position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483647;display:none;visibility:visible;opacity:1;padding:12px 20px;max-width:calc(100vw - 24px);border:2px solid #ff4bd8;border-radius:10px;background:linear-gradient(110deg,#ff3b3b,#ff9b35,#f8ef46,#48f08a,#38d9ff,#6375ff,#d84dff,#ff3b3b);background-size:300% 300%;color:#fff;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;text-shadow:0 1px 4px #17101f;box-shadow:0 0 10px #ff3bce,0 0 24px #5c7cff;cursor:pointer;pointer-events:auto;white-space:nowrap;animation:jffSkipRainbow 2.4s linear infinite;'
-    skipButton.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(activeCine())finishStartup();});
+    skipButton.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(activeCine())finishStartup();else if(window.JFF_CHARACTER_PRESENCE_V3&&typeof window.JFF_CHARACTER_PRESENCE_V3.skipIntro==='function')window.JFF_CHARACTER_PRESENCE_V3.skipIntro();});
     if(!document.getElementById('jff-skip-rainbow-style')){
       const style=document.createElement('style');
       style.id='jff-skip-rainbow-style';
@@ -210,8 +210,12 @@
   }
   function syncSkipButton(){
     ensureSkipButton();
-    if(skipButton)skipButton.style.display=activeCine()?'block':'none';
+    const presenceActive=!!(G.presenceCine&&G.presenceCine.active);
+    const shouldShow=G.mode!=='menu'&&!storyCineActive()&&(activeCine()||presenceActive);
+    if(skipButton){skipButton.style.display=shouldShow?'block':'none';skipButton.style.visibility='visible';skipButton.style.opacity='1';}
   }
+  // Create it as soon as the module loads; the later cinematic controller owns the real intro.
+  ensureSkipButton();
 
   function drawCinematicOverlay(){
     const c=G.startupCine;
@@ -322,7 +326,8 @@
     get time(){return G.startupCine?G.startupCine.t:0;},
     get duration(){return DURATION;},
     auraFrames:AURA_FRAMES,
-    skipStartup:finishStartup
+    skipStartup:finishStartup,
+    syncSkipButton
   };
   console.info('[JFF Startup] Character Startup Animation System v1.0 ready.');
 })();
