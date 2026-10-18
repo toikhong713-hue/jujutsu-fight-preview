@@ -134,7 +134,7 @@ function drawGravehand(){
  const q=(a,b)=>clamp((n-a)/(b-a),0,1),rise=q(18,53),lift=q(44,72),slam=q(70,82),recover=q(83,112);
  const eased=rise*rise*(3-2*rise),slamEase=slam*slam*(3-2*slam);
  const scale=clamp(z,.68,1.35),handW=138*scale,groundY=p.y+12*scale;
- const handY=groundY+(1-eased)*145*scale-slamEase*22*scale;
+ const handY=groundY+(1-eased)*145*scale-lift*48*scale+slamEase*48*scale;
  const close=q(58,72),fingerCurl=close*24;
  let dust='';
  for(let i=0;i<18;i++){
@@ -199,7 +199,8 @@ function updateSkill(f){
    gravehand.owner=f;gravehand.target=alive(o)?o:null;gravehand.start=t;gravehand.impactDone=false;gravehand.particles.length=0;
    fx('seal',f.x,f.y-8,20,{ash:true});impact(.035,'#6d2736',1);
   }
-  if(n===8){f.itachiGravehandPose='hand-to-ground';fx('shock',f.x,f.y-3,14,{ash:true});}
+  if(n===8){fx('shock',f.x,f.y-3,14,{ash:true});}
+   if(n===48)f.itachiGravehandPose='';
   if(n===15){
    const tx=gravehand.target&&alive(gravehand.target)?gravehand.target.x:f.x+d*230;
    const ty=gravehand.target&&alive(gravehand.target)?gravehand.target.y:f.y;
@@ -346,7 +347,7 @@ function updateStatuses(){
 }
 const oldUpdateMove=window.updateMove;
 if(typeof oldUpdateMove==='function')window.updateMove=function(f){
- if(f&&f.id==='itachi'&&f.itachiPhaseSkillKey){updateSkill(f);return;}
+ if(f&&f.id==='itachi'&&f.itachiPhaseSkillKey){updateSkill(f);drawGravehand();return;}
  return oldUpdateMove.apply(this,arguments);
 };
 const oldStep=window.step;
