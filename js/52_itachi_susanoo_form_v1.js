@@ -224,7 +224,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
  const skillKey=owner&&owner.itachiPhaseSkillKey||'';
  const skillFrame=owner&&owner.moveFrame||0;
- const armStretch=72+((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/5)*48:0);
+ const armStretch=42+((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/5)*20:0);
  const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):0;
  const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):0;
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
@@ -402,7 +402,9 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    // Ordinary Itachi Z: skeletal Susanoo winds up, extends one articulated arm, then hammers the target.
    const wind=smooth(n/22),extend=smooth((n-20)/25),slam=smooth((n-43)/14),retract=smooth((n-70)/24);
    const target=f.opp;
-   const targetDistance=target&&Number.isFinite(target.x)?clamp(((target.x-f.x)*(f.facing||1))/Math.max(.8,rigScale||1),118,310):245;
+   const rigAdvance=Number.isFinite(f.itachiSusanooRigLunge)?f.itachiSusanooRigLunge:0;
+   const rigRearOffset=(f.itachiEdo?43:39)*(f.itachiSusanooPhase===3?(f.itachiEdo?1.88:1.64):(f.itachiSusanooPhase===1?(f.itachiEdo?2.03:1.98):(f.itachiEdo?2.12:2.06)));
+   const targetDistance=target&&Number.isFinite(target.x)?clamp((((target.x-f.x)*(f.facing||1))-rigAdvance+rigRearOffset)/Math.max(.8,rigScale||1),78,250):175;
    const reach=targetDistance,shoulder=[38,-204];
    const elbow=[lerp(42,reach*.56,extend),lerp(-203,-157,extend)+slam*22+retract*28];
    const handX=lerp(34,reach+8,extend),handY=lerp(-188,-116,extend)+slam*112+retract*(-48),wrist=[handX,handY];
@@ -1029,6 +1031,7 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
       const charge=smooth(frame/5),hold=1-smooth((frame-48)/22),returnPhase=smooth((frame-70)/17);
       rigLunge=reach*charge*Math.max(hold,0)*(1-returnPhase);
     }
+    f.itachiSusanooRigLunge=rigLunge;
     drawSusanooRig(f,f.x-face*backOffset+face*rigLunge,baseY,size,tick(),1,'battle');
   }
   return previousDrawFighter.apply(this,arguments);
