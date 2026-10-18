@@ -94,6 +94,81 @@ function hitTarget(f,damage,range,opts){
  const result=typeof window.resolveHit==='function'?window.resolveHit(f,o,mv,f.x+d*Math.min(range,Math.max(75,dx)),f.y-105):'whiff';
  if(result==='hit'){fx(cfg.fx||'shock',o.x,o.y-88,cfg.fxDuration||24);return true;}return false;
 }
+
+/* Edo Z replacement: articulated grave-hand rig, independent of the shared VFX pool. */
+const gravehand={owner:null,target:null,start:0,impactDone:false,particles:[],root:null};
+function gravePoint(x,y){
+ const z=(typeof cam!=='undefined'&&Number.isFinite(cam.zoom))?cam.zoom:1;
+ const cx=(typeof cam!=='undefined'&&Number.isFinite(cam.x))?cam.x:640;
+ const cy=(typeof cam!=='undefined'&&Number.isFinite(cam.y))?cam.y:360;
+ return {x:640+((typeof G!=='undefined'&&G.shakeX)||0)+(x-cx)*z,y:360+((typeof G!=='undefined'&&G.shakeY)||0)+(y-cy)*z,s:z};
+}
+function graveRoot(){
+ if(gravehand.root)return gravehand.root;
+ const wrap=document.getElementById('wrap');if(!wrap)return null;
+ const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+ svg.id='jffEdoGravehandStage';svg.setAttribute('viewBox','0 0 1280 720');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
+ svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;z-index:7;pointer-events:none;overflow:hidden;display:block';
+ wrap.appendChild(svg);gravehand.root=svg;return svg;
+}
+function boneCapsule(x1,y1,x2,y2,w){
+ const dx=x2-x1,dy=y2-y1,len=Math.hypot(dx,dy)||1,ang=Math.atan2(dy,dx)*180/Math.PI;
+ return '<g transform="translate('+x1.toFixed(1)+' '+y1.toFixed(1)+') rotate('+ang.toFixed(1)+')"><rect x="0" y="'+(-w/2)+'" width="'+len.toFixed(1)+'" height="'+w+'" rx="'+(w*.42)+'" fill="url(#graveBone)" stroke="#34343b" stroke-width="'+Math.max(1,w*.09)+'"/><path d="M 4 '+(-w*.18)+' L '+(len-4)+' '+(-w*.18)+'" stroke="#fff2d6" stroke-width="'+Math.max(1,w*.11)+'" opacity=".85"/><ellipse cx="4" cy="0" rx="'+(w*.42)+'" ry="'+(w*.38)+'" fill="#b8b4b1" stroke="#34343b" stroke-width="1"/><ellipse cx="'+(len-4)+'" cy="0" rx="'+(w*.42)+'" ry="'+(w*.38)+'" fill="#d5d0c8" stroke="#34343b" stroke-width="1"/></g>';
+}
+function drawGravehand(){
+ const svg=graveRoot();if(!svg)return;
+ const g=gravehand,owner=g.owner,target=g.target;
+ if(!owner||!alive(owner)||!owner.itachiPhaseSkillKey){svg.innerHTML='';g.owner=null;g.target=null;g.particles.length=0;return;}
+ const n=Math.max(0,(owner.moveFrame||0)),p=gravePoint(target?target.x:owner.x+(owner.facing||1)*230,target?target.y:owner.y),z=p.s||1;
+ const q=(a,b)=>clamp((n-a)/(b-a),0,1),rise=q(18,53),lift=q(44,72),slam=q(70,82),recover=q(83,112);
+ const eased=rise*rise*(3-2*rise),slamEase=slam*slam*(3-2*slam);
+ const scale=clamp(z,.68,1.35),handW=138*scale,groundY=p.y+12*scale;
+ const handY=groundY+(1-eased)*145*scale-slamEase*22*scale;
+ const close=q(58,72),fingerCurl=close*24;
+ let dust='';
+ for(let i=0;i<18;i++){
+  const seed=i*2.399,n0=(n*.72+i*17)%43,side=Math.cos(seed),up=Math.sin(seed);
+  const age=(n+i*7)%36,alpha=clamp(1-age/36,0,1)*(n<18?.0:n<70?1:clamp(1-(n-70)/22,0,1));
+  const dx=side*(32+age*1.55)*scale,dy=-Math.abs(up)*(8+age*1.9)*scale+age*.36;
+  dust+='<circle cx="'+(p.x+dx).toFixed(1)+'" cy="'+(groundY+dy).toFixed(1)+'" r="'+((1.4+(i%4)*.8)*scale).toFixed(1)+'" fill="'+(i%3===0?'#c4b7a4':'#655d58')+'" opacity="'+alpha.toFixed(2)+'"/>';
+ }
+ let smoke='';
+ for(let i=0;i<7;i++){const age=(n*1.05+i*9)%42,xx=p.x+Math.sin(n*.09+i*2.2)*18*scale,yy=groundY-age*1.35*scale;smoke+='<ellipse cx="'+xx.toFixed(1)+'" cy="'+yy.toFixed(1)+'" rx="'+((8+age*.48)*scale).toFixed(1)+'" ry="'+((4+age*.25)*scale).toFixed(1)+'" fill="#77757b" opacity="'+(clamp(1-age/45,0,1)*.24).toFixed(2)+'"/>';}
+ const wristTop=handY+10*scale,wristBottom=groundY+36*scale;
+ const palmX=p.x,palmY=handY+34*scale;
+ const fingers=[
+  {x:-49,lean:-.62,len:42,w:13},{x:-25,lean:-.25,len:52,w:15},{x:0,lean:0,len:58,w:16},{x:25,lean:.28,len:51,w:15},{x:48,lean:.62,len:41,w:13}
+ ];
+ let bones='';
+ fingers.forEach((f,i)=>{
+   const curl=(i===0?-1:i===4?1:(i-2)*.16)*fingerCurl;
+   const bx=palmX+f.x*scale,by=palmY;
+   const j1x=bx+Math.sin(f.lean+curl*.012)*f.len*.55*scale,j1y=by-f.len*.55*scale;
+   const j2x=j1x+Math.sin(f.lean+curl*.024)*f.len*.37*scale,j2y=j1y-f.len*.37*scale;
+   const tipx=j2x+Math.sin(f.lean+curl*.032)*f.len*.27*scale,tipy=j2y-f.len*.27*scale;
+   bones+=boneCapsule(bx,by,j1x,j1y,f.w*scale)+boneCapsule(j1x,j1y,j2x,j2y,(f.w-2)*scale)+boneCapsule(j2x,j2y,tipx,tipy,(f.w-4)*scale);
+ });
+ const visible=n>13&&n<112,opacity=visible?clamp(n<83?1:1-recover*.96,0,1):0;
+ const crackOpacity=clamp(q(5,20)*(1-q(87,103)),0,1);
+ const hitFlash=n>=78&&n<89?clamp(1-(n-78)/11,0,1):0;
+ const hand='<g opacity="'+opacity.toFixed(2)+'" transform="translate('+p.x.toFixed(1)+' 0)">'+
+   '<ellipse cx="0" cy="'+(groundY+4*scale).toFixed(1)+'" rx="'+(105*scale).toFixed(1)+'" ry="'+(17*scale).toFixed(1)+'" fill="#07070b" opacity=".58"/>'+
+   '<path d="M -100 '+groundY+' L -64 '+(groundY-8*scale)+' L -42 '+(groundY+2*scale)+' L -17 '+(groundY-9*scale)+' L 4 '+(groundY+1*scale)+' L 35 '+(groundY-10*scale)+' L 62 '+(groundY+1*scale)+' L 96 '+groundY+'" fill="none" stroke="#c7bcae" stroke-width="'+(2.5*scale)+'" opacity="'+crackOpacity.toFixed(2)+'"/>'+
+   '<g transform="translate(0 '+(wristTop).toFixed(1)+')">'+
+   '<path d="M -24 0 L -29 '+(wristBottom-wristTop).toFixed(1)+' L 29 '+(wristBottom-wristTop).toFixed(1)+' L 24 0 Z" fill="#77757a" stroke="#26252d" stroke-width="'+(3*scale)+'"/>'+
+   '<path d="M -14 4 L -16 '+(wristBottom-wristTop-4).toFixed(1)+' M 0 3 L 0 '+(wristBottom-wristTop-3).toFixed(1)+' M 14 4 L 16 '+(wristBottom-wristTop-4).toFixed(1)+'" stroke="#e2d9cc" stroke-width="'+(3*scale)+'" opacity=".85"/>'+
+   '</g>'+
+   '<path d="M -52 '+(palmY+8*scale)+' Q -63 '+(palmY-13*scale)+' -43 '+(palmY-25*scale)+' L -22 '+(palmY-31*scale)+' L 22 '+(palmY-31*scale)+' L 43 '+(palmY-20*scale)+' Q 61 '+(palmY-5*scale)+' 49 '+(palmY+14*scale)+' L 32 '+(palmY+28*scale)+' L -31 '+(palmY+28*scale)+' Z" fill="#8f8b8b" stroke="#2c2b32" stroke-width="'+(4*scale)+'"/>'+
+   '<path d="M -37 '+(palmY-18*scale)+' Q 0 '+(palmY-35*scale)+' 37 '+(palmY-15*scale)+'" fill="none" stroke="#e4dbce" stroke-width="'+(5*scale)+'" opacity=".8"/>'+
+   bones+
+   '<g transform="translate(-35 '+(palmY+8*scale)+') rotate(-32)">'+boneCapsule(0,0,31*scale,7*scale,14*scale)+'</g>'+
+   '</g>';
+ svg.innerHTML='<defs><linearGradient id="graveBone" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#fff5dd"/><stop offset=".35" stop-color="#c8c1b7"/><stop offset=".7" stop-color="#85828a"/><stop offset="1" stop-color="#d8d0c4"/></linearGradient><radialGradient id="graveDust"><stop stop-color="#a9a09a" stop-opacity=".65"/><stop offset="1" stop-color="#48464d" stop-opacity="0"/></radialGradient><filter id="graveShadow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter></defs>'+
+   '<g>'+smoke+dust+'</g>'+
+   (hitFlash?'<ellipse cx="'+p.x+'" cy="'+groundY+'" rx="'+(110*scale)+'" ry="'+(22*scale)+'" fill="none" stroke="#e8d6d1" stroke-width="'+(3*scale)+'" opacity="'+hitFlash+'"/><ellipse cx="'+p.x+'" cy="'+groundY+'" rx="'+(65*scale)+'" ry="'+(13*scale)+'" fill="none" stroke="#8d263e" stroke-width="'+(4*scale)+'" opacity="'+hitFlash+'"/>':'')+
+   hand;
+}
+
 function updateSkill(f){
  const id=f.itachiPhaseSkillKey;if(!id||!f.move){finishSkill(f);return;}
  const n=(f.moveFrame||0)+1,o=f.opp,d=f.facing||1,t=now();f.moveFrame=n;f.itachiPoseKey=f.moveKey;f.itachiSusanooAction=f.moveKey;
@@ -107,13 +182,34 @@ function updateSkill(f){
   if(n===90&&!f.itachiPhaseSkillMarks.boneSlam){f.itachiPhaseSkillMarks.boneSlam=true;const ok=hitTarget(f,25,420,{hitstun:32,kbx:d*12,kby:-5,hitstop:11,armorBreak:true,vertical:230,fx:false});if(ok){fx('explosion',o.x,o.y-82,42);fx('shock',o.x,o.y-25,50);fx('fire',o.x,o.y-95,28);impact(.24,'#ff603c',11);if(typeof window.floatText==='function')window.floatText(o.x,o.y-176,'BONE REQUIEM','#ffd0a8',14,40);}else impact(.08,'#ff633f',3);}
   if(n>=150)finishSkill(f);
  }else if(id==='edo_p1_grasp'){
-  // 2.5s in-game timeline: ash seal -> giant hand rises -> fingers clamp -> crush and fade.
-  if(n===1){f.vx=0;fx('crows',f.x,f.y-90,26);fx('seal',f.x+d*130,f.y-35,26);impact(.05,'#6b1429',2);}
-  if(n===15){const tx=alive(o)?o.x:f.x+d*210;fx('seal',tx,f.y-24,36);fx('crows',tx,f.y-60,22);}
-  if(n===35&&alive(o)&&Math.abs(o.x-f.x)<440&&Math.abs(o.y-f.y)<220){o.vx*=.25;fx('seal',o.x,o.y-18,40);fx('shock',o.x,o.y-40,24);impact(.08,'#72172d',3);}
-  if(n===78&&!f.itachiPhaseSkillMarks.ashGrip){f.itachiPhaseSkillMarks.ashGrip=true;const ok=hitTarget(f,14,520,{hitstun:22,kbx:d*2,kby:-1,hitstop:6,vertical:240,fx:false});if(ok){fx('seal',o.x,o.y-65,36);fx('crows',o.x,o.y-55,20);impact(.1,'#81203b',5);}}
-  if(n===120&&!f.itachiPhaseSkillMarks.ashCrush){f.itachiPhaseSkillMarks.ashCrush=true;const ok=hitTarget(f,27,520,{hitstun:34,kbx:d*10,kby:-5,hitstop:12,armorBreak:true,vertical:240,fx:false});if(ok){fx('explosion',o.x,o.y-70,42);fx('shock',o.x,o.y-20,48);fx('crows',o.x,o.y-90,28);impact(.25,'#9b2444',12);if(typeof window.floatText==='function')window.floatText(o.x,o.y-172,'ASHEN GRASP','#ffc8d2',13,40);}else impact(.08,'#72172d',3);}
-  if(n>=150)finishSkill(f);
+  // Gravehand timeline: kneel and touch ground -> dirt breach -> articulated skeletal hand rises -> impact -> recover.
+  if(n===1){
+   f.vx=0;f.vy=0;f.itachiGravehandPose='kneel-touch';f.itachiPoseKey='edo_gravehand_kneel';
+   gravehand.owner=f;gravehand.target=alive(o)?o:null;gravehand.start=t;gravehand.impactDone=false;gravehand.particles.length=0;
+   fx('seal',f.x,f.y-8,20,{ash:true});impact(.035,'#6d2736',1);
+  }
+  if(n===8){f.itachiGravehandPose='hand-to-ground';fx('shock',f.x,f.y-3,14,{ash:true});}
+  if(n===15){
+   const tx=gravehand.target&&alive(gravehand.target)?gravehand.target.x:f.x+d*230;
+   const ty=gravehand.target&&alive(gravehand.target)?gravehand.target.y:f.y;
+   fx('seal',tx,ty-8,28,{ash:true});fx('shock',tx,ty+3,18,{ash:true});impact(.045,'#6b2738',1);
+  }
+  if(n===24){fx('crows',gravehand.target?gravehand.target.x:f.x+d*230,(gravehand.target?gravehand.target.y:f.y)-8,12,{ash:true});}
+  if(n===43){const tx=gravehand.target&&alive(gravehand.target)?gravehand.target.x:f.x+d*230;fx('explosion',tx,(gravehand.target?gravehand.target.y:f.y)+4,16,{ash:true});impact(.06,'#5e2636',2);}
+  if(n===78&&!f.itachiPhaseSkillMarks.gravehandHit){
+   f.itachiPhaseSkillMarks.gravehandHit=true;
+   const target=gravehand.target&&alive(gravehand.target)?gravehand.target:o;
+   if(alive(target)&&Math.abs(target.x-f.x)<620&&Math.abs(target.y-f.y)<260){
+    const dir=target.x>=f.x?1:-1;f.facing=dir;
+    const result=typeof window.resolveHit==='function'?window.resolveHit(f,target,{damage:29,hitstun:36,blockstun:12,kbx:dir*11,kby:-5,hitstop:12,meter:7,armorBreak:true,kind:'special',type:'chakra',susanoo:true},target.x,target.y-60):'whiff';
+    if(result==='hit'||result==='block'){
+     if(result==='hit')target.vy=Math.min(target.vy||0,-3.5);
+     fx('explosion',target.x,target.y-46,26,{ash:true});fx('shock',target.x,target.y+4,34,{ash:true});fx('crows',target.x,target.y-60,12,{ash:true});
+     impact(.24,'#9b354b',11);if(typeof window.floatText==='function')window.floatText(target.x,target.y-150,'GRAVEHAND SLAM','#f1dce0',13,38);
+    }else impact(.08,'#72172d',3);
+   }else impact(.06,'#72172d',2);
+  }
+  if(n>=116){f.itachiGravehandPose='';gravehand.owner=null;gravehand.target=null;finishSkill(f);}
  }else if(id==='p1_magatama'){
   if(n===1){f.vx*=.1;fx('magatama',f.x+d*50,f.y-155,26);}
   if(n===15){fx('magatama',f.x+d*72,f.y-200,26);fx('magatama',f.x+d*95,f.y-178,26);fx('magatama',f.x+d*62,f.y-151,26);}
@@ -253,7 +349,7 @@ function handleKey(e){
 }
 addEventListener('keydown',handleKey,true);
 const oldRender=window.render;
-if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);const t=now();if(t%6===0){lastTick=t;updatePanel(true);}else updatePanel(false);return r;};
+if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);const t=now();if(t%6===0){lastTick=t;updatePanel(true);}else updatePanel(false);drawGravehand();return r;};
 if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseGuardUntil=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;delete f.itachiPhaseSlowBase;}return oldReset.apply(this,arguments);};
