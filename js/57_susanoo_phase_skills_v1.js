@@ -16,7 +16,7 @@ const fx=(kind,x,y,d,data)=>{if(typeof window.JFF_OUTSIDER_FX==='function')windo
 const impact=(power,color,hitstop)=>{if(typeof window.flash==='function')window.flash(power||.12,color||'#e84b45');if(typeof window.shake==='function')window.shake(Math.max(2,Math.round((power||.12)*24)));if(typeof window.camPunch==='function')window.camPunch((power||.12)*.2);if(hitstop&&typeof G!=='undefined')G.hitstop=Math.max(G.hitstop||0,hitstop);};
 const projectiles=[];
 const skills={
- p1_bones:{name:'Bone Requiem',cd:390,hp:3,duration:150,visual:'phase1_bones'},
+ p1_bones:{name:'Skeletal Susanoo · Grave Slam',cd:390,hp:3,duration:132,visual:'phase1_bones'},
  edo_p1_grasp:{name:'Edo · Ashen Grasp',cd:420,hp:0,duration:150,visual:'edo_phase1_grasp'},
  p1_magatama:{name:'Yasaka Magatama',cd:420,hp:4,duration:150,visual:'phase1_magatama'},
  edo_p1_rift:{name:'Edo · Crow Rift Collapse',cd:450,hp:0,duration:108,visual:'edo_phase1_rift'},
@@ -184,15 +184,21 @@ function updateSkill(f){
  const id=f.itachiPhaseSkillKey;if(!id||!f.move){finishSkill(f);return;}
  const n=(f.moveFrame||0)+1,o=f.opp,d=f.facing||1,t=now();f.moveFrame=n;f.itachiPoseKey=f.moveKey;f.itachiSusanooAction=f.moveKey;
  if(id==='p1_bones'){
-  // 2.5s in-game timeline: seal -> twin-arm sweep -> synchronized ground slam -> recovery.
-  if(n===1){f.vx*=.08;fx('seal',f.x,f.y-128,24);fx('reflect',f.x,f.y-168,20);}
-  if(n===18){fx('seal',f.x,f.y-165,32);fx('shock',f.x,f.y-95,20);impact(.06,'#ff714b',2);}
-  if(n===36){fx('shock',f.x+d*95,f.y-120,25);fx('fire',f.x+d*110,f.y-165,20);}
-  if(n===60&&!f.itachiPhaseSkillMarks.boneSweep){f.itachiPhaseSkillMarks.boneSweep=true;const ok=hitTarget(f,12,390,{hitstun:18,kbx:d*4,kby:-1,hitstop:5,vertical:220,fx:false});if(ok){fx('shock',o.x,o.y-80,28);fx('seal',o.x,o.y-125,20);impact(.1,'#ff7548',4);}}
-  if(n===76){fx('shock',f.x+d*170,f.y-25,40);fx('explosion',f.x+d*175,f.y-75,28);}
-  if(n===90&&!f.itachiPhaseSkillMarks.boneSlam){f.itachiPhaseSkillMarks.boneSlam=true;const ok=hitTarget(f,25,420,{hitstun:32,kbx:d*12,kby:-5,hitstop:11,armorBreak:true,vertical:230,fx:false});if(ok){fx('explosion',o.x,o.y-82,42);fx('shock',o.x,o.y-25,50);fx('fire',o.x,o.y-95,28);impact(.24,'#ff603c',11);if(typeof window.floatText==='function')window.floatText(o.x,o.y-176,'BONE REQUIEM','#ffd0a8',14,40);}else impact(.08,'#ff633f',3);}
-  if(n>=150)finishSkill(f);
- }else if(id==='edo_p1_grasp'){
+   // Ordinary Itachi Z: one giant skeletal arm extends to the opponent and slams down once.
+   if(n===1){f.vx*=.04;fx('seal',f.x,f.y-128,20);fx('reflect',f.x,f.y-168,18);f.itachiPhaseSkillMarks.graveSlamHit=false;}
+   if(n===16){fx('seal',f.x+d*38,f.y-160,24);fx('shock',f.x+d*64,f.y-95,16);impact(.045,'#ff714b',1);}
+   if(n===31){fx('shock',f.x+d*110,f.y-125,20);fx('fire',f.x+d*145,f.y-150,16);}
+   if(n===47){fx('shock',o&&alive(o)?o.x:f.x+d*230,o&&alive(o)?o.y-35:f.y-35,22);impact(.065,'#ff7548',2);}
+   if(n===60&&!f.itachiPhaseSkillMarks.graveSlamHit){
+    f.itachiPhaseSkillMarks.graveSlamHit=true;
+    const ok=hitTarget(f,32,430,{hitstun:34,kbx:d*13,kby:-5,hitstop:12,armorBreak:true,vertical:240,fx:false});
+    const tx=alive(o)?o.x:f.x+d*230,ty=alive(o)?o.y:f.y;
+    fx('explosion',tx,ty-78,38);fx('shock',tx,ty-16,46);fx('fire',tx,ty-105,24);
+    impact(ok ? .25 : .09,'#ff603c',ok ? 12 : 3);
+    if(ok&&typeof window.floatText==='function')window.floatText(tx,ty-176,'SUSANOO GRAVE SLAM','#ffd0a8',14,40);
+   }
+   if(n>=132)finishSkill(f);
+}else if(id==='edo_p1_grasp'){
   // Gravehand timeline: kneel and touch ground -> dirt breach -> articulated skeletal hand rises -> impact -> recover.
   if(n===1){
    f.vx=0;f.vy=0;f.itachiGravehandPose='kneel-touch';f.itachiPoseKey='edo_gravehand_kneel';
