@@ -224,7 +224,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
  const skillKey=owner&&owner.itachiPhaseSkillKey||'';
  const skillFrame=owner&&owner.moveFrame||0;
- const armStretch=skillKey?((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/18)*Math.max(0,1-smooth((skillFrame-68)/28)):smooth(skillFrame/12)*22):0;
+ const armStretch=72+((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/5)*48:0);
  const dashPose=skillKey==='p1_bones'?smooth((skillFrame-3)/13)*(1-smooth((skillFrame-38)/14)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):0;
  const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
  const idleHeadTilt=stage===0?Math.sin(t*.019)*idle*.035:0;
