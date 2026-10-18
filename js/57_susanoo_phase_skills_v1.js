@@ -135,14 +135,14 @@ function drawGravehand(){
  let smoke='';
  for(let i=0;i<7;i++){const age=(n*1.05+i*9)%42,xx=p.x+Math.sin(n*.09+i*2.2)*18*scale,yy=groundY-age*1.35*scale;smoke+='<ellipse cx="'+xx.toFixed(1)+'" cy="'+yy.toFixed(1)+'" rx="'+((8+age*.48)*scale).toFixed(1)+'" ry="'+((4+age*.25)*scale).toFixed(1)+'" fill="#77757b" opacity="'+(clamp(1-age/45,0,1)*.24).toFixed(2)+'"/>';}
  const wristTop=handY+10*scale,wristBottom=groundY+36*scale;
- const palmX=p.x,palmY=handY+34*scale;
+ const palmX=0,palmY=handY+34*scale;
  const fingers=[
   {x:-49,lean:-.62,len:42,w:13},{x:-25,lean:-.25,len:52,w:15},{x:0,lean:0,len:58,w:16},{x:25,lean:.28,len:51,w:15},{x:48,lean:.62,len:41,w:13}
  ];
  let bones='';
  fingers.forEach((f,i)=>{
    const curl=(i===0?-1:i===4?1:(i-2)*.16)*fingerCurl;
-   const bx=palmX+f.x*scale,by=palmY;
+   const bx=f.x*scale,by=palmY;
    const j1x=bx+Math.sin(f.lean+curl*.012)*f.len*.55*scale,j1y=by-f.len*.55*scale;
    const j2x=j1x+Math.sin(f.lean+curl*.024)*f.len*.37*scale,j2y=j1y-f.len*.37*scale;
    const tipx=j2x+Math.sin(f.lean+curl*.032)*f.len*.27*scale,tipy=j2y-f.len*.27*scale;
