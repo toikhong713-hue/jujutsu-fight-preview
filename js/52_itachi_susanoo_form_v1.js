@@ -415,31 +415,45 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   }
   ctx.restore();
 }else if(id==='edo_phase1_grasp'){
-  // Ashen Grasp: ground seal -> giant Edo hand rises -> fingers clamp -> crushing impact.
-  const rise=smooth((n-12)/50),close=smooth((n-66)/36),crush=smooth((n-105)/15),fade=n<126?1:Math.max(0,1-(n-126)/24);
-  const worldDx=(f.opp&&Number.isFinite(f.opp.x)?(f.opp.x-f.x)*d:260),tx=clamp(worldDx/Math.max(.8,rigScale||1),90,230);
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  ring(tx,4,25+rise*55,7+rise*13,edge,3,.92,t*.025);
-  ring(tx,4,38+rise*78,12+rise*18,hot,1.9,.72,-t*.018);
-  for(let i=0;i<8;i++){const a=i*Math.PI/4+t*.012,rr=42+rise*48;path([[tx+Math.cos(a)*rr,Math.sin(a)*9],[tx+Math.cos(a)*(rr+14),Math.sin(a)*13-5]],2.2,edge,.78);}
-  const palmY=62-rise*136+crush*44,palmW=25+close*22;
-  path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],13,dark,.98);
-  path([[tx,-2],[tx-7,palmY+35],[tx,palmY+17]],7,hot,.95);
-  ctx.beginPath();ctx.ellipse(tx,palmY,palmW,20,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.2;ctx.stroke();
+  // Oversized foreground hand: the underground arm clearly rises through a cracked seal and clamps down.
+  const rise=smooth((n-8)/42),close=smooth((n-65)/35),slam=smooth((n-105)/16);
+  const fade=n<126?1:Math.max(0,1-(n-126)/24);
+  const worldDx=(f.opp&&Number.isFinite(f.opp.x)?(f.opp.x-f.x)*d:220);
+  const tx=clamp(worldDx/Math.max(.8,rigScale||1),95,245);
+  const palmY=38-rise*178+slam*48,palmW=36+close*17;
+  ctx.save();ctx.globalAlpha*=fade;
+  ctx.globalCompositeOperation='source-over';
+  // Ground hole + bright fracture ring.
+  ctx.fillStyle='rgba(15,2,12,.9)';ctx.beginPath();ctx.ellipse(tx,2,68+rise*20,14+rise*5,0,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ff536d';ctx.lineWidth=5;ctx.beginPath();ctx.ellipse(tx,1,74+rise*22,16+rise*6,0,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle='#6c102c';ctx.lineWidth=11;ctx.beginPath();ctx.ellipse(tx,1,56+rise*18,10+rise*4,0,0,Math.PI*2);ctx.stroke();
+  for(let i=0;i<8;i++){const ang=i*Math.PI/4;path([[tx+Math.cos(ang)*48,Math.sin(ang)*7],[tx+Math.cos(ang)*95,Math.sin(ang)*12-4]],3,edge,.98);}
+  // Two glowing sides of the giant forearm connect the hand to the hole.
+  path([[tx-25,40],[tx-24,10],[tx-19,palmY+34],[tx-10,palmY+12]],36,dark,.99);
+  path([[tx-25,40],[tx-24,10],[tx-19,palmY+34],[tx-10,palmY+12]],22,hot,.99);
+  path([[tx+24,40],[tx+22,10],[tx+17,palmY+31],[tx+10,palmY+12]],34,dark,.99);
+  path([[tx+24,40],[tx+22,10],[tx+17,palmY+31],[tx+10,palmY+12]],20,hot,.99);
+  // Oversized palm, knuckles and five distinct fingers.
+  ctx.beginPath();ctx.ellipse(tx,palmY,palmW,29,0,0,Math.PI*2);ctx.fillStyle=dark;ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=5;ctx.stroke();
+  ctx.beginPath();ctx.ellipse(tx,palmY,palmW-8,20,0,0,Math.PI*2);ctx.strokeStyle=hot;ctx.lineWidth=3;ctx.stroke();
   for(let finger=0;finger<5;finger++){
-   const spread=(finger-2)*15,outer=spread*(1-close*.8),tipX=tx+outer,tipY=palmY-35-rise*17+close*(finger===2?30:43)+crush*16;
-   path([[tx+spread*.42,palmY-5],[tx+spread*.7,palmY-26-rise*9],[tipX,tipY]],8.2,dark,.98);
-   path([[tx+spread*.42,palmY-5],[tx+spread*.7,palmY-26-rise*9],[tipX,tipY]],4.2,hot,.98);
-   glow(tipX,tipY,5,edge,.85);
+   const spread=(finger-2)*20,fan=spread*(1-close*.83);
+   const baseX=tx+spread*.45,midX=tx+fan*.88,tipX=tx+fan;
+   const baseY=palmY-10,midY=palmY-47-rise*5+close*24,tipY=palmY-70-rise*9+close*(finger===2?47:59)+slam*8;
+   path([[baseX,baseY],[midX,midY],[tipX,tipY]],14,dark,.99);
+   path([[baseX,baseY],[midX,midY],[tipX,tipY]],7,hot,.99);
+   path([[baseX-2,baseY-2],[midX-2,midY-3],[tipX-2,tipY-2]],2.1,edge,.98);
+   glow(tipX,tipY,8,edge,.95);
   }
   if(n>62){
-   const q=smooth((n-62)/38);
-   ring(tx,palmY-15,26+q*58,13+q*28,edge,3.2,q*.92,t*.018);
-   ring(tx,palmY-15,38+q*72,19+q*35,hot,1.8,q*.7,-t*.022);
-   for(let i=0;i<6;i++){const a=i*Math.PI/3+t*.02,rr=26+q*68;path([[tx+Math.cos(a)*rr,palmY-15+Math.sin(a)*rr*.42],[tx+Math.cos(a)*(rr+14),palmY-15+Math.sin(a)*(rr+10)*.42]],2.3,edge,.72*fade);}
+   const q=smooth((n-62)/38);ctx.globalCompositeOperation='lighter';
+   ring(tx,palmY-5,42+q*78,19+q*30,edge,4,.95,t*.018);
+   ring(tx,palmY-5,57+q*95,25+q*38,hot,2.4,.8,-t*.022);
+   for(let i=0;i<7;i++){const ang=i*Math.PI/3.5+t*.012,rr=38+q*80;path([[tx+Math.cos(ang)*rr,2+Math.sin(ang)*5],[tx+Math.cos(ang)*(rr+25),2+Math.sin(ang)*9]],3,edge,.9);}
   }
-  // Edo-only paper ash uses a fixed number of shapes, not a live particle emitter.
-  for(let i=0;i<5;i++){const ax=tx+Math.sin(t*.055+i*2.4)*(30+i*12),ay=-30-((t*1.2+i*29)%155);ctx.save();ctx.translate(ax,ay);ctx.rotate(t*.025+i);ctx.fillStyle='#c2b7c8';ctx.globalAlpha*=.55;ctx.fillRect(-2,-4,4,7);ctx.restore();}
+  // Fixed-count paper talismans, no unbounded particle emitter.
+  ctx.globalCompositeOperation='source-over';
+  for(let i=0;i<7;i++){const ax=tx+Math.sin(t*.055+i*2.4)*(34+i*13),ay=-25-((t*1.2+i*29)%165);ctx.save();ctx.translate(ax,ay);ctx.rotate(t*.025+i);ctx.fillStyle='#d5c7d2';ctx.globalAlpha*=.78;ctx.fillRect(-3,-6,6,10);ctx.strokeStyle='#6c102c';ctx.lineWidth=1;ctx.strokeRect(-3,-6,6,10);ctx.restore();}
   ctx.restore();
 }else if(id==='edo_phase1_rift'){
   // Crow Rift Collapse: a vanishing silhouette, three offset rupture planes, then a converging crimson burst.
