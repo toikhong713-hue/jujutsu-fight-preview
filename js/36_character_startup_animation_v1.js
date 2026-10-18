@@ -59,6 +59,8 @@
     if (G.mode === 'story' && (G.storyCutscene || (G.story && G.story.cutscene) || storyCineActive())) return;
     const [a,b] = G.fighters;
     if (!a || !b) return;
+    ensureSkipButton();
+    syncSkipButton();
     const center = ARENA_W / 2;
     const targetA = center - 190;
     const targetB = center + 190;
@@ -196,8 +198,14 @@
     skipButton.id='jff-skip-startup';
     skipButton.textContent='SKIP INTRO  ›';
     skipButton.setAttribute('aria-label','Skip startup cutscene and start the fight');
-    skipButton.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;display:none;padding:12px 18px;max-width:calc(100vw - 24px);border:1px solid rgba(255,150,95,.9);border-radius:8px;background:linear-gradient(135deg,rgba(102,20,26,.97),rgba(25,12,20,.97));color:#fff0df;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;box-shadow:0 0 22px rgba(255,78,43,.28);cursor:pointer;pointer-events:auto;';
+    skipButton.style.cssText='position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2147483647;display:none;visibility:visible;opacity:1;padding:12px 20px;max-width:calc(100vw - 24px);border:2px solid #ff4bd8;border-radius:10px;background:linear-gradient(110deg,#ff3b3b,#ff9b35,#f8ef46,#48f08a,#38d9ff,#6375ff,#d84dff,#ff3b3b);background-size:300% 300%;color:#fff;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;text-shadow:0 1px 4px #17101f;box-shadow:0 0 10px #ff3bce,0 0 24px #5c7cff;cursor:pointer;pointer-events:auto;white-space:nowrap;animation:jffSkipRainbow 2.4s linear infinite;'
     skipButton.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(activeCine())finishStartup();});
+    if(!document.getElementById('jff-skip-rainbow-style')){
+      const style=document.createElement('style');
+      style.id='jff-skip-rainbow-style';
+      style.textContent='@keyframes jffSkipRainbow{0%{background-position:0% 50%;filter:hue-rotate(0deg);box-shadow:0 0 10px #ff3bce,0 0 24px #5c7cff}50%{background-position:100% 50%;filter:hue-rotate(180deg);box-shadow:0 0 15px #47f5ff,0 0 28px #ffdf48}100%{background-position:0% 50%;filter:hue-rotate(360deg);box-shadow:0 0 10px #ff3bce,0 0 24px #5c7cff}}@media(prefers-reduced-motion:reduce){#jff-skip-startup{animation:none}}';
+      document.head.appendChild(style);
+    }
     document.body.appendChild(skipButton);
   }
   function syncSkipButton(){
@@ -294,6 +302,7 @@
     baseDrawFighter(f);
   };
   window.render=function(){
+    syncSkipButton();
     baseRender();
     drawCinematicOverlay();
     syncSkipButton();
