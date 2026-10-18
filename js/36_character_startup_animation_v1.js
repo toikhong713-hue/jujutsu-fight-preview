@@ -187,6 +187,24 @@
     ctx.restore();
   }
 
+  // A visible test shortcut for the shared match-start intro. It never skips Story cinematics.
+  let skipButton=null;
+  function ensureSkipButton(){
+    if(skipButton||!document.body)return;
+    skipButton=document.createElement('button');
+    skipButton.type='button';
+    skipButton.id='jff-skip-startup';
+    skipButton.textContent='SKIP INTRO  ›';
+    skipButton.setAttribute('aria-label','Skip startup cutscene and start the fight');
+    skipButton.style.cssText='position:fixed;right:22px;bottom:22px;z-index:99999;display:none;padding:12px 18px;border:1px solid rgba(255,150,95,.9);border-radius:8px;background:linear-gradient(135deg,rgba(102,20,26,.97),rgba(25,12,20,.97));color:#fff0df;font:900 12px system-ui,sans-serif;letter-spacing:1.3px;box-shadow:0 0 22px rgba(255,78,43,.28);cursor:pointer;pointer-events:auto;';
+    skipButton.addEventListener('click',function(ev){ev.preventDefault();ev.stopPropagation();if(activeCine())finishStartup();});
+    document.body.appendChild(skipButton);
+  }
+  function syncSkipButton(){
+    ensureSkipButton();
+    if(skipButton)skipButton.style.display=activeCine()?'block':'none';
+  }
+
   function drawCinematicOverlay(){
     const c=G.startupCine;
     if(!c || !c.active || typeof ctx==='undefined') return;
@@ -278,6 +296,7 @@
   window.render=function(){
     baseRender();
     drawCinematicOverlay();
+    syncSkipButton();
   };
   // The startup and Story intro are intentionally unskippable. In particular,
   // prevent the older Story controller from treating Enter/Space as a skip.
@@ -293,7 +312,8 @@
     get active(){return activeCine();},
     get time(){return G.startupCine?G.startupCine.t:0;},
     get duration(){return DURATION;},
-    auraFrames:AURA_FRAMES
+    auraFrames:AURA_FRAMES,
+    skipStartup:finishStartup
   };
   console.info('[JFF Startup] Character Startup Animation System v1.0 ready.');
 })();
