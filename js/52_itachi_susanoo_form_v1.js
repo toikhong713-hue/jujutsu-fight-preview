@@ -242,8 +242,15 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):crossSkill?crossDrop:0;
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
  ctx.save();
- // Skeletal Susanoo is an ethereal emergence, not a fully grounded statue: keep roughly its lower half below the arena plane.
- if(stage===0)ctx.translate(0,Math.max(0,138-jumpRise/Math.max(.75,rigScale||1)));
+ // Hard arena-plane occlusion: the canvas does not automatically hide geometry drawn below the floor.
+ // Clip the lower body at the ground line while idle; as Itachi jumps, the cut line drops and the rig rises,
+ // revealing the submerged bones naturally instead of merely painting a translucent haze over them.
+ if(stage===0){
+  const rise=jumpRise/Math.max(.75,rigScale||1);
+  const groundCut=-62+rise;
+  ctx.beginPath();ctx.rect(-1400,-1100,2800,1100+groundCut);ctx.clip();
+  ctx.translate(0,-rise);
+ }
  ctx.translate(dashPose*20,dashPose*11-dashImpact*7);ctx.translate(0,-126);ctx.rotate(dashPose*.17-dashImpact*.12);ctx.translate(0,126);
  const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
  const idleHeadTilt=stage===0?Math.sin(t*.019)*idle*.035:0;
