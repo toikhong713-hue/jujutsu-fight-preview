@@ -225,9 +225,13 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
  const skillKey=owner&&owner.itachiPhaseSkillKey||'';
  const skillFrame=owner&&owner.moveFrame||0;
- const armStretch=42+((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?smooth(skillFrame/5)*20:0);
- const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):0;
- const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):0;
+ const crossSkill=skillKey==='p1_skeletal_x'||skillKey==='edo_p1_skeletal_x';
+ const crossWind=crossSkill?smooth(skillFrame/18)*(1-smooth((skillFrame-23)/9)):0;
+ const crossSweep=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?25:21))/(skillKey==='edo_p1_skeletal_x'?13:11))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?48:43))/11)):0;
+ const crossDrop=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?62:56))/(skillKey==='edo_p1_skeletal_x'?10:9))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:73))/12)):0;
+ const armStretch=crossSkill?(8+crossWind*24+crossSweep*52+crossDrop*18):((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?42+smooth(skillFrame/5)*20:8);
+ const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):crossSkill?smooth((skillFrame-22)/10)*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:72))/16)):0;
+ const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):crossSkill?crossDrop:0;
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
  ctx.save();ctx.translate(dashPose*20,dashPose*11-dashImpact*7);ctx.translate(0,-126);ctx.rotate(dashPose*.17-dashImpact*.12);ctx.translate(0,126);
  const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
@@ -235,8 +239,9 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const idleShoulderLift=stage===0?Math.sin(t*.062)*idle*2.1:0;
  const hit=owner&&(state==='HITSTUN'||(owner.hitstun||0)>0);
  const recoil=hit?Math.min(1,Math.max(.25,(owner.hitstun||5)/8)):0;
- const hot=edo?'#a81e38':'#e54a2e';
- const edge=edo?'#f06a73':'#ff9b62';
+ const xSkill=skillKey==='p1_skeletal_x'||skillKey==='edo_p1_skeletal_x';
+ const hot=xSkill&&edo?'#7047c8':(edo?'#a81e38':'#e54a2e');
+ const edge=xSkill&&edo?'#d9c5ff':(edo?'#f06a73':'#ff9b62');
  const dark=edo?'#210b18':'#3b1016';
  const core=edo?'#ff283f':'#ffe29a';
  const mid=edo?'#64152d':'#a82c26';
@@ -245,7 +250,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const joint=(x,y,r)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=.72;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();};
  // Cinematic crimson-orange chakra flare with a hot rim and directional motion streaks.
  ctx.save();ctx.globalCompositeOperation='lighter';
- const activeDash=skillKey==='p1_bones'||skillKey==='edo_p1_grasp';
+ const activeDash=skillKey==='p1_bones'||skillKey==='edo_p1_grasp'||crossSkill;
  const flare=activeDash?(.55+.45*Math.sin(skillFrame*.52)):0;
  const aura=ctx.createRadialGradient(0,-155,8,0,-155,activeDash?285:220);
  aura.addColorStop(0,activeDash?'rgba(255,75,30,.58)':(edo?'rgba(211,31,65,.30)':'rgba(255,86,42,.29)'));
@@ -299,12 +304,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   // Pelvis ring and hip joints anchor the long skeletal arms and legs.
   bone(-24,-112,-39,-97,8,hot);bone(-39,-97,-24,-83,7,hot);bone(-24,-83,0,-88,7,hot);
   bone(24,-112,39,-97,8,hot);bone(39,-97,24,-83,7,hot);bone(24,-83,0,-88,7,hot);
-  const eY=-201+armSwing*.28+idleShoulderLift+dashPose*10,wY=-166+armSwing*.6+dashPose*15;
-  const elbowReach=armStretch*.42,handReach=armStretch;
+  const eY=-184+armSwing*.28+idleShoulderLift+crossWind*20-crossSweep*12+crossDrop*28+dashPose*10,wY=-142+armSwing*.6+crossWind*22-crossSweep*27+crossDrop*58+dashPose*15;
+  const elbowReach=armStretch*.42+crossSweep*22,handReach=armStretch;
   bone(-43,-211,-73+sway-elbowReach,eY,14,hot);bone(-73+sway-elbowReach,eY,-104+armSwing-handReach,wY,9,hot);
   bone(43,-211,73-sway+elbowReach,eY,14,hot);bone(73-sway+elbowReach,eY,104-armSwing+handReach,wY,9,hot);
   for(const side of [-1,1]){
-   const hx=side*(104-armSwing+handReach),hy=wY;
+   const hx=side*(104-armSwing+handReach-crossSweep*145)+crossSweep*75,hy=wY;
    // Metacarpals, knuckles and hooked phalanges, with a slight idle curl.
    bone(hx-side*5,hy,hx+side*5,hy+3,5,hot);
    for(let j=0;j<4;j++){
@@ -350,12 +355,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   polygon([[53,-205],[79,-194],[91,-171],[68,-161],[48,-177]],dark,edge,2.2);
   polygon([[-58,-189],[-82,-181],[-102,-159],[-91,-144],[-67,-157]],mid,edge,2);
   polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
-  const ey=-192+armSwing*.45+dashPose*8,wy=-153+armSwing*.9+dashPose*12;
-  const elbowReach=armStretch*.46,handReach=armStretch*1.08;
+  const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12;
+  const elbowReach=armStretch*.46+crossSweep*25,handReach=armStretch*1.08;
   bone(-51,-193,-83+sway-elbowReach,ey,17,mid);bone(-83+sway-elbowReach,ey,-119+armSwing-handReach,wy,13,mid);
   bone(51,-193,83-sway+elbowReach,ey,17,mid);bone(83-sway+elbowReach,ey,119-armSwing+handReach,wy,13,mid);
   for(const side of [-1,1]){
-   const hx=side*(119-armSwing+handReach),hy=wy;
+   const hx=side*(119-armSwing+handReach-crossSweep*158)+crossSweep*82,hy=wy;
    polygon([[hx-side*7,hy-7],[hx+side*4,hy-13],[hx+side*17,hy-9],[hx+side*22,hy+2],[hx+side*9,hy+6]],dark,edge,1.8);
    for(let j=0;j<4;j++)bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*1.5,3,mid);
   }
@@ -431,19 +436,47 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
    for(let i=0;i<7;i++){const age=(n+i*5)%24,xx=lerp(shoulder[0],wrist[0],i/7)+Math.sin(t*.15+i*2)*5,yy=lerp(shoulder[1],wrist[1],i/7)-age*.8;ctx.save();ctx.globalAlpha*=clamp(1-age/24,0,1)*(.4+slam*.6);ctx.fillStyle=i%2?edge:hot;ctx.translate(xx,yy);ctx.rotate(t*.04+i);ctx.fillRect(-2,-4,4,8);ctx.restore();}
    ctx.restore();
 }else if(id==='p1_skeletal_x'||id==='edo_p1_skeletal_x'){
-  // Jointed Susanoo arms perform a cross-sweep and double-fist drop.
-  const edoX=id==='edo_p1_skeletal_x',wind=smooth(n/(edoX?25:20)),cross=smooth((n-(edoX?24:20))/(edoX?18:16)),drop=smooth((n-(edoX?52:47))/(edoX?13:11));
-  const fade=n<(edoX?94:85)?1:Math.max(0,1-(n-(edoX?94:85))/(edoX?30:27));
+  const edoX=id==='edo_p1_skeletal_x';
+  const wind=smooth(n/(edoX?27:20))*(1-smooth((n-(edoX?29:23))/9));
+  const cross=smooth((n-(edoX?27:21))/(edoX?13:11))*(1-smooth((n-(edoX?49:43))/10));
+  const recoil=smooth((n-(edoX?48:42))/8)*(1-smooth((n-(edoX?61:53))/8));
+  const drop=smooth((n-(edoX?63:56))/(edoX?10:9))*(1-smooth((n-(edoX?81:73))/12));
+  const fade=n<(edoX?105:92)?1:Math.max(0,1-(n-(edoX?105:92))/(edoX?27:26));
   ctx.save();ctx.globalAlpha*=fade;
-  const bone=(pts,w,c)=>path(pts,w,c,.98);
-  ring(12,-171,27+wind*50,18+wind*30,edge,2.5,.3+wind*.35,t*.02);
-  const le=[-42+cross*68,-194+cross*42+drop*22],re=[42+cross*82,-194+cross*42+drop*22],lh=[8+cross*150,-171+cross*34+drop*92],rh=[20+cross*166,-166-cross*18+drop*98];
-  bone([[-42,-207],le],28,dark);bone([[-42,-207],le],19,hot);bone([le,lh],24,dark);bone([le,lh],15,hot);
-  bone([[42,-207],re],28,dark);bone([[42,-207],re],19,hot);bone([re,rh],24,dark);bone([re,rh],15,hot);
-  for(const h of [lh,rh]){const hx=h[0],hy=h[1];ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=2.8;ctx.beginPath();ctx.moveTo(hx-13,hy-12);ctx.lineTo(hx+17,hy-14);ctx.lineTo(hx+24,hy+2);ctx.lineTo(hx+14,hy+19);ctx.lineTo(hx-14,hy+16);ctx.closePath();ctx.fill();ctx.stroke();for(let j=0;j<4;j++)bone([[hx+3+j*3,hy-8],[hx+8+j*4,hy-21+drop*5]],4.2,edge);glow(hx+7,hy,13,edge,.65);}
-  const hitQ=smooth((n-(edoX?37:30))/(edoX?10:9));
-  if(n>=(edoX?36:30)&&n<=(edoX?70:61)){ring(150+drop*28,-65+drop*12,36+hitQ*92,15+hitQ*32,edge,3.5,fade*.88,t*.03);ring(164+drop*22,-58+drop*12,52+hitQ*120,20+hitQ*39,hot,2,fade*.7,-t*.025);}
-  if(edoX&&n>=52&&n<=76){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade*.7;ctx.strokeStyle='#bba0ff';ctx.lineWidth=3;for(let j=0;j<5;j++){ctx.beginPath();ctx.moveTo(35+j*15,-185);ctx.lineTo(120+j*17,8+drop*24);ctx.stroke();}ctx.restore();}
+  const bone=(pts,w,c,a)=>path(pts,w,c,a===undefined?.98:a);
+  const forward=edoX?184:164;
+  const shoulderL=[-42,-207],shoulderR=[42,-207];
+  const elbowL=[-42+wind*20+cross*86+drop*15,-194+wind*8+cross*28+drop*28];
+  const elbowR=[42-wind*8+cross*64+drop*18,-194+wind*8+cross*22+drop*28];
+  const handL=[-18+wind*5+cross*forward+drop*10,-168+wind*7+cross*12+drop*98];
+  const handR=[22-wind*4+cross*(forward+18)+drop*10,-164+wind*4-cross*24+drop*104];
+  ring(12,-171,27+wind*62,18+wind*37,edge,2.7,.3+wind*.55,t*.02);
+  ring(12,-171,18+wind*43,12+wind*25,hot,1.8,.4+wind*.5,-t*.025);
+  for(let i=0;i<7;i++){const a=t*.04+i*Math.PI*2/7;path([[12+Math.cos(a)*22,-171+Math.sin(a)*14],[12+Math.cos(a)*(40+wind*42),-171+Math.sin(a)*(26+wind*26)]],2.1,edge,.35+wind*.5);}
+  for(const side of [-1,1]){
+    const sh=side<0?shoulderL:shoulderR,el=side<0?elbowL:elbowR,hand=side<0?handL:handR;
+    bone([sh,el],31,dark);bone([sh,el],21,hot);bone([el,hand],27,dark);bone([el,hand],17,hot);
+    bone([[sh[0],sh[1]-2],[el[0],el[1]-2]],3.1,edge,.8);bone([[el[0],el[1]-2],[hand[0],hand[1]-2]],2.6,edge,.85);
+    glow(el[0],el[1],13,edge,.8);glow(hand[0],hand[1],16,edge,.9);
+    ctx.save();ctx.translate(hand[0],hand[1]);ctx.rotate(-.12+cross*.25+drop*.24);
+    ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-15,-13);ctx.lineTo(18,-15);ctx.lineTo(30,0);ctx.lineTo(23,21);ctx.lineTo(-15,18);ctx.closePath();ctx.fill();ctx.stroke();
+    for(let j=0;j<4;j++)bone([[7+j*4,-9],[12+j*4,-22+drop*7]],4.5,edge);
+    bone([[-12,2],[-23,10],[-16,17]],5,edge);ctx.restore();
+  }
+  const hitQ=smooth((n-(edoX?39:31))/(edoX?9:8));
+  if(n>=(edoX?39:31)&&n<=(edoX?55:48)){
+    ring(forward+drop*20,-70+drop*8,38+hitQ*106,16+hitQ*35,edge,3.8,fade*.9,t*.035);
+    ring(forward+drop*20,-62+drop*8,54+hitQ*137,21+hitQ*42,hot,2.2,fade*.75,-t*.03);
+    for(let j=0;j<7;j++){const y=-125+j*18;path([[forward-34,y],[forward+90+hitQ*42,y-9]],2.5,edge,fade*.72);}
+  }
+  if(n>=(edoX?62:55)&&n<=(edoX?82:74)){
+    const impactQ=smooth((n-(edoX?68:61))/5);
+    ring(forward+18,-8,42+impactQ*135,12+impactQ*44,edge,4,fade*.9,t*.025);
+    ring(forward+18,-8,65+impactQ*175,18+impactQ*58,hot,2.5,fade*.72,-t*.022);
+    for(let j=0;j<9;j++){const a=j*Math.PI*2/9;path([[forward+18+Math.cos(a)*35,-7+Math.sin(a)*7],[forward+18+Math.cos(a)*(90+impactQ*130),-7+Math.sin(a)*(18+impactQ*24)]],2.6,edge,fade*.78);}
+  }
+  if(edoX&&n>=53&&n<=84){ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade*.8;ctx.strokeStyle='#c6a8ff';ctx.lineWidth=3.5;for(let j=0;j<7;j++){ctx.beginPath();ctx.moveTo(18+j*17,-193);ctx.lineTo(128+j*18,10+drop*28);ctx.stroke();}ctx.restore();}
+  if(recoil>.02){ctx.save();ctx.globalAlpha*=recoil*.6;ring(0,-152,78+recoil*44,48+recoil*18,edge,2.4,.65);ctx.restore();}
   ctx.restore();
  }else if(id==='edo_phase1_grasp'){
   // Oversized foreground hand: the underground arm clearly rises through a cracked seal and clamps down.
@@ -1041,10 +1074,11 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     if(f.itachiPhaseSkillKey==='p1_bones'||f.itachiPhaseSkillKey==='p1_skeletal_x'||f.itachiPhaseSkillKey==='edo_p1_skeletal_x'){
       const frame=f.moveFrame||0,target=f.opp;
       const dist=target&&Number.isFinite(target.x)?Math.abs(target.x-f.x):280;
-      // The rig starts behind Itachi, so the gap is enemy distance PLUS its rear offset.
-      const reach=clamp(dist+backOffset-65,100,520);
-      // Snap into acceleration, hold the forward drive through impact, then recoil.
-      const charge=smooth(frame/5),hold=1-smooth((frame-(f.itachiPhaseSkillKey==='p1_skeletal_x'?54:48))/22),returnPhase=smooth((frame-70)/17);
+      const xSkill=f.itachiPhaseSkillKey==='p1_skeletal_x'||f.itachiPhaseSkillKey==='edo_p1_skeletal_x';
+      const reach=clamp(dist+backOffset-(xSkill?35:65),100,520);
+      const charge=smooth(frame/(xSkill?19:5));
+      const hold=1-smooth((frame-(xSkill?(f.itachiEdo?72:64):48))/18);
+      const returnPhase=smooth((frame-(xSkill?(f.itachiEdo?86:78):70))/15);
       rigLunge=reach*charge*Math.max(hold,0)*(1-returnPhase);
     }
     f.itachiSusanooRigLunge=rigLunge;
