@@ -233,13 +233,17 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
  const armSwing=moving?step*9:Math.sin(t*(stage===0?.038:.052))*(stage===0?5.5:5)*idle;
  const skillKey=owner&&owner.itachiPhaseSkillKey||'';
  const skillFrame=owner&&owner.moveFrame||0;
+  const muscularZ=skillKey==='p2_seal'||skillKey==='edo_p2_gravehand';
+  const muscularWind=muscularZ?smooth(skillFrame/24)*(1-smooth((skillFrame-28)/10)):0;
+  const muscularDrive=muscularZ?smooth((skillFrame-26)/21)*(1-smooth((skillFrame-52)/12)):0;
+  const muscularDrop=muscularZ?smooth((skillFrame-48)/14)*(1-smooth((skillFrame-78)/14)):0;
  const crossSkill=skillKey==='p1_skeletal_x'||skillKey==='edo_p1_skeletal_x';
  const crossWind=crossSkill?smooth(skillFrame/18)*(1-smooth((skillFrame-23)/9)):0;
  const crossSweep=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?25:21))/(skillKey==='edo_p1_skeletal_x'?13:11))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?48:43))/11)):0;
  const crossDrop=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?62:56))/(skillKey==='edo_p1_skeletal_x'?10:9))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:73))/12)):0;
- const armStretch=crossSkill?(8+crossWind*24+crossSweep*52+crossDrop*18):((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?42+smooth(skillFrame/5)*20:8);
- const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):crossSkill?smooth((skillFrame-22)/10)*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:72))/16)):0;
- const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):crossSkill?crossDrop:0;
+  const armStretch=crossSkill?(8+crossWind*24+crossSweep*52+crossDrop*18):((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?42+smooth(skillFrame/5)*20:muscularZ?18+muscularWind*30+muscularDrive*60+muscularDrop*20:8);
+  const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):muscularZ?smooth((skillFrame-7)/14)*(1-smooth((skillFrame-83)/18)):crossSkill?smooth((skillFrame-22)/10)*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:72))/16)):0;
+  const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):muscularZ?muscularDrop:crossSkill?crossDrop:0;
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
  ctx.save();
  // Hard arena-plane occlusion: the canvas does not automatically hide geometry drawn below the floor.
@@ -270,7 +274,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
  const joint=(x,y,r)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.fillStyle=core;ctx.globalAlpha*=.72;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();ctx.restore();};
  // Cinematic crimson-orange chakra flare with a hot rim and directional motion streaks.
  ctx.save();ctx.globalCompositeOperation='lighter';
- const activeDash=skillKey==='p1_bones'||skillKey==='edo_p1_grasp'||crossSkill;
+  const activeDash=skillKey==='p1_bones'||skillKey==='edo_p1_grasp'||muscularZ||crossSkill;
  const flare=activeDash?(.55+.45*Math.sin(skillFrame*.52)):0;
  const aura=ctx.createRadialGradient(0,-155,8,0,-155,activeDash?285:220);
  aura.addColorStop(0,activeDash?'rgba(255,75,30,.58)':(edo?'rgba(211,31,65,.30)':'rgba(255,86,42,.29)'));
@@ -383,12 +387,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
   polygon([[53,-205],[79,-194],[91,-171],[68,-161],[48,-177]],dark,edge,2.2);
   polygon([[-58,-189],[-82,-181],[-102,-159],[-91,-144],[-67,-157]],mid,edge,2);
   polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
-  const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12;
+   const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8-muscularWind*48+muscularDrop*38,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12-muscularWind*78+muscularDrive*110+muscularDrop*75;
   const elbowReach=armStretch*.46+crossSweep*25,handReach=armStretch*1.08;
   bone(-51,-193,-83+sway-elbowReach,ey,17,mid);bone(-83+sway-elbowReach,ey,-119+armSwing-handReach,wy,13,mid);
   bone(51,-193,83-sway+elbowReach,ey,17,mid);bone(83-sway+elbowReach,ey,119-armSwing+handReach,wy,13,mid);
   for(const side of [-1,1]){
-   const hx=side*(119-armSwing+handReach-crossSweep*158)+crossSweep*82,hy=wy;
+    const hx=side*(119-armSwing+handReach-crossSweep*158)+crossSweep*82+(muscularDrive*45*(side>0?1:-1)),hy=wy;
    polygon([[hx-side*7,hy-7],[hx+side*4,hy-13],[hx+side*17,hy-9],[hx+side*22,hy+2],[hx+side*9,hy+6]],dark,edge,1.8);
    for(let j=0;j<4;j++)bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*1.5,3,mid);
   }
@@ -466,7 +470,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
 }
 function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
  const id=f&&f.itachiPhaseSkillKey;if(!id)return;
- const n=f.moveFrame||0,d=f.facing||1,edoX=id==='edo_p1_skeletal_x',hot=edoX?'#9c78ff':(edo?'#bd243f':'#f05232'),edge=edoX?'#e4d6ff':(edo?'#ff5267':'#ffb17a'),dark=edoX?'#24143f':(edo?'#300817':'#451016');
+ const n=f.moveFrame||0,d=f.facing||1,edoX=id==='edo_p1_skeletal_x',gravehandSkill=id==='edo_p2_gravehand',hot=edoX?'#9c78ff':(gravehandSkill?'#873fe0':(edo?'#bd243f':'#f05232')),edge=edoX?'#e4d6ff':(gravehandSkill?'#d9bdff':(edo?'#ff5267':'#ffb17a')),dark=edoX?'#24143f':(edo?'#300817':'#451016');
  const smooth=q=>{q=clamp(q,0,1);return q*q*(3-2*q);};
  const path=(pts,w,color,alpha)=>{ctx.save();ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.lineCap='round';ctx.lineJoin='round';ctx.strokeStyle=dark;ctx.lineWidth=w+7;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=color||hot;ctx.lineWidth=w;ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0],pts[i][1]);ctx.stroke();ctx.strokeStyle=edge;ctx.lineWidth=Math.max(1,w*.14);ctx.beginPath();ctx.moveTo(pts[0][0],pts[0][1]);for(let i=1;i<pts.length;i++)ctx.lineTo(pts[i][0]-1,pts[i][1]-1);ctx.stroke();ctx.restore();};
  const ring=(x,y,rx,ry,color,w,alpha,rot)=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=alpha===undefined?1:alpha;ctx.strokeStyle=color||edge;ctx.lineWidth=w||3;ctx.beginPath();ctx.ellipse(x,y,rx,ry,rot||0,0,Math.PI*2);ctx.stroke();ctx.restore();};
