@@ -218,6 +218,12 @@ const SUSANOO_FRENZY_POSES=[
 function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  const t=frame||0,owner=fighter||null,state=owner&&owner.state||'IDLE';
  const moving=/^(WALK|RUN|DASH)$/.test(state),skill=owner&&owner.itachiPhaseSkillKey;
+ // Track the grounded baseline so the chakra pool stays at arena-floor height during jumps.
+ const verticalSpeed=owner&&Number.isFinite(owner.vy)?owner.vy:0;
+ if(owner){if(!Number.isFinite(owner.itachiSusanooGroundY))owner.itachiSusanooGroundY=owner.y;
+  if(Math.abs(verticalSpeed)<.22&&owner.y>=owner.itachiSusanooGroundY-2&&!(owner.hitstun>0)&&!skill)owner.itachiSusanooGroundY=owner.y;
+ }
+ const jumpRise=owner&&Number.isFinite(owner.y)&&Number.isFinite(owner.itachiSusanooGroundY)?clamp(owner.itachiSusanooGroundY-owner.y,0,170):0;
  const active=!!skill||!!(owner&&owner.move&&!moving&&!['IDLE','LAND','WALK','RUN'].includes(state));
  const idle=active?.2:1,walk=t*.34,step=moving?Math.sin(walk):0;
  const skeletalGuardIdle=stage===0&&!moving&&!skill&&!(owner&&((owner.hitstun||0)>0||state==='HITSTUN'||state==='BLOCK'));
@@ -237,7 +243,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
  ctx.save();
  // Skeletal Susanoo is an ethereal emergence, not a fully grounded statue: keep roughly its lower half below the arena plane.
- if(stage===0)ctx.translate(0,138);
+ if(stage===0)ctx.translate(0,Math.max(0,138-jumpRise/Math.max(.75,rigScale||1)));
  ctx.translate(dashPose*20,dashPose*11-dashImpact*7);ctx.translate(0,-126);ctx.rotate(dashPose*.17-dashImpact*.12);ctx.translate(0,126);
  const bob=moving?Math.abs(Math.sin(walk))*4:Math.sin(t*.047)*2.1*idle;
  const idleHeadTilt=stage===0?Math.sin(t*.019)*idle*.035:0;
@@ -412,7 +418,13 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  if(stage===0){
   // Large chakra pool at the ground intersection, overlaid on submerged bones.
   ctx.save();ctx.globalCompositeOperation='lighter';
-  const pulse=1+.045*Math.sin(t*.055),poolX=0,poolY=-26;
+  const pulse=1+.045*Math.sin(t*.055),poolX=0,poolY=-26+jumpRise/Math.max(.75,rigScale||1);
+  // Ground haze partially obscures the lower ribs at rest and stays at floor height as the rig rises.
+  ctx.globalCompositeOperation='source-over';
+  const veil=ctx.createRadialGradient(poolX,poolY-3,10,poolX,poolY+2,174*pulse);
+  veil.addColorStop(0,'rgba(8,5,15,.42)');veil.addColorStop(.42,'rgba(12,5,17,.28)');veil.addColorStop(.78,'rgba(18,7,21,.12)');veil.addColorStop(1,'rgba(18,4,22,0)');
+  ctx.fillStyle=veil;ctx.beginPath();ctx.ellipse(poolX,poolY,174*pulse,25*pulse,0,0,Math.PI*2);ctx.fill();
+  ctx.globalCompositeOperation='lighter';
   const pool=ctx.createRadialGradient(poolX,poolY,8,poolX,poolY,180*pulse);
   pool.addColorStop(0,edo?'rgba(149,93,255,.48)':'rgba(255,102,54,.43)');
   pool.addColorStop(.38,edo?'rgba(113,58,235,.32)':'rgba(255,63,34,.30)');
