@@ -684,12 +684,19 @@
       if(!e.repeat)taunt(p1);
       return;
     }
-    // X is Itachi P1's Yata Mirror command. Other fighters retain their X controls.
+    // X is Itachi P1's command. While Susanoo is in Phase 1/2, route it
+    // to the phase-skill controller; otherwise keep the legacy Yata/Totsuka move.
     if(e.code==='KeyX'&&p1&&p1.id==='itachi'&&!p1.ai){
       e.preventDefault();e.stopImmediatePropagation();
-      if(!e.repeat&&!Q.cinema&&!p1.move&&['IDLE','WALK'].includes(p1.state)){
-        if(p1.itachiSusanooActive&&window.JFF_ITACHI_SUSANOO_FORM)window.JFF_ITACHI_SUSANOO_FORM.activate(p1,'x');
-        else if(typeof window.startMove==='function')window.startMove(p1,'def');
+      if(!e.repeat&&!Q.cinema&&!p1.move&&['IDLE','WALK','LAND','ATTACK'].includes(p1.state)){
+        if(p1.itachiSusanooActive){
+          const phase=Math.max(1,Math.min(3,Math.round(Number(p1.itachiSusanooPhase)||3)));
+          if(phase<3&&window.JFF_SUSANOO_PHASE_SKILLS&&typeof window.JFF_SUSANOO_PHASE_SKILLS.activate==='function'){
+            window.JFF_SUSANOO_PHASE_SKILLS.activate(p1,2);
+          }else if(window.JFF_ITACHI_SUSANOO_FORM){
+            window.JFF_ITACHI_SUSANOO_FORM.activate(p1,'x');
+          }
+        }else if(typeof window.startMove==='function')window.startMove(p1,'def');
       }
       return;
     }
