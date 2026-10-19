@@ -644,17 +644,24 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   ctx.restore();
   }
  }else if(id==='p2_seal'){
-  const charge=smooth(n/48),sweep=smooth((n-48)/28),fade=n<106?1:Math.max(0,1-(n-106)/42);
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  // Wide chakra crescent and nested sealing rings, with no physical blade.
-  ctx.strokeStyle=dark;ctx.lineWidth=56;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
-  ctx.strokeStyle=hot;ctx.lineWidth=35;ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
-  ctx.strokeStyle=edge;ctx.lineWidth=8;ctx.beginPath();ctx.moveTo(18,-204);ctx.bezierCurveTo(58,-282,162,-278,220,-184);ctx.bezierCurveTo(260,-121,245,-76,212,-55);ctx.stroke();
-  const sx=145+sweep*85,sy=-140+sweep*40;
-  for(let i=0;i<4;i++)ring(sx,sy,22+i*17+charge*9,14+i*11+charge*5, i%2?hot:edge, i===0?3:1.8,.8*fade,t*.02+i*.45);
-  for(let i=0;i<10;i++){const q=i/9,x=28+q*220,y=-255+q*183+Math.sin(t*.17+i)*7;glow(x,y,3+i%3,edge,.68*fade);}
-  ctx.restore();
- }else if(id==='edo_phase2_eclipse'){
+   const wind=smooth(n/26)*(1-smooth((n-29)/9)),drive=smooth((n-27)/20)*(1-smooth((n-51)/10)),slam=smooth((n-48)/13)*(1-smooth((n-76)/14)),fade=n<91?1:Math.max(0,1-(n-91)/34);
+   const reach=clamp((((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*280)-f.x)*d)/Math.max(.8,rigScale||1),120,310);
+   const shoulder=[43,-204],elbow=[lerp(48,reach*.52,wind+drive*.24),lerp(-206,-247,wind)+drive*60+slam*18],wrist=[lerp(26,reach,drive),lerp(-191,-288,wind)+drive*112+slam*100];
+   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;ring(18,-177,28+wind*42,18+wind*25,edge,3,.35+wind*.45,t*.02);
+   path([shoulder,elbow],39,dark,.98);path([shoulder,elbow],29,hot,.98);path([elbow,wrist],33,dark,.98);path([elbow,wrist],24,hot,.98);path([[shoulder[0],shoulder[1]-3],[elbow[0],elbow[1]-3]],3.4,edge,.85);path([[elbow[0],elbow[1]-3],[wrist[0],wrist[1]-3]],3.1,edge,.9);glow(elbow[0],elbow[1],17,edge,.85);glow(wrist[0],wrist[1],24,edge,.95);
+   ctx.save();ctx.translate(wrist[0],wrist[1]);ctx.rotate(-.18+slam*.8);ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(-28,-25,58,52,10);ctx.fill();ctx.stroke();for(let i=0;i<4;i++){const x=-17+i*11;path([[x,-18],[x+2,-31+slam*12],[x+8,-29+slam*13]],6,edge,.98);}path([[-22,2],[-34,12],[-22,21]],7,edge,.98);ctx.restore();
+   if(n>=47&&n<=81){const q=smooth((n-47)/15),alpha=1-smooth((n-69)/12);ring(reach,-5,34+q*145,13+q*42,edge,4,alpha,t*.025);ring(reach,-5,57+q*190,19+q*54,hot,2.4,alpha*.8,-t*.02);for(let i=0;i<10;i++){const a=i*Math.PI/5;path([[reach+Math.cos(a)*35,-5+Math.sin(a)*8],[reach+Math.cos(a)*(88+q*130),-5+Math.sin(a)*(18+q*35)]],2.6,edge,alpha*.82);}}
+   for(let i=0;i<8;i++){const age=(n+i*4)%23,x=lerp(shoulder[0],wrist[0],i/8),y=lerp(shoulder[1],wrist[1],i/8)-age*.8;glow(x,y,2.3,edge,clamp(1-age/23,0,1)*.8);}ctx.restore();
+  }else if(id==='edo_p2_gravehand'){
+   const target=f.itachiPhaseSkillMarks&&f.itachiPhaseSkillMarks.gravehandTarget,tx=clamp((((target&&Number.isFinite(target.x)?target.x:f.x+d*280)-f.x)*d)/Math.max(.8,rigScale||1),125,390);
+   const rise=smooth((n-8)/44),lift=smooth((n-54)/24),close=smooth((n-54)/23),slam=smooth((n-87)/13),fade=n<124?1:Math.max(0,1-(n-124)/35),palmY=34-rise*154-lift*42+slam*46,palmW=52+close*14;
+   ctx.save();ctx.globalAlpha*=fade;ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(8,2,12,.88)';ctx.beginPath();ctx.ellipse(tx,2,94+rise*23,17+rise*5,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=6;ctx.beginPath();ctx.ellipse(tx,1,99+rise*24,18+rise*5,0,0,Math.PI*2);ctx.stroke();ctx.strokeStyle=hot;ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(tx,1,73+rise*19,12+rise*4,0,0,Math.PI*2);ctx.stroke();
+   for(let i=0;i<10;i++){const a=i*Math.PI/5;path([[tx+Math.cos(a)*50,Math.sin(a)*8],[tx+Math.cos(a)*(102+rise*20),Math.sin(a)*14-3]],3.5,edge,.9);}
+   path([[tx-35,44],[tx-39,15],[tx-31,palmY+38],[tx-19,palmY+14]],43,dark,.99);path([[tx-35,44],[tx-39,15],[tx-31,palmY+38],[tx-19,palmY+14]],29,hot,.99);path([[tx+35,44],[tx+39,15],[tx+31,palmY+38],[tx+19,palmY+14]],43,dark,.99);path([[tx+35,44],[tx+39,15],[tx+31,palmY+38],[tx+19,palmY+14]],29,hot,.99);
+   ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(tx-palmW,palmY-27,palmW*2,58,17);ctx.fill();ctx.stroke();ctx.save();ctx.globalAlpha*=.42;ctx.fillStyle=hot;ctx.fillRect(tx-palmW+8,palmY-18,palmW*2-16,36);ctx.restore();
+   for(let finger=0;finger<5;finger++){const spread=(finger-2)*28,fan=spread*(1-close*.84),bx=tx+spread*.42,mx=tx+fan*.8,tip=tx+fan,by=palmY-14,my=palmY-58-rise*7+close*31,ty=palmY-89-rise*10+close*(finger===2?50:62)+slam*10;path([[bx,by],[mx,my],[tip,ty]],18,dark,.99);path([[bx,by],[mx,my],[tip,ty]],10,hot,.99);path([[bx-2,by-2],[mx-2,my-3],[tip-2,ty-2]],2.3,edge,.98);glow(tip,ty,9,edge,.9);}
+   if(n>68){const q=smooth((n-68)/24);ring(tx,palmY-6,55+q*110,21+q*38,edge,4,.95,t*.02);ring(tx,palmY-6,74+q*140,28+q*47,hot,2.5,.8,-t*.024);}if(n>=86&&n<=112){const q=smooth((n-86)/8);ring(tx,2,55+q*180,13+q*47,edge,5,1-smooth((n-103)/10),t*.018);for(let i=0;i<9;i++){const a=i*Math.PI*2/9;path([[tx+Math.cos(a)*35,2+Math.sin(a)*6],[tx+Math.cos(a)*(100+q*100),2+Math.sin(a)*(20+q*28)]],3,edge,.9);}}ctx.restore();
+  }else if(id==='edo_phase2_eclipse'){
   // Black Ash Eclipse: a remote black sun grows above the opponent and collapses in stacked shock-rings.
   const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*300)-f.x)*d,130,520),ty=-155;
   const open=smooth(n/35),collapse=smooth((n-64)/22),fade=n<94?1:Math.max(0,1-(n-94)/36);
