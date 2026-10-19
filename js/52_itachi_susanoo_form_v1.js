@@ -249,7 +249,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   // Fixed world-space floor plane: local y=-236 maps to the fighter's ground line.
   // The skeletal rig rises through this plane during jumps, revealing its submerged lower half.
   const rise=jumpRise/Math.max(.75,rigScale||1);
-  const groundCut=-236;
+  const groundCut=-150;
   ctx.beginPath();ctx.rect(-1400,-1100,2800,1100+groundCut);ctx.clip();
   ctx.translate(0,-rise);
  }
@@ -1119,7 +1119,7 @@ if(typeof previousDrawFighter==='function')window.drawFighter=function(f){
     const size=phase===3?(f.itachiEdo?1.88:1.64):(phase===1?(f.itachiEdo?2.03:1.98):(f.itachiEdo?2.12:2.06));
     const backOffset=Math.round(size*(f.itachiEdo?43:39));
     // Phase 1's ground plane is local y=-236, including the internal -126 body offset.
-    const baseY=f.y+(phase===1?236:34)*size;
+    const baseY=f.y+(phase===1?150:34)*size;
     // Phase-1 Grave Slam moves the giant Susanoo rig independently of Itachi.
     let rigLunge=0;
     if(f.itachiPhaseSkillKey==='p1_bones'||f.itachiPhaseSkillKey==='p1_skeletal_x'||f.itachiPhaseSkillKey==='edo_p1_skeletal_x'){
