@@ -215,7 +215,7 @@ const SUSANOO_FRENZY_POSES=[
  {f:76,torso:-.09,l1:[-78,-181],l2:[-42,-144],r1:[98,-184],r2:[131,-148],s:1.05,kl:[-30,-56],al:[-34,-27],kr:[35,-57],ar:[39,-27]},
  {f:96,torso:-.12,l1:[-82,-181],l2:[-50,-143],r1:[87,-180],r2:[119,-154],s:.64,kl:[-31,-56],al:[-34,-27],kr:[33,-56],ar:[37,-27]}
 ];
-function drawSummonPhase(frame,stage,edo,fighter,rigScale){
+function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
  const t=frame||0,owner=fighter||null,state=owner&&owner.state||'IDLE';
  const moving=/^(WALK|RUN|DASH)$/.test(state),skill=owner&&owner.itachiPhaseSkillKey;
  // Track the grounded baseline so the chakra pool stays at arena-floor height during jumps.
@@ -428,7 +428,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   // Irregular surface-level chakra puddle, not a geometric sealing matrix.
   // Vertical compensation keeps the puddle planted on the arena floor during jumps.
   ctx.save();
-  const pulse=1+.035*Math.sin(t*.052),poolX=0,poolY=-150+jumpRise/Math.max(.75,rigScale||1);
+  const pulse=1+.035*Math.sin(t*.052),poolX=0,poolY=(owner&&Number.isFinite(owner.itachiSusanooGroundY)&&Number.isFinite(rigBaseY)?(owner.itachiSusanooGroundY-rigBaseY)/Math.max(.75,rigScale||1):(-150+jumpRise/Math.max(.75,rigScale||1)));
   const hot=edo?'rgba(203,166,255,.9)':'rgba(255,150,95,.92)';
   ctx.globalCompositeOperation='source-over';
   const shadow=ctx.createRadialGradient(poolX,poolY,8,poolX,poolY,190*pulse);
@@ -733,7 +733,7 @@ function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   const edoForm=!!(f&&f.itachiEdo),edoIdle=edoForm,idleBreath=Math.sin(t*.035),idleSway=Math.sin(t*.022);
   const shellDark=edoForm?'#211020':'#19070e',shellMid=edoForm?'#561b40':'#682033',shellHot=edoForm?'#a33b68':'#d96a4c',shellEdge=edoForm?'#e0a6d0':'#ff9c70',coreGlow=edoForm?'#e0c6ff':'#ffff99';
   // The selected phase owns idle and attack visuals; Phase 1/2 skills never fall through to the armored rig.
-   if(sceneMode==='battle'){const selectedPhase=clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);if(selectedPhase<3){drawSummonPhase(t,selectedPhase-1,edoForm,f,scale);ctx.restore();return;}}
+   if(sceneMode==='battle'){const selectedPhase=clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);if(selectedPhase<3){drawSummonPhase(t,selectedPhase-1,edoForm,f,scale,baseY);ctx.restore();return;}}
   // Summon cinematic evolves automatically through skeletal, muscular, and armored forms.
   if(awakening){const summonStage=edoForm?(n<19?0:(n<42?1:2)):(n<48?0:(n<108?1:2));if(summonStage<2){drawSummonPhase(n,summonStage,edoForm);ctx.restore();return;}}
   const heavy=cinematicSlash||k==='sus_m1',guard=k==='sus_z',thrust=cinematicSlam||k==='sus_x',
