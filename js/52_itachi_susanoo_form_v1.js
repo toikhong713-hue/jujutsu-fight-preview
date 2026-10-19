@@ -247,7 +247,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
  // revealing the submerged bones naturally instead of merely painting a translucent haze over them.
  if(stage===0){
   const rise=jumpRise/Math.max(.75,rigScale||1);
-  const groundCut=-62+rise;
+  const groundCut=-142+rise;
   ctx.beginPath();ctx.rect(-1400,-1100,2800,1100+groundCut);ctx.clip();
   ctx.translate(0,-rise);
  }
