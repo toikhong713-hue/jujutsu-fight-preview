@@ -428,7 +428,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale){
   // Irregular surface-level chakra puddle, not a geometric sealing matrix.
   // Vertical compensation keeps the puddle planted on the arena floor during jumps.
   ctx.save();
-  const pulse=1+.035*Math.sin(t*.052),poolX=0,poolY=-26+jumpRise/Math.max(.75,rigScale||1);
+  const pulse=1+.035*Math.sin(t*.052),poolX=0,poolY=-150+jumpRise/Math.max(.75,rigScale||1);
   const hot=edo?'rgba(203,166,255,.9)':'rgba(255,150,95,.92)';
   ctx.globalCompositeOperation='source-over';
   const shadow=ctx.createRadialGradient(poolX,poolY,8,poolX,poolY,190*pulse);
