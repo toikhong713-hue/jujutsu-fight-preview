@@ -241,7 +241,7 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
  const crossWind=crossSkill?smooth(skillFrame/18)*(1-smooth((skillFrame-23)/9)):0;
  const crossSweep=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?25:21))/(skillKey==='edo_p1_skeletal_x'?13:11))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?48:43))/11)):0;
  const crossDrop=crossSkill?smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?62:56))/(skillKey==='edo_p1_skeletal_x'?10:9))*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:73))/12)):0;
-  const armStretch=crossSkill?(8+crossWind*24+crossSweep*52+crossDrop*18):((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?42+smooth(skillFrame/5)*20:muscularZ?18+muscularWind*30+muscularDrive*60+muscularDrop*20:8);
+  const armStretch=crossSkill?(8+crossWind*24+crossSweep*52+crossDrop*18):((skillKey==='p1_bones'||skillKey==='edo_p1_grasp')?42+smooth(skillFrame/5)*20:8);
   const dashPose=skillKey==='p1_bones'?smooth((skillFrame-2)/9)*(1-smooth((skillFrame-57)/19)):skillKey==='edo_p1_grasp'?smooth(skillFrame/7)*(1-smooth((skillFrame-38)/12)):muscularZ?smooth((skillFrame-7)/14)*(1-smooth((skillFrame-83)/18)):crossSkill?smooth((skillFrame-22)/10)*(1-smooth((skillFrame-(skillKey==='edo_p1_skeletal_x'?80:72))/16)):0;
   const dashImpact=skillKey==='p1_bones'?smooth((skillFrame-39)/7)*(1-smooth((skillFrame-57)/12)):muscularZ?muscularDrop:crossSkill?crossDrop:0;
  // Animate the titan's body mass into a forward-driving crouch; the player stays anchored.
@@ -387,12 +387,18 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
   polygon([[53,-205],[79,-194],[91,-171],[68,-161],[48,-177]],dark,edge,2.2);
   polygon([[-58,-189],[-82,-181],[-102,-159],[-91,-144],[-67,-157]],mid,edge,2);
   polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
-   const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8-muscularWind*48+muscularDrop*38,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12-muscularWind*78+muscularDrive*110+muscularDrop*75;
+   const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12;
   const elbowReach=armStretch*.46+crossSweep*25,handReach=armStretch*1.08;
-  bone(-51,-193,-83+sway-elbowReach,ey,17,mid);bone(-83+sway-elbowReach,ey,-119+armSwing-handReach,wy,13,mid);
-  bone(51,-193,83-sway+elbowReach,ey,17,mid);bone(83-sway+elbowReach,ey,119-armSwing+handReach,wy,13,mid);
+  const leftElbowX=-83+sway*.35-crossWind*10,leftElbowY=-166+muscularWind*7;
+  const leftHandX=-119+armSwing*.25,leftHandY=-126+muscularWind*8;
+  const rightElbowX=83-sway+crossSweep*25+muscularWind*18-muscularDrive*14+muscularDrop*10;
+  const rightElbowY=-176-muscularWind*43+muscularDrive*31+muscularDrop*22;
+  const rightHandX=119-armSwing+muscularWind*10+muscularDrive*76-muscularDrop*12;
+  const rightHandY=-137-muscularWind*98+muscularDrive*112+muscularDrop*92;
+  bone(-51,-193,leftElbowX,leftElbowY,17,mid);bone(leftElbowX,leftElbowY,leftHandX,leftHandY,13,mid);
+  bone(51,-193,rightElbowX,rightElbowY,17,mid);bone(rightElbowX,rightElbowY,rightHandX,rightHandY,13,mid);
   for(const side of [-1,1]){
-    const hx=side*(119-armSwing+handReach-crossSweep*158)+crossSweep*82+(muscularDrive*45*(side>0?1:-1)),hy=wy;
+    const hx=side<0?leftHandX:rightHandX,hy=side<0?leftHandY:rightHandY;
    polygon([[hx-side*7,hy-7],[hx+side*4,hy-13],[hx+side*17,hy-9],[hx+side*22,hy+2],[hx+side*9,hy+6]],dark,edge,1.8);
    for(let j=0;j<4;j++)bone(hx+side*j*2,hy+1,hx+side*(8+j*3),hy-10-j*1.5,3,mid);
   }
@@ -648,14 +654,13 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   ctx.restore();
   }
  }else if(id==='p2_seal'){
-   const wind=smooth(n/26)*(1-smooth((n-29)/9)),drive=smooth((n-27)/20)*(1-smooth((n-51)/10)),slam=smooth((n-48)/13)*(1-smooth((n-76)/14)),fade=n<91?1:Math.max(0,1-(n-91)/34);
-   const reach=clamp((((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*280)-f.x)*d)/Math.max(.8,rigScale||1),120,310);
-   const shoulder=[43,-204],elbow=[lerp(48,reach*.52,wind+drive*.24),lerp(-206,-247,wind)+drive*60+slam*18],wrist=[lerp(26,reach,drive),lerp(-191,-288,wind)+drive*112+slam*100];
-   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;ring(18,-177,28+wind*42,18+wind*25,edge,3,.35+wind*.45,t*.02);
-   path([shoulder,elbow],39,dark,.98);path([shoulder,elbow],29,hot,.98);path([elbow,wrist],33,dark,.98);path([elbow,wrist],24,hot,.98);path([[shoulder[0],shoulder[1]-3],[elbow[0],elbow[1]-3]],3.4,edge,.85);path([[elbow[0],elbow[1]-3],[wrist[0],wrist[1]-3]],3.1,edge,.9);glow(elbow[0],elbow[1],17,edge,.85);glow(wrist[0],wrist[1],24,edge,.95);
-   ctx.save();ctx.translate(wrist[0],wrist[1]);ctx.rotate(-.18+slam*.8);ctx.fillStyle=dark;ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.beginPath();ctx.roundRect(-28,-25,58,52,10);ctx.fill();ctx.stroke();for(let i=0;i<4;i++){const x=-17+i*11;path([[x,-18],[x+2,-31+slam*12],[x+8,-29+slam*13]],6,edge,.98);}path([[-22,2],[-34,12],[-22,21]],7,edge,.98);ctx.restore();
-   if(n>=47&&n<=81){const q=smooth((n-47)/15),alpha=1-smooth((n-69)/12);ring(reach,-5,34+q*145,13+q*42,edge,4,alpha,t*.025);ring(reach,-5,57+q*190,19+q*54,hot,2.4,alpha*.8,-t*.02);for(let i=0;i<10;i++){const a=i*Math.PI/5;path([[reach+Math.cos(a)*35,-5+Math.sin(a)*8],[reach+Math.cos(a)*(88+q*130),-5+Math.sin(a)*(18+q*35)]],2.6,edge,alpha*.82);}}
-   for(let i=0;i<8;i++){const age=(n+i*4)%23,x=lerp(shoulder[0],wrist[0],i/8),y=lerp(shoulder[1],wrist[1],i/8)-age*.8;glow(x,y,2.3,edge,clamp(1-age/23,0,1)*.8);}ctx.restore();
+   // No duplicate limb here: the main Phase 2 rig performs the whole attack.
+   // This branch contributes only timed ground/impact accents.
+   const wind=smooth(n/26)*(1-smooth((n-29)/9)),drive=smooth((n-27)/20)*(1-smooth((n-51)/10)),slam=smooth((n-48)/13)*(1-smooth((n-76)/14));
+   ctx.save();ctx.globalCompositeOperation='lighter';
+   if(n>=12&&n<=43){ring(28,-188,26+wind*36,15+wind*24,edge,2.4,.42+wind*.2,t*.025);glow(28,-188,15+wind*8,hot,.55);}
+   if(n>=46&&n<=83){const q=smooth((n-46)/13),alpha=1-smooth((n-72)/11);ring(95+drive*65,-35+slam*75,32+q*128,12+q*40,edge,3.4,alpha,t*.025);ring(95+drive*65,-35+slam*75,54+q*155,18+q*52,hot,2,alpha*.78,-t*.02);for(let i=0;i<8;i++){const a=i*Math.PI/4;path([[95+drive*65+Math.cos(a)*28,-35+slam*75+Math.sin(a)*8],[95+drive*65+Math.cos(a)*(70+q*105),-35+slam*75+Math.sin(a)*(20+q*30)]],2.5,edge,alpha*.8);}}
+   ctx.restore();
   }else if(id==='edo_p2_gravehand'){
    const target=f.itachiPhaseSkillMarks&&f.itachiPhaseSkillMarks.gravehandTarget,tx=clamp((((target&&Number.isFinite(target.x)?target.x:f.x+d*280)-f.x)*d)/Math.max(.8,rigScale||1),125,390);
    const rise=smooth((n-8)/44),lift=smooth((n-54)/24),close=smooth((n-54)/23),slam=smooth((n-87)/13),fade=n<124?1:Math.max(0,1-(n-124)/35),palmY=34-rise*154-lift*42+slam*46,palmW=52+close*14;
