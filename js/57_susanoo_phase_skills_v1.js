@@ -296,12 +296,16 @@ function updateSkill(f){
   if(n===104&&!f.itachiPhaseSkillMarks.gravehandSlam){f.itachiPhaseSkillMarks.gravehandSlam=true;const target=f.itachiPhaseSkillMarks.gravehandTarget&&alive(f.itachiPhaseSkillMarks.gravehandTarget)?f.itachiPhaseSkillMarks.gravehandTarget:o;const ok=hitTarget(f,31,680,{hitstun:40,kbx:d*15,kby:-8,hitstop:15,armorBreak:true,vertical:300,fx:false});const tx=alive(target)?target.x:f.x+d*260,ty=alive(target)?target.y:f.y;fx('explosion',tx,ty-20,42,{ash:true});fx('shock',tx,ty+2,52,{ash:true});fx('crows',tx,ty-45,24,{ash:true});impact(ok?.32:.12,'#a73b79',ok?16:4);if(ok&&typeof window.floatText==='function')window.floatText(tx,ty-130,'GRAVEHAND CATACLYSM','#e7caff',14,44);}
   if(n>=162)finishSkill(f); }else if(id==='p2_guard'){
   if(n===1){f.itachiPhaseGuardUntil=t+78;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;fx('reflect',f.x+d*94,f.y-145,30);fx('seal',f.x+d*94,f.y-145,24);impact(.06,'#ff9666',2);}
-  if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);}
+  if(n===10){fx('reflect',f.x+d*100,f.y-150,28);fx('shock',f.x+d*86,f.y-112,18);}
+  if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);fx('fire',f.x+d*96,f.y-156,18);}
   if(f.itachiPhaseGuardTriggered&&n===34&&!f.itachiPhaseGuardCounterHit){
    f.itachiPhaseGuardCounterHit=true;const target=f.itachiPhaseGuardTarget||o;
-   const ok=hitTarget(f,31,420,{hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:200,fx:false});
-   if(ok){const waveX=f.x+d*170,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,36);fx('shock',waveX,waveY,48);fx('explosion',f.x+d*235,f.y-85,40);fx('seal',target.x,target.y-115,30);impact(.25,'#ff7449',13);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA SHOCKWAVE','#ffd7b8',14,40);}
+   const ok=hitTarget(f,31,455,{hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:220,fx:false});
+   if(ok){const waveX=f.x+d*190,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,42);fx('shock',waveX,waveY,52);fx('explosion',f.x+d*245,f.y-85,42);fx('fire',f.x+d*175,f.y-120,26);fx('seal',target.x,target.y-115,30);impact(.28,'#ff7449',14);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA COUNTERBREAK','#ffd7b8',14,40);}
+   else{fx('shock',f.x+d*165,f.y-110,28);impact(.1,'#ff7449',4);}
   }
+  if(n===40){fx('shock',f.x+d*170,f.y-100,32);fx('reflect',f.x+d*140,f.y-142,26);}
+  if(n===48){fx('fire',f.x+d*120,f.y-80,24);fx('shock',f.x+d*105,f.y+2,30);}
   if(n===80)f.itachiPhaseGuardUntil=0;
   if(n>=144){f.itachiPhaseGuardUntil=0;finishSkill(f);}
  }else if(id==='edo_p2_eclipse'){
