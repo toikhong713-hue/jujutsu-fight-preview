@@ -234,6 +234,9 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
  const skillKey=owner&&owner.itachiPhaseSkillKey||'';
  const skillFrame=owner&&owner.moveFrame||0;
   const muscularZ=skillKey==='p2_seal'||skillKey==='edo_p2_gravehand';
+  const muscularX=skillKey==='p2_guard';
+  const muscularXBrace=muscularX?smooth(skillFrame/12)*(1-smooth((skillFrame-26)/10)):0;
+  const muscularXCounter=muscularX?smooth((skillFrame-26)/8)*(1-smooth((skillFrame-43)/13)):0;
    // Longer, readable key poses: gather -> recoil -> explosive drive -> ground-follow-through -> recovery.
    const muscularRegularZ=skillKey==='p2_seal';
    const muscularWind=muscularZ?smooth(skillFrame/(muscularRegularZ?34:24))*(1-smooth((skillFrame-(muscularRegularZ?39:28))/(muscularRegularZ?12:10))):0;
@@ -393,12 +396,12 @@ function drawSummonPhase(frame,stage,edo,fighter,rigScale,rigBaseY){
   polygon([[58,-189],[82,-181],[102,-159],[91,-144],[67,-157]],mid,edge,2);
    const ey=-176+armSwing*.45+crossWind*18-crossSweep*12+crossDrop*25+dashPose*8,wy=-137+armSwing*.9+crossWind*20-crossSweep*25+crossDrop*54+dashPose*12;
   const elbowReach=armStretch*.46+crossSweep*25,handReach=armStretch*1.08;
-  const leftElbowX=-83+sway*.35-crossWind*10,leftElbowY=-166+muscularWind*7;
-  const leftHandX=-119+armSwing*.25,leftHandY=-126+muscularWind*8;
-  const rightElbowX=83-sway+crossSweep*25+muscularWind*18-muscularDrive*14+muscularDrop*10-muscularRecoil*18+muscularFollow*5;
-  const rightElbowY=-176-muscularWind*43+muscularDrive*31+muscularDrop*22+muscularRecoil*15+muscularFollow*7;
-  const rightHandX=119-armSwing+muscularWind*10+muscularDrive*(muscularRegularZ?104:76)-muscularDrop*12-muscularRecoil*30+muscularFollow*14;
-  const rightHandY=-137-muscularWind*98+muscularDrive*(muscularRegularZ?132:112)+muscularDrop*(muscularRegularZ?116:92)+muscularRecoil*24+muscularFollow*18;
+  const leftElbowX=-83+sway*.35-crossWind*10+muscularXBrace*28-muscularXCounter*14,leftElbowY=-166+muscularWind*7-muscularXBrace*15+muscularXCounter*5;
+  const leftHandX=-119+armSwing*.25+muscularXBrace*52-muscularXCounter*28,leftHandY=-126+muscularWind*8-muscularXBrace*19+muscularXCounter*7;
+  const rightElbowX=83-sway+crossSweep*25+muscularWind*18-muscularDrive*14+muscularDrop*10-muscularRecoil*18+muscularFollow*5-muscularXBrace*22+muscularXCounter*38;
+  const rightElbowY=-176-muscularWind*43+muscularDrive*31+muscularDrop*22+muscularRecoil*15+muscularFollow*7-muscularXBrace*12-muscularXCounter*24;
+  const rightHandX=119-armSwing+muscularWind*10+muscularDrive*(muscularRegularZ?104:76)-muscularDrop*12-muscularRecoil*30+muscularFollow*14-muscularXBrace*48+muscularXCounter*102;
+  const rightHandY=-137-muscularWind*98+muscularDrive*(muscularRegularZ?132:112)+muscularDrop*(muscularRegularZ?116:92)+muscularRecoil*24+muscularFollow*18-muscularXBrace*48+muscularXCounter*46;
   bone(-51,-193,leftElbowX,leftElbowY,17,mid);bone(leftElbowX,leftElbowY,leftHandX,leftHandY,13,mid);
   bone(51,-193,rightElbowX,rightElbowY,17,mid);bone(rightElbowX,rightElbowY,rightHandX,rightHandY,13,mid);
   for(const side of [-1,1]){
@@ -707,48 +710,48 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   if(n>61){const q=smooth((n-61)/20);ring(tx,ty,36+q*175,20+q*82,edge,5,q,t*.025);ring(tx,ty,50+q*195,28+q*94,hot,2.4,q*.82,-t*.018);}
   ctx.restore();
  }else if(id==='p2_guard'){
-  const guard=smooth(n/12),counter=smooth((n-82)/12),fade=n<110?1:Math.max(0,1-(n-110)/28);
-  const sx=112,sy=-150;
-  if(edo){
-   // Edo X: Black Ash Eclipse. A remote seal opens around the opponent and contracts into a crimson-black implosion.
-   const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*270)-f.x)*d,145,470),ty=-105;
-   const charge=smooth(n/38),collapse=smooth((n-57)/31),fade=n<95?1:Math.max(0,1-(n-95)/39);
+   // Phase 2 X: visible Yata brace followed by a broad counter-sweep. Gameplay parry remains authoritative.
+   const guard=smooth(n/12),counter=smooth((n-26)/8)*(1-smooth((n-47)/14)),fade=n<104?1:Math.max(0,1-(n-104)/34);
+   const sx=112,sy=-150;
    if(!edo){
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-   for(let layer=0;layer<4;layer++){
-    const rr=(72+layer*24)*(1-collapse)+collapse*(18+layer*8);
-    ctx.save();ctx.translate(tx,ty);ctx.rotate((layer%2?1:-1)*(t*.025+n*.012));
-    ctx.beginPath();ctx.ellipse(0,0,rr,rr*(.52+layer*.035),0,0,Math.PI*2);
-    ctx.strokeStyle=layer%2?hot:edge;ctx.lineWidth=layer===0?5:2.2;ctx.stroke();ctx.restore();
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
+    const shieldPulse=1+guard*.12+Math.sin(t*.24)*.035;
+    ctx.translate(sx,sy);ctx.scale(shieldPulse,shieldPulse);
+    ctx.beginPath();ctx.moveTo(0,-70);ctx.lineTo(46,-48);ctx.lineTo(55,-8);ctx.lineTo(38,39);ctx.lineTo(0,63);ctx.lineTo(-38,39);ctx.lineTo(-55,-8);ctx.lineTo(-46,-48);ctx.closePath();
+    ctx.fillStyle='rgba(255,91,55,.32)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
+    for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-2,59+i*13+guard*9,72+i*13+guard*9,t*.02+i*.6,0,Math.PI*2);ctx.strokeStyle=i===1?hot:edge;ctx.lineWidth=i===1?3.4:1.6;ctx.stroke();}
+    for(let i=0;i<8;i++){const a=t*.06+i*Math.PI/4;path([[Math.cos(a)*20,Math.sin(a)*24],[Math.cos(a)*(54+guard*20),Math.sin(a)*(62+guard*15)]],2.5,edge,.65+guard*.25);}
+    ctx.restore();
+    if(n>=28&&n<=66){
+     const q=smooth((n-28)/8),a=(1-smooth((n-57)/10))*(.42+counter*.58);
+     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=a;
+     ctx.beginPath();ctx.moveTo(52,-178);ctx.lineTo(150,-198-q*20);ctx.quadraticCurveTo(258,-151,158,-104+q*23);ctx.lineTo(52,-128);ctx.closePath();
+     ctx.fillStyle='rgba(255,110,62,.4)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
+     ctx.beginPath();ctx.ellipse(178,-145,40+q*150,18+q*68,-.06,0,Math.PI*2);ctx.strokeStyle=hot;ctx.lineWidth=3;ctx.stroke();
+     for(let j=0;j<9;j++){const yy=-185+j*10;path([[62,yy],[115+q*120,yy+(j-4)*4]],2.4,edge,.72);}
+     ctx.restore();
+    }
+    if(n>=30&&n<=48){const q=smooth((n-30)/5),a=1-smooth((n-42)/7);glow(130,-152,24+q*36,hot,.85*a);ring(130,-152,35+q*90,17+q*42,edge,4,a,t*.05);}
+   }else{
+    const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*270)-f.x)*d,145,470),ty=-105;
+    const charge=smooth(n/28),collapse=smooth((n-29)/24),ashFade=n<92?1:Math.max(0,1-(n-92)/40);
+    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=ashFade;
+    for(let layer=0;layer<5;layer++){
+     const rr=(72+layer*22)*(1-collapse)+collapse*(16+layer*7);
+     ctx.save();ctx.translate(tx,ty);ctx.rotate((layer%2?1:-1)*(t*.025+n*.012));
+     ctx.beginPath();ctx.ellipse(0,0,rr,rr*(.48+layer*.035),0,0,Math.PI*2);
+     ctx.strokeStyle=layer%2?hot:edge;ctx.lineWidth=layer===0?5:2.2;ctx.stroke();ctx.restore();
+    }
+    ctx.save();ctx.translate(tx,ty);ctx.rotate(-t*.02);
+    ctx.beginPath();ctx.arc(0,0,25+charge*17,0,Math.PI*2);ctx.fillStyle='rgba(10,3,12,.72)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.5;ctx.stroke();
+    for(let j=0;j<10;j++){const a=j*Math.PI/5+t*.03,inner=24+collapse*28,outer=78*(1-collapse)+collapse*34;path([[Math.cos(a)*inner,Math.sin(a)*inner],[Math.cos(a+.14)*outer,Math.sin(a+.14)*outer]],3,edge,.9);}
+    ctx.restore();
+    if(n>32){for(let j=0;j<10;j++){const a=j*2.399+t*.04,rr=18+(1-collapse)*105;glow(tx+Math.cos(a)*rr,ty+Math.sin(a)*rr*.55,2.7,edge,.78*ashFade);}}
+    if(n>31){ring(tx,ty,35+collapse*145,18+collapse*64,edge,4,collapse*.9,t*.03);ring(tx,ty,50+collapse*175,26+collapse*76,hot,2.5,collapse*.72,-t*.02);}
+    ctx.restore();
    }
-   ctx.save();ctx.translate(tx,ty);ctx.rotate(-t*.02);
-   ctx.beginPath();ctx.arc(0,0,28+charge*16,0,Math.PI*2);ctx.fillStyle='rgba(10,3,12,'+(.35+collapse*.45)+')';ctx.fill();
-   ctx.strokeStyle=edge;ctx.lineWidth=3.5;ctx.stroke();
-   for(let j=0;j<8;j++){const a=j*Math.PI/4+t*.03,inner=24+collapse*28,outer=74*(1-collapse)+collapse*33;path([[Math.cos(a)*inner,Math.sin(a)*inner],[Math.cos(a+.14)*outer,Math.sin(a+.14)*outer]],3,edge,.85);}
-   ctx.restore();
-   if(n>55){for(let j=0;j<7;j++){const a=j*2.399+t*.04,rr=18+(1-collapse)*90;glow(tx+Math.cos(a)*rr,ty+Math.sin(a)*rr*.55,2.5,edge,.75*fade);}}
-   if(n>82){ring(tx,ty,40+collapse*90,20+collapse*45,edge,4,collapse*.85,t*.03);}
-   ctx.restore();
   }
-  ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-  ctx.translate(sx,sy);ctx.rotate(Math.sin(t*.035)*.035);
-  ctx.beginPath();ctx.moveTo(0,-70);ctx.lineTo(46,-48);ctx.lineTo(55,-8);ctx.lineTo(38,39);ctx.lineTo(0,63);ctx.lineTo(-38,39);ctx.lineTo(-55,-8);ctx.lineTo(-46,-48);ctx.closePath();
-  ctx.fillStyle=edo?'rgba(128,20,54,.42)':'rgba(255,91,55,.32)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
-  for(let i=0;i<3;i++){ctx.beginPath();ctx.ellipse(0,-2,63+i*12+guard*5,76+i*13+guard*5,t*.02+i*.6,0,Math.PI*2);ctx.strokeStyle=i===1?hot:edge;ctx.lineWidth=i===1?3:1.6;ctx.stroke();}
-  for(let i=0;i<6;i++){const a=t*.06+i*Math.PI/3;path([[Math.cos(a)*20,Math.sin(a)*24],[Math.cos(a)*(55+counter*90),Math.sin(a)*(62+counter*25)]],2.5,edge,.7+counter*.3);}
-  ctx.restore();
-  if(n>78&&n<118){
-   const q=smooth((n-78)/16),spread=34+q*185;
-   ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=counter*.62;
-   ctx.beginPath();ctx.moveTo(47,-176);ctx.lineTo(160,-176-spread*.22);ctx.quadraticCurveTo(250,-145,160,-114+spread*.18);ctx.lineTo(47,-128);ctx.closePath();
-   ctx.fillStyle=edo?'rgba(187,27,66,.42)':'rgba(255,93,52,.38)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.5;ctx.stroke();
-   ctx.restore();
-   ring(180,-145,30+counter*170,16+counter*80,edge,5,counter*.9);ring(180,-145,46+counter*190,24+counter*90,hot,2.4,counter*.8);
-   for(let j=0;j<5;j++){const yy=-166+j*10;path([[65,yy],[110+q*80,yy+(j-2)*5]],2.2,edge,.65*counter);}
-  }
-  }
- }
- if(edo&&(n%4===0)){ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#b6a9b9';for(let i=0;i<5;i++){const x=Math.sin(t*.14+i*2.5)*(25+i*14),y=-70-((t*2+i*27)%170);ctx.save();ctx.translate(x,y);ctx.rotate(t*.03+i);ctx.fillRect(-2,-4,4,7);ctx.restore();}ctx.restore();}
+  if(edo&&(n%4===0)){ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#b6a9b9';for(let i=0;i<5;i++){const x=Math.sin(t*.14+i*2.5)*(25+i*14),y=-70-((t*2+i*27)%170);ctx.save();ctx.translate(x,y);ctx.rotate(t*.03+i);ctx.fillRect(-2,-4,4,7);ctx.restore();}ctx.restore();}
 }
 function drawSusanooRig(f,x,baseY,scale,phase,alpha,sceneMode){
   if(typeof ctx==='undefined')return;
