@@ -92,7 +92,7 @@ function finishSkill(f){
  f.move=null;f.moveKey=null;f.moveFrame=0;f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.itachiPoseKey='';f.itachiSusanooAction='';f.vx*=.2;
 }
 function hitTarget(f,damage,range,opts){
- const o=f&&f.opp;if(!alive(f)||!alive(o))return false;
+ const o=cfg.target||f&&f.opp;if(!alive(f)||!alive(o))return false;
  const d=f.facing||1,dx=(o.x-f.x)*d,cfg=opts||{};
  if(dx< -40||dx>range||Math.abs(o.y-f.y)>(cfg.vertical||180))return false;
  const mv={damage,hitstun:cfg.hitstun||25,blockstun:cfg.blockstun===undefined?10:cfg.blockstun,kbx:cfg.kbx===undefined?d*7:cfg.kbx,kby:cfg.kby===undefined?-2:cfg.kby,hitstop:cfg.hitstop||8,meter:cfg.meter===undefined?6:cfg.meter,armorBreak:!!cfg.armorBreak,kind:'special',type:'chakra',susanoo:true};
@@ -298,9 +298,9 @@ function updateSkill(f){
   if(n===1){f.itachiPhaseGuardUntil=t+78;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;fx('reflect',f.x+d*94,f.y-145,30);fx('seal',f.x+d*94,f.y-145,24);impact(.06,'#ff9666',2);}
   if(n===10){fx('reflect',f.x+d*100,f.y-150,28);fx('shock',f.x+d*86,f.y-112,18);}
   if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);fx('fire',f.x+d*96,f.y-156,18);}
-  if(f.itachiPhaseGuardTriggered&&n===34&&!f.itachiPhaseGuardCounterHit){
+  if(f.itachiPhaseGuardTriggered&&n>=34&&!f.itachiPhaseGuardCounterHit){
    f.itachiPhaseGuardCounterHit=true;const target=f.itachiPhaseGuardTarget||o;
-   const ok=hitTarget(f,31,455,{hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:220,fx:false});
+   const ok=hitTarget(f,31,455,{target,hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:220,fx:false});
    if(ok){const waveX=f.x+d*190,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,42);fx('shock',waveX,waveY,52);fx('explosion',f.x+d*245,f.y-85,42);fx('fire',f.x+d*175,f.y-120,26);fx('seal',target.x,target.y-115,30);impact(.28,'#ff7449',14);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA COUNTERBREAK','#ffd7b8',14,40);}
    else{fx('shock',f.x+d*165,f.y-110,28);impact(.1,'#ff7449',4);}
   }
