@@ -92,8 +92,8 @@ function finishSkill(f){
  f.move=null;f.moveKey=null;f.moveFrame=0;f.state=alive(f)?'IDLE':'DEFEAT';f.stateFrame=0;f.itachiPoseKey='';f.itachiSusanooAction='';f.vx*=.2;
 }
 function hitTarget(f,damage,range,opts){
- const o=cfg.target||f&&f.opp;if(!alive(f)||!alive(o))return false;
- const d=f.facing||1,dx=(o.x-f.x)*d,cfg=opts||{};
+ const cfg=opts||{},o=cfg.target||f&&f.opp;if(!alive(f)||!alive(o))return false;
+ const d=f.facing||1,dx=(o.x-f.x)*d;
  if(dx< -40||dx>range||Math.abs(o.y-f.y)>(cfg.vertical||180))return false;
  const mv={damage,hitstun:cfg.hitstun||25,blockstun:cfg.blockstun===undefined?10:cfg.blockstun,kbx:cfg.kbx===undefined?d*7:cfg.kbx,kby:cfg.kby===undefined?-2:cfg.kby,hitstop:cfg.hitstop||8,meter:cfg.meter===undefined?6:cfg.meter,armorBreak:!!cfg.armorBreak,kind:'special',type:'chakra',susanoo:true};
  const result=typeof window.resolveHit==='function'?window.resolveHit(f,o,mv,f.x+d*Math.min(range,Math.max(75,dx)),f.y-105):'whiff';
