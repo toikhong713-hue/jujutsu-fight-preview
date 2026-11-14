@@ -710,46 +710,8 @@ function drawPhaseCombatMotion(f,stage,edo,t,rigScale){
   if(n>61){const q=smooth((n-61)/20);ring(tx,ty,36+q*175,20+q*82,edge,5,q,t*.025);ring(tx,ty,50+q*195,28+q*94,hot,2.4,q*.82,-t*.018);}
   ctx.restore();
  }else if(id==='p2_guard'){
-   // Phase 2 X: visible Yata brace followed by a broad counter-sweep. Gameplay parry remains authoritative.
-   const guard=smooth(n/12),counter=smooth((n-26)/8)*(1-smooth((n-47)/14)),fade=n<104?1:Math.max(0,1-(n-104)/34);
-   const sx=112,sy=-150;
-   if(!edo){
-    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=fade;
-    const shieldPulse=1+guard*.12+Math.sin(t*.24)*.035;
-    ctx.translate(sx,sy);ctx.scale(shieldPulse,shieldPulse);
-    ctx.beginPath();ctx.moveTo(0,-70);ctx.lineTo(46,-48);ctx.lineTo(55,-8);ctx.lineTo(38,39);ctx.lineTo(0,63);ctx.lineTo(-38,39);ctx.lineTo(-55,-8);ctx.lineTo(-46,-48);ctx.closePath();
-    ctx.fillStyle='rgba(255,91,55,.32)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
-    for(let i=0;i<4;i++){ctx.beginPath();ctx.ellipse(0,-2,59+i*13+guard*9,72+i*13+guard*9,t*.02+i*.6,0,Math.PI*2);ctx.strokeStyle=i===1?hot:edge;ctx.lineWidth=i===1?3.4:1.6;ctx.stroke();}
-    for(let i=0;i<8;i++){const a=t*.06+i*Math.PI/4;path([[Math.cos(a)*20,Math.sin(a)*24],[Math.cos(a)*(54+guard*20),Math.sin(a)*(62+guard*15)]],2.5,edge,.65+guard*.25);}
-    ctx.restore();
-    if(n>=28&&n<=66){
-     const q=smooth((n-28)/8),a=(1-smooth((n-57)/10))*(.42+counter*.58);
-     ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=a;
-     ctx.beginPath();ctx.moveTo(52,-178);ctx.lineTo(150,-198-q*20);ctx.quadraticCurveTo(258,-151,158,-104+q*23);ctx.lineTo(52,-128);ctx.closePath();
-     ctx.fillStyle='rgba(255,110,62,.4)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=4;ctx.stroke();
-     ctx.beginPath();ctx.ellipse(178,-145,40+q*150,18+q*68,-.06,0,Math.PI*2);ctx.strokeStyle=hot;ctx.lineWidth=3;ctx.stroke();
-     for(let j=0;j<9;j++){const yy=-185+j*10;path([[62,yy],[115+q*120,yy+(j-4)*4]],2.4,edge,.72);}
-     ctx.restore();
-    }
-    if(n>=30&&n<=48){const q=smooth((n-30)/5),a=1-smooth((n-42)/7);glow(130,-152,24+q*36,hot,.85*a);ring(130,-152,35+q*90,17+q*42,edge,4,a,t*.05);}
-   }else{
-    const tx=clamp(((f.opp&&Number.isFinite(f.opp.x)?f.opp.x:f.x+d*270)-f.x)*d,145,470),ty=-105;
-    const charge=smooth(n/28),collapse=smooth((n-29)/24),ashFade=n<92?1:Math.max(0,1-(n-92)/40);
-    ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha*=ashFade;
-    for(let layer=0;layer<5;layer++){
-     const rr=(72+layer*22)*(1-collapse)+collapse*(16+layer*7);
-     ctx.save();ctx.translate(tx,ty);ctx.rotate((layer%2?1:-1)*(t*.025+n*.012));
-     ctx.beginPath();ctx.ellipse(0,0,rr,rr*(.48+layer*.035),0,0,Math.PI*2);
-     ctx.strokeStyle=layer%2?hot:edge;ctx.lineWidth=layer===0?5:2.2;ctx.stroke();ctx.restore();
-    }
-    ctx.save();ctx.translate(tx,ty);ctx.rotate(-t*.02);
-    ctx.beginPath();ctx.arc(0,0,25+charge*17,0,Math.PI*2);ctx.fillStyle='rgba(10,3,12,.72)';ctx.fill();ctx.strokeStyle=edge;ctx.lineWidth=3.5;ctx.stroke();
-    for(let j=0;j<10;j++){const a=j*Math.PI/5+t*.03,inner=24+collapse*28,outer=78*(1-collapse)+collapse*34;path([[Math.cos(a)*inner,Math.sin(a)*inner],[Math.cos(a+.14)*outer,Math.sin(a+.14)*outer]],3,edge,.9);}
-    ctx.restore();
-    if(n>32){for(let j=0;j<10;j++){const a=j*2.399+t*.04,rr=18+(1-collapse)*105;glow(tx+Math.cos(a)*rr,ty+Math.sin(a)*rr*.55,2.7,edge,.78*ashFade);}}
-    if(n>31){ring(tx,ty,35+collapse*145,18+collapse*64,edge,4,collapse*.9,t*.03);ring(tx,ty,50+collapse*175,26+collapse*76,hot,2.5,collapse*.72,-t*.02);}
-    ctx.restore();
-   }
+   // Legacy canvas shield and counter-sweep removed.
+   // Phase 2 X is now rendered only by the dedicated Eight Trigrams SVG stage in js/57.
   }
   if(edo&&(n%4===0)){ctx.save();ctx.globalAlpha*=.55;ctx.fillStyle='#b6a9b9';for(let i=0;i<5;i++){const x=Math.sin(t*.14+i*2.5)*(25+i*14),y=-70-((t*2+i*27)%170);ctx.save();ctx.translate(x,y);ctx.rotate(t*.03+i);ctx.fillRect(-2,-4,4,7);ctx.restore();}ctx.restore();}
 }
