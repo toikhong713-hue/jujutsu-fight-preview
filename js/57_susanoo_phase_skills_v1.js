@@ -24,7 +24,7 @@ const skills={
  edo_p1_rift:{name:'Edo · Crow Rift Collapse',cd:450,hp:0,duration:108,visual:'edo_phase1_rift'},
  p2_seal:{name:'Muscular Susanoo · Gravebreaker',cd:600,hp:6,duration:172,visual:'phase2_gravebreaker'},
  edo_p2_gravehand:{name:'Edo Muscular Susanoo · Gravehand Cataclysm',cd:630,hp:0,duration:162,visual:'edo_phase2_gravehand'},
- p2_guard:{name:'Prismatic Chakra Guard',cd:540,hp:5,duration:144,visual:'phase2_guard'},
+ p2_guard:{name:'Yata Mirror · Divine Reversal',cd:540,hp:5,duration:144,visual:'phase2_guard'},
  edo_p2_eclipse:{name:'Edo · Black Ash Eclipse',cd:600,hp:0,duration:132,visual:'edo_phase2_eclipse'}
 };
 function phaseOf(f){return clamp(Math.round(Number(f&&f.itachiSusanooPhase)||3),1,3);}
