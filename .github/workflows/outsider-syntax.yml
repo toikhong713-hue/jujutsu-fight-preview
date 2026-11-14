@@ -9,6 +9,7 @@ on:
       - 'js/34_pixijs_vfx_prototype_v37.js'
       - 'js/44_itachi_outsider.js'
       - 'js/45_outsider_render_pipeline.js'
+      - 'js/52_itachi_susanoo_form_v1.js'
       - 'js/57_susanoo_phase_skills_v1.js'
       - 'js/58_auto_update_manager.js'
   pull_request:
@@ -20,6 +21,7 @@ on:
       - 'js/34_pixijs_vfx_prototype_v37.js'
       - 'js/44_itachi_outsider.js'
       - 'js/45_outsider_render_pipeline.js'
+      - 'js/52_itachi_susanoo_form_v1.js'
       - 'js/57_susanoo_phase_skills_v1.js'
       - 'js/58_auto_update_manager.js'
 jobs:
@@ -38,5 +40,6 @@ jobs:
           node --check js/34_pixijs_vfx_prototype_v37.js
           node --check js/44_itachi_outsider.js
           node --check js/45_outsider_render_pipeline.js
+          node --check js/52_itachi_susanoo_form_v1.js
           node --check js/57_susanoo_phase_skills_v1.js
           node --check js/58_auto_update_manager.js
