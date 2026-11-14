@@ -299,10 +299,29 @@ function updateSkill(f){
   if(n===10){fx('reflect',f.x+d*100,f.y-150,28);fx('shock',f.x+d*86,f.y-112,18);}
   if(n===24){fx('reflect',f.x+d*104,f.y-145,35);fx('shock',f.x+d*108,f.y-90,25);fx('fire',f.x+d*96,f.y-156,18);}
   if(f.itachiPhaseGuardTriggered&&n>=34&&!f.itachiPhaseGuardCounterHit){
-   f.itachiPhaseGuardCounterHit=true;const target=f.itachiPhaseGuardTarget||o;
-   const ok=hitTarget(f,31,455,{target,hitstun:38,kbx:d*12,kby:-4,hitstop:12,vertical:220,fx:false});
-   if(ok){const waveX=f.x+d*190,waveY=f.y-105;fx('reflect',f.x+d*105,f.y-145,42);fx('shock',waveX,waveY,52);fx('explosion',f.x+d*245,f.y-85,42);fx('fire',f.x+d*175,f.y-120,26);fx('seal',target.x,target.y-115,30);impact(.28,'#ff7449',14);if(typeof window.floatText==='function')window.floatText(target.x,target.y-178,'YATA COUNTERBREAK','#ffd7b8',14,40);}
-   else{fx('shock',f.x+d*165,f.y-110,28);impact(.1,'#ff7449',4);}
+   f.itachiPhaseGuardCounterHit=true;
+   const target=f.itachiPhaseGuardTarget||o;
+   if(alive(target)){
+    // Re-aim at the exact attacker captured by the guard. Heavy Yata counter
+    // deliberately breaks temporary attack invulnerability via armorBreak.
+    f.facing=target.x>=f.x?1:-1;
+    const dir=f.facing||1;
+    const ok=hitTarget(f,42,620,{target,hitstun:46,kbx:dir*16,kby:-7,hitstop:18,meter:10,armorBreak:true,vertical:280,fx:false});
+    if(ok){
+     fx('reflect',f.x+dir*112,f.y-150,48);
+     fx('seal',f.x+dir*112,f.y-150,34);
+     fx('shock',target.x,target.y-82,58);
+     fx('explosion',target.x,target.y-92,58);
+     fx('fire',target.x-dir*28,target.y-118,38);
+     fx('crows',target.x,target.y-150,22);
+     impact(.34,'#ff633f',18);
+     if(typeof window.floatText==='function')window.floatText(target.x,target.y-188,'YATA MIRROR · DIVINE REVERSAL','#ffe0c7',15,48);
+    }else{
+     // No false hit-confirm: retain only a brief mirror-collapse cue.
+     fx('reflect',f.x+dir*105,f.y-145,24);
+     impact(.08,'#ff7449',3);
+    }
+   }
   }
   if(n===40){fx('shock',f.x+d*170,f.y-100,32);fx('reflect',f.x+d*140,f.y-142,26);}
   if(n===48){fx('fire',f.x+d*120,f.y-80,24);fx('shock',f.x+d*105,f.y+2,30);}
