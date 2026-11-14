@@ -9,7 +9,7 @@ on:
       - 'js/34_pixijs_vfx_prototype_v37.js'
       - 'js/44_itachi_outsider.js'
       - 'js/45_outsider_render_pipeline.js'
-      - 'js/46_itachi_combat_overhaul.js'
+      - 'js/58_auto_update_manager.js'
   pull_request:
     branches: [main]
     paths:
@@ -19,7 +19,7 @@ on:
       - 'js/34_pixijs_vfx_prototype_v37.js'
       - 'js/44_itachi_outsider.js'
       - 'js/45_outsider_render_pipeline.js'
-      - 'js/46_itachi_combat_overhaul.js'
+      - 'js/58_auto_update_manager.js'
 jobs:
   syntax:
     runs-on: ubuntu-latest
@@ -36,4 +36,4 @@ jobs:
           node --check js/34_pixijs_vfx_prototype_v37.js
           node --check js/44_itachi_outsider.js
           node --check js/45_outsider_render_pipeline.js
-          node --check js/46_itachi_combat_overhaul.js
+          node --check js/58_auto_update_manager.js
