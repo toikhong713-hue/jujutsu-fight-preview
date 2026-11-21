@@ -431,7 +431,7 @@ const oldResolve=window.resolveHit;
 function frontFacing(def,att){return (def.facing||1)===(Math.sign(att.x-def.x)||1);}
 if(typeof oldResolve==='function')window.resolveHit=function(attacker,defender,mv,hx,hy){
  const t=now();
- if(defender&&alive(defender)&&alive(attacker)&&attacker!==defender&&mv&&defender.itachiPhaseSkillKey==='p2_guard'&&!defender.itachiEdo&&Number(defender.moveFrame)<=66&&!defender.itachiPhaseGuardTriggered&&frontFacing(defender,attacker)){
+ if(defender&&alive(defender)&&alive(attacker)&&attacker!==defender&&mv&&defender.itachiPhaseSkillKey==='p2_guard'&&!defender.itachiEdo&&!defender.itachiPhaseGuardTriggered&&frontFacing(defender,attacker)){
   // Use the skill's own animation frame, not the global tick clock, so hit timing cannot drift.
   defender.itachiPhaseGuardTriggered=true;defender.itachiPhaseGuardTarget=attacker;defender.itachiPhaseGuardParryFrame=Number(defender.moveFrame)||0;defender.itachiPhaseGuardUntil=0;
   attacker.vx=0;attacker.vy=0;attacker.hitstun=Math.max(attacker.hitstun||0,16);attacker.state='HITSTUN';attacker.stateFrame=0;attacker.move=null;attacker.moveKey=null;attacker.moveFrame=0;
@@ -512,6 +512,6 @@ if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseGuardUntil=0;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardCounterHit=false;f.itachiPhaseGuardParryFrame=0;f.itachiPhaseGuardCounterFrame=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;delete f.itachiPhaseSlowBase;}return oldReset.apply(this,arguments);};
 }
-window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:10,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
-console.info('[Susanoo] Phase 1/2 abilities rebuilt; Yata Divine Reversal v3 active for Normal Itachi Phase 2 X.');
+window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:11,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
+console.info('[Susanoo] Phase 1/2 abilities rebuilt; Yata Divine Reversal v4 active for Normal Itachi Phase 2 X.');
 })();
