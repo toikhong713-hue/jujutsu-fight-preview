@@ -198,50 +198,57 @@ function yataRoot(){
 }
 function drawYataMirror(){
  const svg=yataRoot();if(!svg)return;
- const owner=fighters().find(f=>f&&f.id==='itachi'&&f.itachiPhaseSkillKey==='p2_guard'&&f.move);
+ const owner=fighters().find(f=>f&&f.id==='itachi'&&!f.itachiEdo&&f.itachiPhaseSkillKey==='p2_guard'&&f.move);
  if(!owner){svg.innerHTML='';return;}
  const n=clamp(Number(owner.moveFrame)||0,0,112),dir=owner.facing||1;
  const p=gravePoint(owner.x+dir*104,owner.y-144),z=p.s||1;
- const enter=clamp(n/8,0,1),fade=n>86?clamp(1-(n-86)/26,0,1):1;
+ const ease=v=>v*v*(3-2*v);
+ const enter=ease(clamp(n/9,0,1)),fade=n>91?clamp(1-(n-91)/21,0,1):1;
  const parryFrame=Number(owner.itachiPhaseGuardParryFrame)||0;
- const parryAge=owner.itachiPhaseGuardTriggered?Math.max(0,n-parryFrame):99;
- const burst=owner.itachiPhaseGuardTriggered?clamp(1-parryAge/30,0,1):0;
- const radius=1+Math.sin(n*.2)*.018+burst*.075;
- let spokes='';
+ const parryAge=owner.itachiPhaseGuardTriggered?Math.max(0,n-parryFrame):999;
+ const burst=owner.itachiPhaseGuardTriggered?clamp(1-parryAge/25,0,1):0;
+ const counterFrame=Number(owner.itachiPhaseGuardCounterFrame)||0;
+ const counterAge=counterFrame?Math.max(0,n-counterFrame):999;
+ const beam=counterFrame?clamp(1-counterAge/18,0,1):0;
+ const target=owner.itachiPhaseGuardTarget;
+ const tp=target&&alive(target)?gravePoint(target.x,target.y-76):null;
+ const radius=1+Math.sin(n*.19)*.014+burst*.11;
+ let spokes='',trigrams='',runes='';
  for(let i=0;i<8;i++){
-  spokes+='<g transform="rotate('+(i*45)+')"><path d="M0 -63 L0 -77" stroke="#fff4dd" stroke-width="2.2" opacity=".9"/><path d="M-7 -69 L0 -75 L7 -69" fill="none" stroke="#ffbd78" stroke-width="1.4"/></g>';
- }
- let trigrams='';
- for(let i=0;i<8;i++){
-  const bars=i%2===0?'<path d="M-10 -38 H10 M-10 -32 H10 M-10 -26 H10" />':'<path d="M-10 -38 H-2 M3 -38 H10 M-10 -32 H10 M-10 -26 H-2 M3 -26 H10" />';
-  trigrams+='<g transform="rotate('+(i*45)+')" fill="none" stroke="#ffd7a3" stroke-width="2.2" stroke-linecap="round">'+bars+'</g>';
+  spokes+='<g transform="rotate('+(i*45)+')"><path d="M0 -63 L0 -79" stroke="#fff8e8" stroke-width="2.6"/><path d="M-7 -70 L0 -78 L7 -70" fill="none" stroke="#ffbd78" stroke-width="1.6"/></g>';
+  const bars=i%2===0?'<path d="M-10 -38 H10 M-10 -32 H10 M-10 -26 H10"/>':'<path d="M-10 -38 H-2 M3 -38 H10 M-10 -32 H10 M-10 -26 H-2 M3 -26 H10"/>';
+  trigrams+='<g transform="rotate('+(i*45)+')" fill="none" stroke="#ffe2b8" stroke-width="2.4" stroke-linecap="round">'+bars+'</g>';
+  runes+='<g transform="rotate('+(i*45)+')"><circle cx="0" cy="-96" r="2.2" fill="#fff0c9"/><path d="M0 -101 L0 -106" stroke="#ffb45f" stroke-width="1.8"/></g>';
  }
  const x=p.x.toFixed(1),y=p.y.toFixed(1),sc=(z*radius).toFixed(3);
+ const beamMarkup=tp&&beam>.01?'<g opacity="'+beam.toFixed(3)+'"><path d="M'+(p.x+dir*18).toFixed(1)+' '+p.y.toFixed(1)+' L'+tp.x.toFixed(1)+' '+tp.y.toFixed(1)+'" stroke="#ff6b42" stroke-width="'+(19*beam+2).toFixed(1)+'" opacity=".24" filter="url(#yataGlow)"/><path d="M'+(p.x+dir*18).toFixed(1)+' '+p.y.toFixed(1)+' L'+tp.x.toFixed(1)+' '+tp.y.toFixed(1)+'" stroke="url(#yataBeam)" stroke-width="'+(5*beam+1).toFixed(1)+'" stroke-linecap="round"/><path d="M'+(p.x+dir*18).toFixed(1)+' '+p.y.toFixed(1)+' L'+tp.x.toFixed(1)+' '+tp.y.toFixed(1)+'" stroke="#fff8dd" stroke-width="'+(1.5*beam).toFixed(1)+'" stroke-linecap="round"/></g>':'';
  svg.innerHTML=
   '<defs>'+
-   '<radialGradient id="yataGlass"><stop offset="0" stop-color="#fff8e9" stop-opacity=".98"/><stop offset=".22" stop-color="#ffd49a" stop-opacity=".72"/><stop offset=".58" stop-color="#a83c31" stop-opacity=".62"/><stop offset="1" stop-color="#210f19" stop-opacity=".94"/></radialGradient>'+
-   '<linearGradient id="yataGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff3c9"/><stop offset=".35" stop-color="#ffb35e"/><stop offset=".72" stop-color="#a94332"/><stop offset="1" stop-color="#fff0bd"/></linearGradient>'+
-   '<filter id="yataGlow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'+
-  '</defs>'+
+   '<radialGradient id="yataGlass"><stop offset="0" stop-color="#fffdf2" stop-opacity=".98"/><stop offset=".2" stop-color="#ffd99e" stop-opacity=".82"/><stop offset=".58" stop-color="#a83c31" stop-opacity=".72"/><stop offset="1" stop-color="#210f19" stop-opacity=".96"/></radialGradient>'+
+   '<linearGradient id="yataGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff8d9"/><stop offset=".32" stop-color="#ffc36e"/><stop offset=".7" stop-color="#a94332"/><stop offset="1" stop-color="#fff0bd"/></linearGradient>'+
+   '<linearGradient id="yataBeam"><stop stop-color="#fff9d9"/><stop offset=".28" stop-color="#ffc16d"/><stop offset=".72" stop-color="#ff633f"/><stop offset="1" stop-color="#fff1ca"/></linearGradient>'+
+   '<filter id="yataGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="7" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>'+
+  '</defs>'+beamMarkup+
   '<g transform="translate('+x+' '+y+') scale('+sc+')" opacity="'+(enter*fade).toFixed(3)+'">'+
-   '<ellipse cx="0" cy="7" rx="99" ry="22" fill="#08070b" opacity=".42"/>'+
+   '<ellipse cx="0" cy="8" rx="105" ry="23" fill="#08070b" opacity=".5"/>'+
+   '<circle r="'+(118+burst*28).toFixed(1)+'" fill="none" stroke="#ff9e58" stroke-width="'+(1.6+burst*3).toFixed(1)+'" stroke-dasharray="5 9" opacity="'+(.38+burst*.55).toFixed(2)+'"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="5s" repeatCount="indefinite"/></circle>'+
+   '<g transform="rotate('+(n*1.45+parryAge*2.1).toFixed(1)+')" opacity=".8"><circle r="108" fill="none" stroke="#ffd28b" stroke-width="1.5" stroke-dasharray="18 8 3 8"/><circle r="98" fill="none" stroke="#fff0c9" stroke-width="1" stroke-dasharray="2 12"/></g>'+
    '<g filter="url(#yataGlow)">'+
-    '<path d="M0 -88 L62 -62 L88 0 L62 62 L0 88 L-62 62 L-88 0 L-62 -62 Z" fill="#170c14" stroke="url(#yataGold)" stroke-width="5"/>'+
-    '<path d="M0 -75 L53 -53 L75 0 L53 53 L0 75 L-53 53 L-75 0 L-53 -53 Z" fill="url(#yataGlass)" stroke="#ffe0ad" stroke-width="2.4"/>'+
-    '<circle r="58" fill="none" stroke="#fff1d1" stroke-width="1.8" opacity=".88"/>'+
+    '<path d="M0 -88 L62 -62 L88 0 L62 62 L0 88 L-62 62 L-88 0 L-62 -62 Z" fill="#170c14" stroke="url(#yataGold)" stroke-width="6"/>'+
+    '<path d="M0 -75 L53 -53 L75 0 L53 53 L0 75 L-53 53 L-75 0 L-53 -53 Z" fill="url(#yataGlass)" stroke="#ffe7bd" stroke-width="2.8"/>'+
+    '<circle r="58" fill="none" stroke="#fff1d1" stroke-width="2" opacity=".92"/>'+
     '<circle r="47" fill="none" stroke="#d98a56" stroke-width="2" stroke-dasharray="3 5"/>'+
-    spokes+trigrams+
-    '<circle r="23" fill="#35151b" stroke="#fff0ca" stroke-width="2.5"/>'+
-    '<circle r="15" fill="none" stroke="#ffbd78" stroke-width="2"/>'+
-    '<path d="M0 -13 C14 -13 14 2 0 2 C-14 2 -14 17 0 17" fill="none" stroke="#fff0d5" stroke-width="3"/>'+
-    '<circle cx="0" cy="-6" r="3.2" fill="#fff8e9"/><circle cx="0" cy="9" r="3.2" fill="#ffbd78"/>'+
+    spokes+trigrams+runes+
+    '<circle r="23" fill="#35151b" stroke="#fff4d5" stroke-width="3"/><circle r="15" fill="none" stroke="#ffbd78" stroke-width="2.5"/>'+
+    '<path d="M0 -13 C14 -13 14 2 0 2 C-14 2 -14 17 0 17" fill="none" stroke="#fff8e8" stroke-width="3.5"/>'+
+    '<circle cx="0" cy="-6" r="3.6" fill="#fffdf2"/><circle cx="0" cy="9" r="3.6" fill="#ffbd78"/>'+
    '</g>'+
-   '<path d="M0 -108 L0 -94 M108 0 L94 0 M0 108 L0 94 M-108 0 L-94 0" stroke="#fff0cf" stroke-width="3" opacity=".8"/>'+
-   '<circle r="'+(104+burst*30).toFixed(1)+'" fill="none" stroke="'+(burst>.05?'#fff7df':'#ffad68')+'" stroke-width="'+(2+burst*5).toFixed(1)+'" opacity="'+(.34+burst*.62).toFixed(2)+'"/>'+
-   (burst>.02?'<path d="M-120 0 L-78 -14 L-98 0 L-78 14 Z M120 0 L78 -14 L98 0 L78 14 Z" fill="#fff5db" opacity="'+burst.toFixed(2)+'"/>':'')+
+   '<path d="M0 -108 L0 -94 M108 0 L94 0 M0 108 L0 94 M-108 0 L-94 0" stroke="#fff5d9" stroke-width="3.5" opacity=".9"/>'+
+   '<circle r="'+(104+burst*42).toFixed(1)+'" fill="none" stroke="'+(burst>.05?'#fff9e6':'#ffad68')+'" stroke-width="'+(2+burst*6).toFixed(1)+'" opacity="'+(.38+burst*.6).toFixed(2)+'"/>'+
+   (burst>.02?'<path d="M-130 0 L-78 -16 L-101 0 L-78 16 Z M130 0 L78 -16 L101 0 L78 16 Z" fill="#fff8e5" opacity="'+burst.toFixed(2)+'"/>':'')+
+   (beam>.02?'<circle r="128" fill="none" stroke="#fff6d8" stroke-width="'+(2+beam*4).toFixed(1)+'" opacity="'+beam.toFixed(2)+'"/>':'')+
   '</g>';
 }
-
 function updateSkill(f){
  const id=f.itachiPhaseSkillKey;if(!id||!f.move){finishSkill(f);return;}
  const n=(f.moveFrame||0)+1,o=f.opp,d=f.facing||1,t=now();f.moveFrame=n;f.itachiPoseKey=f.moveKey;f.itachiSusanooAction=f.moveKey;
@@ -352,34 +359,40 @@ function updateSkill(f){
   if(n===86){const target=f.itachiPhaseSkillMarks.gravehandTarget;if(alive(target)){target.vx=(f.x-target.x)*.045;target.vy=-2;fx('shock',target.x,target.y-18,28,{ash:true});}}
   if(n===104&&!f.itachiPhaseSkillMarks.gravehandSlam){f.itachiPhaseSkillMarks.gravehandSlam=true;const target=f.itachiPhaseSkillMarks.gravehandTarget&&alive(f.itachiPhaseSkillMarks.gravehandTarget)?f.itachiPhaseSkillMarks.gravehandTarget:o;const ok=hitTarget(f,31,680,{hitstun:40,kbx:d*15,kby:-8,hitstop:15,armorBreak:true,vertical:300,fx:false});const tx=alive(target)?target.x:f.x+d*260,ty=alive(target)?target.y:f.y;fx('explosion',tx,ty-20,42,{ash:true});fx('shock',tx,ty+2,52,{ash:true});fx('crows',tx,ty-45,24,{ash:true});impact(ok?.32:.12,'#a73b79',ok?16:4);if(ok&&typeof window.floatText==='function')window.floatText(tx,ty-130,'GRAVEHAND CATACLYSM','#e7caff',14,44);}
   if(n>=162)finishSkill(f); }else if(id==='p2_guard'){
-  // Eight Trigrams stance: a short, front-facing parry window. Only a real parry can trigger the return strike.
+  // Divine Reversal: a single clean parry feeds one resolver-backed counter.
   if(n===1){
    f.vx=0;f.vy=0;f.itachiPhaseGuardUntil=t+66;f.itachiPhaseGuardTriggered=false;
    f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardCounterHit=false;
    f.itachiPhaseGuardParryFrame=0;f.itachiPhaseGuardCounterFrame=0;
+   f.itachiPhaseSkillMarks.yataCounterResolved=false;
    fx('seal',f.x+d*104,f.y-144,30);fx('reflect',f.x+d*104,f.y-144,38);
-   fx('shock',f.x+d*85,f.y-22,22);impact(.07,'#ffbd78',3);
+   fx('shock',f.x+d*85,f.y-22,22);impact(.08,'#ffbd78',3);
   }
   if(n===9){fx('seal',f.x+d*105,f.y-145,24);fx('reflect',f.x+d*104,f.y-145,26);}
   if(n===20&&!f.itachiPhaseGuardTriggered){fx('shock',f.x+d*110,f.y-120,24);}
-  if(f.itachiPhaseGuardTriggered&&n>=32&&!f.itachiPhaseGuardCounterHit){
+  if(f.itachiPhaseGuardTriggered&&n>=29&&!f.itachiPhaseGuardCounterHit){
    f.itachiPhaseGuardCounterHit=true;f.itachiPhaseGuardCounterFrame=n;
    const target=f.itachiPhaseGuardTarget;
    if(alive(target)&&Math.abs(target.x-f.x)<=920&&Math.abs(target.y-f.y)<=360){
     const dir=target.x>=f.x?1:-1;f.facing=dir;
     fx('reflect',f.x+dir*112,f.y-148,46);fx('seal',f.x+dir*112,f.y-148,34);
-    fx('shock',target.x,target.y-78,46);impact(.18,'#fff0ca',8);
+    fx('shock',target.x,target.y-78,46);impact(.2,'#fff0ca',9);
     const result=typeof window.resolveHit==='function'
-     ?window.resolveHit(f,target,{damage:46,hitstun:48,blockstun:12,kbx:dir*18,kby:-9,hitstop:18,meter:11,armorBreak:true,kind:'special',type:'chakra',susanoo:true},target.x,target.y-72)
+     ?window.resolveHit(f,target,{damage:42,hitstun:46,blockstun:10,kbx:dir*17,kby:-8,hitstop:16,meter:10,armorBreak:true,kind:'special',type:'chakra',susanoo:true},target.x,target.y-72)
      :'whiff';
-    if(result==='hit'||result==='block'){
-     fx('explosion',target.x,target.y-88,58);fx('shock',target.x,target.y-22,64);
-     fx('fire',target.x-dir*30,target.y-122,38);fx('crows',target.x,target.y-146,24);
-     impact(.4,'#ff6b48',20);
-     if(typeof window.floatText==='function')window.floatText(target.x,target.y-190,'YATA MIRROR · EIGHT TRIGRAMS','#fff0ca',15,50);
+    f.itachiPhaseSkillMarks.yataCounterResolved=result==='hit';
+    if(result==='hit'){
+     fx('explosion',target.x,target.y-88,54);fx('shock',target.x,target.y-22,58);
+     fx('fire',target.x-dir*30,target.y-122,34);fx('crows',target.x,target.y-146,22);
+     impact(.38,'#ff6b48',18);
+     if(typeof SFX!=='undefined'&&SFX.hit)SFX.hit(.95);
+     if(typeof window.floatText==='function')window.floatText(target.x,target.y-190,'YATA MIRROR · DIVINE REVERSAL 42','#fff0ca',15,50);
+    }else if(result==='block'){
+     fx('reflect',target.x,target.y-92,28);impact(.12,'#ffbd78',5);
+     if(typeof window.floatText==='function')window.floatText(target.x,target.y-170,'COUNTER BLOCKED','#ffd7ad',11,30);
     }else{
      fx('reflect',target.x,target.y-92,28);impact(.09,'#ff9d6d',4);
-     if(typeof window.floatText==='function')window.floatText(f.x,f.y-196,'MIRROR REVERSED · NO DAMAGE','#ffd7ad',11,30);
+     if(typeof window.floatText==='function')window.floatText(f.x,f.y-196,'MIRROR REVERSED · NO HIT','#ffd7ad',11,30);
     }
    }else{
     fx('reflect',f.x+dir*92,f.y-146,28);impact(.08,'#ff9d6d',3);
@@ -497,6 +510,6 @@ if(typeof window.resetFighter==='function'){
  const oldReset=window.resetFighter;
  window.resetFighter=function(f){if(f){f.itachiPhaseSkillKey='';f.itachiPhaseSkillCooldowns={};f.itachiPhaseGuardUntil=0;f.itachiPhaseGuardTarget=null;f.itachiPhaseGuardTriggered=false;f.itachiPhaseGuardCounterHit=false;f.itachiPhaseGuardParryFrame=0;f.itachiPhaseGuardCounterFrame=0;f.itachiPhaseSilenceUntil=0;f.itachiPhaseSlowUntil=0;delete f.itachiPhaseSlowBase;}return oldReset.apply(this,arguments);};
 }
-window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:9,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
-console.info('[Susanoo] Phase 1/2 abilities rebuilt; P2 uses Numpad + and Numpad /. Numpad - remains available to passive.');
+window.JFF_SUSANOO_PHASE_SKILLS={ready:true,version:10,skills,phase3Unchanged:true,activate:(f,slot)=>{const id=idFor(f,slot);return startSkill(f,id);}};
+console.info('[Susanoo] Phase 1/2 abilities rebuilt; Yata Divine Reversal v3 active for Normal Itachi Phase 2 X.');
 })();
