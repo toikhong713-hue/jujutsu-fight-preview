@@ -431,11 +431,13 @@ const oldResolve=window.resolveHit;
 function frontFacing(def,att){return (def.facing||1)===(Math.sign(att.x-def.x)||1);}
 if(typeof oldResolve==='function')window.resolveHit=function(attacker,defender,mv,hx,hy){
  const t=now();
- if(defender&&alive(defender)&&alive(attacker)&&attacker!==defender&&mv&&defender.itachiPhaseSkillKey==='p2_guard'&&!defender.itachiEdo&&(defender.itachiPhaseGuardUntil||0)>=t&&!defender.itachiPhaseGuardTriggered&&frontFacing(defender,attacker)){
+ if(defender&&alive(defender)&&alive(attacker)&&attacker!==defender&&mv&&defender.itachiPhaseSkillKey==='p2_guard'&&!defender.itachiEdo&&Number(defender.moveFrame)<=66&&!defender.itachiPhaseGuardTriggered&&frontFacing(defender,attacker)){
+  // Use the skill's own animation frame, not the global tick clock, so hit timing cannot drift.
   defender.itachiPhaseGuardTriggered=true;defender.itachiPhaseGuardTarget=attacker;defender.itachiPhaseGuardParryFrame=Number(defender.moveFrame)||0;defender.itachiPhaseGuardUntil=0;
   attacker.vx=0;attacker.vy=0;attacker.hitstun=Math.max(attacker.hitstun||0,16);attacker.state='HITSTUN';attacker.stateFrame=0;attacker.move=null;attacker.moveKey=null;attacker.moveFrame=0;
-  fx('reflect',defender.x+(defender.facing||1)*70,defender.y-110,30);fx('shock',attacker.x,attacker.y-65,26);impact(.12,defender.itachiEdo?'#a93a55':'#ff9666',7);
-  if(typeof window.floatText==='function')window.floatText(attacker.x,attacker.y-170,'CHAKRA GUARD · PARRIED','#ffd7b8',13,34);
+  fx('reflect',defender.x+(defender.facing||1)*70,defender.y-110,42);fx('shock',attacker.x,attacker.y-65,36);fx('seal',defender.x+(defender.facing||1)*92,defender.y-116,28);
+  impact(.2,'#fff0ca',11);
+  if(typeof window.floatText==='function')window.floatText(attacker.x,attacker.y-170,'PERFECT BLOCK · YATA MIRROR','#fff0ca',14,42);
   return 'parry';
  }
  return oldResolve.apply(this,arguments);
